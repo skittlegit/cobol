@@ -1,0 +1,53 @@
+{
+  "version": "1.1",
+  "note": "T0.1 artifact, updated per the T0.2 fit decision (docs/T0.2-taxonomy-examples.md). Canonical record of anchor regulations and codebase roles.",
+  "regulations": [
+    {
+      "role": "anchor_clause_set_primary",
+      "doc": "RBI Master Direction - Credit Card and Debit Card - Issuance and Conduct Directions, 2022",
+      "issued": "2022-04-21",
+      "effective_date": "2022-07-01",
+      "amended_as_on": "2024-03-07",
+      "source": "https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12300",
+      "notes": "Added by the T0.2 fit decision: CardDemo is credit-card servicing, so CC Directions conduct rules (interest/APR methodology, over-limit, late-payment charges, closure timelines, expiry) map onto its real code paths. Clause 20 incorporates KYC/AML compliance by reference, making the union with the KYC Directions legally coherent. T2.1 must re-verify amendment state on rbi.org.in before encoding clause records. The 2024-03-07 amendment (working-day to calendar-day closure penalty; new Total Amount Due definition) provides a second real regulation-change pair for T6."
+    },
+    {
+      "role": "anchor_regulation_seed_and_temporal",
+      "doc": "RBI Commercial Banks - KYC Directions, 2025",
+      "issued": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "replaces": "RBI Master Direction on KYC, 2016 (repealed 2025-11-28)",
+      "source": "https://www.rbi.org.in",
+      "notes": "Anchor for the real-curated seed (T2.5) and the T6 versioned-judgment pairs (2016 vs 2025 clause versions). Reached from the primary clause set via CC Directions clause 20. Justification: rich rule logic for D1/D2/D4/D6, and the 2016-to-2025 replacement is genuine real-world drift, not a construction. Pure-KYC logic with no CardDemo host is implemented in the GnuCOBOL-native runnable base."
+    },
+    {
+      "role": "optional_supplement",
+      "doc": "Basel III (India) - component-specific",
+      "notes": "Only if used: pin exact component + version + effective date (e.g. Credit Risk SA Directions 2026, effective 2027-04-01; LCR guidelines effective 2026-04-01). Basel is not one document; do not cite it unpinned."
+    }
+  ],
+  "codebases": [
+    {
+      "role": "benchmark_anchor",
+      "name": "AWS CardDemo",
+      "repo": "https://github.com/aws-samples/aws-mainframe-modernization-carddemo",
+      "license": "Apache-2.0",
+      "pinned_commit": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
+      "pinned_commit_date": "2025-10-16",
+      "notes": "All T0.2 taxonomy loci and line numbers refer to this commit. Cleanest license for public benchmark release; credit-card domain dense with regulated thresholds; batch CB* programs are the GnuCOBOL-runnable subset. Justification: synthetic data, built to be analyzed, and the T0.2 pass found naturally-occurring drift-shaped code (missing ACCT-ACTIVE-STATUS check) confirming domain fit."
+    },
+    {
+      "role": "secondary_corpus",
+      "name": "IBM CICS Bank Sample Application (CBSA)",
+      "license": "EPL-2.0",
+      "pinned_commit": null,
+      "notes": "Account/loan domain complementing CardDemo's card servicing. CICS-heavy; verification on this corpus will skew to Tiers 2-3. Pin commit when first used."
+    },
+    {
+      "role": "runnable_base",
+      "name": "GnuCOBOL-native banking sample (small, MIT)",
+      "pinned_commit": null,
+      "notes": "Host for run_cobol harness fixtures, synthetic conformant programs, and pure-KYC logic that has no CardDemo host (per the T0.2 fit decision). Selection and pinning due at T1.5/T2.5 start."
+    }
+  ]
+}
