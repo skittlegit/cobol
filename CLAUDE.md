@@ -11,13 +11,21 @@ the moat.
 
 ## Document map & precedence
 
-- `docs/tasks/T<n>.<n>.md`: work orders, one per active task. For that task,
-  this file wins.
+- `STATUS.md` (repo root): the task ledger — one line per task,
+  `ID | state | owner | artifact`. **Authoritative for project state.**
+- `docs/tasks/T<n>.<n>-work-order.md`: work orders, one per active task. For
+  that task, this file wins.
+- `docs/tasks/T<n>.<n>-<slug>.md`: decision records and task deliverable notes
+  (e.g. `T0.5-ast-decision-note.md`, `T0.2-taxonomy-examples.md`). Decision
+  notes live in `docs/tasks/` alongside work orders — that is the repo
+  convention.
 - `docs/track-a-brief.md`, `docs/track-b-brief.md`, `docs/track-c-brief.md`:
   stable per-track specs, task definitions, and gates.
 - `docs/CONTRACT.md`: frozen cross-track interfaces.
 - `docs/team-workflow.md`: how the humans, chats, and Claude Code loop works.
-- `docs/tasks/T0.5-ast-decision-note.md`: decision records.
+- `data/manifest.json`: canonical record of anchor regulations (with versions
+  and effective dates) and codebase roles (with pinned commits). Any doc or code
+  referencing a corpus commit or regulation version must agree with it.
 - `CLAUDE.md`: this file, with conventions, pins, and locked decisions.
 
 **Precedence for a given task: work order > track brief > CLAUDE.md.** If they
@@ -27,15 +35,19 @@ the track brief.
 
 ## How you (Claude Code) are used here
 
-You are always invoked as: _"Read CLAUDE.md and `docs/tasks/T<n>.<n>.md`.
-Execute."_ The work order carries current state (what's merged, what the track
-chat decided since the brief was written) — trust it over your reading of older
-docs. Standing expectations:
+You are always invoked as: _"Read CLAUDE.md and
+`docs/tasks/T<n>.<n>-work-order.md`. Execute."_ The work order carries current
+state (what's merged, what the track chat decided since the brief was written)
+— trust it over your reading of older docs. Standing expectations:
 
 - Write the gate test **first**; the task is done only when it and all prior
   gates pass.
 - Work on branch `track-<a|b|c>/T<n>.<n>`; commit prefix
   `T<n>.<n>: <what changed>`.
+- **Update `STATUS.md` in the same commit as the work**: set the task's line
+  (state, artifact path) as part of completing it. The ledger must never lag
+  the artifacts — a state change without its STATUS line is an incomplete
+  commit.
 - Leave `# DECISION:` comments where you resolved an ambiguity; list them in
   your final summary (they get reviewed in the track chat).
 - Hit a contract question (anything touching `schemas.py`, `tools.py`
@@ -61,8 +73,17 @@ docs. Standing expectations:
    Benchmark labels are line-level; breaking this breaks the benchmark.
 5. **Corpora:** AWS CardDemo (Apache 2.0, pin `59cc6c2fd7eb`) = anchor; IBM CICS
    CBSA (EPL 2.0) = secondary. Fetched by `scripts/fetch_corpora.sh` into
-   `data/corpora/` — never vendored into the repo.
-6. **Integrity rules (benchmark):** MO-0 benign edits + style diversification
+   `data/corpora/` — never vendored into the repo. Pins and roles are recorded
+   canonically in `data/manifest.json`.
+6. **Anchor regulations (T0.1 + T0.2 fit decision):** primary clause set =
+   **RBI Master Direction — Credit Card and Debit Card – Issuance and Conduct
+   Directions, 2022** (effective 2022-07-01, amended 2024-03-07) **plus the
+   KYC/AML clauses its clause 20 incorporates by reference**; the **RBI KYC
+   Directions, 2025** anchor the real-curated seed (T2.5) and the T6
+   versioned-judgment pairs. Pure-KYC logic with no CardDemo host lives in the
+   GnuCOBOL-native runnable base. Taxonomy v1 with per-class CardDemo loci:
+   `docs/tasks/T0.2-taxonomy-examples.md`.
+7. **Integrity rules (benchmark):** MO-0 benign edits + style diversification
    mandatory; verification tiered (1 executed / 2 static / 3 entailment-only,
    tier recorded per finding); LLM judges/verifiers must be a different model
    family than the system under test.
@@ -87,9 +108,12 @@ docs. Standing expectations:
 - `vendor/tree-sitter-cobol/`: pinned grammar. Never edit.
 - `tests/`: pytest, with golden fixtures in `tests/fixtures/`.
 - `scripts/fetch_corpora.sh`: corpus fetcher.
+- `data/manifest.json`: anchor manifest (B, T0.1). `data/regulations/`,
+  `data/benchmark/`: clause records and generated instances (B, T2.x).
 
 **Ownership = write access** (A/B/C above). Never edit another track's modules.
-If their code blocks you, report it; the owning track fixes it.
+If their code blocks you, report it; the owning track fixes it. `STATUS.md` is
+the one file every track writes — but only its own tasks' lines.
 
 ## Conventions
 
