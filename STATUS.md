@@ -8,9 +8,9 @@ One entry per task: ID, state, owner, and artifact.
 - **T0.2** | done | B |
   `docs/tasks/T0.2-taxonomy-examples.md`
   fit: CC Directions 2022 plus KYC 2025 via clause 20.
-- **T0.3** | wip | C |
-  Unblocked for freeze. Taxonomy locked D1-D7; code per
-  `docs/track-c-brief.md` section T0.3.
+- **T0.3** | done | C |
+  `src/cobol_archaeologist/schemas.py` + `tests/test_schemas.py`.
+  SCHEMA FROZEN — changes hereafter are CONTRACT CHANGEs (flag to A/B/C).
 - **T0.4** | wip | C |
   Fully unblocked. Tool half from Track A brief section T1.6; metrics half
   unblocked by T0.2.
@@ -18,10 +18,12 @@ One entry per task: ID, state, owner, and artifact.
   `docs/tasks/T0.5-ast-decision-note.md`.
 - **T0.6** | todo | C |
   `docs/track-c-brief.md` section T0.6. No dependencies; start any time.
-- **T1.0** | ready | A |
-  `docs/tasks/T1.0-work-order.md`. Run in Claude Code.
+- **T1.0** | done | A |
+  `pyproject.toml` + `src/cobol_archaeologist/` skeleton +
+  `vendor/tree-sitter-cobol/` (pinned `e99dbdc`) + `scripts/fetch_corpora.sh` +
+  `tests/test_scaffold.py` (gate green on Python 3.12 / tree_sitter 0.21.3).
 - **T1.1-T1.6** | todo | A |
-  `docs/track-a-brief.md`. Blocked on T1.0.
+  `docs/track-a-brief.md`. Unblocked by T1.0.
 - **T2.1** | todo | B |
   Scope follows the T0.2 contract change. Re-verify CC amendments at curation.
 - **T2.2-T2.4, T2.6** | todo | B |
