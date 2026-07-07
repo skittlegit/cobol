@@ -1,0 +1,138 @@
+name: Track task
+description: A unit of project work tracked by task ID (T0.1…T7.5), scoped to one track.
+title: "[T<n>.<n>] "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Governed by the master playbook and `docs/CONTRACT.md`. Always reference work by **task ID**.
+        `STATUS.md` at the repo root is the authoritative ledger — the STATUS line rides the deliverable's commit (same-commit rule).
+
+  - type: input
+    id: task-id
+    attributes:
+      label: Task ID
+      description: Stable ID from the playbook (e.g. T2.2). One issue per task.
+      placeholder: "T2.2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: track
+    attributes:
+      label: Owner track
+      description: The chat/lane that owns this task (playbook Part 4). Each track edits only its own tasks' STATUS lines.
+      options:
+        - "A — Program Analysis & Tooling"
+        - "B — Benchmark, Data & Domain"
+        - "C — Agent, RAG & Evaluation"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: Milestone
+      options:
+        - "M0 — Schema Freeze"
+        - "M1 — Slicing Validated"
+        - "M2 — Synthetic v1 + Seed"
+        - "M3 — Agent Grounded"
+        - "M4 — First Numbers (Go/No-Go)"
+        - "M5 — Paper-Ready Experiments"
+        - "M6 — Verified-Equivalence Demo"
+        - "M7 — Submission + Release"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: "[code] tasks are executed by Claude Code from a committed work order (precedence: work order > track brief > CLAUDE.md)."
+      options:
+        - "[code] — executed by Claude Code from docs/tasks/T<n>.<n>-work-order.md"
+        - "decision / deliverable note (docs/tasks/)"
+        - "spec — cross-cutting (docs/)"
+        - "infra / repo"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: state
+    attributes:
+      label: Initial state
+      description: Ledger state. Mirror this into the STATUS.md line below.
+      options:
+        - todo
+        - wip
+        - ready
+        - blocked
+    validations:
+      required: true
+
+  - type: input
+    id: depends-on
+    attributes:
+      label: Depends on
+      description: Task IDs that gate this one. Blank if none.
+      placeholder: "T1.4, T1.5, T2.1"
+
+  - type: input
+    id: feeds
+    attributes:
+      label: Feeds / blocks
+      description: Task IDs that depend on this one, so downstream tracks can be flagged.
+      placeholder: "T2.3, T3.1"
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: What to do
+      description: The work itself. Keep it self-contained enough to author the work order from alone.
+    validations:
+      required: true
+
+  - type: textarea
+    id: done-when
+    attributes:
+      label: Done when
+      description: Acceptance criteria from the playbook task — how you know it's complete.
+      placeholder: "e.g. every operator (incl. MO-0 and × variants) produces a valid labeled instance on the anchor; a probe classifier on surface-edit features performs at chance."
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Files touched
+      description: Repo paths per the playbook Appendix (src/cobol_archaeologist/…, data/, docs/…). Committing to the repo IS the promotion — no mirrored copies.
+      placeholder: |
+        src/cobol_archaeologist/benchmark/mutate.py (new)
+        docs/tasks/T2.2-work-order.md
+
+  - type: checkboxes
+    id: contract
+    attributes:
+      label: Contract impact
+      options:
+        - label: "CONTRACT CHANGE — touches the DriftInstance schema (T0.3) or the tool I/O contract (T0.4, docs/CONTRACT.md). Must be propagated to Tracks A/B/C."
+
+  - type: input
+    id: status-line
+    attributes:
+      label: STATUS.md line
+      description: The exact ledger line to include in the deliverable's commit — `ID | state | owner | artifact`.
+      placeholder: "T2.2 | wip | B | src/cobol_archaeologist/benchmark/mutate.py"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Effort
+      options:
+        - "S (1–3 days)"
+        - "M (4–8 days)"
+        - "L (2–3 weeks)"
