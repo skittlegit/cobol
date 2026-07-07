@@ -37,17 +37,16 @@ the track brief.
 
 You are always invoked as: _"Read CLAUDE.md and
 `docs/tasks/T<n>.<n>-work-order.md`. Execute."_ The work order carries current
-state (what's merged, what the track chat decided since the brief was written)
-— trust it over your reading of older docs. Standing expectations:
+state (what's merged, what the track chat decided since the brief was written) —
+trust it over your reading of older docs. Standing expectations:
 
 - Write the gate test **first**; the task is done only when it and all prior
   gates pass.
 - Work on branch `track-<a|b|c>/T<n>.<n>`; commit prefix
   `T<n>.<n>: <what changed>`.
 - **Update `STATUS.md` in the same commit as the work**: set the task's line
-  (state, artifact path) as part of completing it. The ledger must never lag
-  the artifacts — a state change without its STATUS line is an incomplete
-  commit.
+  (state, artifact path) as part of completing it. The ledger must never lag the
+  artifacts — a state change without its STATUS line is an incomplete commit.
 - Leave `# DECISION:` comments where you resolved an ambiguity; list them in
   your final summary (they get reviewed in the track chat).
 - Hit a contract question (anything touching `schemas.py`, `tools.py`
@@ -75,8 +74,8 @@ state (what's merged, what the track chat decided since the brief was written)
    CBSA (EPL 2.0) = secondary. Fetched by `scripts/fetch_corpora.sh` into
    `data/corpora/` — never vendored into the repo. Pins and roles are recorded
    canonically in `data/manifest.json`.
-6. **Anchor regulations (T0.1 + T0.2 fit decision):** primary clause set =
-   **RBI Master Direction — Credit Card and Debit Card – Issuance and Conduct
+6. **Anchor regulations (T0.1 + T0.2 fit decision):** primary clause set = **RBI
+   Master Direction — Credit Card and Debit Card – Issuance and Conduct
    Directions, 2022** (effective 2022-07-01, amended 2024-03-07) **plus the
    KYC/AML clauses its clause 20 incorporates by reference**; the **RBI KYC
    Directions, 2025** anchor the real-curated seed (T2.5) and the T6
