@@ -1,0 +1,23 @@
+name: "COBOL Archaeologist CodeQL config"
+
+# CodeQL does not support COBOL. This scans the analyzable surface only:
+#   - Python: src/cobol_archaeologist/… (run_cobol harness, RAG, agent, FastAPI backend, CLI)
+#   - JavaScript/TypeScript: the Next.js app/
+# The COBOL corpora and generated benchmark instances are data, not analyzable source,
+# and are excluded below to cut noise.
+
+queries:
+  - uses: security-extended
+
+paths-ignore:
+  - data/**                    # CardDemo/CBSA corpora + generated drift instances (not source)
+  - '**/vendor/**'             # vendored dependencies
+  - '**/tree-sitter-cobol/**'  # vendored + commit-pinned grammar (T0.5)
+  - '**/node_modules/**'
+  - app/.next/**               # Next.js build output
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/.venv/**'
+  - '**/venv/**'
+  - '**/*.min.js'
+  - '**/fixtures/**'           # COBOL test fixtures — remove this line if you keep JS/Python fixtures worth scanning
