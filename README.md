@@ -99,7 +99,7 @@ outside version control under `data/corpora/`.
 
 Work is tracked by task IDs (T0.1…T7.5); commits are prefixed with the task
 being implemented (`T1.1: <what changed>`). Each task has an explicit "done
-when" gate in [the Phase 1 brief](docs/track-a-brief.md), written as a
-test _before_ implementation. Locked technical decisions (grammar pin,
-preprocessor contract, oracle boundary, line-map invariant) are recorded in
+when" gate in [the Phase 1 brief](docs/track-a-brief.md), written as a test
+_before_ implementation. Locked technical decisions (grammar pin, preprocessor
+contract, oracle boundary, line-map invariant) are recorded in
 [`CLAUDE.md`](CLAUDE.md) — read it before contributing.
