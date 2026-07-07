@@ -11,13 +11,15 @@ One entry per task: ID, state, owner, and artifact.
 - **T0.3** | done | C |
   `src/cobol_archaeologist/schemas.py` + `tests/test_schemas.py`.
   SCHEMA FROZEN — changes hereafter are CONTRACT CHANGEs (flag to A/B/C).
-- **T0.4** | wip | C |
-  Fully unblocked. Tool half from Track A brief section T1.6; metrics half
-  unblocked by T0.2.
+- **T0.4** | done | C |
+  `docs/CONTRACT.md` v1.1 ACCEPTED — A, B, C signed 2026-07-07.
+  Amendments A1/A2 (tool_types.py normative) + B1-B3 folded in.
 - **T0.5** | done | A |
   `docs/tasks/T0.5-ast-decision-note.md`.
-- **T0.6** | todo | C |
-  `docs/track-c-brief.md` section T0.6. No dependencies; start any time.
+- **T0.6** | done | C |
+  `docs/tasks/T0.6-novelty-note.md` — novelty sentence locked; cell 1-5
+  related-work skeleton for T7.5. Empty cell verified by live search
+  2026-07-07; key citations re-verified at landing.
 - **T1.0** | done | A |
   `pyproject.toml` + `src/cobol_archaeologist/` skeleton +
   `vendor/tree-sitter-cobol/` (pinned `e99dbdc`) + `scripts/fetch_corpora.sh` +
