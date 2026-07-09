@@ -103,3 +103,5 @@ when" gate in [the Phase 1 brief](docs/track-a-brief.md), written as a test
 _before_ implementation. Locked technical decisions (grammar pin, preprocessor
 contract, oracle boundary, line-map invariant) are recorded in
 [`CLAUDE.md`](CLAUDE.md) — read it before contributing.
+
+hello world
