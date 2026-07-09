@@ -77,7 +77,9 @@ trust it over your reading of older docs. Standing expectations:
 6. **Anchor regulations (T0.1 + T0.2 fit decision):** primary clause set = **RBI
    Master Direction — Credit Card and Debit Card – Issuance and Conduct
    Directions, 2022** (effective 2022-07-01, amended 2024-03-07) **plus the
-   KYC/AML clauses its clause 20 incorporates by reference**; the **RBI KYC
+   KYC/AML clauses its clause 29 incorporates by reference** (corrected
+   2026-07-09 from the primary consolidated text: para 20 is co-branding
+   outsourcing, para 29 is the KYC/AML/CFT incorporation); the **RBI KYC
    Directions, 2025** anchor the real-curated seed (T2.5) and the T6
    versioned-judgment pairs. Pure-KYC logic with no CardDemo host lives in the
    GnuCOBOL-native runnable base. Taxonomy v1 with per-class CardDemo loci:

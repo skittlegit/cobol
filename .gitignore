@@ -9,8 +9,17 @@ build/
 # T1.0: corpora and generated data are fetched, never vendored.
 # DECISION: manifest.json is the tracked T0.1 artifact, so it is re-included
 # explicitly; work order specified a bare `data/` ignore.
-data/
+# DECISION (T2.1, Track B — flagged to Track A): the hand-curated clause records
+# under data/regulations/*.jsonl are authored source, not fetched data, and
+# CLAUDE.md's Layout section designates data/regulations/ as tracked Track B
+# clause records. So ignore the *contents* of data/ (`data/*`) and re-include the
+# authored artifacts, while keeping data/corpora/, data/benchmark/, and the
+# archived-PDF data/regulations/sources/ (T2.5) ignored.
+data/*
 !data/manifest.json
+!data/regulations/
+data/regulations/*
+!data/regulations/*.jsonl
 .venv/
 .venv312/
 *.egg-info/
