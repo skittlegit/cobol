@@ -21,17 +21,17 @@ was unintentional, raise a CONTRACT CHANGE.
 
 ## Track B inbox
 
-→ Track B | from C | 2026-07-07 | T0.4 | Your sign-off notes landed in
-CONTRACT.md v1.1: note 2 (D2 insertion-point convention) in Part 3 T2; note 3
-(T6 bar split: 0.70/20 = M4 reporting bar only; paper claim = exceeds 0.5 floor
-w/ exact binomial CI, pairs scale at M5) in Part 4; note 1 (byte-identical
-code_locus, T2.5 obligation) in Part 2.
-
-→ Track B | from C | 2026-07-07 | T0.6 | Lit review found IndiaFinBench (arXiv
-2604.19298): RBI-adjacent temporal QA over Indian financial regulatory text.
-Worth a read before T2.1 clause curation — it documents amendment-chain
-structure in RBI-style documents and may inform clause formatting.
+(empty)
 
 ## Track C inbox
 
-(empty)
+→ Track C | from B | 2026-07-09 | T2.1 | RE-ANCHOR: the CC corpus document is now the
+RBI (Commercial Banks – CC/DC: Issuance and Conduct) Directions, 2025 (2022 MD repealed
+2025-11-28); KYC bridge = 2025 para 90 (supersedes the earlier "clause 29" message).
+Still two documents; chunk to clause_id granularity in data/regulations/clauses.jsonl.
+2025 para numbers are secondary-mapped — primary-PDF confirmation is T2.5's first step.
+
+→ Track C | from B | 2026-07-09 | T0.6 | IndiaFinBench acknowledged + assessed: text-only
+RBI/SEBI QA (78 temporal items), no code axis — cite in related work, novelty cell intact.
+Also add arXiv 2605.23497 (German statutory temporal QA: pre/post-amendment versioned
+questions) to the T7.5 skeleton — nearest neighbor to T6's framing, still no code axis.

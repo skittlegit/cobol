@@ -75,7 +75,7 @@ trust it over your reading of older docs. Standing expectations:
    `data/corpora/` — never vendored into the repo. Pins and roles are recorded
    canonically in `data/manifest.json`.
 6. **Anchor regulations (T0.1 + T0.2 fit decision; RE-ANCHORED 2026-07-09 at
-   T2.1, user-approved — ratify in Track B chat):** primary clause set = **RBI
+   T2.1, user-approved — ratified in Track B chat 2026-07-09):** primary clause set = **RBI
    (Commercial Banks – Credit Cards and Debit Cards: Issuance and Conduct)
    Directions, 2025** (effective 2025-11-28) **plus the KYC/AML clauses its
    paragraph 90 incorporates by reference**; the **RBI KYC Directions, 2025**
