@@ -83,13 +83,47 @@ def test_curation_fields_present():
         ), f"{rid}: check.drift_classes must be a list"
 
 
-def test_kyc_bridge_is_clause_29_not_20():
-    # Regression guard for the locked-decision correction (2026-07-09): the
-    # KYC/AML/CFT incorporation-by-reference bridge is CC Directions clause 29,
-    # not clause 20 (which is co-branding outsourcing).
+REPEALED_2022_DOC = (
+    "RBI Master Direction - Credit Card and Debit Card - "
+    "Issuance and Conduct Directions, 2022"
+)
+CC_2025_DOC = "RBI-Commercial-Banks-CC-DC-Directions-2025"
+
+
+def test_cc_records_anchored_to_2025_directions():
+    # Re-anchored 2026-07-09: the 2022 MD was repealed for commercial banks on
+    # 2025-11-28 and reissued as the Commercial Banks Directions 2025. No CC
+    # clause may still carry the repealed 2022 document identity.
+    for rec in load_records():
+        doc = rec["clause"]["doc"]
+        assert doc != REPEALED_2022_DOC, f"{rec['record_id']}: still on repealed 2022 MD"
+        if rec.get("record_id", "").startswith("CC-"):
+            assert doc == CC_2025_DOC, f"{rec['record_id']}: CC record not anchored to 2025 Directions"
+            assert rec["clause"]["version"] == "2025-11-28"
+
+
+def test_kyc_bridge_is_2025_paragraph_90():
+    # Regression guard for the re-anchor: the KYC/AML/CFT incorporation bridge is
+    # 2025 paragraph 90 (was clause 29 in the repealed 2022 MD, NOT clause 20 --
+    # 2025 para 20 is the unused-card closure rule). The 2022 origin is preserved.
     bridges = [r for r in load_records() if r.get("record_id") == "CC-29"]
     assert len(bridges) == 1, "expected exactly one CC-29 bridge record"
-    assert bridges[0]["clause"]["clause_id"] == "29"
-    assert not any(
-        r["clause"].get("clause_id") == "20" for r in load_records()
-    ), "no clause should still be numbered 20 (KYC bridge is 29)"
+    assert bridges[0]["clause"]["clause_id"] == "90"
+    assert bridges[0]["check"]["prior_2022"]["clause_id"] == "29"
+
+
+def test_clause_docs_agree_with_manifest():
+    # CLAUDE.md: any doc referencing a regulation must agree with data/manifest.json.
+    manifest = json.loads(
+        (Path(__file__).resolve().parents[1] / "data" / "manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    known = {
+        reg["clause_doc_id"]
+        for reg in manifest["regulations"]
+        if "clause_doc_id" in reg
+    }
+    for rec in load_records():
+        doc = rec["clause"]["doc"]
+        assert doc in known, f"{rec['record_id']}: doc '{doc}' not in manifest clause_doc_id set {known}"
