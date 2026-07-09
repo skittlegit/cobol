@@ -18,7 +18,13 @@ One entry per task: ID, state, owner, and artifact.
 - **T1.0** | done | A | `pyproject.toml` + `src/cobol_archaeologist/` skeleton +
   `vendor/tree-sitter-cobol/` (pinned `e99dbdc`) + `scripts/fetch_corpora.sh` +
   `tests/test_scaffold.py` (gate green on Python 3.12 / tree_sitter 0.21.3).
-- **T1.1-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.0.
+- **T1.1** | done | A | `src/cobol_archaeologist/ingest/cleaner.py` +
+  `src/cobol_archaeologist/parser/{paragraphs,copybooks}.py` +
+  `tests/test_{cleaner,copybooks,paragraphs}.py` + golden fixtures
+  `tests/fixtures/paragraphs/*.json` (10 CardDemo programs, zero ERROR nodes,
+  hand-verified nesting). New preprocessor rules (`NOT=` glued, continued
+  literal splice) logged in `docs/preprocessor-notes.md`.
+- **T1.2-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.1.
 - **T2.1** | todo | B | Scope follows the T0.2 contract change. Re-verify CC
   amendments at curation.
 - **T2.2-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`. T2.2 is blocked on
