@@ -57,6 +57,10 @@ One entry per task: ID, state, owner, and artifact.
   MANIFEST entry's `note`). Blocks Phase 2 encoding of P4's 15% old side only.
   Phases 2–4 remain: primary numbering/old-side pass [CHAT], then seed programs
   + ≥20 validated instances.
-- **T3.1-T3.6** | todo | C | `docs/track-c-brief.md`. Stub-based, not blocked on
-  Track A.
+- **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
+  pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
+  golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
+  C green.
+- **T3.2-T3.6** | todo | C | `docs/track-c-brief.md`. Stub-based, not blocked
+  on Track A.
 - **T4.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
