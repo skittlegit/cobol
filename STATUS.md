@@ -33,13 +33,11 @@ One entry per task: ID, state, owner, and artifact.
   at T2.5) + `docs/tasks/T2.1-clause-curation-note.md`.
 - **T2.2-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`. T2.2 is blocked on
   T1.4, T1.5, and T2.1.
-- **T2.5** | todo | B | Phase 1 [CODE] landed: `scripts/pin_regulations.py` +
-  `tests/test_sources.py` + `data/regulations/sources/{MANIFEST.json,README.md}`
-  (7-source roster pinned by sha256, all `missing`). **BLOCKED on Phase 0 [USER]**:
-  rbi.org.in is CAPTCHA-walled to automated fetches (verified 2026-07-10), so the
-  7 primary PDFs must be downloaded by hand into `data/regulations/sources/`, then
-  `python scripts/pin_regulations.py`. Phases 2–4 (primary numbering pass, seed
-  programs, ≥20 instances) follow.
+- **T2.5** | todo | B | Phases 0–1 done: 7 primary RBI PDFs archived +
+  sha256-pinned in `data/regulations/sources/MANIFEST.json` (gated by
+  `tests/test_sources.py`) via `scripts/pin_regulations.py`. Phases 2–4 remain:
+  primary numbering/old-side pass [CHAT], then seed programs + ≥20 validated
+  instances.
 - **T3.1-T3.6** | todo | C | `docs/track-c-brief.md`. Stub-based, not blocked on
   Track A.
 - **T4.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
