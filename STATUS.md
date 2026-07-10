@@ -40,21 +40,18 @@ One entry per task: ID, state, owner, and artifact.
   Gate `tests/test_dataflow.py` + fixtures `tests/fixtures/dataflow/*.json`
   (10 variables over 4 programs, hand-verified).
 - **T1.4-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.3.
-- **T2.1** | todo | B | Scope follows the T0.2 contract change. Re-verify CC
-  amendments at curation.
-- **T1.2-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.1.
 - **T2.1** | done | B | `data/regulations/clauses.jsonl` (19 clauses,
   schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
   CC/DC Directions + KYC 2025; 2025 para numbers secondary-mapped (primary pass
   at T2.5) + `docs/tasks/T2.1-clause-curation-note.md`.
 - **T2.2-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`. T2.2 is blocked on
   T1.4, T1.5, and T2.1.
-- **T2.5** | todo | B | Phases 0–1: **6 of 7** primary RBI PDFs archived +
+- **T2.5** | todo | B | Phases 0–1 done: **7 of 7** primary RBI PDFs archived +
   sha256-pinned in `data/regulations/sources/MANIFEST.json` (gated by
-  `tests/test_sources.py`) via `scripts/pin_regulations.py`. Gap:
-  `kyc-amend-2023-10-17.pdf` `missing` — first download was the covering letter
-  only; the amendment table is RBI's separate annexure (URL + fallback in that
-  MANIFEST entry's `note`). Blocks Phase 2 encoding of P4's 15% old side only.
+  `tests/test_sources.py`) via `scripts/pin_regulations.py`. Caveat: the
+  2023-10-17 KYC amendment annexure is pinned but DESCRIPTIVE (confirms the
+  BO-partnership change, does not quote 15%/10%); P4's old 15% side still needs a
+  pre-Oct-2023 2016-MD consolidation (see that MANIFEST entry's `note`).
   Phases 2–4 remain: primary numbering/old-side pass [CHAT], then seed programs
   + ≥20 validated instances.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,

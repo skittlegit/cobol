@@ -11,13 +11,13 @@ Primary RBI PDFs that every clause value, clause number, and old-side text in
 | `cc-md-2022-consol-2024.pdf` | Same MD, "Updated as on March 07, 2024" | 2024-state sides |
 | `kyc-directions-2025.pdf` | RBI (Commercial Banks – KYC) Directions, 2025 (RBI/DOR/2025-26/169, 2025-11-28) | KYC current anchor |
 | `kyc-md-2016-final-consol.pdf` | KYC MD 2016, consolidated through 2025 (pre-repeal) | P4/P5 lineage new sides |
-| `kyc-amend-2023-10-17.pdf` | Amendment to KYC MD, 2023-10-17 (DOR.AML.REC.44) — **the ANNEXURE** `MDKYC17102023_Annexure.pdf`, not the covering letter | P4's 15%→10% change |
+| `kyc-amend-2023-10-17.pdf` | Amendment to KYC MD, 2023-10-17 (DOR.AML.REC.44) — the 7-page **annexure** `MDKYC17102023_Annexure.pdf` (not the covering letter) | P4's change event (see note: descriptive, doesn't quote 15%/10%) |
 | `kyc-amend-2024-11-06.pdf` | Amendment to KYC MD, 2024-11-06 (DOR.AML.REC.49) | P5's CKYCR ≤7-day |
 
-> **`kyc-amend-2023-10-17.pdf` is currently `missing`** (6 of 7 pinned). The first
-> download was the notification's covering letter only; RBI hosts the amendment
-> table as a separate annexure. See that entry's `note` in `MANIFEST.json` for the
-> exact URL to fetch and the fallback. Needed before Phase 2 encodes P4's old side.
+> All 7 pinned. Note: the 2023-10-17 amendment annexure describes the
+> BO-partnership change but does not quote the 15%/10% figures — so P4's **old
+> 15% side** still needs a pre-Oct-2023 consolidation of the 2016 MD (10% is in
+> `kyc-md-2016-final-consol.pdf`). See that entry's `note` in `MANIFEST.json`.
 
 ## Maintenance
 
