@@ -74,12 +74,21 @@ trust it over your reading of older docs. Standing expectations:
    CBSA (EPL 2.0) = secondary. Fetched by `scripts/fetch_corpora.sh` into
    `data/corpora/` — never vendored into the repo. Pins and roles are recorded
    canonically in `data/manifest.json`.
-6. **Anchor regulations (T0.1 + T0.2 fit decision):** primary clause set = **RBI
-   Master Direction — Credit Card and Debit Card – Issuance and Conduct
-   Directions, 2022** (effective 2022-07-01, amended 2024-03-07) **plus the
-   KYC/AML clauses its clause 20 incorporates by reference**; the **RBI KYC
-   Directions, 2025** anchor the real-curated seed (T2.5) and the T6
-   versioned-judgment pairs. Pure-KYC logic with no CardDemo host lives in the
+6. **Anchor regulations (T0.1 + T0.2 fit decision; RE-ANCHORED 2026-07-09 at
+   T2.1, user-approved — ratified in Track B chat 2026-07-09):** primary clause set = **RBI
+   (Commercial Banks – Credit Cards and Debit Cards: Issuance and Conduct)
+   Directions, 2025** (effective 2025-11-28) **plus the KYC/AML clauses its
+   paragraph 90 incorporates by reference**; the **RBI KYC Directions, 2025**
+   anchor the real-curated seed (T2.5) and the T6 versioned-judgment pairs.
+   **History (T2.1 re-verification):** the original 2022 Master Direction
+   (effective 2022-07-01, amended 2024-03-07) was **repealed for commercial
+   banks on 2025-11-28** and reissued as this 2025 instrument — values carried
+   over unchanged, clauses renumbered into paragraphs 1–97. The repealed 2022 MD
+   supplies T6 old sides (2022 vs 2024 vs 2025) and the 2022→2025 supersession
+   pair; its numbering (the KYC bridge was clause 29, not 20 — para 20 was
+   co-branding outsourcing) is preserved as `check.prior_2022` in `clauses.jsonl`.
+   2025 paragraph numbers are secondary-mapped; the 2025 primary PDF pass is a
+   T2.5 obligation. Pure-KYC logic with no CardDemo host lives in the
    GnuCOBOL-native runnable base. Taxonomy v1 with per-class CardDemo loci:
    `docs/tasks/T0.2-taxonomy-examples.md`.
 7. **Integrity rules (benchmark):** MO-0 benign edits + style diversification
