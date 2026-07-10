@@ -100,7 +100,12 @@ def build_entries(prior: dict[str, dict]) -> list[dict]:
         else:
             # Preserve a user-confirmed 'unobtainable'; otherwise not-yet-downloaded.
             status = "unobtainable" if old.get("status") == "unobtainable" else "missing"
-            entries.append({"file": name, "doc_role": role, "status": status})
+            entry = {"file": name, "doc_role": role, "status": status}
+            # Preserve a hand-written provenance note across re-runs (e.g. "which
+            # specific PDF to fetch and why the previous download was incomplete").
+            if old.get("note"):
+                entry["note"] = old["note"]
+            entries.append(entry)
     return entries
 
 
