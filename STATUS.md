@@ -24,7 +24,14 @@ One entry per task: ID, state, owner, and artifact.
   `tests/fixtures/paragraphs/*.json` (10 CardDemo programs, zero ERROR nodes,
   hand-verified nesting). New preprocessor rules (`NOT=` glued, continued
   literal splice) logged in `docs/preprocessor-notes.md`.
-- **T1.2-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.1.
+- **T1.2** | done | A | `src/cobol_archaeologist/static_analysis/call_graph.py`
+  (`build_call_graph` → PERFORM/THRU/GO TO + cross-program CALL/LINK/XCTL edges,
+  `unresolved`, `callers`/`callees`/`reachable_from`/`entry_points`) + D1
+  taxonomy (`GOTO`/`CALL`/`dynamic` in `parser/paragraphs.py`, plus opt-in
+  `include_preamble` for batch main-driver roots). Gate `tests/test_call_graph.py`
+  + fixtures `tests/fixtures/call_graph/*.json` (5 programs, hand-verified) and
+  `tests/fixtures/synthetic/DEADEX.cbl` (dead-code negative case).
+- **T1.3-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.2.
 - **T2.1** | todo | B | Scope follows the T0.2 contract change. Re-verify CC
   amendments at curation.
 - **T2.2-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`. T2.2 is blocked on

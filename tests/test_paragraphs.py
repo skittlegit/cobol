@@ -169,3 +169,30 @@ def test_copybook_field_resolves_via_linemap():
 
     copybook_lines = (CARDDEMO / "app" / "cpy" / "CVACT01Y.cpy").read_text(errors="replace").splitlines()
     assert "ACCT-CURR-BAL" in copybook_lines[original_line - 1]
+
+
+def _flatten(statements):
+    for s in statements:
+        yield s
+        yield from _flatten(s.children)
+
+
+def test_call_literal_taxonomy_cbact01c():
+    """T1.2 D1: CALL 'literal' -> kind=CALL, target=program, dynamic=False."""
+    program = parse_program(_find_program_file("CBACT01C"), backend="ast")
+    calls = [s for s in _flatten(
+        [st for p in program.paragraphs for st in p.statements]) if s.kind == "CALL"]
+    by_line = {c.ref.line_start: c for c in calls}
+    assert by_line[231].target == "COBDATFT" and by_line[231].dynamic is False
+    assert by_line[410].target == "CEE3ABD" and by_line[410].dynamic is False
+
+
+def test_goto_taxonomy_coactupc():
+    """T1.2 D1: GO TO <label> -> kind=GOTO with target populated."""
+    program = parse_program(_find_program_file("COACTUPC"), backend="ast")
+    gotos = [s for s in _flatten(
+        [st for p in program.paragraphs for st in p.statements]) if s.kind == "GOTO"]
+    assert gotos, "COACTUPC has GO TO usage"
+    first = min(gotos, key=lambda s: s.ref.line_start)
+    assert (first.ref.line_start, first.target) == (973, "COMMON-RETURN")
+    assert all(g.target for g in gotos)

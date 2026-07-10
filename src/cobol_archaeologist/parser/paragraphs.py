@@ -32,8 +32,20 @@ from cobol_archaeologist.ingest.cleaner import preprocess
 
 STATEMENT_KINDS = (
     "IF", "ELSE", "EVALUATE", "WHEN", "PERFORM_CALL", "PERFORM_LOOP",
-    "MOVE", "COMPUTE", "OTHER",
+    "GOTO", "CALL", "MOVE", "COMPUTE", "OTHER",
 )
+
+# CALL 'literal' program-name node types (vs. dynamic CALL identifier).
+_LITERAL_TARGET_TYPES = ("string", "h_string", "n_string")
+
+# DECISION (T1.2): batch programs place unnamed "main driver" code directly
+# under PROCEDURE DIVISION, before the first paragraph header — it holds the
+# root PERFORM edges the call graph needs. Rather than change T1.1's paragraph
+# set (its gate asserts exact spans), parse_program(include_preamble=True)
+# opt-in surfaces that code as one synthetic leading paragraph named below.
+# Angle brackets are illegal in COBOL names, so this never collides with a real
+# paragraph; the default (False) keeps T1.1 behaviour and fixtures unchanged.
+PREAMBLE_NAME = "<preamble>"
 
 _BOUNDARY_TYPES = ("paragraph_header", "section_header")
 _PROGRAM_ID_RE = re.compile(r"PROGRAM-ID\.\s+([A-Za-z0-9][A-Za-z0-9_-]*)", re.I)
@@ -50,6 +62,7 @@ class Statement(BaseModel):
     children: list["Statement"] = []
     target: str | None = None
     thru_target: str | None = None
+    dynamic: bool = False  # CALL identifier (target resolved at runtime) -> True
 
 
 class Paragraph(BaseModel):
@@ -90,6 +103,39 @@ def _extract_perform_targets(node) -> tuple[str | None, str | None]:
     target = labels[0].text.decode(errors="replace").strip()
     thru_target = labels[1].text.decode(errors="replace").strip() if len(labels) > 1 else None
     return target, thru_target
+
+
+def _strip_quotes(text: str) -> str:
+    text = text.strip()
+    if len(text) >= 2 and text[0] in ("'", '"') and text[-1] == text[0]:
+        return text[1:-1]
+    return text
+
+
+def _extract_goto_target(node) -> str | None:
+    """First (and, in CardDemo, only) GO TO target label.
+
+    DECISION: the grammar's ``to`` field is multi-valued to model computed
+    ``GO TO a b c DEPENDING ON n``; CardDemo has zero DEPENDING GO TOs
+    (verified corpus-wide), so a single target is faithful. A computed GO TO
+    would need a multi-target Statement shape — noted as a limitation, not
+    built, since nothing exercises it.
+    """
+    label = node.child_by_field_name("to")
+    if label is None:
+        return None
+    return label.text.decode(errors="replace").strip()
+
+
+def _extract_call_target(node) -> tuple[str | None, bool]:
+    """(target, dynamic) for a CALL. Literal ``CALL 'X'`` -> ('X', False);
+    dynamic ``CALL identifier`` -> (None, True)."""
+    x = node.child_by_field_name("x")
+    if x is None:
+        return None, False
+    if x.type in _LITERAL_TARGET_TYPES:
+        return _strip_quotes(x.text.decode(errors="replace")), False
+    return None, True
 
 
 def _classify(node_type: str) -> str:
@@ -226,6 +272,25 @@ def _build_statements(
             i += 1
             continue
 
+        if t == "goto_statement":
+            ref = tool_types.SourceRef(
+                program=program_id, paragraph=paragraph,
+                line_start=_line_start(node), line_end=_line_end(node),
+            )
+            stmts.append(Statement(kind="GOTO", ref=ref, target=_extract_goto_target(node)))
+            i += 1
+            continue
+
+        if t == "call_statement":
+            target, dynamic = _extract_call_target(node)
+            ref = tool_types.SourceRef(
+                program=program_id, paragraph=paragraph,
+                line_start=_line_start(node), line_end=_line_end(node),
+            )
+            stmts.append(Statement(kind="CALL", ref=ref, target=target, dynamic=dynamic))
+            i += 1
+            continue
+
         if t.endswith("_statement"):
             ref = tool_types.SourceRef(
                 program=program_id, paragraph=paragraph,
@@ -250,7 +315,7 @@ def _find_procedure_division(root):
     return None
 
 
-def _parse_ast(path: Path, program_id: str) -> list[Paragraph]:
+def _parse_ast(path: Path, program_id: str, include_preamble: bool = False) -> list[Paragraph]:
     from cobol_archaeologist.parser._grammar import get_language
     from tree_sitter import Parser
 
@@ -271,6 +336,26 @@ def _parse_ast(path: Path, program_id: str) -> list[Paragraph]:
     para_boundaries = [(idx, node) for idx, node in boundaries if node.type == "paragraph_header"]
 
     paragraphs: list[Paragraph] = []
+
+    if include_preamble:
+        first_boundary_idx = boundaries[0][0] if boundaries else len(children)
+        preamble_stmts, _ = _build_statements(
+            children, 0, frozenset(), program_id, PREAMBLE_NAME,
+        )
+        if preamble_stmts:
+            start_line = preamble_stmts[0].ref.line_start
+            end_line = (
+                _line_start(children[first_boundary_idx]) - 1
+                if first_boundary_idx < len(children)
+                else _line_end(division)
+            )
+            paragraphs.append(Paragraph(
+                span=tool_types.ParagraphSpan(
+                    name=PREAMBLE_NAME, line_start=start_line, line_end=end_line,
+                ),
+                statements=preamble_stmts,
+            ))
+
     for k, (idx, node) in enumerate(para_boundaries):
         name = _clean_label(node)
         start_line = _line_start(node)
@@ -332,7 +417,9 @@ def _parse_regex(path: Path) -> list[Paragraph]:
     return paragraphs
 
 
-def parse_program(path: str | Path, backend: str = "ast") -> Program:
+def parse_program(
+    path: str | Path, backend: str = "ast", include_preamble: bool = False,
+) -> Program:
     path = Path(path)
     source = path.read_text(encoding="utf-8", errors="replace")
     program_id = _extract_program_id(source)
@@ -340,7 +427,7 @@ def parse_program(path: str | Path, backend: str = "ast") -> Program:
     if backend == "regex":
         paragraphs = _parse_regex(path)
     elif backend == "ast":
-        paragraphs = _parse_ast(path, program_id)
+        paragraphs = _parse_ast(path, program_id, include_preamble=include_preamble)
     else:
         raise ValueError(f"unknown backend: {backend!r}")
 
