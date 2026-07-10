@@ -31,7 +31,13 @@ One entry per task: ID, state, owner, and artifact.
   `include_preamble` for batch main-driver roots). Gate `tests/test_call_graph.py`
   + fixtures `tests/fixtures/call_graph/*.json` (5 programs, hand-verified) and
   `tests/fixtures/synthetic/DEADEX.cbl` (dead-code negative case).
-- **T1.3-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.2.
+- **T1.3** | done | A | `src/cobol_archaeologist/static_analysis/dataflow.py`
+  (`trace_variable(var, programs, call_graph, program=None)` → AST-based def/use
+  per the normative table; qualified/bare/ambiguous name resolution, REDEFINES-
+  alias + 88→parent, VALUE-clause decl sites, LineMap-resolved copybook refs).
+  Gate `tests/test_dataflow.py` + fixtures `tests/fixtures/dataflow/*.json`
+  (10 variables over 4 programs, hand-verified).
+- **T1.4-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.3.
 - **T2.1** | todo | B | Scope follows the T0.2 contract change. Re-verify CC
   amendments at curation.
 - **T2.2-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`. T2.2 is blocked on
