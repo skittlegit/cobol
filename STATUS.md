@@ -26,6 +26,22 @@ One entry per task: ID, state, owner, and artifact.
   `tests/fixtures/paragraphs/*.json` (10 CardDemo programs, zero ERROR nodes,
   hand-verified nesting). New preprocessor rules (`NOT=` glued, continued
   literal splice) logged in `docs/preprocessor-notes.md`.
+- **T1.2** | done | A | `src/cobol_archaeologist/static_analysis/call_graph.py`
+  (`build_call_graph` → PERFORM/THRU/GO TO + cross-program CALL/LINK/XCTL edges,
+  `unresolved`, `callers`/`callees`/`reachable_from`/`entry_points`) + D1
+  taxonomy (`GOTO`/`CALL`/`dynamic` in `parser/paragraphs.py`, plus opt-in
+  `include_preamble` for batch main-driver roots). Gate `tests/test_call_graph.py`
+  + fixtures `tests/fixtures/call_graph/*.json` (5 programs, hand-verified) and
+  `tests/fixtures/synthetic/DEADEX.cbl` (dead-code negative case).
+- **T1.3** | done | A | `src/cobol_archaeologist/static_analysis/dataflow.py`
+  (`trace_variable(var, programs, call_graph, program=None)` → AST-based def/use
+  per the normative table; qualified/bare/ambiguous name resolution, REDEFINES-
+  alias + 88→parent, VALUE-clause decl sites, LineMap-resolved copybook refs).
+  Gate `tests/test_dataflow.py` + fixtures `tests/fixtures/dataflow/*.json`
+  (10 variables over 4 programs, hand-verified).
+- **T1.4-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.3.
+- **T2.1** | todo | B | Scope follows the T0.2 contract change. Re-verify CC
+  amendments at curation.
 - **T1.2-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.1.
 - **T2.1** | done | B | `data/regulations/clauses.jsonl` (19 clauses,
   schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
