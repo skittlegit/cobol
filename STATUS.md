@@ -58,6 +58,10 @@ One entry per task: ID, state, owner, and artifact.
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
   C green.
-- **T3.2-T3.6** | todo | C | `docs/track-c-brief.md`. Stub-based, not blocked
+- **T3.2** | ready-for-review | C | `src/cobol_archaeologist/rag/{index,
+  embed}.py` + `tests/test_retrieval.py` + `docs/tasks/T3.2-relevance-report.md`.
+  Gates A/C green offline; Gate B table committed (bar: hybrid_rerank > dense
+  on MRR@5). Review = Track C chat re-runs offline gates + reads the table.
+- **T3.3-T3.6** | todo | C | `docs/track-c-brief.md`. Stub-based, not blocked
   on Track A.
 - **T4.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
