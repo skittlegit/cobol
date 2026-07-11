@@ -132,6 +132,7 @@ def test_search_is_deterministic_across_builds(corpus, model_index):
 
 @pytest.mark.network
 def test_build_relevance_report_writes_table(tmp_path):
+    pytest.importorskip("sentence_transformers")  # loads pinned model weights
     out = tmp_path / "report.md"
     result = build_relevance_report(report_path=out)
     assert out.exists()

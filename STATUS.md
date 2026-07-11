@@ -46,14 +46,21 @@ One entry per task: ID, state, owner, and artifact.
   at T2.5) + `docs/tasks/T2.1-clause-curation-note.md`.
 - **T2.2-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`. T2.2 is blocked on
   T1.4, T1.5, and T2.1.
-- **T2.5** | todo | B | Phases 0–1 done: **7 of 7** primary RBI PDFs archived +
-  sha256-pinned in `data/regulations/sources/MANIFEST.json` (gated by
-  `tests/test_sources.py`) via `scripts/pin_regulations.py`. Caveat: the
-  2023-10-17 KYC amendment annexure is pinned but DESCRIPTIVE (confirms the
-  BO-partnership change, does not quote 15%/10%); P4's old 15% side still needs a
-  pre-Oct-2023 2016-MD consolidation (see that MANIFEST entry's `note`).
-  Phases 2–4 remain: primary numbering/old-side pass [CHAT], then seed programs
-  + ≥20 validated instances.
+- **T2.5** | todo | B | Phase 0–1 done + Phase 2 mostly done: **8 of 8** primary
+  RBI PDFs archived + sha256-pinned in `data/regulations/sources/MANIFEST.json`
+  (gated by `tests/test_sources.py`) via `scripts/pin_regulations.py`. Phase 2
+  primary pass (see T2.1 note changelog): all 16 CC para mappings CONFIRMED, the
+  three PROVISIONAL KYC ids resolved (periodic-updation→42(1),
+  BO-partnership→5(iv)(b), CKYCR→65(8)) into `clauses.jsonl` (schema-gated by
+  `tests/test_clauses.py`). CC old-side texts extracted into `check.prior_2022`;
+  pair verdicts P1/P3 confirmed primary both sides, **P2 retired** (3-day rule +
+  charge base predate the as-issued 2022 MD). **Remaining Phase 2 [CHAT] item:**
+  P4 (15%) + P5 (CKYCR absence) old-side texts are NOT yet encoded into the KYC
+  records' `check.prior_versions`; the source (`kyc-md-2016-consol-pre-2023-10.pdf`)
+  is pinned and its values eyeballed, but the verbatim old-side sentences +
+  registry status flips remain. Caveat: the 2023-10-17 KYC amendment annexure is
+  pinned but DESCRIPTIVE (confirms the BO-partnership change, does not quote
+  15%/10%). Then Phases 3–4: seed programs + ≥20 validated instances.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
