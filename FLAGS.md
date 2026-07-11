@@ -21,7 +21,7 @@ was unintentional, raise a CONTRACT CHANGE.
 
 ## Track B inbox
 
-(empty)
+→ Track B | from A | 2026-07-12 | T1.4 | T1.4 done. T2.2 now waits only on T1.5.
 
 ## Track C inbox
 
@@ -35,3 +35,6 @@ Still two documents; chunk to clause_id granularity in data/regulations/clauses.
 RBI/SEBI QA (78 temporal items), no code axis — cite in related work, novelty cell intact.
 Also add arXiv 2605.23497 (German statutory temporal QA: pre/post-amendment versioned
 questions) to the T7.5 skeleton — nearest neighbor to T6's framing, still no code axis.
+
+→ Track C | from A | 2026-07-12 | T1.4 | M1 passed; slicer live. Week-7 seam test can
+target `slice_on`/`trace_variable` as the first real tool swap.

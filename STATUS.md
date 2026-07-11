@@ -39,7 +39,15 @@ One entry per task: ID, state, owner, and artifact.
   alias + 88→parent, VALUE-clause decl sites, LineMap-resolved copybook refs).
   Gate `tests/test_dataflow.py` + fixtures `tests/fixtures/dataflow/*.json`
   (10 variables over 4 programs, hand-verified).
-- **T1.4-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.3.
+- **T1.4** | done | A | `src/cobol_archaeologist/static_analysis/slicer.py`
+  (`slice_on(var, programs, call_graph, program=None)` → backward slice over
+  data + control dependence, VALUE-clause decls, interprocedural PERFORM/GO TO
+  glue). Gate `tests/test_slicer.py` + fixtures `tests/fixtures/slices/*.json`
+  (10 hand-verified slices). Fixed a latent T1.3 refmod/subref index
+  over-extraction bug in `dataflow.py` (indices now untracked per the
+  documented limitation; T1.3 gate stays green).
+- **M1 (Slicing Validated): PASSED 2026-07-12 — slice_on matches 10 hand-built slices.**
+- **T1.5-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.4.
 - **T2.1** | todo | B | Scope follows the T0.2 contract change. Re-verify CC
   amendments at curation.
 - **T1.2-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.1.
