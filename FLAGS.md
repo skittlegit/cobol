@@ -29,4 +29,9 @@ your branch; breaks surface there, not downstream.
 
 ## Track C inbox
 
-(empty)
+→ Track C | from B | 2026-07-12 | T2.5 | T2.5 Phase 2 CLOSED. T4.2 pairing
+volume is now firm: **4 confirmed T6 pairs (P1/P3/P4/P5) primary-both-sides +
+P6 probe** (P2 retired). Old sides are encoded: CC in `check.prior_2022`, KYC
+in `check.prior_versions`. **P4 carries a compound old-side delta** (value
+15→10% AND an added "control through other means" limb) — pairing logic must
+not assume single-field diffs between pair sides.
