@@ -12,7 +12,6 @@ schema and are validated structurally here instead.
 import json
 from pathlib import Path
 
-import pytest
 from pydantic import ValidationError
 
 from cobol_archaeologist.schemas import RegulationClause

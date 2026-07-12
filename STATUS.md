@@ -50,10 +50,11 @@ One entry per task: ID, state, owner, and artifact.
 - **T1.5-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.4.
 - **T2.1** | done | B | `data/regulations/clauses.jsonl` (19 clauses,
   schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
-  CC/DC Directions + KYC 2025; 2025 para numbers secondary-mapped (primary pass
-  at T2.5) + `docs/tasks/T2.1-clause-curation-note.md`.
+  CC/DC Directions + KYC 2025; 2025 para numbers primary-confirmed at T2.5 +
+  `docs/tasks/T2.1-clause-curation-note.md`.
 - **T2.2-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`. T2.2 is blocked on
-  T1.4, T1.5, and T2.1.
+  **T1.5 only** (T1.4 and T2.1 done); MO-coverage prerequisite tracked in
+  `BACKLOG.md` (BL-1).
 - **T2.5** | wip | B | **Phase 2 CLOSED.** Phases 0–2 done: **8 of 8** primary
   RBI PDFs archived + sha256-pinned in `data/regulations/sources/MANIFEST.json`
   (gated by `tests/test_sources.py`) via `scripts/pin_regulations.py`. Phase 2

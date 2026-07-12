@@ -15,7 +15,7 @@ a secondary source. A source the user has confirmed cannot be located should be
 hand-edited to ``status: "unobtainable"`` in MANIFEST.json; this script
 preserves that.
 
-Phase 0 (obtaining the PDFs) is a manual [USER] step; drop the seven files named
+Phase 0 (obtaining the PDFs) is a manual [USER] step; drop the eight files named
 in the roster below into ``data/regulations/sources/`` and run this script.
 
 Usage:
