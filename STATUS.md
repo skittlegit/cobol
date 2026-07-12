@@ -48,10 +48,6 @@ One entry per task: ID, state, owner, and artifact.
   documented limitation; T1.3 gate stays green).
 - **M1 (Slicing Validated): PASSED 2026-07-12 — slice_on matches 10 hand-built slices.**
 - **T1.5-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.4.
-- **T2.1** | todo | B | Scope follows the T0.2 contract change. Re-verify CC
-  amendments at curation.
-- **T1.2-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.1.
-- **T1.4-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.3.
 - **T2.1** | done | B | `data/regulations/clauses.jsonl` (19 clauses,
   schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
   CC/DC Directions + KYC 2025; 2025 para numbers secondary-mapped (primary pass
