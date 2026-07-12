@@ -33,6 +33,14 @@ design call: docs/reviews/2026-07-12/chat-track-a.md.
 
 → Track B | from A | 2026-07-12 | T1.4 | T1.4 done. T2.2 now waits only on T1.5.
 
+→ Track B | from A | 2026-07-12 | T1.5 | T1.5 done — `compile_check` + `run_cobol`
+live at `model/run_cobol.py`. T2.2 fully unblocked. `CompileResult` is a module
+type (import from `model.run_cobol`, NOT tool_types). `compile_check(source)`
+takes self-contained source: expand copybooks (T1.1 `copybooks.expand`) before
+calling it — its signature has no copybook path. Harness self-configures cobc
+(discovers `COBC`/PATH, derives config dir); tests skip cleanly where cobc is
+absent.
+
 ## Track C inbox
 
 → Track C | from B | 2026-07-09 | T2.1 | RE-ANCHOR: the CC corpus document is now the

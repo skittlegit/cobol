@@ -47,7 +47,14 @@ One entry per task: ID, state, owner, and artifact.
   over-extraction bug in `dataflow.py` (indices now untracked per the
   documented limitation; T1.3 gate stays green).
 - **M1 (Slicing Validated): PASSED 2026-07-12 — slice_on matches 10 hand-built slices.**
-- **T1.5-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.4.
+- **T1.5** | done | A | `src/cobol_archaeologist/model/run_cobol.py`
+  (`compile_check` syntax oracle → `CompileResult`; `run_cobol` /
+  `run_cobol_with_files` sandboxed compile+execute → `RunResult`; temp-dir +
+  5s timeout + minimal self-configuring env) + `scripts/setup_cobc.sh`. Gate
+  `tests/test_run_cobol.py` (verified live on GnuCOBOL 3.2.0; skip-marked
+  without `cobc`). CBACT04C is compile-only (JCL-called `PROCEDURE DIVISION
+  USING` can't link as `-x`); full run on the trivial program.
+- **T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.5.
 - **T2.1** | done | B | `data/regulations/clauses.jsonl` (19 clauses,
   schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
   CC/DC Directions + KYC 2025; 2025 para numbers primary-confirmed at T2.5 +
