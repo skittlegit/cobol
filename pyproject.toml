@@ -10,6 +10,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "tree_sitter==0.21.3",
     "pydantic>=2",
+    "pdfplumber",
 ]
 
 [project.optional-dependencies]
@@ -17,9 +18,18 @@ dev = [
     "pytest",
     "ruff",
 ]
+# Retrieval model backend (T3.2). Pinned neural embedder + cross-encoder; small
+# enough for air-gapped on-prem (T7.2). Offline gates do not need this; only the
+# @network gates and the relevance-report build do.
+models = [
+    "sentence-transformers>=2.7",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "network: test loads pinned model weights / needs network; run locally (T3.2 Gate B/C)",
+]

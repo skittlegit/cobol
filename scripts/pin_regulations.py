@@ -42,6 +42,7 @@ EXPECTED: dict[str, str] = {
     "cc-md-2022-consol-2024.pdf": "cc_2022_consolidated_2024",
     "kyc-directions-2025.pdf": "kyc_2025",
     "kyc-md-2016-final-consol.pdf": "kyc_2016_final_consolidation",
+    "kyc-md-2016-consol-pre-2023-10.pdf": "kyc_2016_pre_2023_10_consolidation",
     "kyc-amend-2023-10-17.pdf": "kyc_amendment_2023_10_17",
     "kyc-amend-2024-11-06.pdf": "kyc_amendment_2024_11_06",
 }
@@ -87,20 +88,34 @@ def build_entries(prior: dict[str, dict]) -> list[dict]:
                     "Refusing to overwrite. If this re-archive is intentional, "
                     "delete the stale entry from MANIFEST.json by hand first."
                 )
-            entries.append(
-                {
-                    "file": name,
-                    "doc_role": role,
-                    "status": "pinned",
-                    "sha256": digest,
-                    "bytes": nbytes,
-                    "added": old.get("added", today),
-                }
-            )
+            entry = {
+                "file": name,
+                **{
+                    key: old[key]
+                    for key in ("doc", "version", "effective_date")
+                    if key in old
+                },
+                "doc_role": role,
+                "status": "pinned",
+                "sha256": digest,
+                "bytes": nbytes,
+                "added": old.get("added", today),
+            }
+            # A hand-written provenance caveat (e.g. "this source documents the
+            # amendment event but does not quote the numeric threshold") survives
+            # re-runs on pinned entries too.
+            if old.get("note"):
+                entry["note"] = old["note"]
+            entries.append(entry)
         else:
             # Preserve a user-confirmed 'unobtainable'; otherwise not-yet-downloaded.
             status = "unobtainable" if old.get("status") == "unobtainable" else "missing"
-            entries.append({"file": name, "doc_role": role, "status": status})
+            entry = {"file": name, "doc_role": role, "status": status}
+            # Preserve a hand-written provenance note across re-runs (e.g. "which
+            # specific PDF to fetch and why the previous download was incomplete").
+            if old.get("note"):
+                entry["note"] = old["note"]
+            entries.append(entry)
     return entries
 
 
