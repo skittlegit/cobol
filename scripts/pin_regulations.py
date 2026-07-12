@@ -15,7 +15,7 @@ a secondary source. A source the user has confirmed cannot be located should be
 hand-edited to ``status: "unobtainable"`` in MANIFEST.json; this script
 preserves that.
 
-Phase 0 (obtaining the PDFs) is a manual [USER] step; drop the seven files named
+Phase 0 (obtaining the PDFs) is a manual [USER] step; drop the eight files named
 in the roster below into ``data/regulations/sources/`` and run this script.
 
 Usage:
@@ -42,6 +42,7 @@ EXPECTED: dict[str, str] = {
     "cc-md-2022-consol-2024.pdf": "cc_2022_consolidated_2024",
     "kyc-directions-2025.pdf": "kyc_2025",
     "kyc-md-2016-final-consol.pdf": "kyc_2016_final_consolidation",
+    "kyc-md-2016-consol-pre-2023-10.pdf": "kyc_2016_pre_2023_10_consolidation",
     "kyc-amend-2023-10-17.pdf": "kyc_amendment_2023_10_17",
     "kyc-amend-2024-11-06.pdf": "kyc_amendment_2024_11_06",
 }
@@ -89,6 +90,11 @@ def build_entries(prior: dict[str, dict]) -> list[dict]:
                 )
             entry = {
                 "file": name,
+                **{
+                    key: old[key]
+                    for key in ("doc", "version", "effective_date")
+                    if key in old
+                },
                 "doc_role": role,
                 "status": "pinned",
                 "sha256": digest,

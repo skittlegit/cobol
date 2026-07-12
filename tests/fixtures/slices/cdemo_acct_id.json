@@ -1,0 +1,109 @@
+{
+  "variable": "CDEMO-ACCT-ID",
+  "scoped_program": "COACTVWC",
+  "is_interprocedural": true,
+  "paragraphs": [
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2000-PROCESS-INPUTS"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2200-EDIT-MAP-INPUTS"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2210-EDIT-ACCOUNT"
+    }
+  ],
+  "statements": [
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN",
+      "line_start": 362,
+      "line_end": 363,
+      "text": "PERFORM 2000-PROCESS-INPUTS\n                      THRU 2000-PROCESS-INPUTS-EXIT"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2000-PROCESS-INPUTS",
+      "line_start": 599,
+      "line_end": 600,
+      "text": "PERFORM 2200-EDIT-MAP-INPUTS\n              THRU 2200-EDIT-MAP-INPUTS-EXIT"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2200-EDIT-MAP-INPUTS",
+      "line_start": 628,
+      "line_end": 630,
+      "text": "IF  ACCTSIDI OF CACTVWAI = '*'\n           OR  ACCTSIDI OF CACTVWAI = SPACES\n               MOVE LOW-VALUES           TO  CC-ACCT-ID"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2200-EDIT-MAP-INPUTS",
+      "line_start": 630,
+      "line_end": 630,
+      "text": "MOVE LOW-VALUES           TO  CC-ACCT-ID"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2200-EDIT-MAP-INPUTS",
+      "line_start": 632,
+      "line_end": 632,
+      "text": "MOVE ACCTSIDI OF CACTVWAI TO  CC-ACCT-ID"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2200-EDIT-MAP-INPUTS",
+      "line_start": 636,
+      "line_end": 637,
+      "text": "PERFORM 2210-EDIT-ACCOUNT\n              THRU 2210-EDIT-ACCOUNT-EXIT"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2210-EDIT-ACCOUNT",
+      "line_start": 653,
+      "line_end": 661,
+      "text": "IF CC-ACCT-ID   EQUAL LOW-VALUES\n           OR CC-ACCT-ID   EQUAL SPACES\n              SET INPUT-ERROR           TO TRUE\n              SET FLG-ACCTFILTER-BLANK  TO TRUE\n              IF WS-RETURN-MSG-OFF\n                 SET WS-PROMPT-FOR-ACCT TO TRUE\n              END-IF\n              MOVE ZEROES       TO CDEMO-ACCT-ID\n              GO TO  2210-EDIT-ACCOUNT-EXIT"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2210-EDIT-ACCOUNT",
+      "line_start": 660,
+      "line_end": 660,
+      "text": "MOVE ZEROES       TO CDEMO-ACCT-ID"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2210-EDIT-ACCOUNT",
+      "line_start": 666,
+      "line_end": 676,
+      "text": "IF CC-ACCT-ID  IS NOT NUMERIC\n           OR CC-ACCT-ID  EQUAL ZEROES\n              SET INPUT-ERROR TO TRUE\n              SET FLG-ACCTFILTER-NOT-OK TO TRUE\n              IF WS-RETURN-MSG-OFF\n                MOVE\n              'Account Filter must  be a non-zero 11 digit number'      00\n                              TO WS-RETURN-MSG\n              END-IF\n              MOVE ZERO       TO CDEMO-ACCT-ID\n              GO TO 2210-EDIT-ACCOUNT-EXIT"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2210-EDIT-ACCOUNT",
+      "line_start": 675,
+      "line_end": 675,
+      "text": "MOVE ZERO       TO CDEMO-ACCT-ID"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "2210-EDIT-ACCOUNT",
+      "line_start": 678,
+      "line_end": 678,
+      "text": "MOVE CC-ACCT-ID TO CDEMO-ACCT-ID"
+    },
+    {
+      "program": "CVCRD01Y",
+      "paragraph": null,
+      "line_start": 34,
+      "line_end": 35,
+      "text": "004400       10 CC-ACCT-ID                        PIC X(11)             00440005\n004500                                            VALUE SPACES."
+    }
+  ]
+}

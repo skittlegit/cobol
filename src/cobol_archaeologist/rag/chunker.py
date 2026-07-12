@@ -203,8 +203,10 @@ def _best_subset_match(chunks: list[RegulationChunk], clause: dict) -> Regulatio
         for chunk in candidates
     ]
     scored.sort(key=lambda item: (-item[0], item[1], item[2].char_span))
-    threshold = 0.68 if str(clause["clause_id"]).startswith("PROVISIONAL:") else 0.8
-    if scored and scored[0][0] >= threshold:
+    # 0.8 mirrors the T3.1 Gate A floor in tests/test_chunker.py. (The former
+    # 0.68 relaxation for PROVISIONAL: KYC clause_ids is gone — those ids were
+    # resolved to real 2025 paragraph numbers at T2.5 Phase 2.)
+    if scored and scored[0][0] >= 0.8:
         return scored[0][2]
     return None
 

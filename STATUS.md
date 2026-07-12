@@ -39,21 +39,38 @@ One entry per task: ID, state, owner, and artifact.
   alias + 88→parent, VALUE-clause decl sites, LineMap-resolved copybook refs).
   Gate `tests/test_dataflow.py` + fixtures `tests/fixtures/dataflow/*.json`
   (10 variables over 4 programs, hand-verified).
-- **T1.4-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.3.
+- **T1.4** | done | A | `src/cobol_archaeologist/static_analysis/slicer.py`
+  (`slice_on(var, programs, call_graph, program=None)` → backward slice over
+  data + control dependence, VALUE-clause decls, interprocedural PERFORM/GO TO
+  glue). Gate `tests/test_slicer.py` + fixtures `tests/fixtures/slices/*.json`
+  (10 hand-verified slices). Fixed a latent T1.3 refmod/subref index
+  over-extraction bug in `dataflow.py` (indices now untracked per the
+  documented limitation; T1.3 gate stays green).
+- **M1 (Slicing Validated): PASSED 2026-07-12 — slice_on matches 10 hand-built slices.**
+- **T1.5-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.4.
 - **T2.1** | done | B | `data/regulations/clauses.jsonl` (19 clauses,
   schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
-  CC/DC Directions + KYC 2025; 2025 para numbers secondary-mapped (primary pass
-  at T2.5) + `docs/tasks/T2.1-clause-curation-note.md`.
+  CC/DC Directions + KYC 2025; 2025 para numbers primary-confirmed at T2.5 +
+  `docs/tasks/T2.1-clause-curation-note.md`.
 - **T2.2-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`. T2.2 is blocked on
-  T1.4, T1.5, and T2.1.
-- **T2.5** | todo | B | Phases 0–1 done: **7 of 7** primary RBI PDFs archived +
-  sha256-pinned in `data/regulations/sources/MANIFEST.json` (gated by
-  `tests/test_sources.py`) via `scripts/pin_regulations.py`. Caveat: the
-  2023-10-17 KYC amendment annexure is pinned but DESCRIPTIVE (confirms the
-  BO-partnership change, does not quote 15%/10%); P4's old 15% side still needs a
-  pre-Oct-2023 2016-MD consolidation (see that MANIFEST entry's `note`).
-  Phases 2–4 remain: primary numbering/old-side pass [CHAT], then seed programs
-  + ≥20 validated instances.
+  **T1.5 only** (T1.4 and T2.1 done); MO-coverage prerequisite tracked in
+  `BACKLOG.md` (BL-1).
+- **T2.5** | wip | B | **Phase 2 CLOSED.** Phases 0–2 done: **8 of 8** primary
+  RBI PDFs archived + sha256-pinned in `data/regulations/sources/MANIFEST.json`
+  (gated by `tests/test_sources.py`) via `scripts/pin_regulations.py`. Phase 2
+  primary pass (see T2.1 note changelog): all 16 CC para mappings CONFIRMED, the
+  three PROVISIONAL KYC ids resolved (periodic-updation→42(1),
+  BO-partnership→5(iv)(b), CKYCR→65(8)) in `clauses.jsonl` (schema-gated by
+  `tests/test_clauses.py`). Registry final shape: **P1/P3/P4/P5 confirmed
+  primary-both-sides** (CC old sides in `check.prior_2022`, KYC old sides encoded
+  in `check.prior_versions` — P4's 15% and P5's CKYCR absence, each closed by
+  single-footnote analysis of `kyc-md-2016-consol-pre-2023-10.pdf`); **P2
+  retired** (3-day rule + charge base predate the as-issued 2022 MD); **P6**
+  citation-axis probe. P4 carries a compound old-side delta (15→10% + added
+  "control through other means" limb), noted for annotation guidelines. Caveat:
+  the 2023-10-17 KYC amendment annexure is pinned but DESCRIPTIVE (does not quote
+  15%/10%). **Phase 3 (seed programs + ≥20 validated instances) is all that
+  remains.**
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and

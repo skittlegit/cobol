@@ -13,6 +13,11 @@ the moat.
 
 - `STATUS.md` (repo root): the task ledger — one line per task,
   `ID | state | owner | artifact`. **Authoritative for project state.**
+- `FLAGS.md` (repo root): cross-track message ledger — per-track inboxes; a flag
+  rides the commit of the deliverable that caused it. Read at session start.
+- `BACKLOG.md` (repo root): deferred technical debt & future work not yet
+  scheduled as a task — distinct from `STATUS.md` (tracked tasks) and `FLAGS.md`
+  (messages). An item leaves it when it becomes a work order or is fixed.
 - `docs/tasks/T<n>.<n>-work-order.md`: work orders, one per active task. For
   that task, this file wins.
 - `docs/tasks/T<n>.<n>-<slug>.md`: decision records and task deliverable notes
@@ -42,7 +47,7 @@ trust it over your reading of older docs. Standing expectations:
 
 - Write the gate test **first**; the task is done only when it and all prior
   gates pass.
-- Work on branch `track-<a|b|c>/T<n>.<n>`; commit prefix
+- Work on the owning permanent branch `track-<a|b|c>`; commit prefix
   `T<n>.<n>: <what changed>`.
 - **Update `STATUS.md` in the same commit as the work**: set the task's line
   (state, artifact path) as part of completing it. The ledger must never lag the
@@ -87,9 +92,9 @@ trust it over your reading of older docs. Standing expectations:
    supplies T6 old sides (2022 vs 2024 vs 2025) and the 2022→2025 supersession
    pair; its numbering (the KYC bridge was clause 29, not 20 — para 20 was
    co-branding outsourcing) is preserved as `check.prior_2022` in `clauses.jsonl`.
-   2025 paragraph numbers are secondary-mapped; the 2025 primary PDF pass is a
-   T2.5 obligation. Pure-KYC logic with no CardDemo host lives in the
-   GnuCOBOL-native runnable base. Taxonomy v1 with per-class CardDemo loci:
+   2025 paragraph numbers were primary-confirmed against the archived PDF during
+   T2.5 Phase 2 with zero corrections. Pure-KYC logic with no CardDemo host will
+   live in the planned GnuCOBOL-native runnable base. Taxonomy v1 with per-class CardDemo loci:
    `docs/tasks/T0.2-taxonomy-examples.md`.
 7. **Integrity rules (benchmark):** MO-0 benign edits + style diversification
    mandatory; verification tiered (1 executed / 2 static / 3 entailment-only,

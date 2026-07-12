@@ -57,7 +57,7 @@ above.
 4. EXECUTE in Claude Code:
       "Read CLAUDE.md and docs/tasks/T<n>.<n>.md. Execute."
    That is the entire prompt. Claude Code writes the gate test first, works on
-   branch track-<a|b|c>/T<n>.<n>, leaves # DECISION: comments at ambiguities,
+   the owning permanent branch track-<a|b|c>, leaves # DECISION: comments at ambiguities,
    and STOPS on contract questions or work-order/brief conflicts. If it stops
    with a design question, the answer comes from your track chat — not ad hoc
    in the terminal.
@@ -78,8 +78,9 @@ above.
 
 ## Git rules (three people, one repo)
 
-- **Branch per task** (`track-a/T1.1`), PR into `master`; merge bar = this
-  task's gate green **plus all prior gates green** (`pytest tests/ -x -q`).
+- **Permanent branch per track** (`track-a`, `track-b`, `track-c`), with reviewed
+  PRs into `master`; merge bar = this task's gate green **plus all prior gates
+  green** (`pytest tests/ -x -q`).
 - **Commit prefix** `T1.1: <what changed>` — makes STATUS.md auditable from git
   log.
 - **Ownership = write access** (module→track map in CLAUDE.md). Never edit

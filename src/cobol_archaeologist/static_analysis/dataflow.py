@@ -228,21 +228,30 @@ class Ref:
 
 
 def _ref_of(node: Node) -> Ref | None:
-    """A single operand -> its base identifier reference (None for literals)."""
+    """A single operand -> its base identifier reference (None for literals).
+
+    The grammar emits a reference-modified/subscripted operand as SIBLING
+    nodes — ``qualified_word`` (the base) followed by a standalone ``refmod``
+    /``subref`` holding only the ``(start:len)``/``(index)`` expression. So a
+    ``refmod``/``subref`` node contributes nothing (its index identifiers are
+    not tracked — 'X(I:L) traces as X'); the base is captured from its sibling.
+    ``arithmetic_x`` genuinely wraps its base, so it is unwrapped.
+    """
     if node.type == "qualified_word":
         words = _words(node)
         if not words:
             return None
         return Ref(name=words[0], qualifiers=tuple(words[1:]), node=node)
-    if node.type in ("refmod", "subref", "arithmetic_x"):
+    if node.type == "arithmetic_x":
         base = _first_qualified_word(node)
         return _ref_of(base) if base is not None else None
     return None
 
 
 def _refs_in(node: Node) -> list[Ref]:
-    """Every identifier reference in an expression subtree (subscripts/refmod
-    indices excluded — the base only, honoring 'X(I:L) traces as X')."""
+    """Every identifier reference in an expression subtree. Subscript/refmod
+    index expressions are skipped ('X(I:L) traces as X'); the base identifier
+    is a sibling ``qualified_word`` and is captured on its own."""
     out: list[Ref] = []
 
     def walk(n: Node) -> None:
@@ -252,11 +261,6 @@ def _refs_in(node: Node) -> list[Ref]:
                 out.append(r)
             return
         if n.type in ("refmod", "subref"):
-            base = _first_qualified_word(n)
-            if base is not None:
-                r = _ref_of(base)
-                if r is not None:
-                    out.append(r)
             return
         for c in n.children:
             walk(c)

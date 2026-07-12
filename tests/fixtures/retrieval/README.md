@@ -5,9 +5,11 @@
   `query` (NL paraphrase or raw-code / confusion-probe form), `note`. The gold
   chunk for a query is the single chunk whose `(doc, clause_id)` matches the
   named clause record — T3.1 Gate A guarantees exactly one.
-- `chunks.jsonl` — **frozen** chunker output used as the retrieval corpus (1824
-  chunks over 7 versioned RBI docs, so old-version near-duplicates act as hard
-  distractors). Derived artifact; regenerate when the chunker changes:
+- `chunks.jsonl` — **frozen** chunker output used as the retrieval corpus (2361
+  chunks over 8 versioned RBI docs, so old-version near-duplicates act as hard
+  distractors). The 8th doc — the pre-2023-10 consolidation of the 2016 KYC MD,
+  archived at T2.5 for P4/P5 old sides — joined the corpus here. Derived
+  artifact; regenerate when the chunker changes:
 
   ```python
   from pathlib import Path
