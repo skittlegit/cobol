@@ -1,0 +1,154 @@
+{
+  "variable": "WS-ERR-FLG",
+  "scoped_program": "COSGN00C",
+  "is_interprocedural": true,
+  "paragraphs": [
+    {
+      "program": "COSGN00C",
+      "paragraph": "MAIN-PARA"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "PROCESS-ENTER-KEY"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "READ-USER-SEC-FILE"
+    }
+  ],
+  "statements": [
+    {
+      "program": "COSGN00C",
+      "paragraph": null,
+      "line_start": 40,
+      "line_end": 40,
+      "text": "05 WS-ERR-FLG                 PIC X(01) VALUE 'N'."
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": null,
+      "line_start": 43,
+      "line_end": 43,
+      "text": "05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS."
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "MAIN-PARA",
+      "line_start": 75,
+      "line_end": 75,
+      "text": "SET ERR-FLG-OFF TO TRUE"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "MAIN-PARA",
+      "line_start": 80,
+      "line_end": 83,
+      "text": "IF EIBCALEN = 0\n               MOVE LOW-VALUES TO COSGN0AO\n               MOVE -1       TO USERIDL OF COSGN0AI\n               PERFORM SEND-SIGNON-SCREEN"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "MAIN-PARA",
+      "line_start": 85,
+      "line_end": 95,
+      "text": "EVALUATE EIBAID\n                   WHEN DFHENTER\n                       PERFORM PROCESS-ENTER-KEY\n                   WHEN DFHPF3\n                       MOVE CCDA-MSG-THANK-YOU        TO WS-MESSAGE\n                       PERFORM SEND-PLAIN-TEXT\n                   WHEN OTHER\n                       MOVE 'Y'                       TO WS-ERR-FLG\n                       MOVE CCDA-MSG-INVALID-KEY      TO WS-MESSAGE\n                       PERFORM SEND-SIGNON-SCREEN\n               END-EVALUATE"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "MAIN-PARA",
+      "line_start": 87,
+      "line_end": 87,
+      "text": "PERFORM PROCESS-ENTER-KEY"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "MAIN-PARA",
+      "line_start": 91,
+      "line_end": 94,
+      "text": "WHEN OTHER\n                       MOVE 'Y'                       TO WS-ERR-FLG\n                       MOVE CCDA-MSG-INVALID-KEY      TO WS-MESSAGE\n                       PERFORM SEND-SIGNON-SCREEN"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "MAIN-PARA",
+      "line_start": 92,
+      "line_end": 92,
+      "text": "MOVE 'Y'                       TO WS-ERR-FLG"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "PROCESS-ENTER-KEY",
+      "line_start": 117,
+      "line_end": 130,
+      "text": "EVALUATE TRUE\n               WHEN USERIDI OF COSGN0AI = SPACES OR LOW-VALUES\n                   MOVE 'Y'      TO WS-ERR-FLG\n                   MOVE 'Please enter User ID ...' TO WS-MESSAGE\n                   MOVE -1       TO USERIDL OF COSGN0AI\n                   PERFORM SEND-SIGNON-SCREEN\n               WHEN PASSWDI OF COSGN0AI = SPACES OR LOW-VALUES\n                   MOVE 'Y'      TO WS-ERR-FLG\n                   MOVE 'Please enter Password ...' TO WS-MESSAGE\n                   MOVE -1       TO PASSWDL OF COSGN0AI\n                   PERFORM SEND-SIGNON-SCREEN\n               WHEN OTHER\n                   CONTINUE\n           END-EVALUATE."
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "PROCESS-ENTER-KEY",
+      "line_start": 118,
+      "line_end": 122,
+      "text": "WHEN USERIDI OF COSGN0AI = SPACES OR LOW-VALUES\n                   MOVE 'Y'      TO WS-ERR-FLG\n                   MOVE 'Please enter User ID ...' TO WS-MESSAGE\n                   MOVE -1       TO USERIDL OF COSGN0AI\n                   PERFORM SEND-SIGNON-SCREEN"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "PROCESS-ENTER-KEY",
+      "line_start": 119,
+      "line_end": 119,
+      "text": "MOVE 'Y'      TO WS-ERR-FLG"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "PROCESS-ENTER-KEY",
+      "line_start": 123,
+      "line_end": 127,
+      "text": "WHEN PASSWDI OF COSGN0AI = SPACES OR LOW-VALUES\n                   MOVE 'Y'      TO WS-ERR-FLG\n                   MOVE 'Please enter Password ...' TO WS-MESSAGE\n                   MOVE -1       TO PASSWDL OF COSGN0AI\n                   PERFORM SEND-SIGNON-SCREEN"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "PROCESS-ENTER-KEY",
+      "line_start": 124,
+      "line_end": 124,
+      "text": "MOVE 'Y'      TO WS-ERR-FLG"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "PROCESS-ENTER-KEY",
+      "line_start": 139,
+      "line_end": 139,
+      "text": "PERFORM READ-USER-SEC-FILE"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "READ-USER-SEC-FILE",
+      "line_start": 221,
+      "line_end": 257,
+      "text": "EVALUATE WS-RESP-CD\n               WHEN 0\n                   IF SEC-USR-PWD = WS-USER-PWD\n                       MOVE WS-TRANID    TO CDEMO-FROM-TRANID\n                       MOVE WS-PGMNAME   TO CDEMO-FROM-PROGRAM\n                       MOVE WS-USER-ID   TO CDEMO-USER-ID\n                       MOVE SEC-USR-TYPE TO CDEMO-USER-TYPE\n                       MOVE ZEROS        TO CDEMO-PGM-CONTEXT\n\n                       IF CDEMO-USRTYP-ADMIN\n                            EXEC CICS XCTL\n                              PROGRAM ('COADM01C')\n                              COMMAREA(CARDDEMO-COMMAREA)\n                            END-EXEC\n                       ELSE\n                            EXEC CICS XCTL\n                              PROGRAM ('COMEN01C')\n                              COMMAREA(CARDDEMO-COMMAREA)\n                            END-EXEC\n                       END-IF\n                   ELSE\n                       MOVE 'Wrong Password. Try again ...' TO\n                                                          WS-MESSAGE\n                       MOVE -1       TO PASSWDL OF COSGN0AI\n                       PERFORM SEND-SIGNON-SCREEN\n                   END-IF\n               WHEN 13\n                   MOVE 'Y'      TO WS-ERR-FLG\n                   MOVE 'User not found. Try again ...' TO WS-MESSAGE\n                   MOVE -1       TO USERIDL OF COSGN0AI\n                   PERFORM SEND-SIGNON-SCREEN\n               WHEN OTHER\n                   MOVE 'Y'      TO WS-ERR-FLG\n                   MOVE 'Unable to verify the User ...' TO WS-MESSAGE\n                   MOVE -1       TO USERIDL OF COSGN0AI\n                   PERFORM SEND-SIGNON-SCREEN\n           END-EVALUATE."
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "READ-USER-SEC-FILE",
+      "line_start": 247,
+      "line_end": 251,
+      "text": "WHEN 13\n                   MOVE 'Y'      TO WS-ERR-FLG\n                   MOVE 'User not found. Try again ...' TO WS-MESSAGE\n                   MOVE -1       TO USERIDL OF COSGN0AI\n                   PERFORM SEND-SIGNON-SCREEN"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "READ-USER-SEC-FILE",
+      "line_start": 248,
+      "line_end": 248,
+      "text": "MOVE 'Y'      TO WS-ERR-FLG"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "READ-USER-SEC-FILE",
+      "line_start": 252,
+      "line_end": 256,
+      "text": "WHEN OTHER\n                   MOVE 'Y'      TO WS-ERR-FLG\n                   MOVE 'Unable to verify the User ...' TO WS-MESSAGE\n                   MOVE -1       TO USERIDL OF COSGN0AI\n                   PERFORM SEND-SIGNON-SCREEN"
+    },
+    {
+      "program": "COSGN00C",
+      "paragraph": "READ-USER-SEC-FILE",
+      "line_start": 253,
+      "line_end": 253,
+      "text": "MOVE 'Y'      TO WS-ERR-FLG"
+    }
+  ]
+}

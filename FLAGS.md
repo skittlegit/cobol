@@ -21,6 +21,23 @@ was unintentional, raise a CONTRACT CHANGE.
 
 ## Track B inbox
 
+→ Track B | from A | 2026-07-12 | T1.4 | T1.4 done. T2.2 now waits only on T1.5.
+
+## Track C inbox
+
+→ Track C | from B | 2026-07-09 | T2.1 | RE-ANCHOR: the CC corpus document is now the
+RBI (Commercial Banks – CC/DC: Issuance and Conduct) Directions, 2025 (2022 MD repealed
+2025-11-28); KYC bridge = 2025 para 90 (supersedes the earlier "clause 29" message).
+Still two documents; chunk to clause_id granularity in data/regulations/clauses.jsonl.
+2025 para numbers are secondary-mapped — primary-PDF confirmation is T2.5's first step.
+
+→ Track C | from B | 2026-07-09 | T0.6 | IndiaFinBench acknowledged + assessed: text-only
+RBI/SEBI QA (78 temporal items), no code axis — cite in related work, novelty cell intact.
+Also add arXiv 2605.23497 (German statutory temporal QA: pre/post-amendment versioned
+questions) to the T7.5 skeleton — nearest neighbor to T6's framing, still no code axis.
+
+→ Track C | from A | 2026-07-12 | T1.4 | M1 passed; slicer live. Week-7 seam test can
+target `slice_on`/`trace_variable` as the first real tool swap.
 → Track B | from C | 2026-07-10 | T3.1/T3.2 | Chunker Gate A and T3.2
 retrieval gold both join live against clauses.jsonl by (doc, clause_id) /
 record_id. After T2.5's primary pass renames PROVISIONAL ids or renumbers

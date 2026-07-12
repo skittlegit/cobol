@@ -1,0 +1,94 @@
+{
+  "variable": "CDEMO-FROM-TRANID",
+  "scoped_program": null,
+  "is_interprocedural": true,
+  "paragraphs": [
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN"
+    },
+    {
+      "program": "COTRN02C",
+      "paragraph": "RETURN-TO-PREV-SCREEN"
+    }
+  ],
+  "statements": [
+    {
+      "program": "COACTVWC",
+      "paragraph": null,
+      "line_start": 145,
+      "line_end": 146,
+      "text": "05 LIT-THISTRANID                        PIC X(4)\n                                                   VALUE 'CAVW'."
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN",
+      "line_start": 306,
+      "line_end": 306,
+      "text": "SET PFK-INVALID TO TRUE"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN",
+      "line_start": 307,
+      "line_end": 309,
+      "text": "IF CCARD-AID-ENTER OR\n              CCARD-AID-PFK03\n              SET PFK-VALID TO TRUE"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN",
+      "line_start": 309,
+      "line_end": 309,
+      "text": "SET PFK-VALID TO TRUE"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN",
+      "line_start": 312,
+      "line_end": 313,
+      "text": "IF PFK-INVALID\n              SET CCARD-AID-ENTER TO TRUE"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN",
+      "line_start": 313,
+      "line_end": 313,
+      "text": "SET CCARD-AID-ENTER TO TRUE"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN",
+      "line_start": 323,
+      "line_end": 383,
+      "text": "EVALUATE TRUE\n              WHEN CCARD-AID-PFK03\n      ******************************************************************\n      *            XCTL TO CALLING PROGRAM OR MAIN MENU\n      ******************************************************************\n                   IF CDEMO-FROM-TRANID    EQUAL LOW-VALUES\n                   OR CDEMO-FROM-TRANID    EQUAL SPACES\n                      MOVE LIT-MENUTRANID  TO CDEMO-TO-TRANID\n                   ELSE\n                      MOVE CDEMO-FROM-TRANID  TO CDEMO-TO-TRANID\n                   END-IF\n                   IF CDEMO-FROM-PROGRAM   EQUAL LOW-VALUES\n                   OR CDEMO-FROM-PROGRAM   EQUAL SPACES\n                      MOVE LIT-MENUPGM     TO CDEMO-TO-PROGRAM\n                   ELSE\n                      MOVE CDEMO-FROM-PROGRAM TO CDEMO-TO-PROGRAM\n                   END-IF\n\n                   MOVE LIT-THISTRANID     TO CDEMO-FROM-TRANID\n                   MOVE LIT-THISPGM        TO CDEMO-FROM-PROGRAM\n\n                   SET  CDEMO-USRTYP-USER  TO TRUE\n                   SET  CDEMO-PGM-ENTER    TO TRUE\n                   MOVE LIT-THISMAPSET     TO CDEMO-LAST-MAPSET\n                   MOVE LIT-THISMAP        TO CDEMO-LAST-MAP\n      *\n                   EXEC CICS XCTL\n                             PROGRAM (CDEMO-TO-PROGRAM)\n                             COMMAREA(CARDDEMO-COMMAREA)\n                   END-EXEC\n              WHEN CDEMO-PGM-ENTER\n      ******************************************************************\n      *            COMING FROM SOME OTHER CONTEXT\n      *            SELECTION CRITERIA TO BE GATHERED\n      ******************************************************************\n                   PERFORM 1000-SEND-MAP THRU\n                           1000-SEND-MAP-EXIT\n                   GO TO COMMON-RETURN\n              WHEN CDEMO-PGM-REENTER\n                   PERFORM 2000-PROCESS-INPUTS\n                      THRU 2000-PROCESS-INPUTS-EXIT\n                   IF INPUT-ERROR\n                      PERFORM 1000-SEND-MAP\n                         THRU 1000-SEND-MAP-EXIT\n                      GO TO COMMON-RETURN\n                   ELSE\n                      PERFORM 9000-READ-ACCT\n                         THRU 9000-READ-ACCT-EXIT\n                      PERFORM 1000-SEND-MAP\n                         THRU 1000-SEND-MAP-EXIT\n                      GO TO COMMON-RETURN\n                   END-IF\n             WHEN OTHER\n                   MOVE LIT-THISPGM    TO ABEND-CULPRIT\n                   MOVE '0001'         TO ABEND-CODE\n                   MOVE SPACES         TO ABEND-REASON\n                   MOVE 'UNEXPECTED DATA SCENARIO'\n                                       TO WS-RETURN-MSG\n                   PERFORM SEND-PLAIN-TEXT\n                      THRU SEND-PLAIN-TEXT-EXIT\n           END-EVALUATE"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN",
+      "line_start": 324,
+      "line_end": 349,
+      "text": "WHEN CCARD-AID-PFK03\n      ******************************************************************\n      *            XCTL TO CALLING PROGRAM OR MAIN MENU\n      ******************************************************************\n                   IF CDEMO-FROM-TRANID    EQUAL LOW-VALUES\n                   OR CDEMO-FROM-TRANID    EQUAL SPACES\n                      MOVE LIT-MENUTRANID  TO CDEMO-TO-TRANID\n                   ELSE\n                      MOVE CDEMO-FROM-TRANID  TO CDEMO-TO-TRANID\n                   END-IF\n                   IF CDEMO-FROM-PROGRAM   EQUAL LOW-VALUES\n                   OR CDEMO-FROM-PROGRAM   EQUAL SPACES\n                      MOVE LIT-MENUPGM     TO CDEMO-TO-PROGRAM\n                   ELSE\n                      MOVE CDEMO-FROM-PROGRAM TO CDEMO-TO-PROGRAM\n                   END-IF\n\n                   MOVE LIT-THISTRANID     TO CDEMO-FROM-TRANID\n                   MOVE LIT-THISPGM        TO CDEMO-FROM-PROGRAM\n\n                   SET  CDEMO-USRTYP-USER  TO TRUE\n                   SET  CDEMO-PGM-ENTER    TO TRUE\n                   MOVE LIT-THISMAPSET     TO CDEMO-LAST-MAPSET\n                   MOVE LIT-THISMAP        TO CDEMO-LAST-MAP\n      *\n                   EXEC CICS XCTL"
+    },
+    {
+      "program": "COACTVWC",
+      "paragraph": "0000-MAIN",
+      "line_start": 341,
+      "line_end": 341,
+      "text": "MOVE LIT-THISTRANID     TO CDEMO-FROM-TRANID"
+    },
+    {
+      "program": "COTRN02C",
+      "paragraph": null,
+      "line_start": 37,
+      "line_end": 37,
+      "text": "05 WS-TRANID                  PIC X(04) VALUE 'CT02'."
+    },
+    {
+      "program": "COTRN02C",
+      "paragraph": "RETURN-TO-PREV-SCREEN",
+      "line_start": 505,
+      "line_end": 505,
+      "text": "MOVE WS-TRANID    TO CDEMO-FROM-TRANID"
+    }
+  ]
+}
