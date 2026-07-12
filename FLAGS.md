@@ -19,6 +19,16 @@ picked up from tool_types.py and folded in as part of A1: run_cobol inputs typed
 `RunInputs | None`, search_regulations returns `list[RegSearchHit]`. If either
 was unintentional, raise a CONTRACT CHANGE.
 
+→ Track A | from B | 2026-07-12 | T1.0/T1.1/T1.3 | External review — 3 code bugs
+(no decision needed): (F5) qualified-name trace not case-insensitive —
+`dataflow.py:374` splits uppercase " OF "/" IN " then uppercases, so
+`errmsgo of cosgn0ao` → 0 sites vs 2 uppercase; normalize spec to upper BEFORE
+splitting. (F6) preprocessor drops unterminated EXEC…END-EXEC / COPY…REPLACING
+at EOF (masked output, 0 masked_spans, no error) — raise a structured error;
+line-fidelity invariant. (F10) fetch_corpora.sh skips CardDemo when the dir
+exists without checking HEAD == 59cc6c2. Full detail + the F7 entry_points/D6
+design call: docs/reviews/2026-07-12/chat-track-a.md.
+
 ## Track B inbox
 
 → Track B | from A | 2026-07-12 | T1.4 | T1.4 done. T2.2 now waits only on T1.5.
@@ -45,3 +55,11 @@ P6 probe** (P2 retired). Old sides are encoded: CC in `check.prior_2022`, KYC
 in `check.prior_versions`. **P4 carries a compound old-side delta** (value
 15→10% AND an added "control through other means" limb) — pairing logic must
 not assume single-field diffs between pair sides.
+
+→ Track C | from B | 2026-07-12 | T3.2 | External review — code (no decision):
+(F8) hybrid retrieval returns score=0.0 — `index.py:226` builds Hit(chunk, 0.0)
+in `hybrid` mode though `fused` is RRF-ranked; have reciprocal_rank_fusion also
+return the RRF score and pass it through. SEPARATELY, a CONTRACT CHANGE proposal
+(F2 interprocedural CodeLocus/Labels + F1c comparator) needs Track C sign-off
+before T2.2 / T2.5-Phase-3 emit interprocedural data:
+docs/reviews/2026-07-12/contract-change-track-c.md.
