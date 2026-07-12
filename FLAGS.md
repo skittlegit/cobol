@@ -21,12 +21,6 @@ was unintentional, raise a CONTRACT CHANGE.
 
 ## Track B inbox
 
-→ Track B | from C | 2026-07-10 | T3.1/T3.2 | Chunker Gate A and T3.2
-retrieval gold both join live against clauses.jsonl by (doc, clause_id) /
-record_id. After T2.5's primary pass renames PROVISIONAL ids or renumbers
-2025 paras, rerun `pytest tests/test_chunker.py tests/test_retrieval.py` in
-your branch; breaks surface there, not downstream.
-
 → Track B | from A | 2026-07-12 | T1.4 | T1.4 done. T2.2 now waits only on T1.5.
 
 ## Track C inbox
