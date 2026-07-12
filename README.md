@@ -44,20 +44,28 @@ Two invariants hold everywhere:
 - **M2+:** mutation-based benchmark generation, drift detectors, regulation
   search, and migration. Planned.
 
-The validated prototype lives at
-[`src/cobol/spike_parser.py`](src/cobol/spike_parser.py) (preprocess → parse →
-paragraph extraction; exact on 26/26, 6/6, and 85/85 paragraphs across the three
-spike programs, including a 4,236-line CICS program). It is reference logic
-being dissolved into the real package during T1.1, then deleted.
+The validated spike is retained at
+[`docs/reference/spike_parser.py`](docs/reference/spike_parser.py). Its production
+preprocessing and paragraph-extraction logic now lives in
+[`src/cobol_archaeologist/ingest/`](src/cobol_archaeologist/ingest/) and
+[`src/cobol_archaeologist/parser/`](src/cobol_archaeologist/parser/).
 
 ## Getting started
 
-> Packaging lands with T1.0 scaffolding; until then only the spike is runnable.
+The package scaffold is available for editable development installs.
 
 ```bash
 pip install -e ".[dev]"
 bash scripts/fetch_corpora.sh
 pytest tests/ -x -q
+```
+
+The default pytest configuration excludes model-backed network tests. To run
+those gates explicitly, install the model extra and select the marker:
+
+```bash
+pip install -e ".[models]"
+pytest -m network
 ```
 
 The package targets Python 3.12 with `tree_sitter==0.21.3`, `pydantic>=2`,

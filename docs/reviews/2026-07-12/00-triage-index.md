@@ -39,16 +39,10 @@ the current tree. Buckets:
 
 ## Deferred backlog (no single owner / not now)
 
-- **F1b — MO coverage.** T2.2 Gate A needs MO-0…MO-6 + MO-1×/MO-3×/MO-6×.
-  Present today: MO-1(13), MO-1x(2, ASCII), MO-2(6), MO-3(5), MO-5(13), MO-6(3).
-  Missing: **MO-4**, and the **× interprocedural variants** (MO-3×, MO-6×), plus
-  normalize `MO-1x`→`MO-1×`. This is T2.2 authoring work, blocked on T1.5; fold
-  into the T2.2 work order, not a standalone fix.
-- **F9 — wheel relocatability.** `_grammar.py` / `chunker.py` resolve assets from
-  repo root, outside the package; a built wheel would omit them. Editable install
-  works, so this only bites on distribution. Packaging-hardening task.
-- **H2 — format sweep.** One sanctioned `ruff format` pass (or per-track) — a
-  large cross-track diff; coordinate, don't let one agent reformat all tracks.
+**Moved to the canonical root `/BACKLOG.md`** (session-start protocol reads it
+alongside STATUS/FLAGS): F1b → **BL-1** (MO coverage), F9 → **BL-2** (wheel
+package-data), H2 → **BL-3** (format sweep), plus the deferred F3 CI workflow →
+**BL-4**. Descriptions live there; this line is the pointer.
 
 ## Do NOT let an agent auto-patch
 

@@ -9,7 +9,7 @@ Four permanent branches. None of them are ever deleted.
 - `track-c` — Agent, RAG & Evaluation — **@ankitaww**
 
 Each track works on its own branch and pushes there directly. When a batch of
-work is ready, the track opens a PR from its branch into `main`. Because every
+work is ready, the track opens a PR from its branch into `master`. Because every
 track has its own branch, two people are never pushing to the same branch.
 
 ## Day to day
@@ -21,9 +21,9 @@ track has its own branch, two people are never pushing to the same branch.
 Edit only your own tasks' lines in `STATUS.md`. To pull in others' merged work,
 **merge, don't rebase**. Force-pushes are blocked on track branches:
 
-    git switch track-b && git merge origin/main
+    git switch track-b && git merge origin/master
 
-## Integrating to main
+## Integrating to master
 
 - Open a PR `track-x -> master` and fill in the template.
 - One approval from **another** collaborator is required. GitHub blocks
