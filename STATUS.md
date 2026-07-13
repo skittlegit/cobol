@@ -54,7 +54,11 @@ One entry per task: ID, state, owner, and artifact.
   `tests/test_run_cobol.py` (verified live on GnuCOBOL 3.2.0; skip-marked
   without `cobc`). CBACT04C is compile-only (JCL-called `PROCEDURE DIVISION
   USING` can't link as `-x`); full run on the trivial program.
-- **T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.5.
+- **T1.6** | wip | A | `docs/tasks/T1.6-work-order.md`. D0 landed: inbound review
+  fixes F5 (`dataflow.py` case-insensitive qualified names), F6
+  (`cleaner.py` `PreprocessError` on unterminated EXEC/COPY at EOF), F10
+  (`fetch_corpora.sh` verifies CardDemo HEAD == pin), each with a regression
+  test. `tools.py` facade next.
 - **T2.1** | done | B | `data/regulations/clauses.jsonl` (19 clauses,
   schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
   CC/DC Directions + KYC 2025; 2025 para numbers primary-confirmed at T2.5 +

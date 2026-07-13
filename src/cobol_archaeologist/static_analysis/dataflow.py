@@ -369,10 +369,17 @@ def _excerpt(path: Path, line_start: int, line_end: int) -> str:
 
 def _resolve_targets(spec: str, symbols: ProgramSymbols) -> list[Field]:
     """Traced spec ('X' or 'X OF Y OF Z') -> candidate Fields in this program.
-    An 88-level spec resolves to its parent field (use-of-parent semantics)."""
-    parts = [p for p in spec.replace(" IN ", " OF ").split(" OF ") if p.strip()]
-    primary = parts[0].strip().upper()
-    quals = [q.strip().upper() for q in parts[1:]]
+    An 88-level spec resolves to its parent field (use-of-parent semantics).
+
+    COBOL names and the OF/IN qualifier keyword are case-insensitive, so the
+    spec is upper-cased BEFORE splitting — splitting first would only match an
+    already-uppercase " OF "/" IN " and silently return zero sites for
+    `errmsgo of cosgn0ao` (review 2026-07-12, F5).
+    """
+    upper = spec.upper()
+    parts = [p for p in upper.replace(" IN ", " OF ").split(" OF ") if p.strip()]
+    primary = parts[0].strip()
+    quals = [q.strip() for q in parts[1:]]
     cands = [f for f in symbols.fields if f.name.upper() == primary]
     if quals:
         cands = [f for f in cands if all(q in {a.upper() for a in f.ancestors} for q in quals)]
