@@ -21,6 +21,25 @@ _KIND_BY_LANGUAGE = {"CICS": "exec_cics", "SQL": "exec_sql", "DLI": "exec_dli"}
 _CONTINUE = "           CONTINUE"
 
 
+class PreprocessError(ValueError):
+    """An ``EXEC … END-EXEC`` or ``COPY … REPLACING`` block that never
+    terminates before EOF.
+
+    Masking such a block would emit blanked lines with no MaskedSpan recorded —
+    silently losing source the AST and the LINK/XCTL side-channel both need, in
+    violation of the line-fidelity invariant (CLAUDE.md rule 4). Malformed
+    input is reported, never quietly mangled (review 2026-07-12, F6).
+    """
+
+    def __init__(self, kind: str, start_line: int) -> None:
+        self.kind = kind
+        self.start_line = start_line
+        super().__init__(
+            f"unterminated {kind} block opened at line {start_line}: "
+            f"reached EOF without {'END-EXEC' if kind.startswith('exec') else 'a terminating period'}"
+        )
+
+
 class MaskedSpan(BaseModel):
     """A masked region of source; ``original_text`` is verbatim (T1.2 LINK/XCTL reads it)."""
 
@@ -171,6 +190,11 @@ def preprocess(source: str) -> PreprocessResult:
 
         out.append(_fix_glued_not(line))
         i += 1
+
+    if in_exec:
+        raise PreprocessError(span_kind, span_start)
+    if in_copy:
+        raise PreprocessError("copy_replacing", span_start)
 
     text = "\n".join(out) + "\n"
     assert len(text.splitlines()) == len(lines), (

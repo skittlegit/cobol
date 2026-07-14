@@ -1,5 +1,7 @@
 """T1.1 gate: ingest/cleaner.py preprocessor unit tests."""
-from cobol_archaeologist.ingest.cleaner import preprocess
+import pytest
+
+from cobol_archaeologist.ingest.cleaner import PreprocessError, preprocess
 
 
 def _lines(text: str) -> list[str]:
@@ -154,3 +156,43 @@ def test_continued_literal_spliced():
     assert out[2].strip() == ""
     assert len(out) == len(_lines(src))
     assert result.masked_spans == []
+
+
+# -- F6 (review 2026-07-12): unterminated blocks at EOF must raise -----------
+
+def test_unterminated_exec_raises():
+    """An EXEC block with no END-EXEC before EOF is malformed input: raise,
+    never emit blanked lines with no MaskedSpan to show for them."""
+    src = (
+        "       MAIN-PARA.\n"
+        "           EXEC CICS SEND\n"
+        "                MAP('X')\n"
+    )
+    with pytest.raises(PreprocessError) as exc:
+        preprocess(src)
+    assert exc.value.kind == "exec_cics"
+    assert exc.value.start_line == 2
+
+
+def test_unterminated_copy_replacing_raises():
+    src = (
+        "       01  WS-REC.\n"
+        "           COPY CVACT01Y REPLACING ==:X:== BY ==ACCT==\n"
+    )
+    with pytest.raises(PreprocessError) as exc:
+        preprocess(src)
+    assert exc.value.kind == "copy_replacing"
+    assert exc.value.start_line == 2
+
+
+def test_terminated_blocks_still_pass():
+    """The F6 guard must not fire on well-formed input (negative control)."""
+    src = (
+        "       MAIN-PARA.\n"
+        "           EXEC CICS SEND\n"
+        "                MAP('X')\n"
+        "           END-EXEC.\n"
+    )
+    result = preprocess(src)
+    assert len(result.masked_spans) == 1
+    assert len(_lines(result.text)) == len(_lines(src))
