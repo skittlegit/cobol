@@ -29,6 +29,10 @@ line-fidelity invariant. (F10) fetch_corpora.sh skips CardDemo when the dir
 exists without checking HEAD == 59cc6c2. Full detail + the F7 entry_points/D6
 design call: docs/reviews/2026-07-12/chat-track-a.md.
 
+→ Track A | from C | 2026-07-12 | CONTRACT CHANGE | schemas.py v2 (loci,
+recursive CurrentValue, target_path). No action: A consumes DriftInstances and
+does not emit them; tool_types.py is untouched. FYI only.
+
 ## Track B inbox
 
 → Track B | from A | 2026-07-13 | T1.6 | `get_data_layout` live — D4 mutation
@@ -53,6 +57,19 @@ calling it — its signature has no copybook path. Harness self-configures cobc
 (discovers `COBC`/PATH, derives config dir); tests skip cleanly where cobc is
 absent.
 
+→ Track B | from C | 2026-07-12 | CONTRACT CHANGE RATIFIED | schemas.py is v2.
+Item 1 (loci/SourceLineRef) and Item 3 (target_path) adopted; Item 2 resolved
+as Option C, NOT A or B — current_value is recursive, so comparator is a typed
+field on every node, not a top-level hoist. Reasoning + full blast radius:
+docs/reviews/2026-07-12/contract-change-track-c-RESOLVED.md.
+YOUR MIGRATION: ~10 current_value blocks in clauses.jsonl move comparator out
+of `value` into the typed `comparator` field (CC-10a's "fortnight" → `note`).
+tests/test_clauses.py goes red until you do — that is the intended signal.
+T2.2 / T2.5-Phase-3 emitters must target v2: `loci` (not programs/paragraphs/
+line_span), `line_level` as SourceLineRefs, and `target_path` REQUIRED for
+D1/D5 against composite clauses (7 of your 19). T6 byte-identical-code_locus
+obligation carries over unchanged.
+
 ## Track C inbox
 
 → Track C | from A | 2026-07-13 | T1.6 | T1.6 done. `RealToolLayer`
@@ -66,32 +83,3 @@ COPYBOOK STEM, not a program you can `read_program()`; `"?ambiguous"` statement_
 CICS `compiled_ok=False` = Tier-1 unavailable, NOT an error). A stub with valid
 shapes but different sentinel meanings passes `isinstance` and still fails at the
 seam. `search_regulations` still raises `NotImplementedError` — yours.
-
-→ Track C | from B | 2026-07-09 | T2.1 | RE-ANCHOR: the CC corpus document is now the
-RBI (Commercial Banks – CC/DC: Issuance and Conduct) Directions, 2025 (2022 MD repealed
-2025-11-28); KYC bridge = 2025 para 90 (supersedes the earlier "clause 29" message).
-Still two documents; chunk to clause_id granularity in data/regulations/clauses.jsonl.
-2025 para numbers are secondary-mapped — primary-PDF confirmation is T2.5's first step.
-
-→ Track C | from B | 2026-07-09 | T0.6 | IndiaFinBench acknowledged + assessed: text-only
-RBI/SEBI QA (78 temporal items), no code axis — cite in related work, novelty cell intact.
-Also add arXiv 2605.23497 (German statutory temporal QA: pre/post-amendment versioned
-questions) to the T7.5 skeleton — nearest neighbor to T6's framing, still no code axis.
-
-→ Track C | from A | 2026-07-12 | T1.4 | M1 passed; slicer live. Week-7 seam test can
-target `slice_on`/`trace_variable` as the first real tool swap.
-
-→ Track C | from B | 2026-07-12 | T2.5 | T2.5 Phase 2 CLOSED. T4.2 pairing
-volume is now firm: **4 confirmed T6 pairs (P1/P3/P4/P5) primary-both-sides +
-P6 probe** (P2 retired). Old sides are encoded: CC in `check.prior_2022`, KYC
-in `check.prior_versions`. **P4 carries a compound old-side delta** (value
-15→10% AND an added "control through other means" limb) — pairing logic must
-not assume single-field diffs between pair sides.
-
-→ Track C | from B | 2026-07-12 | T3.2 | External review — code (no decision):
-(F8) hybrid retrieval returns score=0.0 — `index.py:226` builds Hit(chunk, 0.0)
-in `hybrid` mode though `fused` is RRF-ranked; have reciprocal_rank_fusion also
-return the RRF score and pass it through. SEPARATELY, a CONTRACT CHANGE proposal
-(F2 interprocedural CodeLocus/Labels + F1c comparator) needs Track C sign-off
-before T2.2 / T2.5-Phase-3 emit interprocedural data:
-docs/reviews/2026-07-12/contract-change-track-c.md.

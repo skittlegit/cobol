@@ -1,7 +1,8 @@
 # CONTRACT.md — Cross-track interface contract (T0.4)
 
-**Version:** 1.1 · **Status:** ACCEPTED
-Signed by all three tracks: 2026-07-07
+**Version:** 1.2 · **Status:** ACCEPTED
+Signed by all three tracks: 2026-07-07; amended 2026-07-12 (CONTRACT CHANGE,
+ratified by Track C, blast radius B — see the amendment log)
 **Governs:** the tool I/O boundary (Track A implements, Track C consumes) and
 the evaluation metrics + targets (Track C implements, Tracks A/B build toward).
 Changes from here on are **CONTRACT CHANGEs** and must be flagged to all three
@@ -79,11 +80,29 @@ exact values:
 - Temporal fields: `regulation_clause.version` + `effective_date` are required;
   T6 pairs are keyed on same `code_locus`, different (`version`,
   `effective_date`).
-- **T6 pairing convention (Track B sign-off note 1):** there is no `pair_id`
-  field; pairing rests on struct equality of `code_locus`. The T2.5 generator
-  therefore **guarantees byte-identical `code_locus`** between a pair's two
-  instances. Adding `pair_id` is a recognized cleaner design but is a
-  post-freeze CONTRACT CHANGE, deliberately deferred.
+- **`code_locus` shape (v2, 2026-07-12 CONTRACT CHANGE):** the flat
+  `programs` / `paragraphs` / `line_span` fields are **replaced** by
+  `loci: list[SourceLocus]`, each a `(program, paragraph?, file?, line_span)`
+  binding a line span to exactly one program (and optionally a copybook `file`).
+  `slice_vars` and the required `is_interprocedural` bool remain. This is what
+  makes interprocedural localization — the headline metric — expressible: a line
+  now resolves to a specific program. The `is_interprocedural` validator is
+  **one-way** (>1 distinct program ⇒ `True`; the reverse is not forced, since a
+  single-program cross-paragraph locus may also be interprocedural).
+- **T6 pairing convention (Track B sign-off note 1) — preserved:** there is no
+  `pair_id` field; pairing rests on **struct equality of `code_locus`**, now
+  over `loci`. The reshape from flat fields to `loci` is **not** a loosening: the
+  T2.5 generator still **guarantees byte-identical `code_locus`** (hence
+  byte-identical `loci`) between a pair's two instances. Adding `pair_id`
+  remains a deliberately deferred post-freeze CONTRACT CHANGE.
+- **`current_value` (v2):** `CurrentValue` is recursive and typed —
+  `kind == "composite"` nests `dict[str, CurrentValue]`; every node carries an
+  optional typed `comparator` (`strictly_greater`/`at_least`/`strictly_less`/
+  `at_most`/`equal`/`not_equal`) and `note`; composites carry no comparator.
+- **`target_path` (v2):** dotted path into `regulation_clause.current_value`,
+  **required** for D1/D5 against a composite clause (resolving to a leaf), `None`
+  otherwise. `resolve_path(current_value, path)` in `schemas.py` is the single
+  canonical accessor for B's emitters and C's metrics.
 - System findings are emitted `DriftInstance`-shaped (T3.6) so predictions and
   gold share one schema.
 
@@ -99,7 +118,10 @@ exact values:
   missing-rule instances the offending lines do not exist, so
   `labels.line_level` holds the **insertion-point line(s)** where the check
   should live; D2 line-localization is insertion-point matching, not
-  deleted-code matching. Full per-class conventions land in `ANNOTATION.md`
+  deleted-code matching. The convention is unchanged under v2; note only that
+  `line_level` entries are now `SourceLineRef`s — `(program, file, line)` — so
+  interprocedural line-overlap scoring is well-defined (each label line resolves
+  to a specific program/file). Full per-class conventions land in `ANNOTATION.md`
   (T5.1).
 - **T3 Classification** — Macro-F1 over all seven classes D1–D7.
 - **T4 Faithfulness** — fraction of findings where BOTH the cited clause is
@@ -179,3 +201,13 @@ Decision rules (not bars):
   insertion-point line-label convention added to Part 3 T2. B3 — T6 bar split:
   0.70/20 as M4 reporting bar; paper claim = exceeds 0.5 floor with exact
   binomial CI, pairs scaled at M5.
+- **v1.1 → v1.2 (2026-07-12, CONTRACT CHANGE, ratified by C, blast radius B):**
+  amends the `schemas.py` freeze to v2. See
+  `docs/reviews/2026-07-12/contract-change-track-c-RESOLVED.md`.
+  Item 1 (F2) — flat `code_locus` replaced by `loci: list[SourceLocus]` +
+  `SourceLineRef` line labels, so interprocedural localization is expressible;
+  one-way `is_interprocedural` validator. Item 2 (F1c) — `CurrentValue` is
+  recursive/typed with a per-node `comparator` field (Option C, not the rejected
+  top-level hoist). Item 3 (F-C1) — `DriftInstance.target_path` disambiguates
+  which leaf of a composite clause drifted (required for composite D1/D5).
+  Track A: no action (consumes DriftInstances, `tool_types.py` untouched).

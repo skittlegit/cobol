@@ -1,0 +1,46 @@
+{
+  "instance_id": "drift_000317",
+  "regulation_clause": {
+    "doc": "RBI Commercial Banks - CC/DC Directions, 2025",
+    "clause_id": "23",
+    "version": "2025",
+    "effective_date": "2025-11-28",
+    "text": "No credit card shall be issued or activated without the explicit consent of the customer, and where a card is not activated within 30 days from the date of issuance, the card issuer shall seek One Time Password based consent before activation.",
+    "current_value": null
+  },
+  "code_locus": {
+    "loci": [
+      {
+        "program": "CBTRN02C.cbl",
+        "paragraph": "1000-VALIDATE-CONSENT",
+        "file": null,
+        "line_span": [210, 244]
+      },
+      {
+        "program": "CBTRN03C.cbl",
+        "paragraph": "3200-ACTIVATE-CARD",
+        "file": "CVACT03Y",
+        "line_span": [88, 116]
+      }
+    ],
+    "slice_vars": ["WS-CONSENT-FLAG", "WS-ISSUE-DATE", "WS-ACTIVATION-DATE"],
+    "is_interprocedural": true
+  },
+  "drift_type": "D3_contradictory",
+  "target_path": null,
+  "labels": {
+    "program_level": "drift",
+    "paragraph_level": "drift",
+    "line_level": [
+      {"program": "CBTRN02C.cbl", "line": 231, "file": null},
+      {"program": "CBTRN03C.cbl", "line": 102, "file": "CVACT03Y"}
+    ]
+  },
+  "gold_rationale": "CBTRN02C's 1000-VALIDATE-CONSENT sets WS-CONSENT-FLAG to 'Y' whenever an issuance record exists, treating issuance as consent; CBTRN03C's 3200-ACTIVATE-CARD (over the copybook CVACT03Y layout) then activates the card on that flag without the OTP re-consent path for cards older than 30 days. The two paragraphs jointly contradict clause 23 of the CC/DC Directions, 2025 (effective 2025-11-28), which requires explicit consent and OTP-based re-consent when a card is not activated within 30 days of issuance.",
+  "provenance": {
+    "source": "synthetic",
+    "base_program": "CBTRN02C.cbl",
+    "mutation": "MO-3",
+    "annotator_notes": null
+  }
+}

@@ -84,13 +84,20 @@ def _rank_order(scores: Sequence[float], ids: Sequence[str]) -> list[int]:
 
 def reciprocal_rank_fusion(
     rankings: Sequence[Sequence[int]], ids: Sequence[str], k: int = 60
-) -> list[int]:
-    """Fuse ranked index lists by RRF: score(d) = sum 1/(k + rank_r(d))."""
+) -> list[tuple[int, float]]:
+    """Fuse ranked index lists by RRF: score(d) = sum 1/(k + rank_r(d)).
+
+    Returns ``(candidate index, RRF score)`` pairs, ranked desc (ties broken by
+    chunk_id). Callers that only want the ranking take the first element; the
+    ``hybrid`` mode carries the score through into ``Hit`` (F8 fix — hybrid hits
+    previously all reported score 0.0).
+    """
     fused: dict[int, float] = {}
     for ranking in rankings:
         for rank, idx in enumerate(ranking, start=1):
             fused[idx] = fused.get(idx, 0.0) + 1.0 / (k + rank)
-    return sorted(fused, key=lambda i: (-fused[i], ids[i]))
+    order = sorted(fused, key=lambda i: (-fused[i], ids[i]))
+    return [(i, fused[i]) for i in order]
 
 
 def cosine(a: Sequence[float], b: Sequence[float]) -> float:
@@ -223,12 +230,12 @@ class RegulationIndex:
             k=self.rrf_k,
         )
         if mode == "hybrid":
-            return [Hit(self.chunks[cand[j]], 0.0) for j in fused[:k]]
+            return [Hit(self.chunks[cand[j]], rrf) for j, rrf in fused[:k]]
 
         # hybrid_rerank: rerank the fused head with the cross-encoder.
         if self.reranker is None:
             raise RuntimeError("hybrid_rerank requires a reranker; build with one")
-        head = fused[: self.rerank_depth]
+        head = [j for j, _ in fused[: self.rerank_depth]]
         rr = self.reranker.score(query, [self.chunks[cand[j]].text for j in head])
         ranked = sorted(
             range(len(head)), key=lambda p: (-rr[p], cand_ids[head[p]])
