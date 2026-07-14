@@ -9,10 +9,12 @@ One entry per task: ID, state, owner, and artifact.
   Banks CC/DC Directions (2022 MD repealed 2025-11-28); KYC bridge is 2025 para
   90. See the T2.1 note.
 - **T0.3** | done | C | `src/cobol_archaeologist/schemas.py` +
-  `tests/test_schemas.py`. SCHEMA FROZEN — changes hereafter are CONTRACT
-  CHANGEs (flag to A/B/C).
-- **T0.4** | done | C | `docs/CONTRACT.md` v1.1 ACCEPTED — A, B, C signed
-  2026-07-07. Amendments A1/A2 (tool_types.py normative) + B1-B3 folded in.
+  `tests/test_schemas.py`. **SCHEMA v2 — RE-FROZEN 2026-07-12** per
+  `docs/reviews/2026-07-12/contract-change-track-c-RESOLVED.md` (loci/
+  SourceLineRef, recursive typed CurrentValue + comparator, target_path).
+  Further changes are new CONTRACT CHANGEs (flag to A/B/C).
+- **T0.4** | done | C | `docs/CONTRACT.md` v1.2. Amended by the 2026-07-12
+  CONTRACT CHANGE; sign-offs stand.
 - **T0.5** | done | A | `docs/tasks/T0.5-ast-decision-note.md`.
 - **T0.6** | done | C | `docs/tasks/T0.6-novelty-note.md` — novelty sentence
   locked; cell 1-5 related-work skeleton for T7.5. Empty cell verified by live

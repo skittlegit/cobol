@@ -57,9 +57,13 @@ def test_bm25_ranks_the_matching_doc_first():
 
 def test_rrf_rewards_agreement_across_rankings():
     # 3 is top of both lists -> must win; ties broken by id for determinism.
+    # RRF now returns (index, score) pairs, ranked desc.
     ids = ["a", "b", "c", "d"]
     fused = reciprocal_rank_fusion([[2, 0, 1], [2, 1, 0]], ids, k=60)
-    assert fused[0] == 2
+    assert fused[0][0] == 2
+    # Every fused entry carries a positive RRF score (F8: never all-zero).
+    assert all(score > 0.0 for _, score in fused)
+    assert fused[0][1] == max(score for _, score in fused)
 
 
 def test_all_24_queries_resolve_to_gold(corpus):
@@ -117,6 +121,17 @@ def test_hybrid_rerank_beats_dense(corpus, model_index):
     assert hyb["mrr@5"] > dense["mrr@5"]
     assert hyb["hit@1"] >= dense["hit@1"]
     assert hyb["hit@3"] >= dense["hit@3"]
+
+
+@pytest.mark.network
+def test_no_mode_returns_all_zero_scores(model_index):
+    # F8: hybrid previously reported score 0.0 for every hit. No mode should
+    # return an all-zero score vector for a query that has hits.
+    q = "closure penalty of Rs 500 per day"
+    for mode in MODES:
+        hits = model_index.search(q, mode=mode)
+        assert hits, mode
+        assert any(h.score != 0.0 for h in hits), mode
 
 
 @pytest.mark.network
