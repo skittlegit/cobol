@@ -75,7 +75,9 @@ One entry per task: ID, state, owner, and artifact.
 - **T2.2** | done | B | `src/cobol_archaeologist/benchmark/{mutate,surface}.py`
   + `tests/test_mutate.py` (**gates A–D green; 10 validated anchor instances
   across all operators; skips: 10 synthetic-locus records**).
-- **T2.3-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`.
+- **T2.3** | done | B | `data/benchmark/drift_instances.jsonl` (**311
+  instances, compiled validation, manifest + gates green**).
+- **T2.4, T2.6** | todo | B | `docs/tasks/T2.3-T2.4-T2.6-work-orders.md`.
 - **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21
   instances, 5 T6 pairs, gates green**) + sources archive pinned.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
