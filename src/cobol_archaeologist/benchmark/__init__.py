@@ -5,6 +5,11 @@ from cobol_archaeologist.benchmark.build import (
     BuildResult,
     build_benchmark,
 )
+from cobol_archaeologist.benchmark.judge import (
+    JudgeConfig,
+    Judgement,
+    judge_benchmark,
+)
 from cobol_archaeologist.benchmark.mutate import (
     ClauseRecord,
     MutationResult,
@@ -17,9 +22,12 @@ __all__ = [
     "BuildConfigurationError",
     "BuildResult",
     "ClauseRecord",
+    "JudgeConfig",
+    "Judgement",
     "MutationResult",
     "ProgramSource",
     "build_benchmark",
+    "judge_benchmark",
     "load_clause_records",
     "mutate",
 ]

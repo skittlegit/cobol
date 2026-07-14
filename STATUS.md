@@ -77,7 +77,10 @@ One entry per task: ID, state, owner, and artifact.
   across all operators; skips: 10 synthetic-locus records**).
 - **T2.3** | done | B | `data/benchmark/drift_instances.jsonl` (**311
   instances, compiled validation, manifest + gates green**).
-- **T2.4, T2.6** | todo | B | `docs/tasks/T2.3-T2.4-T2.6-work-orders.md`.
+- **T2.4** | in progress | B | `src/cobol_archaeologist/benchmark/judge.py` +
+  `docs/tasks/T2.4-judging-rubric.md` (**CODE gates green; USER/CHAT pending:
+  external-family 50/full judging run + 15-item human spot-check**).
+- **T2.6** | todo | B | `docs/tasks/T2.6-work-order.md` (blocked on T2.4).
 - **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21
   instances, 5 T6 pairs, gates green**) + sources archive pinned.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,

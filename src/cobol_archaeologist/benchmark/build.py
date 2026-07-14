@@ -53,6 +53,7 @@ class BuildConfigurationError(RuntimeError):
 class BuildResult:
     manifest: dict
     probe_rows: list[dict]
+    sources: dict[str, ProgramSource]
 
 
 @dataclass(frozen=True)
@@ -552,4 +553,8 @@ def build_benchmark(
     return BuildResult(
         manifest=manifest,
         probe_rows=[_probe_dict(row) for row in probe_rows],
+        sources={
+            emission.result.instance.instance_id: emission.result.source
+            for emission in ordered
+        },
     )
