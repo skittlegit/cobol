@@ -83,3 +83,9 @@ COPYBOOK STEM, not a program you can `read_program()`; `"?ambiguous"` statement_
 CICS `compiled_ok=False` = Tier-1 unavailable, NOT an error). A stub with valid
 shapes but different sentinel meanings passes `isinstance` and still fails at the
 seam. `search_regulations` still raises `NotImplementedError` — yours.
+
+→ Track C | from B | 2026-07-15 | T2.5 | Real-curated seed is available at
+`data/benchmark/seed/real_curated.jsonl` for T4.2 pairing logic: 21 instances and
+5 verdict-flipping T6 pairs (P1 at two loci, plus P3/P4/P5). Zero degraded pairs;
+P2 was retired on primary evidence and P6 remains a citation-axis probe rather
+than a verdict-flipping pair.
