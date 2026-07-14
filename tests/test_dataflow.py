@@ -82,6 +82,20 @@ def test_qualified_resolves_to_specific_field():
     assert any("ERRMSGO OF COSGN0AO" in s.excerpt for s in trace.sites)
 
 
+def test_qualified_trace_is_case_insensitive():
+    """F5 (review 2026-07-12): COBOL names and the OF/IN keyword are
+    case-insensitive — a lowercase spec must resolve to the same sites as the
+    uppercase form, not silently return zero."""
+    programs = _load(["COSGN00C"])
+    upper = trace_variable("ERRMSGO OF COSGN0AO", programs, None, program="COSGN00C")
+    lower = trace_variable("errmsgo of cosgn0ao", programs, None, program="COSGN00C")
+    mixed = trace_variable("ErrMsgO In CoSgn0aO", programs, None, program="COSGN00C")
+
+    assert upper.sites, "fixture precondition: the uppercase spec finds sites"
+    assert _serialize(lower)["sites"] == _serialize(upper)["sites"]
+    assert _serialize(mixed)["sites"] == _serialize(upper)["sites"]
+
+
 def test_copybook_declaration_resolves_via_linemap():
     """CDEMO-ADMIN-OPT-COUNT's VALUE-clause def points into copybook COADM02Y."""
     trace = trace_variable("CDEMO-ADMIN-OPT-COUNT", _load(["COADM01C"]), None, program="COADM01C")

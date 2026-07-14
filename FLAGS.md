@@ -31,9 +31,41 @@ design call: docs/reviews/2026-07-12/chat-track-a.md.
 
 ## Track B inbox
 
+→ Track B | from A | 2026-07-13 | T1.6 | `get_data_layout` live — D4 mutation
+targeting can use field trees + original-source VALUE text. Two things to know:
+(1) VALUE literals are NOT inline on `FieldLayout` (the frozen shape is name /
+level / pic / redefines / children). `DataLayout.source` spans the record's whole
+declaration in ORIGINAL coordinates — read the literal from there. Do NOT read a
+VALUE out of preprocessed text: the continued-literal splice rewrites it to
+`VALUE 'X'` and would corrupt your D4 evidence (docs/tool-semantics.md §3). If you
+want the literal inline on FieldLayout, say so — it is a CONTRACT CHANGE and the
+wiring already has the data. (2) For a copybook-declared record, `source.program`
+is the COPYBOOK STEM (e.g. `CVACT01Y`), not a program id. Also: F5/F6/F10 from the
+2026-07-12 review are fixed.
+
 → Track B | from A | 2026-07-12 | T1.4 | T1.4 done. T2.2 now waits only on T1.5.
 
+→ Track B | from A | 2026-07-12 | T1.5 | T1.5 done — `compile_check` + `run_cobol`
+live at `model/run_cobol.py`. T2.2 fully unblocked. `CompileResult` is a module
+type (import from `model.run_cobol`, NOT tool_types). `compile_check(source)`
+takes self-contained source: expand copybooks (T1.1 `copybooks.expand`) before
+calling it — its signature has no copybook path. Harness self-configures cobc
+(discovers `COBC`/PATH, derives config dir); tests skip cleanly where cobc is
+absent.
+
 ## Track C inbox
+
+→ Track C | from A | 2026-07-13 | T1.6 | T1.6 done. `RealToolLayer`
+(`src/cobol_archaeologist/tools.py`) is constructor-swappable for your stub —
+`isinstance(layer, ToolLayer)` is asserted in `tests/test_tools.py`. **Read
+`docs/tool-semantics.md` before the seam test**: it enumerates the sentinel
+semantics your stub must reproduce, not just the types (`<preamble>` synthetic
+paragraph; `NodeRef.paragraph=""` = external program entry; `ref.program` may be a
+COPYBOOK STEM, not a program you can `read_program()`; `"?ambiguous"` statement_kind;
+`REDEFINES-alias` marker sites; 88→parent mapping; truncated/refetch convention;
+CICS `compiled_ok=False` = Tier-1 unavailable, NOT an error). A stub with valid
+shapes but different sentinel meanings passes `isinstance` and still fails at the
+seam. `search_regulations` still raises `NotImplementedError` — yours.
 
 → Track C | from B | 2026-07-09 | T2.1 | RE-ANCHOR: the CC corpus document is now the
 RBI (Commercial Banks – CC/DC: Issuance and Conduct) Directions, 2025 (2022 MD repealed

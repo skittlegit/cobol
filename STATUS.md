@@ -47,7 +47,25 @@ One entry per task: ID, state, owner, and artifact.
   over-extraction bug in `dataflow.py` (indices now untracked per the
   documented limitation; T1.3 gate stays green).
 - **M1 (Slicing Validated): PASSED 2026-07-12 — slice_on matches 10 hand-built slices.**
-- **T1.5-T1.6** | todo | A | `docs/track-a-brief.md`. Unblocked by T1.4.
+- **T1.5** | done | A | `src/cobol_archaeologist/model/run_cobol.py`
+  (`compile_check` syntax oracle → `CompileResult`; `run_cobol` /
+  `run_cobol_with_files` sandboxed compile+execute → `RunResult`; temp-dir +
+  5s timeout + minimal self-configuring env) + `scripts/setup_cobc.sh`. Gate
+  `tests/test_run_cobol.py` (verified live on GnuCOBOL 3.2.0; skip-marked
+  without `cobc`). CBACT04C is compile-only (JCL-called `PROCEDURE DIVISION
+  USING` can't link as `-x`); full run on the trivial program.
+- **T1.6** | done | A | `src/cobol_archaeologist/tools.py` (`RealToolLayer`:
+  all 11 ToolLayer methods over T1.1–T1.5, parse-on-first-touch cache +
+  one-shot call graph; `get_data_layout` is new logic — data-division field
+  tree, VALUE text guaranteed original-source via LineMap) +
+  `docs/tool-semantics.md` (consumer-facing sentinel/edge semantics) +
+  `scripts/smoke_tools.py` + gate `tests/test_tools.py` (23 tests, incl.
+  `isinstance(_, ToolLayer)`) + fixture `tests/fixtures/smoke/acct_curr_bal.json`.
+  D0 review fixes landed with regression tests: F5 (`dataflow.py`
+  case-insensitive qualified names), F6 (`cleaner.py` `PreprocessError` on
+  unterminated EXEC/COPY at EOF), F10 (`fetch_corpora.sh` verifies CardDemo
+  HEAD == pin).
+- **Phase 1 (Track A) COMPLETE — tool layer live.**
 - **T2.1** | done | B | `data/regulations/clauses.jsonl` (19 clauses,
   schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
   CC/DC Directions + KYC 2025; 2025 para numbers primary-confirmed at T2.5 +
