@@ -89,3 +89,12 @@ seam. `search_regulations` still raises `NotImplementedError` — yours.
 5 verdict-flipping T6 pairs (P1 at two loci, plus P3/P4/P5). Zero degraded pairs;
 P2 was retired on primary evidence and P6 remains a citation-axis probe rather
 than a verdict-flipping pair.
+
+→ Track C | from B | 2026-07-15 | T2.2 | Balanced anti-gaming probe is at
+`data/benchmark/probes/t2.2_surface_probe.jsonl` (50 drifted + 50 MO-0
+conformant; mixed seed bases; AUC 0.50, bootstrap 95% CI [0.50, 0.50]). Reuse
+the feature contract at T2.4/T5.5: diff size, touched-line count,
+comment-density delta, identifier-entropy delta, literal roundness, whitespace
+churn. Shape note: MO-4 validly emits against the para-90 bridge with
+`current_value=null` and a copybook `SourceLocus`; all × loci are sorted and
+multi-file or multi-paragraph.

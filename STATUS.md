@@ -72,9 +72,10 @@ One entry per task: ID, state, owner, and artifact.
   schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
   CC/DC Directions + KYC 2025; 2025 para numbers primary-confirmed at T2.5 +
   `docs/tasks/T2.1-clause-curation-note.md`.
-- **T2.2-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`. T2.2 is blocked on
-  **T1.5 only** (T1.4 and T2.1 done); MO-coverage prerequisite tracked in
-  `BACKLOG.md` (BL-1).
+- **T2.2** | done | B | `src/cobol_archaeologist/benchmark/{mutate,surface}.py`
+  + `tests/test_mutate.py` (**gates A–D green; 10 validated anchor instances
+  across all operators; skips: 10 synthetic-locus records**).
+- **T2.3-T2.4, T2.6** | todo | B | `docs/track-b-brief.md`.
 - **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21
   instances, 5 T6 pairs, gates green**) + sources archive pinned.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
