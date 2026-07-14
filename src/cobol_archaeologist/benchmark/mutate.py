@@ -261,6 +261,19 @@ def _procedure_index(lines: list[str]) -> int:
     raise MutationRejected("source has no PROCEDURE DIVISION")
 
 
+def _working_storage_end(lines: list[str], procedure: int) -> int:
+    """Return the safe insertion point for a generated working-storage item."""
+
+    return next(
+        (
+            index
+            for index in range(procedure)
+            if re.search(r"\bLINKAGE\s+SECTION\b", lines[index], re.IGNORECASE)
+        ),
+        procedure,
+    )
+
+
 def _paragraph_spans(source: str) -> list[tuple[str, int, int]]:
     lines = source.splitlines()
     procedure = _procedure_index(lines)
@@ -564,11 +577,18 @@ def _apply_mo4(base: ProgramSource, rng: random.Random) -> _EditPlan:
 
 def _apply_mo6(base: ProgramSource) -> _EditPlan:
     lines = base.text.splitlines()
-    start, end = _if_block(lines, base.touched_variables)
+    primary_variables = base.touched_variables[:1]
+    start, end = _if_block(lines, primary_variables)
+    block = " ".join(lines[start : end + 1]).upper()
+    if primary_variables and not any(
+        variable.upper() in block for variable in primary_variables
+    ):
+        return _apply_mo6_statement(base)
     original = " ".join(line.strip() for line in lines[start : end + 1])
     procedure = _procedure_index(lines)
+    declaration_index = _working_storage_end(lines, procedure)
     declaration = "       01  WS-COMPLIANCE-FLAG PIC X VALUE 'N'."
-    lines.insert(procedure, declaration)
+    lines.insert(declaration_index, declaration)
     start += 1
     end += 1
     lines[end] = re.sub(r"\.\s*$", "", lines[end])
@@ -581,6 +601,62 @@ def _apply_mo6(base: ProgramSource) -> _EditPlan:
         old=original,
         new="always-false WS-COMPLIANCE-FLAG guard",
         slice_candidates=("WS-COMPLIANCE-FLAG",),
+    )
+
+
+def _apply_mo6_statement(base: ProgramSource) -> _EditPlan:
+    """Guard a compliance paragraph whose rule is a calculation, not an IF."""
+
+    lines = base.text.splitlines()
+    procedure = _procedure_index(lines)
+    target = None
+    for variable in base.touched_variables:
+        target = next(
+            (
+                index
+                for index in range(procedure + 1, len(lines))
+                if variable.upper() in lines[index].upper()
+            ),
+            None,
+        )
+        if target is not None:
+            break
+    if target is None:
+        raise MutationRejected("MO-6 found no compliance statement to guard")
+    verb = re.compile(
+        r"\b(?:COMPUTE|ADD|SUBTRACT|MULTIPLY|DIVIDE|MOVE|PERFORM)\b",
+        re.IGNORECASE,
+    )
+    start = next(
+        (index for index in range(target, procedure, -1) if verb.search(lines[index])),
+        target,
+    )
+    end = next(
+        (
+            index
+            for index in range(start, len(lines))
+            if lines[index].rstrip().endswith(".")
+        ),
+        None,
+    )
+    if end is None or any(_HEADER_RE.match(line) for line in lines[start : end + 1]):
+        raise MutationRejected("MO-6 compliance statement has no safe sentence end")
+
+    original = " ".join(line.strip() for line in lines[start : end + 1])
+    declaration_index = _working_storage_end(lines, procedure)
+    lines.insert(declaration_index, "       01  WS-COMPLIANCE-FLAG PIC X VALUE 'N'.")
+    start += 1
+    end += 1
+    lines[end] = re.sub(r"\.\s*$", "", lines[end])
+    indent = lines[start][: len(lines[start]) - len(lines[start].lstrip())]
+    lines.insert(start, f"{indent}IF WS-COMPLIANCE-FLAG = 'Y'")
+    lines.insert(end + 2, f"{indent}END-IF.")
+    return _EditPlan(
+        source=replace(base, text=_join_like(base.text, lines)),
+        touches=(_Touch(base.program, None, start + 1, end + 3),),
+        old=original,
+        new="always-false WS-COMPLIANCE-FLAG guard",
+        slice_candidates=("WS-COMPLIANCE-FLAG", *base.touched_variables),
     )
 
 
@@ -643,22 +719,36 @@ def _apply_mo3x(base: ProgramSource) -> _EditPlan:
         (
             index
             for index, line in enumerate(lines)
-            if re.search(r"\bIF\s+WS-VALID\s*=\s*'Y'", line, re.IGNORECASE)
+            if re.search(
+                r"\bIF\s+(?:WS-VALID\s*=\s*'Y'|"
+                r"WS-VALIDATION-FAIL-REASON\s*=\s*0)",
+                line,
+                re.IGNORECASE,
+            )
         ),
         None,
     )
     if gate_index is None:
         raise MutationRejected("MO-3× requires a validate-then-post gate")
     old_line = lines[gate_index]
-    lines[gate_index] = re.sub(
-        r"=\s*'Y'", "NOT = 'X'", old_line, count=1, flags=re.IGNORECASE
-    )
+    if re.search(r"=\s*'Y'", old_line, re.IGNORECASE):
+        lines[gate_index] = re.sub(
+            r"=\s*'Y'", "NOT = 'X'", old_line, count=1, flags=re.IGNORECASE
+        )
+    else:
+        lines[gate_index] = re.sub(
+            r"=\s*0", "NOT = 9999", old_line, count=1, flags=re.IGNORECASE
+        )
     blocker_index = next(
         (
             index
             for index, line in enumerate(lines)
             if index > gate_index
-            and re.search(r"\bIF\s+WS-BALANCE\b", line, re.IGNORECASE)
+            and re.search(
+                r"\bIF\s+(?:WS-BALANCE|ACCT-CREDIT-LIMIT\b.*WS-TEMP-BAL)",
+                line,
+                re.IGNORECASE,
+            )
         ),
         None,
     )
@@ -674,7 +764,15 @@ def _apply_mo3x(base: ProgramSource) -> _EditPlan:
         ),
         old=old_line.strip(),
         new=lines[gate_index].strip(),
-        slice_candidates=("WS-VALID", "WS-BALANCE"),
+        slice_candidates=tuple(
+            dict.fromkeys(
+                (
+                    *_variables(old_line),
+                    *_variables(lines[blocker_index]),
+                    *base.touched_variables,
+                )
+            )
+        ),
     )
 
 
