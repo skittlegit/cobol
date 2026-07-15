@@ -77,8 +77,9 @@ One entry per task: ID, state, owner, and artifact.
   cover MO-0…MO-6 plus MO-1×/MO-3×/MO-6×; compiler gate verified with
   GnuCOBOL 3.2.0**) + `data/benchmark/probes/t2.2_surface_probe.jsonl` (100
   balanced records; AUC 0.50, bootstrap 95% CI [0.50, 0.50]).
-- **T2.3** | wip | B | **CORRECTIVE:** MO-1×/MO-6× emitted zero; per-operator
-  floors added — see `docs/tasks/T2.3b-T2.6b-corrective-work-order.md`.
+- **T2.3** | wip | B | Stage 1 bases authored (**12 train/dev + 3
+  test-reserved interprocedural sets + roster**) — [CODE] stages next:
+  MO-1×/MO-6× diagnosis, regeneration, re-judge, and split repair.
 - **T2.4** | done | B | stands (98% plausible on 50-sample); `judge_family`
   field to be backfilled in the T2.3b manifest gate.
 - **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21

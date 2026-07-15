@@ -1,0 +1,28 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. INTCOMP1.
+      * MONTHLY INTEREST - BASE EXCLUDES UNPAID FEES/LEVIES
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.
+       01  WS-UNPAID-FEES            PIC 9(7)V99 VALUE ZERO.
+       01  WS-CREDITS                PIC 9(9)V99 VALUE ZERO.
+       01  WS-BASE                   PIC S9(9)V99 VALUE ZERO.
+       01  WS-APR                    PIC 9(2)V99 VALUE 36.00.
+       01  WS-INT                    PIC 9(7)V99 VALUE ZERO.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-OUTSTANDING
+           ACCEPT WS-UNPAID-FEES
+           ACCEPT WS-CREDITS
+           PERFORM 2000-CALC
+           DISPLAY 'INT: ' WS-INT
+           STOP RUN.
+       2000-CALC.
+           COMPUTE WS-BASE = WS-OUTSTANDING - WS-UNPAID-FEES
+                   - WS-CREDITS
+           IF WS-BASE > ZERO
+              COMPUTE WS-INT ROUNDED = (WS-BASE * WS-APR) / 1200
+           ELSE
+              MOVE ZERO TO WS-INT
+           END-IF.

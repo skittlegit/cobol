@@ -1,0 +1,27 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. REFADJ1.
+      * REFUND CREDIT ADJUSTMENT CUTOFF - MIN(1% LIMIT, 5000)
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-CREDIT-LIMIT           PIC 9(9)V99 VALUE ZERO.
+       01  WS-REFUND-AMT             PIC 9(7)V99 VALUE ZERO.
+       01  WS-CUTOFF                 PIC 9(7)V99 VALUE ZERO.
+       01  WS-ACTION                 PIC X(8) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-CREDIT-LIMIT
+           ACCEPT WS-REFUND-AMT
+           PERFORM 2000-CUTOFF
+           DISPLAY 'ACTION: ' WS-ACTION
+           STOP RUN.
+       2000-CUTOFF.
+           COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * .01
+           IF WS-CUTOFF > 5000
+              MOVE 5000 TO WS-CUTOFF
+           END-IF
+           IF WS-REFUND-AMT > WS-CUTOFF
+              MOVE 'CONSENT' TO WS-ACTION
+           ELSE
+              MOVE 'ADJUST' TO WS-ACTION
+           END-IF.

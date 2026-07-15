@@ -1,0 +1,26 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CICREP1.
+      * CIC STATUS UPDATE AGEING AFTER SETTLEMENT (30-DAY SLA)
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-DAYS-SINCE-SETTLE      PIC 9(4) VALUE ZERO.
+       01  WS-DISPUTE-OPEN           PIC X(1) VALUE 'N'.
+       01  WS-ACTION                 PIC X(8) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-DAYS-SINCE-SETTLE
+           ACCEPT WS-DISPUTE-OPEN
+           PERFORM 2000-DECIDE
+           DISPLAY 'ACTION: ' WS-ACTION
+           STOP RUN.
+       2000-DECIDE.
+           IF WS-DISPUTE-OPEN = 'Y'
+              MOVE 'HOLD' TO WS-ACTION
+           ELSE
+              IF WS-DAYS-SINCE-SETTLE > 30
+                 MOVE 'BREACH' TO WS-ACTION
+              ELSE
+                 MOVE 'UPDATE' TO WS-ACTION
+              END-IF
+           END-IF.
