@@ -219,6 +219,23 @@ def _conformant_late_fee() -> ProgramSource:
     )
 
 
+def _conformant_penalty_pilot() -> ProgramSource:
+    source = (PROGRAMS_DIR / "CLOSPEN5.cbl").read_text(encoding="utf-8")
+    source = source.replace(
+        "WS-PEN-ENABLED        PIC X(1) VALUE 'N'.",
+        "WS-PEN-ENABLED        PIC X(1) VALUE 'Y'.",
+        1,
+    )
+    return ProgramSource(
+        program="CLOSPEN5",
+        filename="CLOSPEN5.cbl",
+        text=source,
+        kind="native",
+        touched_variables=("WS-PEN-ENABLED", "WS-PENALTY-AMT"),
+        target_path="penalty_per_day",
+    )
+
+
 def _cases() -> dict[str, tuple[ProgramSource, ClauseRecord]]:
     records = _records_by_id()
     return {
@@ -262,16 +279,7 @@ def _cases() -> dict[str, tuple[ProgramSource, ClauseRecord]]:
             ),
             records["KYC-ckycr-update"],
         ),
-        "MO-6": (
-            ProgramSource(
-                program="NOCAP1",
-                filename="NOCAP1.cbl",
-                text=NO_CAPITALIZATION,
-                kind="native",
-                touched_variables=("WS-ALLOW-CHARGE-CAP", "WS-INTEREST"),
-            ),
-            records["CC-09b-ii"],
-        ),
+        "MO-6": (_conformant_penalty_pilot(), records["CC-08a"]),
         "MO-1×": (
             ProgramSource(
                 program="REFUNDC1",
@@ -285,12 +293,13 @@ def _cases() -> dict[str, tuple[ProgramSource, ClauseRecord]]:
             records["CC-10h"],
         ),
         "MO-3×": (
-            ProgramSource(
-                program="LIMITGAT",
-                filename="LIMITGAT.cbl",
-                text=LIMIT_GATE,
-                kind="native",
-                touched_variables=("WS-VALID", "WS-BALANCE"),
+            _seed(
+                "OVRLIM1.cbl",
+                touched_variables=(
+                    "WS-CONSENT-ON-FILE",
+                    "WS-PROJECTED-BAL",
+                    "WS-CREDIT-LIMIT",
+                ),
             ),
             records["CC-06b-v"],
         ),
@@ -386,6 +395,36 @@ def test_gate_b_labels_and_provenance_follow_contract(emitted):
             assert instance.labels.line_level
 
 
+def test_plausibility_shapes_avoid_generator_sentinels(emitted):
+    mo0 = emitted["MO-0"].source.text
+    assert "DISPLAY 'BO= '" in mo0
+    assert "DISPLAY 'XO" not in mo0
+
+    mo2 = emitted["MO-2"].source.text
+    assert "MOVE 'INSLA' TO WS-SLA-STATUS." in mo2
+    assert "CONTINUE (required check removed)" not in mo2
+    assert "IF WS-DAYS-SINCE-UPD" not in mo2
+
+    mo3 = emitted["MO-3"].source.text
+    assert "IF WS-DAYS-PAST-DUE > 3" in mo3
+    assert "OR WS-OUTSTANDING-AMT > ZERO" in mo3
+    assert "IF WS-DAYS-PAST-DUE <= 3" not in mo3
+
+    mo3x = emitted["MO-3×"].source.text
+    assert "MOVE 'N' TO WS-CONSENT-ON-FILE" not in mo3x
+    assert "IF WS-CONSENT-REC-FOUND = 'Y'" in mo3x
+    assert "IF WS-CONSENT-ON-FILE NOT = 'Y'" in mo3x
+
+    mo6 = emitted["MO-6"].source.text
+    assert "WS-PEN-ENABLED        PIC X(1) VALUE 'N'." in mo6
+    assert "IF PENALTY-ON" in mo6
+    assert "WS-COMPLIANCE-FLAG" not in mo6
+
+    mo4 = emitted["MO-4"].source.files["WSREFLST.cpy"]
+    assert "VALUES 'IN', 'GB', 'CA'" in mo4
+    assert "'ZZ'" not in mo4
+
+
 def test_gate_b_deterministic_with_fixed_seed():
     for index, (op, (base, record)) in enumerate(_cases().items()):
         left = mutate(base, record, op, random.Random(9000 + index))
@@ -396,6 +435,24 @@ def test_gate_b_deterministic_with_fixed_seed():
 def test_gate_b_composite_target_paths_resolve(emitted):
     assert emitted["MO-3"].instance.target_path == "past_due_grace"
     assert emitted["MO-1×"].instance.target_path == "cutoff"
+
+
+def test_mo1_targets_business_condition_before_matching_pic_width():
+    records = _records_by_id()
+    base = _seed(
+        "KYCSCHED1.cbl",
+        touched_variables=("WS-YEARS-SINCE-KYC", "WS-RISK-RATING"),
+        target_path="high_risk",
+    )
+    result = mutate(
+        base,
+        records["KYC-periodic-updation"],
+        "MO-1",
+        random.Random(2251),
+    )
+    assert "PIC 9(2) VALUE ZERO" in result.source.text
+    assert "IF WS-YEARS-SINCE-KYC >= 3" in result.source.text
+    assert result.instance.code_locus.loci[0].line_span == (25, 25)
 
 
 def test_surface_diversification_is_deterministic_and_line_preserving():

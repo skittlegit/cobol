@@ -197,17 +197,12 @@ def perturb_nonregulated_literal(
 
         def repl(match: re.Match[str]) -> str:
             value = match.group(2)
-            characters = list(value or "#")
-            replace_at = next(
-                (
-                    index
-                    for index, character in enumerate(characters)
-                    if not character.isspace()
-                ),
-                0,
-            )
-            characters[replace_at] = "X" if characters[replace_at] != "X" else "Y"
-            replacement = "".join(characters)
+            if ":" in value:
+                replacement = value.replace(":", "=", 1)
+            elif value.endswith(" "):
+                replacement = value.rstrip() + "  "
+            else:
+                replacement = value + " "
             return f"{match.group(1)}'{replacement}'"
 
         new = _DISPLAY_RE.sub(repl, old, count=1)

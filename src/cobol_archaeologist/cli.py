@@ -21,6 +21,7 @@ from cobol_archaeologist.benchmark.judge import (
     apply_drop_policy,
     judge_benchmark,
     load_judgements,
+    load_unsure_adjudications,
     record_human_agreement,
 )
 
@@ -59,14 +60,28 @@ def _parser() -> argparse.ArgumentParser:
     judge.add_argument("--seed", type=int, default=2400)
     judge.add_argument("--model")
     judge.add_argument("--model-family")
+    judge.add_argument(
+        "--reasoning-effort",
+        choices=("none", "low", "medium", "high", "xhigh", "max"),
+    )
     judge.add_argument("--endpoint")
     judge.add_argument("--api-key-env", default="OPENAI_API_KEY")
     judge.add_argument("--accepted-out", type=Path)
     judge.add_argument("--rejected-dir", type=Path)
     judge.add_argument(
+        "--reuse-judgements",
+        type=Path,
+        help="reuse matching model verdicts by instance ID from an earlier JSONL",
+    )
+    judge.add_argument(
         "--human-review",
         type=Path,
         help="record exactly 15 human review rows against an existing output",
+    )
+    judge.add_argument(
+        "--adjudications",
+        type=Path,
+        help="apply human plausible/implausible decisions to all unsure rows",
     )
     return parser
 
@@ -108,9 +123,49 @@ def main(argv: Sequence[str] | None = None) -> int:
                 return 2
             print(json.dumps({"human_agreement": report}, sort_keys=True))
             return 0
+        if args.adjudications is not None:
+            try:
+                accepted = args.accepted_out or args.input.with_name(
+                    f"{args.input.stem}.plausible.jsonl"
+                )
+                rejected = args.rejected_dir or args.input.parent / "rejected"
+                decisions = load_unsure_adjudications(args.adjudications)
+                report = apply_drop_policy(
+                    args.input,
+                    load_judgements(args.out),
+                    accepted,
+                    rejected,
+                    decisions,
+                )
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                manifest.setdefault("judging", {})["unsure_adjudication"] = {
+                    "file": str(args.adjudications),
+                    "reviewed": len(decisions),
+                    "accepted": sum(
+                        item.verdict == "plausible" for item in decisions
+                    ),
+                    "rejected": sum(
+                        item.verdict == "implausible" for item in decisions
+                    ),
+                }
+                manifest_path.write_text(
+                    json.dumps(
+                        manifest, ensure_ascii=False, indent=2, sort_keys=True
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+            except (OSError, ValueError) as exc:
+                print(f"benchmark-judge: {exc}", file=sys.stderr)
+                return 2
+            print(json.dumps({"drop_policy": report}, sort_keys=True))
+            return 0
 
         model = args.model or os.environ.get("OPENAI_MODEL", "")
         family = args.model_family or os.environ.get("JUDGE_MODEL_FAMILY", "")
+        reasoning_effort = args.reasoning_effort or os.environ.get(
+            "OPENAI_REASONING_EFFORT"
+        )
         endpoint = args.endpoint or os.environ.get(
             "OPENAI_BASE_URL", "https://api.openai.com/v1"
         )
@@ -136,9 +191,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                     api_key=api_key,
                     model=model,
                     model_family=family,
+                    reasoning_effort=reasoning_effort,
                 ),
                 sample=args.sample,
                 seed=args.seed,
+                reuse_path=args.reuse_judgements,
             )
             if args.sample is None:
                 accepted = args.accepted_out or args.input.with_name(

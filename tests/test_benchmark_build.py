@@ -92,6 +92,67 @@ def test_gate_d_interprocedural_floor_or_documented_shortfall(built_pair):
     assert manifest["shortfalls"]["interprocedural"] == max(0, 30 - actual)
 
 
+def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
+    first, _, output, _ = built_pair
+    instances = [
+        DriftInstance.model_validate_json(line)
+        for line in output.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    d2 = next(item for item in instances if item.drift_type == "D2_missing_rule")
+    d2_source = first.sources[d2.instance_id].text
+    assert "2000-SET-SYNC-STATUS" in d2_source
+    assert "MOVE 'PENDING' TO WS-SYNC-STATUS" in d2_source
+    assert "IF WS-CUST-ID NOT = SPACES" in d2_source
+    assert "MOVE 'READY' TO WS-SYNC-STATUS" in d2_source
+    assert "IF WS-DAYS-SINCE-UPD = ZERO" in d2_source
+    assert "IF WS-DAYS-SINCE-UPD > 7" not in d2_source
+    assert "new='(deleted)'" in (d2.provenance.mutation or "")
+
+    d3 = next(
+        item
+        for item in instances
+        if item.drift_type == "D3_contradictory"
+        and not item.code_locus.is_interprocedural
+    )
+    d3_source = first.sources[d3.instance_id].text
+    assert "IF WS-DAYS-PAST-DUE > 3" in d3_source
+    assert "OR WS-OUTSTANDING-AMT > ZERO" in d3_source
+    assert "IF WS-DAYS-PAST-DUE <= 3" not in d3_source
+
+    d3x = next(
+        item
+        for item in instances
+        if item.drift_type == "D3_contradictory"
+        and item.code_locus.is_interprocedural
+    )
+    d3x_source = first.sources[d3x.instance_id].text
+    assert "MOVE 'N' TO WS-CONSENT-ON-FILE" not in d3x_source
+    assert "PERFORM 1500-LOAD-CONSENT" in d3x_source
+    assert "IF WS-CONSENT-REC-FOUND = 'Y'" in d3x_source
+    assert "IF WS-PROJECTED-BAL > WS-CREDIT-LIMIT" in d3x_source
+    assert "IF WS-CONSENT-ON-FILE NOT = 'Y'" in d3x_source
+    assert "old=\"MOVE 'N' TO WS-CONSENT-ON-FILE\"" in (
+        d3x.provenance.mutation or ""
+    )
+    assert "new='(deleted)'" in (d3x.provenance.mutation or "")
+
+    d4 = next(item for item in instances if item.drift_type == "D4_stale_reference_data")
+    assert "old='D'" in (d4.provenance.mutation or "")
+    assert "new='W'" in (d4.provenance.mutation or "")
+
+    d6 = next(item for item in instances if item.drift_type == "D6_dead_code")
+    d6_source = first.sources[d6.instance_id].text
+    assert "PROGRAM-ID. CLOSPEN5" in d6_source
+    assert "WS-PEN-ENABLED        PIC X(1) VALUE 'N'." in d6_source
+    assert "IF PENALTY-ON" in d6_source
+    assert "COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS" in d6_source
+    assert "WS-COMPLIANCE-FLAG" not in d6_source
+    assert "old=\"VALUE 'Y'\"" in (d6.provenance.mutation or "")
+    assert "new=\"VALUE 'N'\"" in (d6.provenance.mutation or "")
+    assert len(d6.code_locus.loci) == 2
+
+
 def test_gate_e_surface_probe_sample_is_at_chance(built_pair):
     first, _, _, _ = built_pair
     rows = [ProbeRow(**row) for row in first.probe_rows]
