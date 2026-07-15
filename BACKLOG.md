@@ -33,6 +33,14 @@ on PRs to `master`. Also confirm the tracked branch-protection / ruleset JSONs
 were actually installed in GitHub repo settings — they enforce nothing by merely
 existing in the tree.
 
+### BL-5 — Independent benchmark bases for non-empty dev · source: T2.6 distribution · owner: Track B · trigger: before T5.2 freeze
+The 21 real-curated test rows collectively share base-program groups with every
+accepted synthetic family except OVRLIM1. Under T2.6's hard zero-base-overlap
+and curated-test-only constraints, v1-pre therefore has train/dev/test =
+30/0/293 and 35/42 CI-fragile class×stratum cells. Add and plausibility-judge
+independent synthetic base families before benchmark freeze; do not split a
+program group merely to manufacture dev metrics.
+
 ## Done / promoted
 
 ### BL-1 — MO operator coverage for T2.2 · resolved by T2.2

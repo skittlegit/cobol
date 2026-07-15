@@ -89,8 +89,14 @@ One entry per task: ID, state, owner, and artifact.
 - **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21
   instances, 5 intact verdict-flipping T6 pairs, zero degraded pairs, gates
   green**) + pinned primary-source archive.
-- **T2.6** | todo | B | `docs/tasks/T2.6-work-order.md` (**unblocked by T2.4;
-  split artifacts not yet produced**).
+- **T2.6** | done | B | `src/cobol_archaeologist/benchmark/splits.py` +
+  `data/benchmark/v1-pre/{train,dev,test}.jsonl` + `distribution.md`
+  (**deterministic seed 2600; zero base overlap; all 21 real-curated rows
+  test-only; structural T6 pairs/cross variants atomic; 5/5 split gates pass**).
+  Hard grouping yields train/dev/test = 30/0/293: curated test reservation
+  consumes every synthetic base except OVRLIM1, so splitting the remaining
+  group to populate dev would leak program identity. Distribution explicitly
+  flags 35/42 class×stratum cells as CI-fragile; follow-up is BL-5.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
