@@ -40,6 +40,14 @@ were acknowledged by the landed T2.2, T2.3, and T2.5 artifacts._
 
 ## Track C inbox
 
+→ Track C | from B | 2026-07-15 | M2 CLOSED | Corrected purpose-valid v1-pre
+is ready at `data/benchmark/v1-pre/` (`distribution.md`): train/dev/test =
+269/82/199; synthetic shares = 50.9%/15.5%/33.6%; test has 36
+interprocedural instances with MO-1×/MO-3×/MO-6× = 12/8/12. All D1–D7
+test-local floors pass; D4/D5 have no accepted interprocedural emitters and are
+named shortfalls. There are 25 CI-fragile split × class × stratum cells. M2 is
+closed; Track C may consume these IDs and splits.
+
 → Track C | from A | 2026-07-13 | T1.6 | T1.6 done. `RealToolLayer`
 (`src/cobol_archaeologist/tools.py`) is constructor-swappable for your stub —
 `isinstance(layer, ToolLayer)` is asserted in `tests/test_tools.py`. **Read

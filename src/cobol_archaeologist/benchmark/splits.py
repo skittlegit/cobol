@@ -73,6 +73,42 @@ def _cell(instance: DriftInstance) -> tuple[str, str]:
     return instance.drift_type, _stratum(instance)
 
 
+def _operator(instance: DriftInstance) -> str:
+    mutation = instance.provenance.mutation or ""
+    return mutation.split(";", 1)[0]
+
+
+def _load_roster(path: str | Path | None) -> dict[str, frozenset[str]]:
+    if path is None:
+        return {}
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    reservations = payload.get("reservations")
+    if not isinstance(reservations, dict):
+        raise SplitConfigurationError("base roster lacks a reservations object")
+    allowed: dict[str, frozenset[str]] = {}
+    for base_path, raw_splits in reservations.items():
+        if not isinstance(raw_splits, list) or not raw_splits:
+            raise SplitConfigurationError(
+                f"base roster reservation {base_path!r} has no allowed splits"
+            )
+        choices = frozenset(raw_splits)
+        unknown = choices - set(SPLITS)
+        if unknown:
+            raise SplitConfigurationError(
+                f"base roster reservation {base_path!r} names unknown splits: "
+                f"{sorted(unknown)}"
+            )
+        group = Path(base_path).stem.upper()
+        if group in allowed:
+            choices &= allowed[group]
+            if not choices:
+                raise SplitConfigurationError(
+                    f"base roster has conflicting reservations for {group}"
+                )
+        allowed[group] = choices
+    return allowed
+
+
 def _assignment_score(
     counts: dict[str, Counter],
     totals: Counter,
@@ -89,10 +125,109 @@ def _assignment_score(
     return score
 
 
+def _assignment_score_for_groups(
+    groups: dict[str, list[DriftInstance]], assignments: dict[str, str]
+) -> float:
+    global_cells = Counter(
+        _cell(item) for items in groups.values() for item in items
+    )
+    total = sum(len(items) for items in groups.values())
+    target_cells = {
+        split: {
+            cell: count * TARGET_RATIOS[split]
+            for cell, count in global_cells.items()
+        }
+        for split in SPLITS
+    }
+    target_totals = {
+        split: total * TARGET_RATIOS[split] for split in SPLITS
+    }
+    counts = {split: Counter() for split in SPLITS}
+    totals: Counter = Counter()
+    for group, items in groups.items():
+        split = assignments[group]
+        counts[split].update(_cell(item) for item in items)
+        totals[split] += len(items)
+    return _assignment_score(counts, totals, target_cells, target_totals)
+
+
+def _purpose_errors(
+    groups: dict[str, list[DriftInstance]], assignments: dict[str, str]
+) -> list[str]:
+    split_rows = {
+        split: [
+            item
+            for group, items in groups.items()
+            if assignments[group] == split
+            for item in items
+        ]
+        for split in SPLITS
+    }
+    synthetic_total = sum(
+        item.provenance.source == "synthetic"
+        for items in groups.values()
+        for item in items
+    )
+    synthetic_counts = {
+        split: sum(
+            item.provenance.source == "synthetic"
+            for item in split_rows[split]
+        )
+        for split in SPLITS
+    }
+    errors: list[str] = []
+    if synthetic_counts["dev"] < 0.12 * synthetic_total:
+        errors.append("dev has less than 12% of synthetic instances")
+    if synthetic_counts["train"] < 0.40 * synthetic_total:
+        errors.append("train has less than 40% of synthetic instances")
+    for split in ("train", "dev"):
+        classes = {item.drift_type for item in split_rows[split]}
+        if len(classes) < 5:
+            errors.append(f"{split} contains fewer than five classes")
+
+    test_local = [
+        item for item in split_rows["test"] if _stratum(item) == "local"
+    ]
+    local_counts = Counter(item.drift_type for item in test_local)
+    for drift_type in CLASS_ORDER:
+        if local_counts[drift_type] < 10:
+            errors.append(f"test-local {drift_type} has fewer than 10 instances")
+
+    test_interprocedural = [
+        item
+        for item in split_rows["test"]
+        if _stratum(item) == "interprocedural"
+    ]
+    if len(test_interprocedural) < 30:
+        errors.append("test has fewer than 30 interprocedural instances")
+    operator_counts = Counter(_operator(item) for item in test_interprocedural)
+    for operator in ("MO-1×", "MO-3×", "MO-6×"):
+        if operator_counts[operator] < 8:
+            errors.append(f"test {operator} has fewer than eight instances")
+    return errors
+
+
 def _assign_groups(
     groups: dict[str, list[DriftInstance]],
+    roster: dict[str, frozenset[str]],
 ) -> dict[str, str]:
-    global_cells = Counter(_cell(item) for items in groups.values() for item in items)
+    # DECISION: retain T2.6's group-preserving greedy balance, constrain each
+    # choice by the roster, then make the smallest whole-group repair needed
+    # for the new purpose gates. No repair may split a base or paired locus.
+    allowed: dict[str, tuple[str, ...]] = {}
+    for group, items in groups.items():
+        choices = set(roster.get(group, frozenset(SPLITS)))
+        if any(item.provenance.source == "real_curated" for item in items):
+            choices &= {"test"}
+        if not choices:
+            raise SplitConfigurationError(
+                f"base group {group} has no split allowed by roster and real->test"
+            )
+        allowed[group] = tuple(split for split in SPLITS if split in choices)
+
+    global_cells = Counter(
+        _cell(item) for items in groups.values() for item in items
+    )
     total = sum(len(items) for items in groups.values())
     target_cells = {
         split: {
@@ -108,24 +243,24 @@ def _assign_groups(
     totals: Counter = Counter()
     assignments: dict[str, str] = {}
 
-    fixed_test = {
-        group
-        for group, items in groups.items()
-        if any(item.provenance.source == "real_curated" for item in items)
-    }
-    for group in sorted(fixed_test):
-        assignments[group] = "test"
-        counts["test"].update(_cell(item) for item in groups[group])
-        totals["test"] += len(groups[group])
+    for group in sorted(groups):
+        if len(allowed[group]) != 1:
+            continue
+        split = allowed[group][0]
+        assignments[group] = split
+        counts[split].update(_cell(item) for item in groups[group])
+        totals[split] += len(groups[group])
 
     remaining = sorted(
-        (group for group in groups if group not in fixed_test),
+        (group for group in groups if group not in assignments),
         key=lambda group: (-len(groups[group]), group),
     )
     for group in remaining:
         group_cells = Counter(_cell(item) for item in groups[group])
         candidates: list[tuple[float, int, str]] = []
         for split_index, split in enumerate(SPLITS):
+            if split not in allowed[group]:
+                continue
             counts[split].update(group_cells)
             totals[split] += len(groups[group])
             score = _assignment_score(
@@ -138,6 +273,40 @@ def _assign_groups(
         assignments[group] = chosen
         counts[chosen].update(group_cells)
         totals[chosen] += len(groups[group])
+
+    errors = _purpose_errors(groups, assignments)
+    while errors:
+        repairs: list[
+            tuple[int, float, str, int, dict[str, str], list[str]]
+        ] = []
+        for group in sorted(groups):
+            current = assignments[group]
+            for split_index, split in enumerate(SPLITS):
+                if split == current or split not in allowed[group]:
+                    continue
+                candidate = dict(assignments)
+                candidate[group] = split
+                candidate_errors = _purpose_errors(groups, candidate)
+                if len(candidate_errors) >= len(errors):
+                    continue
+                repairs.append(
+                    (
+                        len(candidate_errors),
+                        _assignment_score_for_groups(groups, candidate),
+                        group,
+                        split_index,
+                        candidate,
+                        candidate_errors,
+                    )
+                )
+        if not repairs:
+            raise SplitConfigurationError(
+                "greedy roster assignment cannot satisfy purpose-level gates: "
+                + "; ".join(errors)
+            )
+        _error_count, _score, _group, _split_index, assignments, errors = min(
+            repairs, key=lambda item: item[:4]
+        )
     return assignments
 
 
@@ -151,7 +320,9 @@ def _locus_key(instance: DriftInstance) -> str:
 
 
 def _validate_assignments(
-    rows: list[DriftInstance], assignments: dict[str, str]
+    rows: list[DriftInstance],
+    assignments: dict[str, str],
+    roster: dict[str, frozenset[str]],
 ) -> None:
     real_not_test = [
         item.instance_id
@@ -162,6 +333,15 @@ def _validate_assignments(
     if real_not_test:
         raise SplitConfigurationError(
             f"real-curated rows assigned outside test: {real_not_test[:3]}"
+        )
+    roster_violations = [
+        group
+        for group, split in assignments.items()
+        if group in roster and split not in roster[group]
+    ]
+    if roster_violations:  # pragma: no cover - constrained search prevents it
+        raise SplitConfigurationError(
+            f"base roster reservations violated: {roster_violations[:3]}"
         )
     locus_splits: dict[str, set[str]] = defaultdict(set)
     for item in rows:
@@ -188,7 +368,8 @@ def _distribution(
         "# Benchmark v1-pre Distribution",
         "",
         f"Deterministic seed: `{seed}`. Target ratios: train 70%, dev 15%, test 15%.",
-        "Base-program grouping and real-curated test reservation are hard constraints;",
+        "Base-program grouping, roster reservations, and real-curated test "
+        "reservation are hard constraints;",
         "`CI-fragile` marks every split × class × stratum cell with n < 10.",
         "",
         "## Split summary",
@@ -196,16 +377,6 @@ def _distribution(
         "| split | total | synthetic | real_curated | local | interprocedural | base groups |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
-    empty_splits = [split for split in SPLITS if not split_rows[split]]
-    if empty_splits:
-        lines[5:5] = [
-            "",
-            "**Constraint warning:** "
-            + ", ".join(empty_splits)
-            + " is empty because real-curated test reservation consumes every "
-            "synthetic base except one; splitting that remaining base would leak "
-            "program identity.",
-        ]
     for split in SPLITS:
         rows = split_rows[split]
         source_counts = Counter(item.provenance.source for item in rows)
@@ -216,6 +387,70 @@ def _distribution(
             f"{source_counts['real_curated']} | {stratum_counts['local']} | "
             f"{stratum_counts['interprocedural']} | {len(groups)} |"
         )
+
+    synthetic_total = sum(
+        item.provenance.source == "synthetic"
+        for rows in split_rows.values()
+        for item in rows
+    )
+    synthetic_counts = {
+        split: sum(
+            item.provenance.source == "synthetic" for item in split_rows[split]
+        )
+        for split in SPLITS
+    }
+    test_interprocedural = [
+        item
+        for item in split_rows["test"]
+        if _stratum(item) == "interprocedural"
+    ]
+    operator_counts = Counter(_operator(item) for item in test_interprocedural)
+    interprocedural_classes = Counter(
+        item.drift_type for item in test_interprocedural
+    )
+    train_classes = {item.drift_type for item in split_rows["train"]}
+    dev_classes = {item.drift_type for item in split_rows["dev"]}
+    lines.extend(
+        [
+            "",
+            "## Purpose-level gates",
+            "",
+            "| gate | required | observed | status |",
+            "|---|---:|---:|---|",
+            f"| train synthetic share | >= 40% | "
+            f"{synthetic_counts['train'] / synthetic_total:.1%} | pass |",
+            f"| dev synthetic share | >= 12% | "
+            f"{synthetic_counts['dev'] / synthetic_total:.1%} | pass |",
+            f"| test interprocedural | >= 30 | {len(test_interprocedural)} | pass |",
+            f"| train classes | >= 5 | {len(train_classes)} | pass |",
+            f"| dev classes | >= 5 | {len(dev_classes)} | pass |",
+            "",
+            "### Test interprocedural operator coverage",
+            "",
+            "| operator | required | observed | status |",
+            "|---|---:|---:|---|",
+        ]
+    )
+    for operator in ("MO-1×", "MO-3×", "MO-6×"):
+        lines.append(
+            f"| {operator} | >= 8 | {operator_counts[operator]} | pass |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Test interprocedural class shortfalls",
+            "",
+            "A zero is an explicit purpose-gate shortfall: no accepted "
+            "interprocedural mutation currently emits that class.",
+            "",
+            "| class | n | coverage |",
+            "|---|---:|---|",
+        ]
+    )
+    for drift_type in CLASS_ORDER[:6]:
+        count = interprocedural_classes[drift_type]
+        coverage = "covered" if count else "named shortfall"
+        lines.append(f"| {drift_type} | {count} | {coverage} |")
 
     lines.extend(
         [
@@ -268,6 +503,7 @@ def build_splits(
     output_dir: str | Path,
     *,
     seed: int = 2600,
+    roster_path: str | Path | None = None,
 ) -> SplitReport:
     """Build deterministic v1-pre splits under T2.6 hard constraints."""
 
@@ -282,11 +518,19 @@ def build_splits(
     if any(item.provenance.source != "real_curated" for item in real):
         raise SplitConfigurationError("real-curated input contains non-curated rows")
 
+    if roster_path is None:
+        candidate = Path(synthetic_path).parent / "seed" / "base_roster.json"
+        roster_path = candidate if candidate.exists() else None
+    roster = _load_roster(roster_path)
+
     groups: dict[str, list[DriftInstance]] = defaultdict(list)
     for item in rows:
         groups[_base_group(item)].append(item)
-    assignments = _assign_groups(groups)
-    _validate_assignments(rows, assignments)
+    assignments = _assign_groups(groups, roster)
+    _validate_assignments(rows, assignments, roster)
+    purpose_errors = _purpose_errors(groups, assignments)
+    if purpose_errors:  # pragma: no cover - constrained search prevents it
+        raise SplitConfigurationError("; ".join(purpose_errors))
 
     split_rows = {
         split: sorted(
@@ -299,11 +543,6 @@ def build_splits(
         )
         for split in SPLITS
     }
-    # DECISION: the current curated seed reserves every synthetic base except
-    # OVRLIM1 for test. One of train/dev must therefore be empty. Preserve the
-    # work order's hard no-overlap and curated-test constraints and report the
-    # infeasibility instead of leaking a base group across splits.
-
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     for split in SPLITS:
