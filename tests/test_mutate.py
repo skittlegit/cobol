@@ -350,6 +350,75 @@ def test_gate_a_cross_variants_are_genuinely_interprocedural(emitted):
         assert len(coordinates) >= 2
 
 
+def _clause(record_id: str) -> ClauseRecord:
+    return next(
+        record
+        for record in load_clause_records(CLAUSES_PATH)
+        if record.record_id == record_id
+    )
+
+
+def test_corrective_mo1x_emits_from_authored_copybook_host():
+    base = ProgramSource.from_path(
+        PROGRAMS_DIR / "test-bases-x" / "REFADJ2.cbl",
+        touched_variables=("WS-CUTOFF-CAP", "WS-CUTOFF", "WS-REFUND-AMT"),
+        target_path="cutoff",
+    )
+    result = mutate(base, _clause("CC-10h"), "MO-1×", random.Random(2311))
+
+    assert result.validation.ok
+    assert "VALUE 6000" in result.source.files["WSCUTOFF.cpy"]
+    assert result.instance.code_locus.is_interprocedural
+    assert {locus.file for locus in result.instance.code_locus.loci} == {
+        None,
+        "WSCUTOFF.cpy",
+    }
+
+
+def test_corrective_mo3x_emits_from_authored_validate_gate_post_host():
+    base = ProgramSource.from_path(
+        PROGRAMS_DIR / "test-bases-x" / "TRNVAL1.cbl",
+        touched_variables=(
+            "WS-LIMIT",
+            "WS-PROJ-BAL",
+            "WS-FAIL-REASON",
+            "WS-POSTED",
+        ),
+    )
+    result = mutate(base, _clause("CC-06b-v"), "MO-3×", random.Random(2312))
+
+    assert result.validation.ok
+    assert "MOVE 102 TO WS-FAIL-REASON" not in result.source.text
+    assert "IF WS-FAIL-REASON = ZERO" in result.source.text
+    assert result.instance.code_locus.is_interprocedural
+    assert {locus.paragraph for locus in result.instance.code_locus.loci} >= {
+        "1000-MAIN",
+        "2000-VALIDATE",
+    }
+
+
+def test_corrective_mo6x_emits_from_rostered_batch_chain():
+    directory = PROGRAMS_DIR / "test-bases-x"
+    base = ProgramSource.from_path(
+        directory / "BATCHCT2.cbl",
+        files={
+            "BATCHCT1.cbl": (directory / "BATCHCT1.cbl").read_text(encoding="utf-8"),
+            "WSCTLFLG.cpy": (directory / "WSCTLFLG.cpy").read_text(encoding="utf-8"),
+        },
+        touched_variables=("WS-PEN-RUN-FLAG", "WS-PENALTY"),
+    )
+    result = mutate(base, _clause("CC-09b-ii"), "MO-6×", random.Random(2313))
+
+    assert result.validation.ok
+    assert "MOVE 'N' TO WS-PEN-RUN-FLAG" in result.source.files["BATCHCT1.cbl"]
+    assert "IF PEN-RUN-ON" in result.source.text
+    assert result.instance.code_locus.is_interprocedural
+    assert {locus.program for locus in result.instance.code_locus.loci} >= {
+        "BATCHCT1",
+        "BATCHCT2",
+    }
+
+
 def test_gate_a_loci_are_sorted_for_pair_stability(emitted):
     for result in emitted.values():
         loci = result.instance.code_locus.loci
