@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import random
+import re
 import subprocess
 import urllib.error
 import urllib.request
@@ -43,6 +44,27 @@ CLASS_FLOORS = {
 }
 INTERPROCEDURAL_FLOOR = 30
 PROBE_PER_LABEL = 100
+OPERATOR_FLOORS = {
+    "MO-1×": 12,
+    "MO-3": 15,
+    "MO-3×": 12,
+    "MO-6×": 12,
+}
+CORRECTIVE_BASE_FLOOR = 32
+CORRECTIVE_BASES = {
+    "ACTIVAT1.cbl",
+    "BOIDENT3.cbl",
+    "CICREP1.cbl",
+    "CLOSPEN6.cbl",
+    "GRVAGE2.cbl",
+    "INTCOMP1.cbl",
+    "KYCSCHED2.cbl",
+    "KYCSYNC3.cbl",
+    "LATEFEE2.cbl",
+    "NOTICE1.cbl",
+    "REFADJ1.cbl",
+    "UNSOLIC1.cbl",
+}
 
 
 class BuildConfigurationError(RuntimeError):
@@ -104,6 +126,82 @@ def _seed_base(
     )
 
 
+def _load_base_roster(root: Path) -> dict:
+    path = root / "data" / "benchmark" / "seed" / "base_roster.json"
+    try:
+        roster = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise BuildConfigurationError(f"cannot load base roster {path}: {exc}") from exc
+    if not isinstance(roster.get("reservations"), dict) or not isinstance(
+        roster.get("chains"), dict
+    ):
+        raise BuildConfigurationError("base roster requires reservations and chains")
+    return roster
+
+
+def _rostered_chain_base(
+    programs: Path,
+    roster: dict,
+    chain_name: str,
+    *,
+    touched_variables: tuple[str, ...],
+) -> ProgramSource:
+    members = roster["chains"].get(chain_name)
+    if not isinstance(members, list) or len(members) < 2:
+        raise BuildConfigurationError(f"roster chain {chain_name!r} is incomplete")
+    paths = [programs / str(member) for member in members]
+    missing = [str(path) for path in paths if not path.is_file()]
+    if missing:
+        raise BuildConfigurationError(
+            f"roster chain {chain_name!r} has missing programs: {missing}"
+        )
+    texts = {path.name: path.read_text(encoding="utf-8") for path in paths}
+    guarded = [
+        path
+        for path in paths
+        if re.search(r"\bIF\s+PEN-RUN-ON\b", texts[path.name], re.IGNORECASE)
+    ]
+    if len(guarded) != 1:
+        raise BuildConfigurationError(
+            f"roster chain {chain_name!r} requires one guarded program"
+        )
+    primary = guarded[0]
+    files = {name: text for name, text in texts.items() if name != primary.name}
+    for path in paths:
+        for copy_name in re.findall(
+            r"^\s*COPY\s+([A-Z0-9_-]+)\s*\.",
+            texts[path.name],
+            re.IGNORECASE | re.MULTILINE,
+        ):
+            copy_path = path.parent / f"{copy_name}.cpy"
+            if not copy_path.is_file():
+                raise BuildConfigurationError(
+                    f"roster chain {chain_name!r} is missing {copy_path.name}"
+                )
+            files[copy_path.name] = copy_path.read_text(encoding="utf-8")
+    return ProgramSource.from_path(
+        primary,
+        files=files,
+        touched_variables=touched_variables,
+    )
+
+
+def _standing_judge_family(root: Path) -> tuple[str | None, str | None]:
+    path = root / "data" / "benchmark" / "drift_instances.manifest.json"
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return None, f"standing T2.4 manifest unavailable: {exc}"
+    family = manifest.get("judge_family")
+    if not family:
+        judging = manifest.get("judging")
+        if isinstance(judging, dict):
+            family = judging.get("model_family")
+    if isinstance(family, str) and family.strip():
+        return family.strip(), None
+    return None, "standing T2.4 manifest has no judge-family evidence"
+
+
 def _carddemo_copybooks(root: Path) -> dict[str, str]:
     directory = root / "data" / "corpora" / "carddemo" / "app" / "cpy"
     return {
@@ -139,6 +237,7 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
         )
     }
     programs = root / "data" / "benchmark" / "seed" / "programs"
+    roster = _load_base_roster(root)
     hosted = [
         (
             _seed_base(
@@ -176,6 +275,86 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
         ),
     ]
 
+    activation = _seed_base(
+        programs,
+        "train-bases/ACTIVAT1.cbl",
+        touched_variables=("WS-DAYS-SINCE-ISSUE", "WS-CONSENT-DAYS", "WS-ACTION"),
+        target_path="activation_window",
+    )
+    unsolicited = _seed_base(
+        programs,
+        "train-bases/UNSOLIC1.cbl",
+        touched_variables=("WS-CHARGES-BILLED", "WS-REVERSAL", "WS-PENALTY"),
+    )
+    closure = _seed_base(
+        programs,
+        "train-bases/CLOSPEN6.cbl",
+        touched_variables=("WS-REQ-DAYS", "WS-TOT-PENALTY"),
+        target_path="closure_window",
+    )
+    grievance = _seed_base(
+        programs,
+        "train-bases/GRVAGE2.cbl",
+        touched_variables=("WS-DAYS-OPEN", "WS-ESCALATE"),
+    )
+    bo_ident = _seed_base(
+        programs,
+        "train-bases/BOIDENT3.cbl",
+        touched_variables=("WS-OWN-PCT", "WS-IS-BO"),
+    )
+    kyc_sync = _seed_base(
+        programs,
+        "train-bases/KYCSYNC3.cbl",
+        touched_variables=("WS-TODAY-DAY", "WS-DUE-DAY", "WS-STATUS"),
+    )
+    kyc_schedule = _seed_base(
+        programs,
+        "train-bases/KYCSCHED2.cbl",
+        touched_variables=("WS-LAST-KYC-YYYY", "WS-DUE-YYYY", "WS-RISK"),
+        target_path="high_risk",
+    )
+    late_fee_new = _seed_base(
+        programs,
+        "train-bases/LATEFEE2.cbl",
+        touched_variables=("WS-DAYS-PAST-DUE", "WS-OUTSTANDING", "WS-CHARGE"),
+        target_path="past_due_grace",
+    )
+    cic_report = _seed_base(
+        programs,
+        "train-bases/CICREP1.cbl",
+        touched_variables=("WS-DAYS-SINCE-SETTLE", "WS-ACTION"),
+    )
+    hosted.extend(
+        [
+            (activation, clauses["CC-06a-vi"]),
+            (unsolicited, clauses["CC-06a-iv"]),
+            (closure, clauses["CC-08a"]),
+            (grievance, clauses["CC-26c"]),
+            (bo_ident, clauses["KYC-bo-threshold"]),
+            (kyc_sync, clauses["KYC-ckycr-update"]),
+            (kyc_schedule, clauses["KYC-periodic-updation"]),
+            (late_fee_new, clauses["CC-09b-v"]),
+            (cic_report, clauses["CC-12b"]),
+        ]
+    )
+
+    interest = _seed_base(
+        programs,
+        "train-bases/INTCOMP1.cbl",
+        touched_variables=("WS-BASE", "WS-UNPAID-FEES", "WS-CREDITS", "WS-INT"),
+    )
+    notice = _seed_base(
+        programs,
+        "train-bases/NOTICE1.cbl",
+        touched_variables=("WS-NOTICE-DAYS", "WS-OK"),
+    )
+    refund_local = _seed_base(
+        programs,
+        "train-bases/REFADJ1.cbl",
+        touched_variables=("WS-CUTOFF", "WS-REFUND-AMT"),
+        target_path="cutoff",
+    )
+
     late_fee = _seed_base(
         programs,
         "LATEFEE1.cbl",
@@ -206,7 +385,9 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
         target_path="penalty_per_day",
     )
     if "WS-PEN-ENABLED        PIC X(1) VALUE 'N'." not in d6_base.text:
-        raise BuildConfigurationError("CLOSPEN5 D6 base no longer matches its pilot flag")
+        raise BuildConfigurationError(
+            "CLOSPEN5 D6 base no longer matches its pilot flag"
+        )
     d6_base = replace(
         d6_base,
         text=d6_base.text.replace(
@@ -275,19 +456,97 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
         touched_variables=("WS-DAYS-SINCE-UPD", "WS-SYNC-STATUS"),
     )
 
+    refund_cross = _seed_base(
+        programs,
+        "test-bases-x/REFADJ2.cbl",
+        touched_variables=("WS-CUTOFF-CAP", "WS-CUTOFF", "WS-REFUND-AMT"),
+        target_path="cutoff",
+    )
+    transaction_gate = _seed_base(
+        programs,
+        "test-bases-x/TRNVAL1.cbl",
+        touched_variables=(
+            "WS-LIMIT",
+            "WS-PROJ-BAL",
+            "WS-FAIL-REASON",
+            "WS-POSTED",
+        ),
+    )
+    penalty_chain = _rostered_chain_base(
+        programs,
+        roster,
+        "BATCHCT",
+        touched_variables=("WS-PEN-RUN-FLAG", "WS-PENALTY"),
+    )
+
     d1 = [_Candidate(base, record, "MO-1") for base, record in hosted]
-    d5 = [_Candidate(base, record, "MO-5") for base, record in hosted]
+    d5 = [
+        _Candidate(base, record, "MO-5")
+        for base, record in hosted
+        if "MO-5" in record.check.get("mutation_ops", ())
+    ]
+    d5.extend(
+        [
+            _Candidate(refund_local, clauses["CC-10h"], "MO-5"),
+            _Candidate(notice, clauses["CC-09b-vii"], "MO-5"),
+        ]
+    )
     d7 = [_Candidate(base, record, "MO-0") for base, record in hosted]
-    return {
+    catalog = {
         "D1_stale_threshold": d1,
-        "D2_missing_rule": [_Candidate(d2_base, hosted[1][1], "MO-2")],
-        "D3_contradictory": [_Candidate(late_fee, clauses["CC-09b-v"], "MO-3")],
-        "D3_interprocedural": [_Candidate(overlimit, clauses["CC-06b-v"], "MO-3×")],
+        "D2_missing_rule": [
+            _Candidate(d2_base, clauses["KYC-ckycr-update"], "MO-2"),
+            _Candidate(activation, clauses["CC-06a-vi"], "MO-2"),
+            _Candidate(kyc_sync, clauses["KYC-ckycr-update"], "MO-2"),
+            _Candidate(cic_report, clauses["CC-12b"], "MO-2"),
+        ],
+        "D3_contradictory": [
+            _Candidate(late_fee, clauses["CC-09b-v"], "MO-3"),
+            _Candidate(late_fee_new, clauses["CC-09b-v"], "MO-3"),
+            _Candidate(interest, clauses["CC-09b-ii"], "MO-3"),
+        ],
+        "D3_interprocedural": [
+            _Candidate(overlimit, clauses["CC-06b-v"], "MO-3×"),
+            _Candidate(transaction_gate, clauses["CC-06b-v"], "MO-3×"),
+        ],
         "D4_stale_reference_data": [_Candidate(d4_base, clauses["CC-29"], "MO-4")],
         "D5_boundary_error": d5,
-        "D6_dead_code": [_Candidate(d6_base, clauses["CC-08a"], "MO-6")],
+        "D6_dead_code": [
+            _Candidate(d6_base, clauses["CC-08a"], "MO-6"),
+            _Candidate(interest, clauses["CC-09b-ii"], "MO-6"),
+            _Candidate(cic_report, clauses["CC-12b"], "MO-6"),
+        ],
+        "D1_interprocedural": [_Candidate(refund_cross, clauses["CC-10h"], "MO-1×")],
+        "D6_interprocedural": [
+            _Candidate(penalty_chain, clauses["CC-09b-ii"], "MO-6×")
+        ],
         "D7_conformant": d7,
     }
+    extra_d7 = [
+        _Candidate(interest, clauses["CC-09b-ii"], "MO-0"),
+        _Candidate(notice, clauses["CC-09b-vii"], "MO-0"),
+        _Candidate(refund_local, clauses["CC-10h"], "MO-0"),
+    ]
+    corrective: list[_Candidate] = []
+    seen: set[tuple[str, str, str]] = set()
+    for candidate in [
+        *(item for candidates in catalog.values() for item in candidates),
+        *extra_d7,
+    ]:
+        key = (candidate.base.filename, candidate.record.record_id, candidate.op)
+        if candidate.base.filename not in CORRECTIVE_BASES or key in seen:
+            continue
+        seen.add(key)
+        corrective.append(candidate)
+    missing_corrective = CORRECTIVE_BASES - {
+        candidate.base.filename for candidate in corrective
+    }
+    if missing_corrective:
+        raise BuildConfigurationError(
+            f"corrective bases have no mutation candidates: {sorted(missing_corrective)}"
+        )
+    catalog["corrective_free"] = corrective
+    return catalog
 
 
 def _llm_comment_variant(base: ProgramSource, seed: int) -> ProgramSource:
@@ -374,6 +633,26 @@ def _variant_base(
     rng = random.Random(seed)
     for _ in range(4 + seed % 3):
         text, _ = diversify_with_edits(text, None, rng)
+    if base.filename in {
+        *CORRECTIVE_BASES,
+        "REFADJ2.cbl",
+        "BATCHCT2.cbl",
+        "TRNVAL1.cbl",
+    }:
+        # The short corrective × hosts have only one comment and therefore only
+        # a handful of comment variants. Vary inert trailing whitespace across
+        # ordinary lines so each required emission remains byte-distinct without
+        # renaming any variable that carries interprocedural evidence.
+        lines = text.splitlines()
+        candidates = [
+            index
+            for index, line in enumerate(lines)
+            if line and not (len(line) > 6 and line[6] in "*/")
+        ]
+        for _ in range(3):
+            index = candidates[rng.randrange(len(candidates))]
+            lines[index] = lines[index].rstrip() + (" " * (1 + rng.randrange(6)))
+        text = "\n".join(lines) + ("\n" if text.endswith("\n") else "")
     return replace(base, text=text)
 
 
@@ -418,12 +697,7 @@ def build_benchmark(
     catalog = _candidate_catalog(root)
     emissions: list[_Emission] = []
     seen_ids: set[str] = set()
-    rejects: Counter[str] = Counter(
-        {
-            "MO-1×: no conformant copybook-cutoff base in the 12 seeds or CardDemo": 1,
-            "MO-6×: no conformant cross-program compliance-flag base in the 12 seeds or CardDemo": 1,
-        }
-    )
+    rejects: Counter[str] = Counter()
 
     def run_candidate(candidate: _Candidate, attempt: int) -> _Emission | None:
         variant_seed = seed * 1_000_003 + attempt * 101
@@ -492,6 +766,15 @@ def build_benchmark(
             emission.result.instance.drift_type == name for emission in emissions
         )
 
+    def count_operator(name: str) -> int:
+        return sum(emission.op == name for emission in emissions)
+
+    def count_base(name: str) -> int:
+        return sum(
+            emission.result.instance.provenance.base_program == name
+            for emission in emissions
+        )
+
     def fill(key: str, target: int, *, offset: int) -> None:
         candidates = catalog[key]
         failures = Counter()
@@ -514,17 +797,52 @@ def build_benchmark(
                 continue
             accept(emission)
 
-    fill("D2_missing_rule", 20, offset=20_000)
-    fill("D3_interprocedural", 30, offset=30_000)
-    if not any(emission.op == "MO-3" for emission in emissions):
-        candidate = catalog["D3_contradictory"][0]
-        emission = run_candidate(candidate, 39_999)
-        if emission is not None:
+    def fill_operator(key: str, operator: str, target: int, *, offset: int) -> None:
+        candidates = catalog[key]
+        failures = Counter()
+        local_attempt = 0
+        limit = max(100, target * max(20, len(candidates) * 10))
+        while count_operator(operator) < target and local_attempt < limit:
+            candidate = candidates[local_attempt % len(candidates)]
+            emission = run_candidate(candidate, offset + local_attempt)
+            local_attempt += 1
+            if emission is None:
+                failures[candidate.base.filename] += 1
+                continue
             accept(emission)
-    fill("D3_contradictory", 20, offset=40_000)
+
+    def fill_corrective_bases(target: int, *, offset: int) -> None:
+        candidates_by_base: dict[str, list[_Candidate]] = {}
+        for candidate in catalog["corrective_free"]:
+            candidates_by_base.setdefault(candidate.base.filename, []).append(candidate)
+        for base_index, name in enumerate(sorted(CORRECTIVE_BASES)):
+            candidates = candidates_by_base[name]
+            local_attempt = 0
+            limit = target * max(50, len(candidates) * 20)
+            while count_base(name) < target and local_attempt < limit:
+                candidate = candidates[local_attempt % len(candidates)]
+                emission = run_candidate(
+                    candidate,
+                    offset + base_index * 10_000 + local_attempt,
+                )
+                local_attempt += 1
+                if emission is not None:
+                    accept(emission)
+
+    # DECISION: local MO-3/MO-6 and D2/D5 targets exceed their formal floors so
+    # round-robin assignment leaves at least ten local rows on legacy groups
+    # forced to test while still populating the new train/dev groups. MO-3× is
+    # targeted at 24 and local MO-3 at 45 so their test-reserved/legacy groups
+    # retain a rejection buffer above the purpose minima of eight and ten.
+    fill("D2_missing_rule", 40, offset=20_000)
+    fill_operator("D1_interprocedural", "MO-1×", 12, offset=25_000)
+    fill_operator("D3_interprocedural", "MO-3×", 24, offset=30_000)
+    fill_operator("D3_contradictory", "MO-3", 45, offset=40_000)
     fill("D4_stale_reference_data", 20, offset=50_000)
-    fill("D5_boundary_error", 20, offset=60_000)
-    fill("D6_dead_code", 20, offset=70_000)
+    fill("D5_boundary_error", 50, offset=60_000)
+    fill_operator("D6_interprocedural", "MO-6×", 12, offset=65_000)
+    fill_operator("D6_dead_code", "MO-6", 30, offset=70_000)
+    fill_corrective_bases(CORRECTIVE_BASE_FLOOR, offset=100_000)
 
     extra_attempt = 0
     while len(emissions) < min_instances and extra_attempt < min_instances * 20:
@@ -563,23 +881,62 @@ def build_benchmark(
         ),
     )
     operator_counts = Counter(emission.op for emission in ordered)
+    operator_shortfalls = {
+        operator: max(0, floor - operator_counts[operator])
+        for operator, floor in OPERATOR_FLOORS.items()
+    }
+    corrective_base_shortfalls = {
+        name: max(0, CORRECTIVE_BASE_FLOOR - count_base(name))
+        for name in sorted(CORRECTIVE_BASES)
+    }
+    class_shortfalls = {name: shortfalls[name] for name in sorted(CLASS_FLOORS)}
+    unmet = {
+        **{f"class:{name}": count for name, count in class_shortfalls.items() if count},
+        **{
+            f"operator:{name}": count
+            for name, count in operator_shortfalls.items()
+            if count
+        },
+        **{
+            f"base:{name}": count
+            for name, count in corrective_base_shortfalls.items()
+            if count
+        },
+        **{
+            name: shortfalls[name]
+            for name in ("interprocedural", "minimum_instances")
+            if shortfalls[name]
+        },
+    }
+    if unmet:
+        raise BuildConfigurationError(f"corrective generation floors unmet: {unmet}")
+
     base_counts = Counter(
         emission.result.instance.provenance.base_program for emission in ordered
     )
     validation_counts = Counter(
         emission.result.validation.level for emission in ordered
     )
+    judge_family, judge_family_reason = _standing_judge_family(root)
     manifest = {
         "schema_version": 1,
         "seed": seed,
         "git_sha": _git_sha(root),
         "diversify": diversify_mode,
+        "diversify_mode": diversify_mode,
+        "judge_family": judge_family,
+        "judge_family_reason": judge_family_reason,
         "minimum_instances": min_instances,
         "instance_count": len(ordered),
         "operator_counts": dict(sorted(operator_counts.items())),
+        "operator_floors": dict(sorted(OPERATOR_FLOORS.items())),
+        "operator_shortfalls": dict(sorted(operator_shortfalls.items())),
+        "corrective_base_floor": CORRECTIVE_BASE_FLOOR,
+        "corrective_base_shortfalls": corrective_base_shortfalls,
         "base_counts": dict(sorted(base_counts.items())),
         "class_counts": {name: class_counts[name] for name in sorted(CLASS_FLOORS)},
         "class_floors": dict(sorted(CLASS_FLOORS.items())),
+        "class_shortfalls": class_shortfalls,
         "interprocedural_count": interprocedural_count,
         "shortfalls": dict(sorted(shortfalls.items())),
         "rejects_by_reason": dict(sorted(rejects.items())),

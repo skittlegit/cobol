@@ -33,8 +33,8 @@ def built_pair(tmp_path_factory):
     root = tmp_path_factory.mktemp("t23-build")
     left = root / "left" / "drift_instances.jsonl"
     right = root / "right" / "drift_instances.jsonl"
-    first = build_benchmark(seed=2306, out_path=left, min_instances=200)
-    second = build_benchmark(seed=2306, out_path=right, min_instances=200)
+    first = build_benchmark(seed=2601, out_path=left, min_instances=200)
+    second = build_benchmark(seed=2601, out_path=right, min_instances=200)
     return first, second, left, right
 
 
@@ -69,7 +69,7 @@ def test_gate_c_manifest_accounts_for_floors_rejects_and_validation(built_pair):
     first, _, output, _ = built_pair
     manifest = json.loads(manifest_path_for(output).read_text(encoding="utf-8"))
     assert manifest == first.manifest
-    assert manifest["seed"] == 2306
+    assert manifest["seed"] == 2601
     assert manifest["git_sha"]
     assert manifest["diversify"] == "deterministic"
     assert sum(manifest["operator_counts"].values()) == manifest["instance_count"]
@@ -82,6 +82,58 @@ def test_gate_c_manifest_accounts_for_floors_rejects_and_validation(built_pair):
     for drift_class, floor in manifest["class_floors"].items():
         actual = manifest["class_counts"][drift_class]
         assert manifest["shortfalls"][drift_class] == max(0, floor - actual)
+
+
+def test_corrective_manifest_has_complete_operator_and_judge_gates(built_pair):
+    first, _, _, _ = built_pair
+    manifest = first.manifest
+
+    assert manifest["diversify_mode"] == "deterministic"
+    assert manifest["judge_family"] == "openai"
+    assert manifest["class_shortfalls"] == {
+        drift_class: 0 for drift_class in sorted(EXPECTED_CLASSES)
+    }
+    assert manifest["operator_floors"] == {
+        "MO-1×": 12,
+        "MO-3": 15,
+        "MO-3×": 12,
+        "MO-6×": 12,
+    }
+    assert manifest["operator_shortfalls"] == {
+        operator: 0 for operator in manifest["operator_floors"]
+    }
+    for operator, floor in manifest["operator_floors"].items():
+        assert manifest["operator_counts"][operator] >= floor
+
+
+def test_corrective_build_wires_every_authored_program_group(built_pair):
+    first, _, _, _ = built_pair
+    train_bases = {
+        "ACTIVAT1.cbl",
+        "BOIDENT3.cbl",
+        "CICREP1.cbl",
+        "CLOSPEN6.cbl",
+        "GRVAGE2.cbl",
+        "INTCOMP1.cbl",
+        "KYCSCHED2.cbl",
+        "KYCSYNC3.cbl",
+        "LATEFEE2.cbl",
+        "NOTICE1.cbl",
+        "REFADJ1.cbl",
+        "UNSOLIC1.cbl",
+    }
+    expected = {
+        *train_bases,
+        "REFADJ2.cbl",
+        "BATCHCT2.cbl",
+        "TRNVAL1.cbl",
+    }
+    assert expected <= set(first.manifest["base_counts"])
+    assert first.manifest["corrective_base_floor"] == 32
+    assert first.manifest["corrective_base_shortfalls"] == {
+        name: 0 for name in sorted(train_bases)
+    }
+    assert all(first.manifest["base_counts"][name] >= 32 for name in train_bases)
 
 
 def test_gate_d_interprocedural_floor_or_documented_shortfall(built_pair):
@@ -99,7 +151,12 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
         for line in output.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    d2 = next(item for item in instances if item.drift_type == "D2_missing_rule")
+    d2 = next(
+        item
+        for item in instances
+        if item.drift_type == "D2_missing_rule"
+        and item.provenance.base_program == "KYCSYNC2.cbl"
+    )
     d2_source = first.sources[d2.instance_id].text
     assert "2000-SET-SYNC-STATUS" in d2_source
     assert "MOVE 'PENDING' TO WS-SYNC-STATUS" in d2_source
@@ -114,6 +171,7 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
         for item in instances
         if item.drift_type == "D3_contradictory"
         and not item.code_locus.is_interprocedural
+        and item.provenance.base_program == "LATEFEE1.cbl"
     )
     d3_source = first.sources[d3.instance_id].text
     assert "IF WS-DAYS-PAST-DUE > 3" in d3_source
@@ -125,6 +183,7 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
         for item in instances
         if item.drift_type == "D3_contradictory"
         and item.code_locus.is_interprocedural
+        and item.provenance.base_program == "OVRLIM1.cbl"
     )
     d3x_source = first.sources[d3x.instance_id].text
     assert "MOVE 'N' TO WS-CONSENT-ON-FILE" not in d3x_source
@@ -132,16 +191,21 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
     assert "IF WS-CONSENT-REC-FOUND = 'Y'" in d3x_source
     assert "IF WS-PROJECTED-BAL > WS-CREDIT-LIMIT" in d3x_source
     assert "IF WS-CONSENT-ON-FILE NOT = 'Y'" in d3x_source
-    assert "old=\"MOVE 'N' TO WS-CONSENT-ON-FILE\"" in (
-        d3x.provenance.mutation or ""
-    )
+    assert "old=\"MOVE 'N' TO WS-CONSENT-ON-FILE\"" in (d3x.provenance.mutation or "")
     assert "new='(deleted)'" in (d3x.provenance.mutation or "")
 
-    d4 = next(item for item in instances if item.drift_type == "D4_stale_reference_data")
+    d4 = next(
+        item for item in instances if item.drift_type == "D4_stale_reference_data"
+    )
     assert "old='D'" in (d4.provenance.mutation or "")
     assert "new='W'" in (d4.provenance.mutation or "")
 
-    d6 = next(item for item in instances if item.drift_type == "D6_dead_code")
+    d6 = next(
+        item
+        for item in instances
+        if item.drift_type == "D6_dead_code"
+        and item.provenance.base_program == "CLOSPEN5.cbl"
+    )
     d6_source = first.sources[d6.instance_id].text
     assert "PROGRAM-ID. CLOSPEN5" in d6_source
     assert "WS-PEN-ENABLED        PIC X(1) VALUE 'N'." in d6_source
@@ -158,7 +222,7 @@ def test_gate_e_surface_probe_sample_is_at_chance(built_pair):
     rows = [ProbeRow(**row) for row in first.probe_rows]
     assert len(rows) == 200
     assert {row.label for row in rows} == {0, 1}
-    report = surface_probe_report(rows, seed=2306, bootstrap_samples=400)
+    report = surface_probe_report(rows, seed=2601, bootstrap_samples=400)
     assert report.ci_low <= 0.5 <= report.ci_high, report
     assert first.manifest["surface_probe"] == {
         "auc": report.auc,

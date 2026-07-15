@@ -385,9 +385,7 @@ def _target_leaf(
     for path, value in leaves:
         if isinstance(value, (int, float)):
             try:
-                _numeric_occurrence(
-                    base.text, float(value), base.touched_variables
-                )
+                _numeric_occurrence(base.text, float(value), base.touched_variables)
             except MutationRejected:
                 continue
             return path, value
@@ -460,9 +458,7 @@ def _apply_mo1(
         raise MutationRejected("MO-1 requires a numeric current_value leaf")
     current = float(raw_current)
     stale = _stale_value(record, current, rng)
-    index, match = _numeric_occurrence(
-        base.text, current, base.touched_variables
-    )
+    index, match = _numeric_occurrence(base.text, current, base.touched_variables)
     lines = base.text.splitlines()
     old_line = lines[index]
     replacement = _format_number_like(match.group(0), stale)
@@ -528,7 +524,10 @@ def _apply_mo2(base: ProgramSource) -> _EditPlan:
         insertion_line = lines[start].strip()
         variables = tuple(
             dict.fromkeys(
-                (*(_variables(old) or base.touched_variables), *_variables(insertion_line))
+                (
+                    *(_variables(old) or base.touched_variables),
+                    *_variables(insertion_line),
+                )
             )
         )
         return _EditPlan(
@@ -968,6 +967,105 @@ def _apply_mo3x(base: ProgramSource) -> _EditPlan:
     """Let explicit consent leak between batch records while keeping its blocker."""
 
     lines = base.text.splitlines()
+    gate_index = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if re.search(
+                r"\bIF\s+WS-FAIL-REASON\s*=\s*(?:ZERO|0)\b",
+                line,
+                re.IGNORECASE,
+            )
+        ),
+        None,
+    )
+    validator_index = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if re.search(
+                r"\bIF\s+WS-LIMIT\s*>=\s*WS-PROJ-BAL\b",
+                line,
+                re.IGNORECASE,
+            )
+        ),
+        None,
+    )
+    blocker_index = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if re.search(
+                r"\bMOVE\s+102\s+TO\s+WS-FAIL-REASON\b",
+                line,
+                re.IGNORECASE,
+            )
+        ),
+        None,
+    )
+    if None not in (gate_index, validator_index, blocker_index):
+        assert gate_index is not None
+        assert validator_index is not None
+        assert blocker_index is not None
+        else_index = next(
+            (
+                index
+                for index in range(validator_index + 1, blocker_index + 1)
+                if re.match(r"^\s*ELSE\b", lines[index], re.IGNORECASE)
+            ),
+            None,
+        )
+        end_index = next(
+            (
+                index
+                for index in range(blocker_index + 1, len(lines))
+                if re.match(r"^\s*END-IF\b", lines[index], re.IGNORECASE)
+            ),
+            None,
+        )
+        if else_index is None or end_index is None:
+            raise MutationRejected(
+                "MO-3× validate/gate host has no safe blocker branch"
+            )
+        if not (gate_index < validator_index < else_index <= blocker_index < end_index):
+            raise MutationRejected("MO-3× validate/gate loci are not ordered safely")
+
+        # DECISION: retain both validation and the downstream success gate, but
+        # remove the validator's blocking ELSE. This is the cross-paragraph form
+        # of MO-3's blocking-branch removal, not a polarity inversion.
+        old_text = " ".join(
+            line.strip() for line in lines[else_index : blocker_index + 1]
+        )
+        del lines[else_index : blocker_index + 1]
+        return _EditPlan(
+            source=replace(base, text=_join_like(base.text, lines)),
+            touches=(
+                _Touch(base.program, None, else_index + 1, else_index + 1),
+                _Touch(
+                    base.program,
+                    None,
+                    gate_index + 1,
+                    gate_index + 1,
+                    label=False,
+                ),
+                _Touch(
+                    base.program,
+                    None,
+                    validator_index + 1,
+                    validator_index + 1,
+                    label=False,
+                ),
+            ),
+            old=old_text,
+            new="(deleted blocking branch)",
+            slice_candidates=(
+                "WS-FAIL-REASON",
+                "WS-LIMIT",
+                "WS-PROJ-BAL",
+                "WS-POSTED",
+            ),
+        )
+
     declaration_index = next(
         (
             index
@@ -1035,12 +1133,8 @@ def _apply_mo3x(base: ProgramSource) -> _EditPlan:
             declaration_index + 1,
             label=False,
         ),
-        _Touch(
-            base.program, None, loader_index + 1, loader_index + 1, label=False
-        ),
-        _Touch(
-            base.program, None, blocker_index + 1, blocker_index + 1, label=False
-        ),
+        _Touch(base.program, None, loader_index + 1, loader_index + 1, label=False),
+        _Touch(base.program, None, blocker_index + 1, blocker_index + 1, label=False),
     )
     return _EditPlan(
         source=replace(base, text=_join_like(base.text, lines)),
@@ -1104,6 +1198,92 @@ def _apply_mo6x(base: ProgramSource) -> _EditPlan:
                 slice_candidates=(
                     "WS-COMPLIANCE-ENABLED",
                     "LK-COMPLIANCE-ENABLED",
+                    *base.touched_variables,
+                ),
+            )
+    # DECISION: the corrective batch-chain host shares a default-N flag through
+    # a copybook, sets it to Y upstream, and guards the regulated calculation
+    # downstream through an 88-level condition name. Mutate the upstream setter;
+    # changing the shared default would not model the cross-program failure.
+    condition_names: dict[str, set[str]] = {}
+    for copy_name, copy_text in sorted(base.files.items()):
+        if not copy_name.lower().endswith((".cpy", ".copy")):
+            continue
+        parent: str | None = None
+        for line in copy_text.splitlines():
+            declaration = re.search(
+                r"^\s*(?:01|05|10|15|20|25|30|35|40|45|49)\s+([A-Z0-9-]+)",
+                line,
+                re.IGNORECASE,
+            )
+            if declaration:
+                parent = declaration.group(1).upper()
+                continue
+            condition = re.search(
+                r"^\s*88\s+([A-Z0-9-]+).*\bVALUE\s+'Y'",
+                line,
+                re.IGNORECASE,
+            )
+            if parent and condition:
+                condition_names.setdefault(parent, set()).add(
+                    condition.group(1).upper()
+                )
+
+    main_lines = base.text.splitlines()
+    for name in related:
+        lines = base.files[name].splitlines()
+        for index, line in enumerate(lines):
+            setter = re.search(
+                r"\bMOVE\s+'Y'\s+TO\s+((?:WS|LK)-[A-Z0-9-]+)",
+                line,
+                re.IGNORECASE,
+            )
+            if setter is None:
+                continue
+            flag = setter.group(1).upper()
+            guards = {flag, *condition_names.get(flag, set())}
+            guard_index = next(
+                (
+                    i
+                    for i, main_line in enumerate(main_lines)
+                    if re.search(r"\bIF\b", main_line, re.IGNORECASE)
+                    and any(
+                        re.search(rf"\b{re.escape(guard)}\b", main_line, re.IGNORECASE)
+                        for guard in guards
+                    )
+                ),
+                None,
+            )
+            if guard_index is None:
+                continue
+            old_line = lines[index]
+            lines[index] = re.sub(
+                r"\bMOVE\s+'Y'\s+TO\b",
+                "MOVE 'N' TO",
+                old_line,
+                count=1,
+                flags=re.IGNORECASE,
+            )
+            files = dict(base.files)
+            files[name] = _join_like(base.files[name], lines)
+            related_program = _program_id(files[name], fallback=Path(name).stem)
+            return _EditPlan(
+                source=replace(base, files=files),
+                touches=(
+                    _Touch(related_program, name, index + 1, index + 1),
+                    _Touch(
+                        base.program,
+                        None,
+                        guard_index + 1,
+                        guard_index + 1,
+                        label=False,
+                    ),
+                ),
+                old=old_line.strip(),
+                new=lines[index].strip(),
+                slice_candidates=(
+                    flag,
+                    *sorted(guards - {flag}),
                     *base.touched_variables,
                 ),
             )

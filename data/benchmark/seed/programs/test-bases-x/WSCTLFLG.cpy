@@ -1,0 +1,4 @@
+      * BATCH CONTROL FLAGS SHARED ACROSS THE PENALTY CHAIN
+       01  WS-CTL-FLAGS.
+           05  WS-PEN-RUN-FLAG       PIC X(1) VALUE 'N'.
+               88  PEN-RUN-ON        VALUE 'Y'.

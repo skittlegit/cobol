@@ -1,0 +1,18 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. NOTICE1.
+      * CHARGE-CHANGE NOTICE WINDOW (>= 30 DAYS PRIOR)
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-NOTICE-DAYS            PIC 9(4) VALUE ZERO.
+       01  WS-OK                     PIC X(1) VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-NOTICE-DAYS
+           PERFORM 2000-CHK
+           DISPLAY 'OK: ' WS-OK
+           STOP RUN.
+       2000-CHK.
+           IF WS-NOTICE-DAYS >= 30
+              MOVE 'Y' TO WS-OK
+           END-IF.

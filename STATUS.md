@@ -77,15 +77,19 @@ One entry per task: ID, state, owner, and artifact.
   cover MO-0…MO-6 plus MO-1×/MO-3×/MO-6×; compiler gate verified with
   GnuCOBOL 3.2.0**) + `data/benchmark/probes/t2.2_surface_probe.jsonl` (100
   balanced records; AUC 0.50, bootstrap 95% CI [0.50, 0.50]).
-- **T2.3** | wip | B | **CORRECTIVE:** MO-1×/MO-6× emitted zero; per-operator
-  floors added — see `docs/tasks/T2.3b-T2.6b-corrective-work-order.md`.
+- **T2.3** | wip | B | Corrective [CODE] regeneration complete (**591 compiled,
+  48 interprocedural; MO-1×/MO-3×/MO-6× = 12/24/12; all 12 train/dev bases
+  meet the 32-row floor; manifest gates green**). External-family re-judge is
+  next: 7 prior verdicts reusable, 584 new verdicts required; split repair
+  remains blocked until judging and drop policy complete.
 - **T2.4** | done | B | stands (98% plausible on 50-sample); `judge_family`
-  field to be backfilled in the T2.3b manifest gate.
+  backfilled as `openai` in the T2.3b manifest gate.
 - **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21
   instances, 5 intact verdict-flipping T6 pairs, zero degraded pairs, gates
   green**) + pinned primary-source archive.
-- **T2.6** | wip | B | **CORRECTIVE:** dev=0, test-interproc n=4
-  (headline-fatal) — split regeneration follows base expansion.
+- **T2.6** | wip | B | **CORRECTIVE:** prior v1-pre remains headline-invalid
+  (dev=0, test-interproc n=4); split regeneration follows T2.3b judging and
+  drop policy. Do not announce M2 or hand the prior split to Track C.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
