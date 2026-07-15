@@ -315,7 +315,11 @@ def _format_number_like(old_text: str, value: float) -> str:
     return str(int(value)) if float(value).is_integer() else str(value)
 
 
-def _numeric_occurrence(source: str, value: float) -> tuple[int, re.Match[str]]:
+def _numeric_occurrence(
+    source: str,
+    value: float,
+    preferred_variables: tuple[str, ...] = (),
+) -> tuple[int, re.Match[str]]:
     lines = source.splitlines()
     integer = int(value)
     if float(value).is_integer():
@@ -329,6 +333,20 @@ def _numeric_occurrence(source: str, value: float) -> tuple[int, re.Match[str]]:
         candidates.extend((index, match) for match in pattern.finditer(line))
     if not candidates:
         raise MutationRejected(f"current value {value!r} not found in source")
+    procedure = _procedure_index(lines)
+    preferred = tuple(variable.upper() for variable in preferred_variables)
+    conditional = next(
+        (
+            candidate
+            for candidate in candidates
+            if candidate[0] > procedure
+            and re.search(r"\b(?:IF|WHEN)\b", lines[candidate[0]], re.IGNORECASE)
+            and any(variable in lines[candidate[0]].upper() for variable in preferred)
+        ),
+        None,
+    )
+    if conditional is not None:
+        return conditional
     return next(
         (
             candidate
@@ -367,7 +385,9 @@ def _target_leaf(
     for path, value in leaves:
         if isinstance(value, (int, float)):
             try:
-                _numeric_occurrence(base.text, float(value))
+                _numeric_occurrence(
+                    base.text, float(value), base.touched_variables
+                )
             except MutationRejected:
                 continue
             return path, value
@@ -440,7 +460,9 @@ def _apply_mo1(
         raise MutationRejected("MO-1 requires a numeric current_value leaf")
     current = float(raw_current)
     stale = _stale_value(record, current, rng)
-    index, match = _numeric_occurrence(base.text, current)
+    index, match = _numeric_occurrence(
+        base.text, current, base.touched_variables
+    )
     lines = base.text.splitlines()
     old_line = lines[index]
     replacement = _format_number_like(match.group(0), stale)
@@ -487,16 +509,59 @@ def _apply_mo2(base: ProgramSource) -> _EditPlan:
     lines = base.text.splitlines()
     start, end = _if_block(lines, base.touched_variables)
     old = " ".join(line.strip() for line in lines[start : end + 1])
-    indent = lines[start][: len(lines[start]) - len(lines[start].lstrip())]
-    lines[start] = f"{indent}CONTINUE."
-    for index in range(start + 1, end + 1):
-        lines[index] = ""
+    else_index = next(
+        (
+            index
+            for index in range(start + 1, end)
+            if re.match(r"^\s*ELSE\b", lines[index], re.IGNORECASE)
+        ),
+        None,
+    )
+    if else_index is None:
+        # Some conformant bases establish an ordinary default before the
+        # required check and continue with unrelated classification logic.
+        # Delete only the required branch and label its insertion point; the
+        # remaining paragraph still looks maintained and still uses its input.
+        del lines[start : end + 1]
+        if start >= len(lines):
+            raise MutationRejected("MO-2 deletion has no insertion point")
+        insertion_line = lines[start].strip()
+        variables = tuple(
+            dict.fromkeys(
+                (*(_variables(old) or base.touched_variables), *_variables(insertion_line))
+            )
+        )
+        return _EditPlan(
+            source=replace(base, text=_join_like(base.text, lines)),
+            touches=(_Touch(base.program, None, start + 1, start + 1),),
+            old=old,
+            new="(deleted)",
+            slice_candidates=variables,
+        )
+
+    fallback = [line for line in lines[else_index + 1 : end] if line.strip()]
+    if not fallback:
+        raise MutationRejected("MO-2 found an empty fallback branch")
+
+    # Keep the ordinary fallback assignment and remove only the mandatory
+    # check.  The resulting paragraph is a credible incomplete migration,
+    # without the blank-line/CONTINUE fingerprint of a mechanical deletion.
+    target_indent = len(lines[start]) - len(lines[start].lstrip())
+    fallback_indent = min(len(line) - len(line.lstrip()) for line in fallback)
+    fallback = [
+        (" " * target_indent) + line[min(fallback_indent, len(line)) :]
+        for line in fallback
+    ]
+    fallback[-1] = fallback[-1].rstrip()
+    if not fallback[-1].endswith("."):
+        fallback[-1] += "."
+    lines[start : end + 1] = fallback
     variables = _variables(old) or base.touched_variables
     return _EditPlan(
         source=replace(base, text=_join_like(base.text, lines)),
-        touches=(_Touch(base.program, None, start + 1, end + 1),),
+        touches=(_Touch(base.program, None, start + 1, start + len(fallback)),),
         old=old,
-        new="CONTINUE (required check removed)",
+        new=" ".join(line.strip() for line in fallback),
         slice_candidates=tuple(variables),
     )
 
@@ -537,11 +602,72 @@ def _comparator_edit(
     )
 
 
-def _apply_mo4(base: ProgramSource, rng: random.Random) -> _EditPlan:
-    candidates = sorted(
+def _apply_mo3(base: ProgramSource) -> _EditPlan:
+    """Weaken a blocking condition so a forbidden business case can pass."""
+
+    lines = base.text.splitlines()
+    index = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if "WS-DAYS-PAST-DUE" in line.upper()
+            and re.search(r"\bIF\b.*>\s*3\b", line, re.IGNORECASE)
+        ),
+        None,
+    )
+    if index is None or "WS-OUTSTANDING-AMT" not in base.text.upper():
+        return _comparator_edit(
+            base, {">": "<=", ">=": "<", "<": ">=", "<=": ">", "=": "NOT ="}
+        )
+
+    old = lines[index].strip()
+    indent = lines[index][: len(lines[index]) - len(lines[index].lstrip())]
+    added = f"{indent}  OR WS-OUTSTANDING-AMT > ZERO"
+    lines.insert(index + 1, added)
+    return _EditPlan(
+        source=replace(base, text=_join_like(base.text, lines)),
+        touches=(_Touch(base.program, None, index + 1, index + 2),),
+        old=old,
+        new=f"{old} {added.strip()}",
+        slice_candidates=(
+            "WS-DAYS-PAST-DUE",
+            "WS-OUTSTANDING-AMT",
+            "WS-LATE-CHARGE",
+        ),
+    )
+
+
+def _alternate_reference_value(old: str, existing: set[str]) -> str:
+    if old == "D" and "C" in existing and "W" not in existing:
+        # The scale D4 base uses D as a conformant placeholder so the emitted
+        # mutant can retain the believable, now-stale W (working-day) option.
+        return "W"
+    plausible_by_width = {
+        1: ("A", "D", "B", "P", "S"),
+        2: ("CA", "AU", "NZ", "SG", "AE"),
+        3: ("STD", "ALT", "OLD", "NEW"),
+    }
+    for candidate in plausible_by_width.get(len(old), ()):
+        if candidate != old and candidate not in existing:
+            return candidate
+    if old.isdigit():
+        return str((int(old) + 1) % (10 ** len(old))).zfill(len(old))
+    prefix = old[:-1]
+    for suffix in "ABCDEFGHJKLMNPQRSTUVWXY":
+        candidate = prefix + suffix
+        if candidate != old and candidate not in existing:
+            return candidate
+    raise MutationRejected("MO-4 could not form a plausible alternate list value")
+
+
+def _apply_mo4(base: ProgramSource, _rng: random.Random) -> _EditPlan:
+    copybooks = sorted(
         name for name in base.files if name.lower().endswith((".cpy", ".cob"))
     )
-    for name in candidates:
+    candidates: list[
+        tuple[int, str, int, str, list[re.Match[str]], re.Match[str] | None]
+    ] = []
+    for name in copybooks:
         lines = base.files[name].splitlines()
         for index, line in enumerate(lines):
             if "88 " not in line.upper() or "VALUE" not in line.upper():
@@ -549,34 +675,104 @@ def _apply_mo4(base: ProgramSource, rng: random.Random) -> _EditPlan:
             literals = list(re.finditer(r"'([^']+)'", line))
             if not literals:
                 continue
-            match = literals[rng.randrange(len(literals))]
-            old = match.group(1)
-            new = "Z" * len(old)
-            lines[index] = line[: match.start(1)] + new + line[match.end(1) :]
-            files = dict(base.files)
-            files[name] = _join_like(base.files[name], lines)
             condition = re.search(r"\b88\s+([A-Z0-9-]+)", line, re.IGNORECASE)
-            variables = (
-                (
-                    condition.group(1).upper(),
-                    *base.touched_variables,
-                    *_variables(base.text),
-                )
-                if condition
-                else base.touched_variables
+            condition_name = condition.group(1).upper() if condition else ""
+            priority = (2 if "CALENDAR" in condition_name else 0) + (
+                1 if len(literals) > 1 else 0
             )
-            return _EditPlan(
-                source=replace(base, files=files),
-                touches=(_Touch(base.program, name, index + 1, index + 1),),
-                old=old,
-                new=new,
-                slice_candidates=tuple(variables),
-            )
-    raise MutationRejected("MO-4 requires an 88-level VALUES list in a copybook")
+            candidates.append((priority, name, index, line, literals, condition))
+    if not candidates:
+        raise MutationRejected("MO-4 requires an 88-level VALUES list in a copybook")
+
+    _, name, index, line, literals, condition = max(
+        candidates, key=lambda item: (item[0], item[1], -item[2])
+    )
+    # Preserve the primary/default code and alter a secondary historical entry
+    # when the list has one.  This resembles stale reference-table maintenance
+    # rather than an impossible sentinel substitution.
+    match = literals[-1]
+    old = match.group(1)
+    existing = {item.group(1) for item in literals}
+    new = _alternate_reference_value(old, existing)
+    lines = base.files[name].splitlines()
+    lines[index] = line[: match.start(1)] + new + line[match.end(1) :]
+    files = dict(base.files)
+    files[name] = _join_like(base.files[name], lines)
+    variables = (
+        (
+            condition.group(1).upper(),
+            *base.touched_variables,
+            *_variables(base.text),
+        )
+        if condition
+        else base.touched_variables
+    )
+    return _EditPlan(
+        source=replace(base, files=files),
+        touches=(_Touch(base.program, name, index + 1, index + 1),),
+        old=old,
+        new=new,
+        slice_candidates=tuple(variables),
+    )
 
 
 def _apply_mo6(base: ProgramSource) -> _EditPlan:
     lines = base.text.splitlines()
+    procedure = _procedure_index(lines)
+    pilot_flag_index = next(
+        (
+            index
+            for index in range(procedure)
+            if "WS-PEN-ENABLED" in lines[index].upper()
+            and re.search(r"\bVALUE\s+'Y'", lines[index], re.IGNORECASE)
+        ),
+        None,
+    )
+    if pilot_flag_index is not None:
+        guard_index = next(
+            (
+                index
+                for index in range(procedure + 1, len(lines))
+                if re.search(r"\bIF\s+PENALTY-ON\b", lines[index], re.IGNORECASE)
+            ),
+            None,
+        )
+        if guard_index is None:
+            raise MutationRejected("MO-6 pilot flag has no guarded penalty path")
+        old_line = lines[pilot_flag_index]
+        lines[pilot_flag_index] = re.sub(
+            r"\bVALUE\s+'Y'",
+            "VALUE 'N'",
+            old_line,
+            count=1,
+            flags=re.IGNORECASE,
+        )
+        return _EditPlan(
+            source=replace(base, text=_join_like(base.text, lines)),
+            touches=(
+                _Touch(
+                    base.program,
+                    None,
+                    pilot_flag_index + 1,
+                    pilot_flag_index + 1,
+                ),
+                _Touch(
+                    base.program,
+                    None,
+                    guard_index + 1,
+                    guard_index + 1,
+                    label=False,
+                ),
+            ),
+            old="VALUE 'Y'",
+            new="VALUE 'N'",
+            slice_candidates=(
+                "WS-PEN-ENABLED",
+                "WS-ELAPSED-DAYS",
+                "WS-PENALTY-AMT",
+            ),
+        )
+
     primary_variables = base.touched_variables[:1]
     start, end = _if_block(lines, primary_variables)
     block = " ".join(lines[start : end + 1]).upper()
@@ -585,7 +781,6 @@ def _apply_mo6(base: ProgramSource) -> _EditPlan:
     ):
         return _apply_mo6_statement(base)
     original = " ".join(line.strip() for line in lines[start : end + 1])
-    procedure = _procedure_index(lines)
     declaration_index = _working_storage_end(lines, procedure)
     declaration = "       01  WS-COMPLIANCE-FLAG PIC X VALUE 'N'."
     lines.insert(declaration_index, declaration)
@@ -631,7 +826,7 @@ def _apply_mo6_statement(base: ProgramSource) -> _EditPlan:
         (index for index in range(target, procedure, -1) if verb.search(lines[index])),
         target,
     )
-    end = next(
+    sentence_end = next(
         (
             index
             for index in range(start, len(lines))
@@ -639,24 +834,80 @@ def _apply_mo6_statement(base: ProgramSource) -> _EditPlan:
         ),
         None,
     )
-    if end is None or any(_HEADER_RE.match(line) for line in lines[start : end + 1]):
+    if sentence_end is None or any(
+        _HEADER_RE.match(line) for line in lines[start : sentence_end + 1]
+    ):
         raise MutationRejected("MO-6 compliance statement has no safe sentence end")
 
+    # CBACT04 already carries a first-pass switch that is set to N before the
+    # interest paragraph is reached. Reusing it resembles a misplaced legacy
+    # rollout guard and avoids an obviously generator-authored compliance flag.
+    first_pass_set_index = next(
+        (
+            index
+            for index in range(procedure + 1, target)
+            if re.search(
+                r"\bMOVE\s+'N'\s+TO\s+WS-FIRST-TIME\b",
+                lines[index],
+                re.IGNORECASE,
+            )
+        ),
+        None,
+    )
+    existing_first_pass = first_pass_set_index is not None
+    if existing_first_pass:
+        guard_variable = "WS-FIRST-TIME"
+    else:
+        guard_variable = "WS-COMPLIANCE-FLAG"
+        declaration_index = _working_storage_end(lines, procedure)
+        lines.insert(
+            declaration_index, "       01  WS-COMPLIANCE-FLAG PIC X VALUE 'N'."
+        )
+        start += 1
+        sentence_end += 1
+
+    # Keep a trailing transaction write outside the dead calculation. This
+    # narrows the drift to the regulated interest accumulation and preserves
+    # the surrounding batch workflow.
+    trailing_perform = next(
+        (
+            index
+            for index in range(start + 1, sentence_end + 1)
+            if re.match(r"^\s*PERFORM\b", lines[index], re.IGNORECASE)
+        ),
+        None,
+    )
+    partial_sentence = trailing_perform is not None
+    end = (trailing_perform - 1) if trailing_perform is not None else sentence_end
+    while end > start and not lines[end].strip():
+        end -= 1
     original = " ".join(line.strip() for line in lines[start : end + 1])
-    declaration_index = _working_storage_end(lines, procedure)
-    lines.insert(declaration_index, "       01  WS-COMPLIANCE-FLAG PIC X VALUE 'N'.")
-    start += 1
-    end += 1
-    lines[end] = re.sub(r"\.\s*$", "", lines[end])
+    if not partial_sentence:
+        lines[end] = re.sub(r"\.\s*$", "", lines[end])
     indent = lines[start][: len(lines[start]) - len(lines[start].lstrip())]
-    lines.insert(start, f"{indent}IF WS-COMPLIANCE-FLAG = 'Y'")
-    lines.insert(end + 2, f"{indent}END-IF.")
+    for index in range(start, end + 1):
+        if lines[index].strip():
+            lines[index] = "  " + lines[index]
+    lines.insert(start, f"{indent}IF {guard_variable} = 'Y'")
+    terminator = "END-IF" if partial_sentence else "END-IF."
+    lines.insert(end + 2, f"{indent}{terminator}")
+    touches = [_Touch(base.program, None, start + 1, end + 3)]
+    if first_pass_set_index is not None:
+        touches.append(
+            _Touch(
+                base.program,
+                None,
+                first_pass_set_index + 1,
+                first_pass_set_index + 1,
+                label=False,
+            )
+        )
     return _EditPlan(
         source=replace(base, text=_join_like(base.text, lines)),
-        touches=(_Touch(base.program, None, start + 1, end + 3),),
+        touches=tuple(touches),
         old=original,
-        new="always-false WS-COMPLIANCE-FLAG guard",
-        slice_candidates=("WS-COMPLIANCE-FLAG", *base.touched_variables),
+        new=f"always-false {guard_variable} guard",
+        slice_candidates=(guard_variable, *base.touched_variables),
     )
 
 
@@ -714,64 +965,94 @@ def _apply_mo1x(base: ProgramSource) -> _EditPlan:
 
 
 def _apply_mo3x(base: ProgramSource) -> _EditPlan:
+    """Let explicit consent leak between batch records while keeping its blocker."""
+
     lines = base.text.splitlines()
-    gate_index = next(
+    declaration_index = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if re.search(r"\b05\s+WS-CONSENT-ON-FILE\b", line, re.IGNORECASE)
+        ),
+        None,
+    )
+    reset_index = next(
         (
             index
             for index, line in enumerate(lines)
             if re.search(
-                r"\bIF\s+(?:WS-VALID\s*=\s*'Y'|"
-                r"WS-VALIDATION-FAIL-REASON\s*=\s*0)",
+                r"\bMOVE\s+'N'\s+TO\s+WS-CONSENT-ON-FILE\b",
                 line,
                 re.IGNORECASE,
             )
         ),
         None,
     )
-    if gate_index is None:
-        raise MutationRejected("MO-3× requires a validate-then-post gate")
-    old_line = lines[gate_index]
-    if re.search(r"=\s*'Y'", old_line, re.IGNORECASE):
-        lines[gate_index] = re.sub(
-            r"=\s*'Y'", "NOT = 'X'", old_line, count=1, flags=re.IGNORECASE
-        )
-    else:
-        lines[gate_index] = re.sub(
-            r"=\s*0", "NOT = 9999", old_line, count=1, flags=re.IGNORECASE
-        )
+    loader_index = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if re.search(
+                r"\bIF\s+WS-CONSENT-REC-FOUND\s*=\s*'Y'",
+                line,
+                re.IGNORECASE,
+            )
+        ),
+        None,
+    )
     blocker_index = next(
         (
             index
             for index, line in enumerate(lines)
-            if index > gate_index
-            and re.search(
-                r"\bIF\s+(?:WS-BALANCE|ACCT-CREDIT-LIMIT\b.*WS-TEMP-BAL)",
+            if re.search(
+                r"\bIF\s+WS-PROJECTED-BAL\s*>\s*WS-CREDIT-LIMIT",
                 line,
                 re.IGNORECASE,
             )
         ),
         None,
     )
-    if blocker_index is None:
-        raise MutationRejected("MO-3× requires a separate blocking paragraph")
+    if None in (declaration_index, reset_index, loader_index, blocker_index):
+        raise MutationRejected("MO-3× requires a per-record consent-state host")
+
+    assert declaration_index is not None
+    assert reset_index is not None
+    assert loader_index is not None
+    assert blocker_index is not None
+    if not (declaration_index < reset_index < loader_index < blocker_index):
+        raise MutationRejected("MO-3× consent-state loci are not ordered safely")
+
+    old_text = lines[reset_index].strip()
+    del lines[reset_index]
+    loader_index -= 1
+    blocker_index -= 1
+    touches = (
+        _Touch(base.program, None, reset_index + 1, reset_index + 1),
+        _Touch(
+            base.program,
+            None,
+            declaration_index + 1,
+            declaration_index + 1,
+            label=False,
+        ),
+        _Touch(
+            base.program, None, loader_index + 1, loader_index + 1, label=False
+        ),
+        _Touch(
+            base.program, None, blocker_index + 1, blocker_index + 1, label=False
+        ),
+    )
     return _EditPlan(
         source=replace(base, text=_join_like(base.text, lines)),
-        touches=(
-            _Touch(base.program, None, gate_index + 1, gate_index + 1),
-            _Touch(
-                base.program, None, blocker_index + 1, blocker_index + 1, label=False
-            ),
-        ),
-        old=old_line.strip(),
-        new=lines[gate_index].strip(),
-        slice_candidates=tuple(
-            dict.fromkeys(
-                (
-                    *_variables(old_line),
-                    *_variables(lines[blocker_index]),
-                    *base.touched_variables,
-                )
-            )
+        touches=touches,
+        old=old_text,
+        new="(deleted)",
+        slice_candidates=(
+            "WS-CONSENT-ON-FILE",
+            "WS-CONSENT-REC-FOUND",
+            "WS-PROJECTED-BAL",
+            "WS-CREDIT-LIMIT",
+            "WS-VALID",
         ),
     )
 
@@ -839,9 +1120,7 @@ def _apply(
     if op == "MO-2":
         return _apply_mo2(base)
     if op == "MO-3":
-        return _comparator_edit(
-            base, {">": "<=", ">=": "<", "<": ">=", "<=": ">", "=": "NOT ="}
-        )
+        return _apply_mo3(base)
     if op == "MO-4":
         return _apply_mo4(base, rng)
     if op == "MO-5":

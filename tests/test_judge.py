@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
+import io
 import json
 import shutil
+import urllib.error
 from pathlib import Path
 
 import pytest
 
+import cobol_archaeologist.benchmark.judge as judge_module
 from cobol_archaeologist.benchmark.judge import (
     FamilyIntegrityError,
     JudgeConfig,
+    JudgeConfigurationError,
     Judgement,
     PlausibilityGateError,
+    UnsureAdjudication,
     apply_drop_policy,
     judge_benchmark,
     load_judgements,
@@ -70,6 +75,53 @@ def test_gate_a_refuses_same_family_and_disguised_model_names():
     with pytest.raises(FamilyIntegrityError):
         _config(model="claude-sonnet", model_family="openai").validate()
     _config(model="gemini-test", model_family="google").validate()
+    with pytest.raises(JudgeConfigurationError, match="reasoning effort"):
+        _config(reasoning_effort="extreme").validate()
+
+
+def test_endpoint_transport_supports_reasoning_and_reports_api_error(monkeypatch):
+    captured: dict = {}
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {"choices": [{"message": {"content": '{"verdict":"plausible","reason":"ok"}'}}]}
+            ).encode("utf-8")
+
+    def succeed(request, timeout):
+        captured.update(json.loads(request.data))
+        assert timeout == 60.0
+        return Response()
+
+    monkeypatch.setattr(judge_module.urllib.request, "urlopen", succeed)
+    content = judge_module._endpoint_transport(
+        _config(reasoning_effort="high"), "review prompt"
+    )
+    assert json.loads(content)["verdict"] == "plausible"
+    assert captured["reasoning_effort"] == "high"
+    assert "temperature" not in captured
+
+    body = b'{"error":{"message":"Unsupported request field"}}'
+
+    def fail(*_args, **_kwargs):
+        raise urllib.error.HTTPError(
+            "https://judge.invalid/v1/chat/completions",
+            400,
+            "Bad Request",
+            hdrs=None,
+            fp=io.BytesIO(body),
+        )
+
+    monkeypatch.setattr(judge_module.urllib.request, "urlopen", fail)
+    monkeypatch.setattr(judge_module.time, "sleep", lambda _seconds: None)
+    with pytest.raises(JudgeConfigurationError, match="Unsupported request field"):
+        judge_module._endpoint_transport(_config(), "review prompt")
 
 
 def test_gate_b_reconstructs_every_mutated_source(sources):
@@ -142,6 +194,101 @@ def test_gate_c_stratified_50_run_is_deterministic_and_updates_manifest(
     assert manifest["judging"]["sample"]["gate_passed"] is True
 
 
+def test_judging_checkpoints_each_verdict_and_resumes_after_endpoint_failure(
+    tmp_path, sources
+):
+    instances = _copy_benchmark(tmp_path)
+    output = tmp_path / "judgements.jsonl"
+    call_count = 0
+
+    def interrupted(_config, _prompt):
+        nonlocal call_count
+        call_count += 1
+        if call_count == 3:
+            raise JudgeConfigurationError("HTTP 401: permission changed")
+        return json.dumps(
+            {"verdict": "plausible", "reason": "credible maintenance drift"}
+        )
+
+    with pytest.raises(JudgeConfigurationError, match=r"2/\d+ judgements checkpointed"):
+        judge_benchmark(
+            instances_path=instances,
+            output_path=output,
+            config=_config(),
+            sample=7,
+            seed=2400,
+            transport=interrupted,
+            source_index=sources,
+        )
+    assert len(load_judgements(output)) == 2
+
+    resumed_calls = 0
+
+    def plausible(_config, _prompt):
+        nonlocal resumed_calls
+        resumed_calls += 1
+        return json.dumps(
+            {"verdict": "plausible", "reason": "credible maintenance drift"}
+        )
+
+    report = judge_benchmark(
+        instances_path=instances,
+        output_path=output,
+        config=_config(),
+        sample=7,
+        seed=2400,
+        transport=plausible,
+        source_index=sources,
+    )
+    assert report["resumed_count"] == 2
+    assert resumed_calls == report["sample_size"] - 2
+    assert len(load_judgements(output)) == report["sample_size"]
+
+
+def test_judging_reuses_matching_instance_ids_without_endpoint_calls(
+    tmp_path, sources, monkeypatch
+):
+    instances = _copy_benchmark(tmp_path)
+    prior = tmp_path / "prior.jsonl"
+    output = tmp_path / "reused.jsonl"
+
+    def plausible(_config, _prompt):
+        return json.dumps(
+            {"verdict": "plausible", "reason": "credible maintenance drift"}
+        )
+
+    initial = judge_benchmark(
+        instances_path=instances,
+        output_path=prior,
+        config=_config(),
+        sample=7,
+        seed=2400,
+        transport=plausible,
+        source_index=sources,
+    )
+
+    def unexpected_call(_config, _prompt):
+        raise AssertionError("matching cached judgement should bypass the endpoint")
+
+    def unexpected_reconstruction(_path):
+        raise AssertionError("a fully cached selection does not need source rebuilding")
+
+    monkeypatch.setattr(
+        judge_module, "reconstruct_sources", unexpected_reconstruction
+    )
+    reused = judge_benchmark(
+        instances_path=instances,
+        output_path=output,
+        config=_config(),
+        sample=7,
+        seed=2400,
+        reuse_path=prior,
+        transport=unexpected_call,
+    )
+    assert reused["reused_count"] == initial["sample_size"]
+    assert output.read_bytes() == prior.read_bytes()
+
+
 def test_gate_d_plausibility_threshold_is_exactly_ninety_percent():
     passing = [
         Judgement(
@@ -190,10 +337,36 @@ def test_gate_e_drop_policy_separates_implausible_and_unsure(tmp_path):
     accepted = tmp_path / "accepted.jsonl"
     rejected = tmp_path / "rejected"
     report = apply_drop_policy(source, judgements, accepted, rejected)
-    assert report == {"accepted": 1, "implausible": 1, "unsure": 1}
+    assert report == {
+        "accepted": 1,
+        "implausible": 1,
+        "unsure": 1,
+        "adjudicated": 0,
+    }
     assert len(accepted.read_text(encoding="utf-8").splitlines()) == 1
     assert (rejected / "implausible.jsonl").is_file()
     assert (rejected / "unsure.jsonl").is_file()
+
+    adjudicated = apply_drop_policy(
+        source,
+        judgements,
+        accepted,
+        rejected,
+        [
+            UnsureAdjudication(
+                instance_id=instances[2].instance_id,
+                verdict="plausible",
+                reason="Natural conformant maintenance edit.",
+            )
+        ],
+    )
+    assert adjudicated == {
+        "accepted": 2,
+        "implausible": 1,
+        "unsure": 0,
+        "adjudicated": 1,
+    }
+    assert not (rejected / "unsure.jsonl").read_text(encoding="utf-8")
 
 
 def test_gate_f_records_exactly_fifteen_human_reviews(tmp_path):

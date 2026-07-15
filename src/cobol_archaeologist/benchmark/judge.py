@@ -50,6 +50,14 @@ class Judgement(BaseModel):
     model_family: str = Field(min_length=1)
 
 
+class UnsureAdjudication(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    instance_id: str = Field(pattern=r"^drift_\d{6}$")
+    verdict: Literal["plausible", "implausible"]
+    reason: str = Field(min_length=1)
+
+
 class _VerdictPayload(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -63,6 +71,7 @@ class JudgeConfig:
     api_key: str
     model: str
     model_family: str
+    reasoning_effort: str | None = None
     timeout_seconds: float = 60.0
 
     def validate(self) -> None:
@@ -80,6 +89,18 @@ class JudgeConfig:
         if judge == system:
             raise FamilyIntegrityError(
                 f"judge family {judge!r} matches system-under-test family {system!r}"
+            )
+        if self.reasoning_effort not in {
+            None,
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+        }:
+            raise JudgeConfigurationError(
+                f"unsupported reasoning effort {self.reasoning_effort!r}"
             )
 
 
@@ -110,6 +131,14 @@ def infer_model_family(model: str) -> str | None:
 def load_judgements(path: str | Path) -> list[Judgement]:
     return [
         Judgement.model_validate_json(line)
+        for line in Path(path).read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+def load_unsure_adjudications(path: str | Path) -> list[UnsureAdjudication]:
+    return [
+        UnsureAdjudication.model_validate_json(line)
         for line in Path(path).read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
@@ -272,23 +301,26 @@ def _endpoint_url(endpoint: str) -> str:
 
 
 def _endpoint_transport(config: JudgeConfig, prompt: str) -> str:
-    payload = json.dumps(
-        {
-            "model": config.model,
-            "temperature": 0,
-            "response_format": {"type": "json_object"},
-            "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You are an independent legacy-COBOL plausibility judge. "
-                        "Apply the supplied regulation and code only; output JSON."
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
-        }
-    ).encode("utf-8")
+    request_payload: dict[str, object] = {
+        "model": config.model,
+        "response_format": {"type": "json_object"},
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    "You are an independent legacy-COBOL plausibility judge. "
+                    "Apply the supplied regulation and code only; output JSON."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ],
+    }
+    # DECISION: reasoning models reject non-default temperature values. Keep
+    # effort optional so non-OpenAI compatible endpoints do not receive an
+    # OpenAI-specific field, and omit temperature for provider portability.
+    if config.reasoning_effort is not None:
+        request_payload["reasoning_effort"] = config.reasoning_effort
+    payload = json.dumps(request_payload).encode("utf-8")
     request = urllib.request.Request(
         _endpoint_url(config.endpoint),
         data=payload,
@@ -306,12 +338,15 @@ def _endpoint_transport(config: JudgeConfig, prompt: str) -> str:
             ) as response:
                 body = json.loads(response.read().decode("utf-8"))
             return str(body["choices"][0]["message"]["content"])
-        except (
-            urllib.error.URLError,
-            KeyError,
-            ValueError,
-            json.JSONDecodeError,
-        ) as exc:
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace").strip()
+            # API error bodies contain request diagnostics, not the submitted
+            # Authorization header. Cap the text to keep CLI output bounded.
+            detail = body[:2000] if body else str(exc)
+            last_error = RuntimeError(f"HTTP {exc.code}: {detail}")
+            if attempt < 2:
+                time.sleep(2**attempt)
+        except (urllib.error.URLError, KeyError, ValueError, json.JSONDecodeError) as exc:
             last_error = exc
             if attempt < 2:
                 time.sleep(2**attempt)
@@ -366,6 +401,84 @@ def _write_manifest(path: Path, manifest: dict) -> None:
     )
 
 
+def _load_checkpoint(
+    path: Path,
+    selected: list[DriftInstance],
+    config: JudgeConfig,
+) -> list[Judgement]:
+    if not path.exists() or path.stat().st_size == 0:
+        return []
+    try:
+        judgements = load_judgements(path)
+    except (OSError, ValueError) as exc:
+        raise JudgeConfigurationError(
+            f"cannot resume invalid judgement checkpoint {path}: {exc}"
+        ) from exc
+    if len(judgements) > len(selected):
+        raise JudgeConfigurationError(
+            f"judgement checkpoint {path} has more rows than the selected input"
+        )
+    family = canonical_family(config.model_family)
+    for index, judgement in enumerate(judgements):
+        instance = selected[index]
+        matches = (
+            judgement.instance_id == instance.instance_id
+            and judgement.drift_type == instance.drift_type
+            and judgement.is_interprocedural
+            == instance.code_locus.is_interprocedural
+            and judgement.model == config.model
+            and judgement.model_family == family
+        )
+        if not matches:
+            raise JudgeConfigurationError(
+                f"judgement checkpoint {path} does not match the current "
+                f"input/configuration at row {index + 1}; use a different --out "
+                "or remove the stale checkpoint"
+            )
+    return judgements
+
+
+def _load_reuse_cache(
+    path: str | Path | None,
+    selected: list[DriftInstance],
+    config: JudgeConfig,
+) -> dict[str, Judgement]:
+    if path is None:
+        return {}
+    path = Path(path)
+    try:
+        judgements = load_judgements(path)
+    except (OSError, ValueError) as exc:
+        raise JudgeConfigurationError(
+            f"cannot load judgement reuse file {path}: {exc}"
+        ) from exc
+    by_id = {judgement.instance_id: judgement for judgement in judgements}
+    if len(by_id) != len(judgements):
+        raise JudgeConfigurationError(
+            f"judgement reuse file {path} contains duplicate instance IDs"
+        )
+    family = canonical_family(config.model_family)
+    reusable: dict[str, Judgement] = {}
+    for instance in selected:
+        judgement = by_id.get(instance.instance_id)
+        if judgement is None:
+            continue
+        matches = (
+            judgement.drift_type == instance.drift_type
+            and judgement.is_interprocedural
+            == instance.code_locus.is_interprocedural
+            and judgement.model == config.model
+            and judgement.model_family == family
+        )
+        if not matches:
+            raise JudgeConfigurationError(
+                f"judgement reuse file {path} has incompatible metadata for "
+                f"{instance.instance_id}"
+            )
+        reusable[instance.instance_id] = judgement
+    return reusable
+
+
 def judge_benchmark(
     *,
     instances_path: str | Path,
@@ -373,6 +486,7 @@ def judge_benchmark(
     config: JudgeConfig,
     sample: int | None = None,
     seed: int = 2400,
+    reuse_path: str | Path | None = None,
     transport: Transport | None = None,
     source_index: dict[str, ProgramSource] | None = None,
 ) -> dict:
@@ -384,17 +498,44 @@ def judge_benchmark(
         if sample is not None
         else instances
     )
-    sources = source_index or reconstruct_sources(instances_path)
     call = transport or _endpoint_transport
-    judgements = [
-        _parse_verdict(
-            call(config, render_prompt(instance, sources[instance.instance_id])),
-            instance,
-            config,
-        )
-        for instance in selected
-    ]
-    _write_jsonl(judgements, Path(output_path))
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    judgements = _load_checkpoint(output_path, selected, config)
+    resumed_count = len(judgements)
+    reuse_cache = _load_reuse_cache(reuse_path, selected, config)
+    reused_count = 0
+    needs_endpoint = any(
+        instance.instance_id not in reuse_cache
+        for instance in selected[resumed_count:]
+    )
+    sources = (
+        source_index or reconstruct_sources(instances_path)
+        if needs_endpoint
+        else {}
+    )
+    if resumed_count == 0:
+        output_path.write_text("", encoding="utf-8")
+    with output_path.open("a", encoding="utf-8", newline="\n") as checkpoint:
+        for instance in selected[resumed_count:]:
+            judgement = reuse_cache.get(instance.instance_id)
+            if judgement is not None:
+                reused_count += 1
+            else:
+                try:
+                    content = call(
+                        config,
+                        render_prompt(instance, sources[instance.instance_id]),
+                    )
+                    judgement = _parse_verdict(content, instance, config)
+                except JudgeConfigurationError as exc:
+                    raise JudgeConfigurationError(
+                        f"{exc}; {len(judgements)}/{len(selected)} judgements "
+                        f"checkpointed at {output_path}"
+                    ) from exc
+            judgements.append(judgement)
+            checkpoint.write(judgement.model_dump_json() + "\n")
+            checkpoint.flush()
 
     plausible_rate = sum(item.verdict == "plausible" for item in judgements) / len(
         judgements
@@ -407,10 +548,13 @@ def judge_benchmark(
     counts = Counter(item.verdict for item in judgements)
     report = {
         "sample_size": len(judgements),
+        "resumed_count": resumed_count,
+        "reused_count": reused_count,
         "full_set": sample is None,
         "seed": seed,
         "model": config.model,
         "model_family": canonical_family(config.model_family),
+        "reasoning_effort": config.reasoning_effort,
         "system_family": SYSTEM_FAMILY,
         "verdict_counts": {
             name: counts[name] for name in ("plausible", "implausible", "unsure")
@@ -425,6 +569,7 @@ def judge_benchmark(
         {
             "model": config.model,
             "model_family": canonical_family(config.model_family),
+            "reasoning_effort": config.reasoning_effort,
             "system_family": SYSTEM_FAMILY,
         }
     )
@@ -439,25 +584,44 @@ def apply_drop_policy(
     judgements: list[Judgement],
     accepted_path: str | Path,
     rejected_dir: str | Path,
+    adjudications: list[UnsureAdjudication] | None = None,
 ) -> dict[str, int]:
     instances = _load_instances(instances_path)
     by_id = {item.instance_id: item for item in judgements}
     if set(by_id) != {item.instance_id for item in instances}:
         raise ValueError("drop policy requires one judgement for every input instance")
+    adjudication_by_id = {
+        item.instance_id: item for item in adjudications or []
+    }
+    if adjudications is not None:
+        if len(adjudication_by_id) != len(adjudications):
+            raise ValueError("unsure adjudications contain duplicate instance IDs")
+        unsure_ids = {
+            item.instance_id for item in judgements if item.verdict == "unsure"
+        }
+        if set(adjudication_by_id) != unsure_ids:
+            raise ValueError(
+                "unsure adjudications must cover every and only unsure judgement"
+            )
 
     accepted: list[DriftInstance] = []
     rejected: dict[str, list[dict]] = {"implausible": [], "unsure": []}
     for instance in instances:
         judgement = by_id[instance.instance_id]
-        if judgement.verdict == "plausible":
+        adjudication = adjudication_by_id.get(instance.instance_id)
+        effective_verdict = (
+            adjudication.verdict if adjudication is not None else judgement.verdict
+        )
+        if effective_verdict == "plausible":
             accepted.append(instance)
         else:
-            rejected[judgement.verdict].append(
-                {
-                    "instance": instance.model_dump(mode="json"),
-                    "judgement": judgement.model_dump(mode="json"),
-                }
-            )
+            row = {
+                "instance": instance.model_dump(mode="json"),
+                "judgement": judgement.model_dump(mode="json"),
+            }
+            if adjudication is not None:
+                row["adjudication"] = adjudication.model_dump(mode="json")
+            rejected[effective_verdict].append(row)
     _write_jsonl(accepted, Path(accepted_path))
     rejected_dir = Path(rejected_dir)
     rejected_dir.mkdir(parents=True, exist_ok=True)
@@ -475,6 +639,7 @@ def apply_drop_policy(
         "accepted": len(accepted),
         "implausible": len(rejected["implausible"]),
         "unsure": len(rejected["unsure"]),
+        "adjudicated": len(adjudication_by_id),
     }
 
 

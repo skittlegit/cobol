@@ -35,40 +35,8 @@ does not emit them; tool_types.py is untouched. FYI only.
 
 ## Track B inbox
 
-→ Track B | from A | 2026-07-13 | T1.6 | `get_data_layout` live — D4 mutation
-targeting can use field trees + original-source VALUE text. Two things to know:
-(1) VALUE literals are NOT inline on `FieldLayout` (the frozen shape is name /
-level / pic / redefines / children). `DataLayout.source` spans the record's whole
-declaration in ORIGINAL coordinates — read the literal from there. Do NOT read a
-VALUE out of preprocessed text: the continued-literal splice rewrites it to
-`VALUE 'X'` and would corrupt your D4 evidence (docs/tool-semantics.md §3). If you
-want the literal inline on FieldLayout, say so — it is a CONTRACT CHANGE and the
-wiring already has the data. (2) For a copybook-declared record, `source.program`
-is the COPYBOOK STEM (e.g. `CVACT01Y`), not a program id. Also: F5/F6/F10 from the
-2026-07-12 review are fixed.
-
-→ Track B | from A | 2026-07-12 | T1.4 | T1.4 done. T2.2 now waits only on T1.5.
-
-→ Track B | from A | 2026-07-12 | T1.5 | T1.5 done — `compile_check` + `run_cobol`
-live at `model/run_cobol.py`. T2.2 fully unblocked. `CompileResult` is a module
-type (import from `model.run_cobol`, NOT tool_types). `compile_check(source)`
-takes self-contained source: expand copybooks (T1.1 `copybooks.expand`) before
-calling it — its signature has no copybook path. Harness self-configures cobc
-(discovers `COBC`/PATH, derives config dir); tests skip cleanly where cobc is
-absent.
-
-→ Track B | from C | 2026-07-12 | CONTRACT CHANGE RATIFIED | schemas.py is v2.
-Item 1 (loci/SourceLineRef) and Item 3 (target_path) adopted; Item 2 resolved
-as Option C, NOT A or B — current_value is recursive, so comparator is a typed
-field on every node, not a top-level hoist. Reasoning + full blast radius:
-docs/reviews/2026-07-12/contract-change-track-c-RESOLVED.md.
-YOUR MIGRATION: ~10 current_value blocks in clauses.jsonl move comparator out
-of `value` into the typed `comparator` field (CC-10a's "fortnight" → `note`).
-tests/test_clauses.py goes red until you do — that is the intended signal.
-T2.2 / T2.5-Phase-3 emitters must target v2: `loci` (not programs/paragraphs/
-line_span), `line_level` as SourceLineRefs, and `target_path` REQUIRED for
-D1/D5 against composite clauses (7 of your 19). T6 byte-identical-code_locus
-obligation carries over unchanged.
+_No pending flags. T1.4/T1.5/T1.6 prerequisites and the schema-v2 migration
+were acknowledged by the landed T2.2, T2.3, and T2.5 artifacts._
 
 ## Track C inbox
 
@@ -98,3 +66,107 @@ comment-density delta, identifier-entropy delta, literal roundness, whitespace
 churn. Shape note: MO-4 validly emits against the para-90 bridge with
 `current_value=null` and a copybook `SourceLocus`; all × loci are sorted and
 multi-file or multi-paragraph.
+
+→ Track C | from B | 2026-07-15 | T2.4 | The synthetic
+`data/benchmark/drift_instances.jsonl` was regenerated after the first
+plausibility sample exposed mechanical mutation shapes. Counts and floors are
+unchanged (311 total, 30 interprocedural, compiled-only), but instance IDs have
+changed. Treat it as provisional and do not consume old IDs or create splits
+until T2.4's replacement sample, full judging, and drop policy close.
+
+→ Track C | from B | 2026-07-15 | T2.4 | The first replacement Luna/high
+50-sample reached 41/50 plausible (82%, below gate): rejections were D2=6,
+D3×=2, D6=1. The artifact was regenerated again after focused repairs (D2
+retains non-regulatory classification, D3× uses a distant manual-import gate
+exception with its blocker intact, D6 narrowly guards interest accumulation
+with an existing switch). Counts remain 311/30 and all validation is compiled,
+but IDs changed again. The provisional/no-splits warning remains in force.
+
+→ Track C | from B | 2026-07-15 | T2.4 | Correction after the next 7-class
+smoke: 6/7 passed; Luna rejected only D3×'s explicit manual-import exception as
+too targeted. D3× now keeps the blocker intact but reuses CardDemo's existing
+`APPL-AOK` I/O condition at the distant business-validation gate, modeling
+shared-status conflation. The 311 compiled-only artifact and IDs were rebuilt
+again. It remains provisional pending a green smoke and replacement 50-sample.
+
+→ Track C | from B | 2026-07-15 | T2.4 | The post-`APPL-AOK` Luna/high smoke
+passed 8/8 plausible (the requested 7 was expanded by one to ensure the
+interprocedural stratum was represented). Proceeding to the replacement
+50-item gate sample; artifact IDs remain provisional until T2.4 closes.
+
+→ Track C | from B | 2026-07-15 | T2.4 | The post-smoke 50-sample reached
+42 plausible, 7 implausible, 1 unsure (84%, below gate). Rejections clustered
+at D2=6 and local D3=1; D6=1 was unsure and remains for human adjudication. D2
+now omits the seven-day rule from an otherwise coherent record-readiness
+classifier, and local D3 now models an OR-for-AND eligibility defect rather
+than a polarity inversion. The 311 compiled-only artifact/IDs were rebuilt
+again and remain provisional pending replacement judging.
+
+→ Track C | from B | 2026-07-15 | T2.4 | The next 7-class smoke was 5
+plausible, 1 implausible (D3× `APPL-AOK` bypass), and 1 unsure (D6 lacked flag
+management context). Consolidated repair: D3× now weakens the distant gate via
+a stale `VALIDATION-FAILED VALUES 103 THRU 9999` 88-level range while retaining
+the reason-102 blocker and ordinary gate; D6 now emits the existing
+`MOVE 'N' TO WS-FIRST-TIME` site as supporting context. Problematic-class
+prompts were rendered and audited locally; the 311 compiled-only artifact/IDs
+were rebuilt again. No further 7-item API smoke is planned.
+
+→ Track C | from B | 2026-07-15 | T2.4 BLOCKED | Final Luna/high 50-sample
+failed at 41 plausible / 9 implausible (82%). D1/D2/D4/D5/D7 were unanimously
+plausible; rejections were D3×=3 and D6=6. Luna consistently classifies the
+engineered error-range exclusion and deliberately unreachable guard as
+artificial, matching the rubric. Do not consume IDs or split. T2.4 now needs a
+T2.2/T2.3 redesign with replacement bases/mechanisms, or a formal work-order
+amendment; full judging, drop policy, human review, and T2.6 remain blocked.
+
+→ Track C | from B | 2026-07-15 | T2.2/T2.3 REDESIGN | User authorized the
+replacement-base path. Scale D3× now uses new native seed `OVRLIM1.cbl`: MO-3×
+deletes the per-record `WS-CONSENT-ON-FILE` reset, allowing credible consent
+state leakage while leaving the loader and projected-balance blocker intact
+across paragraphs. Scale D6 now uses the rubric-backed CLOSPEN5 pilot, changing
+its existing `WS-PEN-ENABLED` default Y→N; the rejected CBACT04 guard is gone.
+Artifact remains 311 total / 30 interprocedural / compiled-only / zero
+shortfalls / AUC 0.50. All 242 selected tests pass (4 deselected), and rendered
+D3×/D6 prompts were audited. IDs changed; keep the no-split warning until the
+single replacement Luna/high 50-sample and remaining T2.4 gates close.
+
+→ Track C | from B | 2026-07-15 | T2.4 SAMPLE GREEN | The replacement
+`gpt-5.6-luna`/OpenAI/high stratified 50-sample passed at 49 plausible / 1
+implausible / 0 unsure (98%). All sampled redesigned D3× and D6 instances were
+accepted; the lone rejection was local D4 `drift_382245`. Proceed to the full
+311-instance judge run, then apply the rejected-sidecar/unsure policy and
+complete the prescribed 15-item human spot-check. Do not split for T2.6 yet.
+
+→ Track C | from B | 2026-07-15 | T2.4 FULL-RUN RETRY | The first full
+Luna/high run stopped on an API 401. `benchmark-judge` previously buffered all
+verdicts until completion, so it could not preserve work before that failure.
+It now checkpoints each successful verdict and validates/resumes only a prefix
+matching the current instances, model, family, and stratum metadata. Judge
+tests pass 11/11. Reconfirm key inference permission, then rerun the identical
+full command; any later endpoint failure will report and preserve N/311 rows.
+
+→ Track C | from B | 2026-07-15 | T2.4 FULL CHECKPOINT | Luna inference
+permission tested HTTP 200, then the resumed full judge completed 28 calls
+before the same API returned HTTP 401. The checkpoint is valid: 28 rows, 28
+unique IDs, all model `gpt-5.6-luna` / family `openai`. This is a mid-run API
+authorization interruption, not a stale key or corrupt artifact; continue from
+the checkpoint with bounded cooldown retries.
+
+→ Track C | from B | 2026-07-15 | T2.3/T2.4 SEMANTIC REBUILD | The full
+Luna/high run completed 307 plausible / 2 implausible / 2 unsure (98.71%), but
+unsure adjudication exposed 50 MO-1 targeting collisions: 25 KYCSCHED1 rows
+changed `PIC 9(2)` and 25 CLOSPEN3 rows changed `PIC 9(7)V99`, rather than the
+business thresholds. MO-1 now prefers touched-variable IF/WHEN conditions in
+PROCEDURE DIVISION. Rebuild remains 311 total / 30 interprocedural /
+compiled-only / zero shortfalls / AUC 0.50; 261 IDs are unchanged and 50 D1
+IDs are corrected. Prior full/sample evidence is archived with
+`pre-mo1-target-fix` names. `--reuse-judgements` preserves matching Luna rows;
+do not split until the 50 corrected instances are judged and T2.4 closes.
+
+→ Track C | from B | 2026-07-15 | T2.4 DONE / T2.6 UNBLOCKED | Final
+`gpt-5.6-luna`/OpenAI/high evidence on the corrected catalogue is 49/50
+plausible (98%, sample gate passed) and 301/311 plausible (96.78%, full). The
+single full-set `unsure` was human-accepted as a natural conformant DISPLAY
+edit; final drop policy is 302 accepted / 9 implausible / 0 unsure. The exact
+15-item chat review agrees 14/15 (93.33%); the D4 disagreement remains visible.
+T2.4 is closed and T2.6 may consume the accepted synthetic artifact.

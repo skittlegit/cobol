@@ -190,19 +190,30 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
         ),
     )
 
-    cbtrn02 = _carddemo_base(
-        root,
-        "CBTRN02C.cbl",
+    overlimit = _seed_base(
+        programs,
+        "OVRLIM1.cbl",
         touched_variables=(
-            "WS-VALIDATION-FAIL-REASON",
-            "ACCT-CREDIT-LIMIT",
-            "WS-TEMP-BAL",
+            "WS-CONSENT-ON-FILE",
+            "WS-PROJECTED-BAL",
+            "WS-CREDIT-LIMIT",
         ),
     )
-    cbact04 = _carddemo_base(
-        root,
-        "CBACT04C.cbl",
-        touched_variables=("WS-MONTHLY-INT", "TRAN-CAT-BAL", "WS-TOTAL-INT"),
+    d6_base = _seed_base(
+        programs,
+        "CLOSPEN5.cbl",
+        touched_variables=("WS-PEN-ENABLED", "WS-PENALTY-AMT"),
+        target_path="penalty_per_day",
+    )
+    if "WS-PEN-ENABLED        PIC X(1) VALUE 'N'." not in d6_base.text:
+        raise BuildConfigurationError("CLOSPEN5 D6 base no longer matches its pilot flag")
+    d6_base = replace(
+        d6_base,
+        text=d6_base.text.replace(
+            "WS-PEN-ENABLED        PIC X(1) VALUE 'N'.",
+            "WS-PEN-ENABLED        PIC X(1) VALUE 'Y'.",
+            1,
+        ),
     )
 
     # DECISION: the sole D4 scale base normalizes the seed's shipped day-basis
@@ -219,7 +230,49 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
             "       WORKING-STORAGE SECTION.",
             "       WORKING-STORAGE SECTION.\n       COPY WSDAYBAS.",
         ),
-        files={"WSDAYBAS.cpy": (programs / "WSDAYBAS.cpy").read_text(encoding="utf-8")},
+        files={
+            "WSDAYBAS.cpy": (programs / "WSDAYBAS.cpy")
+            .read_text(encoding="utf-8")
+            .replace(
+                "88  BASIS-CALENDAR    VALUE 'C'.",
+                "88  BASIS-PENALTY-ACCRUAL VALUES 'C' 'D'.",
+            )
+        },
+    )
+
+    # The D2 scale base keeps ordinary record-readiness classification around
+    # the required seven-day check. MO-2 can therefore omit that one rule while
+    # leaving a coherent sync-status paragraph rather than a stripped SLA stub.
+    d2_base = hosted[1][0]
+    original_sla_check = """\
+           IF WS-DAYS-SINCE-UPD > 7
+              MOVE 'OVERDUE' TO WS-SLA-STATUS
+           ELSE
+              MOVE 'INSLA' TO WS-SLA-STATUS
+           END-IF."""
+    maintained_sync_status = """\
+           MOVE 'PENDING' TO WS-SYNC-STATUS
+           IF WS-CUST-ID NOT = SPACES
+              MOVE 'READY' TO WS-SYNC-STATUS
+           END-IF
+           IF WS-DAYS-SINCE-UPD > 7
+              MOVE 'OVERDUE' TO WS-SYNC-STATUS
+           END-IF
+           IF WS-DAYS-SINCE-UPD = ZERO
+              MOVE 'NEW' TO WS-SYNC-STATUS
+           END-IF."""
+    if original_sla_check not in d2_base.text:
+        raise BuildConfigurationError("KYCSYNC2 D2 base no longer matches its seed")
+    d2_base = replace(
+        d2_base,
+        text=(
+            d2_base.text.replace(original_sla_check, maintained_sync_status)
+            .replace("WS-SLA-STATUS", "WS-SYNC-STATUS")
+            .replace("PERFORM 2000-CHECK-SLA", "PERFORM 2000-SET-SYNC-STATUS")
+            .replace("DISPLAY 'SLA: '", "DISPLAY 'SYNC: '")
+            .replace("2000-CHECK-SLA.", "2000-SET-SYNC-STATUS.")
+        ),
+        touched_variables=("WS-DAYS-SINCE-UPD", "WS-SYNC-STATUS"),
     )
 
     d1 = [_Candidate(base, record, "MO-1") for base, record in hosted]
@@ -227,12 +280,12 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
     d7 = [_Candidate(base, record, "MO-0") for base, record in hosted]
     return {
         "D1_stale_threshold": d1,
-        "D2_missing_rule": [_Candidate(hosted[1][0], hosted[1][1], "MO-2")],
+        "D2_missing_rule": [_Candidate(d2_base, hosted[1][1], "MO-2")],
         "D3_contradictory": [_Candidate(late_fee, clauses["CC-09b-v"], "MO-3")],
-        "D3_interprocedural": [_Candidate(cbtrn02, clauses["CC-06b-v"], "MO-3×")],
+        "D3_interprocedural": [_Candidate(overlimit, clauses["CC-06b-v"], "MO-3×")],
         "D4_stale_reference_data": [_Candidate(d4_base, clauses["CC-29"], "MO-4")],
         "D5_boundary_error": d5,
-        "D6_dead_code": [_Candidate(cbact04, clauses["CC-09b-ii"], "MO-6")],
+        "D6_dead_code": [_Candidate(d6_base, clauses["CC-08a"], "MO-6")],
         "D7_conformant": d7,
     }
 
