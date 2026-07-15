@@ -33,14 +33,6 @@ on PRs to `master`. Also confirm the tracked branch-protection / ruleset JSONs
 were actually installed in GitHub repo settings — they enforce nothing by merely
 existing in the tree.
 
-### BL-5 — Independent benchmark bases for non-empty dev · source: T2.6 distribution · owner: Track B · trigger: before T5.2 freeze
-The 21 real-curated test rows collectively share base-program groups with every
-accepted synthetic family except OVRLIM1. Under T2.6's hard zero-base-overlap
-and curated-test-only constraints, v1-pre therefore has train/dev/test =
-30/0/293 and 35/42 CI-fragile class×stratum cells. Add and plausibility-judge
-independent synthetic base families before benchmark freeze; do not split a
-program group merely to manufacture dev metrics.
-
 ## Done / promoted
 
 ### BL-1 — MO operator coverage for T2.2 · resolved by T2.2
@@ -49,3 +41,10 @@ Gate A now covers MO-0…MO-6 plus MO-1×/MO-3×/MO-6×. Clause targeting
 tokens use the canonical multiplication sign; CC-29 carries the bridge-backed
 MO-4 reference-list host, and the natural CC-06b-v/CC-09b-ii loci carry the
 MO-3×/MO-6× variants. MO-0 remains the mandatory global benign pass.
+
+### BL-5 — Independent benchmark bases for non-empty dev · promoted to T2.3b/T2.6b
+
+The v1-pre purpose failure is now scheduled by
+`docs/tasks/T2.3b-T2.6b-corrective-work-order.md`: expand independent bases,
+repair zero-emission MO-1×/MO-6×, re-judge new rows, and regenerate the split
+without relaxing group-preservation or real-curated-test-only rules.

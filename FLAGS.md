@@ -170,12 +170,3 @@ single full-set `unsure` was human-accepted as a natural conformant DISPLAY
 edit; final drop policy is 302 accepted / 9 implausible / 0 unsure. The exact
 15-item chat review agrees 14/15 (93.33%); the D4 disagreement remains visible.
 T2.4 is closed and T2.6 may consume the accepted synthetic artifact.
-
-→ Track C | from B | 2026-07-15 | **M2 CLOSED** | T2.6 deterministic
-group-preserving outputs are in `data/benchmark/v1-pre/distribution.md` with
-train/dev/test = 30/0/293. Gates prove zero base overlap, all 21 real-curated
-instances test-only, and every structural T6 pair / synthetic × group atomic.
-The current curated seeds reserve every synthetic base except OVRLIM1 for test,
-so dev cannot be populated without base leakage; 35/42 split×class×stratum
-cells are marked CI-fragile. Track C must not report dev metrics from this
-v1-pre split; expand independent synthetic base families before freeze (BL-5).

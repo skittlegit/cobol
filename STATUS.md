@@ -77,26 +77,15 @@ One entry per task: ID, state, owner, and artifact.
   cover MO-0…MO-6 plus MO-1×/MO-3×/MO-6×; compiler gate verified with
   GnuCOBOL 3.2.0**) + `data/benchmark/probes/t2.2_surface_probe.jsonl` (100
   balanced records; AUC 0.50, bootstrap 95% CI [0.50, 0.50]).
-- **T2.3** | done | B | `data/benchmark/drift_instances.jsonl` (**311
-  instances: D1=100, D2=20, D3=31, D4=20, D5=20, D6=20, D7=100; 30
-  interprocedural; all validation level `compiled`**) + sibling manifest
-  (seed 2306, no floor shortfalls, 200-instance surface AUC 0.50; gates green).
-- **T2.4** | done | B | `src/cobol_archaeologist/benchmark/judge.py` +
-  `docs/tasks/T2.4-judging-rubric.md` + canonical judgement/review artifacts
-  (**corrected compiled catalogue; Luna/high sample 49/50 plausible; full
-  301/311 plausible; human adjudication yields 302 accepted / 9 implausible /
-  0 unsure; 15-item spot-check agrees 14/15; all gates green**).
+- **T2.3** | wip | B | **CORRECTIVE:** MO-1×/MO-6× emitted zero; per-operator
+  floors added — see `docs/tasks/T2.3b-T2.6b-corrective-work-order.md`.
+- **T2.4** | done | B | stands (98% plausible on 50-sample); `judge_family`
+  field to be backfilled in the T2.3b manifest gate.
 - **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21
   instances, 5 intact verdict-flipping T6 pairs, zero degraded pairs, gates
   green**) + pinned primary-source archive.
-- **T2.6** | done | B | `src/cobol_archaeologist/benchmark/splits.py` +
-  `data/benchmark/v1-pre/{train,dev,test}.jsonl` + `distribution.md`
-  (**deterministic seed 2600; zero base overlap; all 21 real-curated rows
-  test-only; structural T6 pairs/cross variants atomic; 5/5 split gates pass**).
-  Hard grouping yields train/dev/test = 30/0/293: curated test reservation
-  consumes every synthetic base except OVRLIM1, so splitting the remaining
-  group to populate dev would leak program identity. Distribution explicitly
-  flags 35/42 class×stratum cells as CI-fragile; follow-up is BL-5.
+- **T2.6** | wip | B | **CORRECTIVE:** dev=0, test-interproc n=4
+  (headline-fatal) — split regeneration follows base expansion.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
