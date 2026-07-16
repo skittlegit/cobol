@@ -591,12 +591,26 @@ def _assert_d4_reference_hosts(catalog: dict, programs: Path) -> None:
             raise BuildConfigurationError(
                 f"D4 host {candidate.base.filename} text is build-time fabricated"
             )
+        copied = {
+            match.group(1).upper()
+            for match in re.finditer(
+                r"^\s*COPY\s+([A-Z0-9_-]+)\s*\.",
+                candidate.base.text,
+                re.IGNORECASE | re.MULTILINE,
+            )
+        }
         code_members = 0
         for name, content in candidate.base.files.items():
             disk = (programs / name).read_text(encoding="utf-8")
             if content != disk:
                 raise BuildConfigurationError(
                     f"D4 host {candidate.base.filename} copybook {name} is fabricated"
+                )
+            if Path(name).stem.upper() not in copied:
+                raise BuildConfigurationError(
+                    f"D4 host {candidate.base.filename} does not genuinely COPY "
+                    f"{name} (comment-only reference?); the MO-4 target must be a "
+                    "copybook actually included in the compiled unit"
                 )
             for line in content.splitlines():
                 if "88 " in line.upper() and "VALUE" in line.upper():

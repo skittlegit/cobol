@@ -206,6 +206,9 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
     assert "old='NPR'" in (d4_ovd.provenance.mutation or "")
     assert "new='STD'" in (d4_ovd.provenance.mutation or "")
     assert d4_ovd.regulation_clause.clause_id == "5(xiv)"
+    # gold_rationale carries the host-specific drift story (not a vague label)
+    assert "in-clause enumeration" in d4_ovd.gold_rationale
+    assert d4_ovd.provenance.annotator_notes
     d4_unsc = next(
         item
         for item in instances
@@ -215,6 +218,9 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
     assert "old='S88'" in (d4_unsc.provenance.mutation or "")
     assert "new='STD'" in (d4_unsc.provenance.mutation or "")
     assert d4_unsc.regulation_clause.clause_id == "56(prevention)"
+    # UNSC is the deliberately weaker D4: registry completeness, not membership
+    assert "registry completeness" in d4_unsc.gold_rationale
+    assert d4_unsc.provenance.annotator_notes
 
     d6 = next(
         item
@@ -251,6 +257,11 @@ def test_d4_reference_hosts_are_authentic_and_diverse():
     for candidate in d4:
         cv = candidate.record.clause.current_value
         assert cv is not None and cv.kind == "enum_set" and len(cv.value) >= 2
+        # each host must genuinely COPY its reference copybook (guard) ...
+        assert candidate.base.files, candidate.base.filename
+        assert "COPY" in candidate.base.text.upper()
+        # ... and carry an honest, host-specific D4 drift story
+        assert candidate.record.check.get("drift_story"), candidate.record.record_id
 
     # single host -> diversity guard
     with pytest.raises(BuildConfigurationError, match="distinct reference-list hosts"):
