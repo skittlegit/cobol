@@ -70,6 +70,15 @@ class MutationRejected(RuntimeError):
     """Raised when targeting or either validation pass rejects a mutation."""
 
 
+class ClauseDataError(RuntimeError):
+    """Raised when a clause record cannot support the operator it declares.
+
+    Deliberately NOT a :class:`MutationRejected`: the build catches that one and
+    counts it as ordinary yield loss, which is exactly how a data gap turns into
+    silence. This propagates and fails the build.
+    """
+
+
 @dataclass(frozen=True)
 class ClauseRecord:
     record_id: str
@@ -433,16 +442,26 @@ _STALE_GRIDS: dict[str, tuple[float, ...]] = {
 }
 
 
-def _next_round_amount(current: float) -> float:
-    """Next amount up the 1-2-5 decade ladder (500 -> 1000, never 550)."""
+def _round_amount(current: float, *, downward: bool) -> float:
+    """Adjacent amount on the 1-2-5 decade ladder (500 -> 1000, or -> 200).
+
+    Money thresholds move between round figures, never to 550. Direction is the
+    caller's: a ceiling the bank must stay under was laxer when larger; a floor
+    it must pay (a per-day penalty) was laxer when smaller.
+    """
 
     exponent = math.floor(math.log10(abs(current))) if current else 0
-    for power in (exponent, exponent + 1):
-        for mantissa in (1, 2, 5):
-            candidate = float(mantissa * (10**power))
-            if candidate > current:
-                return candidate
-    return current * 2
+    ladder = [
+        float(mantissa * (10**power))
+        for power in range(exponent - 1, exponent + 2)
+        for mantissa in (1, 2, 5)
+    ]
+    side = [value for value in ladder if value < current] if downward else [
+        value for value in ladder if value > current
+    ]
+    if not side:
+        raise MutationRejected(f"no laxer round amount for {current}")
+    return max(side) if downward else min(side)
 
 
 # Stale drift is laxer *for the obligated party* -- an un-updated rule lets the
@@ -470,9 +489,25 @@ def _leaf_kind(current, path: str | None) -> str | None:
     return node.kind if node is not None else None
 
 
-def _is_floor(current, path: str | None) -> bool:
+def _is_floor(current, path: str | None, record_id: str = "<clause>") -> bool:
+    """Is this leaf a floor (a minimum the obligated party must provide)?
+
+    A missing comparator is a hard error, never a silent ceiling default. BL-15
+    existed only because absence was interpretable: ``penalty_per_day`` is
+    floor-shaped, declared nothing, and so drifted *up* to a stricter penalty --
+    the opposite of drift -- with no gate able to see it. Absence must fail.
+    """
+
     node = _leaf_node(current, path)
-    comparator = getattr(node, "comparator", None) if node is not None else None
+    if node is None:
+        raise ClauseDataError(f"{record_id}: no current_value leaf at {path!r}")
+    comparator = getattr(node, "comparator", None)
+    if comparator is None:
+        raise ClauseDataError(
+            f"{record_id}: leaf {path or '<root>'} ({node.kind}) declares no "
+            "comparator, so its stale side cannot be determined. Every leaf an "
+            "operator can target must declare one explicitly (BL-15)."
+        )
     return comparator in _FLOOR_COMPARATORS
 
 
@@ -554,8 +589,13 @@ def _stale_value(
         _assert_snap_direction(record, current, stale, is_floor)
         return stale, "grid_fallback"
     if kind == "amount_inr":
-        return _next_round_amount(current), "grid_fallback"
-    return current + 1.0, "grid_fallback"
+        stale = _round_amount(current, downward=is_floor)
+    else:
+        stale = current - 1.0 if is_floor else current + 1.0
+    # Every path is asserted, not just the grid: the direction rule is only
+    # worth having if it cannot be bypassed by a kind that lacks a grid.
+    _assert_snap_direction(record, current, stale, is_floor)
+    return stale, "grid_fallback"
 
 
 def _apply_mo0(
@@ -682,7 +722,7 @@ def _apply_mo1(
         current,
         rng,
         _leaf_kind(record.clause.current_value, path),
-        is_floor=_is_floor(record.clause.current_value, path),
+        is_floor=_is_floor(record.clause.current_value, path, record.record_id),
     )
     primary = _numeric_occurrence(base.text, current, base.touched_variables)
     sites = _coupled_sites(base, current, primary)

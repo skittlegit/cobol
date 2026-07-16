@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 from cobol_archaeologist.benchmark.mutate import (
+    ClauseDataError,
     ClauseRecord,
     MutationRejected,
     MutationResult,
@@ -559,6 +560,7 @@ def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
 
     seen: dict[str, int] = {"prior_verified": 0, "grid_fallback": 0}
     refused = 0
+    undeclared: list[str] = []
     for record in load_clause_records(CLAUSES_PATH):
         if "MO-1" not in record.check.get("mutation_ops", ()):
             continue
@@ -568,7 +570,12 @@ def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
             if not isinstance(value, (int, float)) or isinstance(value, bool):
                 continue
             kind = _leaf_kind(current, path)
-            is_floor = _is_floor(current, path)
+            try:
+                is_floor = _is_floor(current, path, record.record_id)
+            except ClauseDataError:
+                # BL-15: absence must fail loudly, never default to ceiling.
+                undeclared.append(f"{record.record_id}.{path or '<root>'}")
+                continue
             try:
                 stale, source = _stale_value(
                     record, float(value), random.Random(7), kind, is_floor=is_floor
@@ -602,6 +609,12 @@ def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
                         f"{record.record_id}.{path}: ceiling clause snapped down "
                         f"({value} -> {stale})"
                     )
+    # BL-15 gate: every leaf an operator can target declares its comparator, so
+    # the stale side is read from the clause and never inferred.
+    assert not undeclared, (
+        f"{len(undeclared)} MO-targetable leaves declare no comparator, so their "
+        "stale side would be guessed (BL-15): " + ", ".join(undeclared)
+    )
     # Both arms must stay exercised: all-synthesis would mean the curated prior
     # versions are unwired, all-prior would leave the fallback untested.
     assert seen["prior_verified"] >= 1
