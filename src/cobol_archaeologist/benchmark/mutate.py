@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import random
 import re
@@ -57,6 +58,12 @@ _HEADER_RE = re.compile(r"^\s{7}([A-Z0-9][A-Z0-9-]*)\.\s*$", re.IGNORECASE)
 _PROGRAM_ID_RE = re.compile(r"\bPROGRAM-ID\.\s*([A-Z0-9-]+)", re.IGNORECASE)
 _VARIABLE_RE = re.compile(r"\b(?:WS|LK)-[A-Z0-9-]+\b", re.IGNORECASE)
 _COMPARATOR_RE = re.compile(r"(?<![<>=])(?:>=|<=|>|<|=)(?![<>=])")
+_OUTSTANDING_RE = re.compile(
+    r"\b((?:WS|LK)-[A-Z0-9-]*OUTSTANDING[A-Z0-9-]*)\b", re.IGNORECASE
+)
+_UNPAID_TERM_RE = re.compile(
+    r"\s*-\s*((?:WS|LK)-[A-Z0-9-]*(?:UNPAID|FEE|CHARGE)[A-Z0-9-]*)\b", re.IGNORECASE
+)
 
 
 class MutationRejected(RuntimeError):
@@ -177,6 +184,7 @@ class _EditPlan:
     new: str
     slice_candidates: tuple[str, ...]
     surface_edits: tuple[SurfaceEdit, ...] = ()
+    stale_source: str | None = None
 
 
 def load_clause_records(path: str | Path) -> list[ClauseRecord]:
@@ -315,17 +323,19 @@ def _format_number_like(old_text: str, value: float) -> str:
     return str(int(value)) if float(value).is_integer() else str(value)
 
 
+def _numeric_pattern(value: float) -> re.Pattern[str]:
+    if float(value).is_integer():
+        return re.compile(rf"(?<![\d.]){int(value)}(?:\.0+)?(?!\d)")
+    return re.compile(rf"(?<![\d.]){re.escape(str(value))}(?!\d)")
+
+
 def _numeric_occurrence(
     source: str,
     value: float,
     preferred_variables: tuple[str, ...] = (),
 ) -> tuple[int, re.Match[str]]:
     lines = source.splitlines()
-    integer = int(value)
-    if float(value).is_integer():
-        pattern = re.compile(rf"(?<![\d.]){integer}(?:\.0+)?(?!\d)")
-    else:
-        pattern = re.compile(rf"(?<![\d.]){re.escape(str(value))}(?!\d)")
+    pattern = _numeric_pattern(value)
     candidates: list[tuple[int, re.Match[str]]] = []
     for index, line in enumerate(lines):
         if len(line) > 6 and line[6] in "*/":
@@ -408,7 +418,59 @@ def _raw_scalars(value) -> list[object]:
     return [value]
 
 
-def _stale_value(record: ClauseRecord, current: float, rng: random.Random) -> float:
+# T2.4b (BL-6 follow-on): plausible former values, per current_value kind.
+# Regulators legislate on round windows, so an off-grid threshold is the tell --
+# the retired ``current * 1.1`` fallback emitted a 33-day SLA no maintainer ever
+# wrote. Each grid is the set of values that kind actually takes in the RBI
+# lineage; the stale value is snapped onto it. Grids are keyed by kind (not by
+# instance) so the choice stays deterministic and inspectable.
+_STALE_GRIDS: dict[str, tuple[float, ...]] = {
+    "duration_days": (7, 14, 15, 30, 45, 60, 90),
+    "duration_working_days": (3, 7, 10),
+    "duration_years": (1, 2, 5, 8, 10),
+    "duration_months": (1, 2, 3, 6, 12),
+    "percentage": (10, 15, 25),
+}
+
+
+def _next_round_amount(current: float) -> float:
+    """Next amount up the 1-2-5 decade ladder (500 -> 1000, never 550)."""
+
+    exponent = math.floor(math.log10(abs(current))) if current else 0
+    for power in (exponent, exponent + 1):
+        for mantissa in (1, 2, 5):
+            candidate = float(mantissa * (10**power))
+            if candidate > current:
+                return candidate
+    return current * 2
+
+
+def _leaf_kind(current, path: str | None) -> str | None:
+    if current is None:
+        return None
+    if path is None:
+        return current.kind
+    try:
+        return resolve_path(current, path).kind
+    except KeyError:
+        return None
+
+
+def _stale_value(
+    record: ClauseRecord,
+    current: float,
+    rng: random.Random,
+    kind: str | None = None,
+) -> tuple[float, str]:
+    """Return ``(stale_value, stale_source)`` for a D1 threshold.
+
+    A recorded, primary-verified former value always wins: it replaces synthesis
+    with history. Only where the clause's value genuinely never moved (most of
+    the lineage carried over unchanged) does the grid supply a believable
+    former value instead. Which of the two happened is stamped on the instance
+    so the datasheet can report the real-history vs. plausible-synthesis ratio.
+    """
+
     candidates: list[float] = []
     for key in ("prior_versions", "prior_2022"):
         raw = record.check.get(key, [])
@@ -417,12 +479,28 @@ def _stale_value(record: ClauseRecord, current: float, rng: random.Random) -> fl
             for value in _raw_scalars(
                 item.get("value", {}) if isinstance(item, dict) else {}
             ):
-                if isinstance(value, (int, float)) and float(value) != current:
-                    candidates.append(float(value))
+                # Non-numeric priors (an absent deadline, a day-basis change)
+                # are real history but not D1 material -- they are D2/D5 shapes,
+                # so they must never reach a stale-threshold substitution.
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    if float(value) != current:
+                        candidates.append(float(value))
     if candidates:
-        return candidates[rng.randrange(len(candidates))]
-    delta = max(1.0, round(abs(current) * 0.1))
-    return current + delta
+        return candidates[rng.randrange(len(candidates))], "prior_verified"
+
+    grid = _STALE_GRIDS.get(kind or "")
+    if grid:
+        # Stale side first: a rule that tightened over time was laxer before, so
+        # the believable former value is the next larger window/threshold.
+        laxer = [value for value in grid if value > current]
+        if laxer:
+            return min(laxer), "grid_fallback"
+        stricter = [value for value in grid if value < current]
+        if stricter:
+            return max(stricter), "grid_fallback"
+    if kind == "amount_inr":
+        return _next_round_amount(current), "grid_fallback"
+    return current + 1.0, "grid_fallback"
 
 
 def _apply_mo0(
@@ -450,26 +528,107 @@ def _apply_mo0(
     )
 
 
+def _slice_lines(source: ProgramSource, variable: str) -> set[int]:
+    """1-based lines of ``source`` covered by the backward slice of ``variable``."""
+
+    with tempfile.TemporaryDirectory(prefix="t22_couple_") as tmp:
+        directory = Path(tmp)
+        (directory / source.filename).write_text(source.text, encoding="utf-8")
+        for name, text in source.files.items():
+            (directory / name).write_text(text, encoding="utf-8")
+        program = parse_program(directory / source.filename, include_preamble=True)
+        graph = build_call_graph([program], {program.program_id: preprocess(source.text)})
+        sliced = slice_on(variable.upper(), [program], graph, program=None)
+        covered: set[int] = set()
+        for statement in sliced.statements:
+            if statement.ref.program != program.program_id:
+                continue
+            covered.update(range(statement.ref.line_start, statement.ref.line_end + 1))
+        return covered
+
+
+def _coupled_sites(
+    base: ProgramSource, value: float, primary: tuple[int, re.Match[str]]
+) -> list[tuple[int, re.Match[str]]]:
+    """Occurrences of the regulated literal that denote the same quantity.
+
+    A stale-threshold bug a maintainer would actually ship moves the value
+    everywhere it means the same thing. Editing only the comparison and leaving
+    the coupled arithmetic on the old value yields a program that contradicts
+    itself -- penalty-free at 8 days but charged from day 9 -- which is not
+    drift but incoherence, and reads as generated. Coupling is established from
+    def-use (slice membership plus a shared variable), never from literal
+    equality: an unrelated array bound that happens to be 7 must not move with
+    the SLA window.
+    """
+
+    sites = [primary]
+    lines = base.text.splitlines()
+    primary_index, primary_match = primary
+    anchors = _variables(lines[primary_index])
+    if not anchors:
+        return sites
+    try:
+        procedure = _procedure_index(lines)
+    except MutationRejected:
+        return sites
+    pattern = _numeric_pattern(value)
+    seen = {(primary_index, primary_match.start())}
+    for anchor in anchors:
+        try:
+            covered = _slice_lines(base, anchor)
+        except Exception:
+            # DECISION (T2.4b): def-use is Track A's. Where it cannot resolve a
+            # locus we ship the single-site edit on the comparison -- the
+            # clause's semantic anchor -- rather than guess at coupling.
+            continue
+        for index in range(procedure + 1, len(lines)):
+            line = lines[index]
+            if index == primary_index or (index + 1) not in covered:
+                continue
+            if len(line) > 6 and line[6] in "*/":
+                continue
+            if anchor not in line.upper():
+                continue
+            for match in pattern.finditer(line):
+                if (index, match.start()) in seen:
+                    continue
+                seen.add((index, match.start()))
+                sites.append((index, match))
+    return sites
+
+
 def _apply_mo1(
     base: ProgramSource, record: ClauseRecord, rng: random.Random
 ) -> _EditPlan:
-    _, raw_current = _target_leaf(base, record)
+    path, raw_current = _target_leaf(base, record)
     if not isinstance(raw_current, (int, float)):
         raise MutationRejected("MO-1 requires a numeric current_value leaf")
     current = float(raw_current)
-    stale = _stale_value(record, current, rng)
-    index, match = _numeric_occurrence(base.text, current, base.touched_variables)
+    stale, stale_source = _stale_value(
+        record, current, rng, _leaf_kind(record.clause.current_value, path)
+    )
+    primary = _numeric_occurrence(base.text, current, base.touched_variables)
+    sites = _coupled_sites(base, current, primary)
+    primary_index, primary_match = primary
+    replacement = _format_number_like(primary_match.group(0), stale)
     lines = base.text.splitlines()
-    old_line = lines[index]
-    replacement = _format_number_like(match.group(0), stale)
-    lines[index] = old_line[: match.start()] + replacement + old_line[match.end() :]
-    variables = _variables(lines[index]) or base.touched_variables
+    # Right-to-left within a line keeps every later match offset valid.
+    for index, match in sorted(sites, key=lambda item: (item[0], -item[1].start())):
+        line = lines[index]
+        lines[index] = line[: match.start()] + replacement + line[match.end() :]
+    touches = tuple(
+        _Touch(base.program, None, index + 1, index + 1)
+        for index in sorted({index for index, _ in sites})
+    )
+    variables = _variables(lines[primary_index]) or base.touched_variables
     return _EditPlan(
         source=replace(base, text=_join_like(base.text, lines)),
-        touches=(_Touch(base.program, None, index + 1, index + 1),),
-        old=match.group(0),
+        touches=touches,
+        old=primary_match.group(0),
         new=replacement,
         slice_candidates=tuple(variables),
+        stale_source=stale_source,
     )
 
 
@@ -601,8 +760,8 @@ def _comparator_edit(
     )
 
 
-def _apply_mo3(base: ProgramSource) -> _EditPlan:
-    """Weaken a blocking condition so a forbidden business case can pass."""
+def _apply_mo3_grace_widening(base: ProgramSource) -> _EditPlan | None:
+    """Widen a grace-period gate so the charge also lands inside the grace."""
 
     lines = base.text.splitlines()
     index = next(
@@ -614,26 +773,83 @@ def _apply_mo3(base: ProgramSource) -> _EditPlan:
         ),
         None,
     )
-    if index is None or "WS-OUTSTANDING-AMT" not in base.text.upper():
-        return _comparator_edit(
-            base, {">": "<=", ">=": "<", "<": ">=", "<=": ">", "=": "NOT ="}
-        )
-
+    outstanding = _OUTSTANDING_RE.search(base.text)
+    if index is None or outstanding is None:
+        return None
+    name = outstanding.group(1).upper()
     old = lines[index].strip()
     indent = lines[index][: len(lines[index]) - len(lines[index].lstrip())]
-    added = f"{indent}  OR WS-OUTSTANDING-AMT > ZERO"
+    added = f"{indent}  OR {name} > ZERO"
     lines.insert(index + 1, added)
     return _EditPlan(
         source=replace(base, text=_join_like(base.text, lines)),
         touches=(_Touch(base.program, None, index + 1, index + 2),),
         old=old,
         new=f"{old} {added.strip()}",
-        slice_candidates=(
-            "WS-DAYS-PAST-DUE",
-            "WS-OUTSTANDING-AMT",
-            "WS-LATE-CHARGE",
+        slice_candidates=tuple(
+            dict.fromkeys(("WS-DAYS-PAST-DUE", name, *base.touched_variables))
         ),
     )
+
+
+def _apply_mo3_capitalization(base: ProgramSource) -> _EditPlan | None:
+    """Fold unpaid charges back into a base the clause excludes them from."""
+
+    lines = base.text.splitlines()
+    try:
+        procedure = _procedure_index(lines)
+    except MutationRejected:
+        return None
+    touched = {variable.upper() for variable in base.touched_variables}
+    for index in range(procedure + 1, len(lines)):
+        line = lines[index]
+        if len(line) > 6 and line[6] in "*/":
+            continue
+        match = _UNPAID_TERM_RE.search(line)
+        if match is None or match.group(1).upper() not in touched:
+            continue
+        start = next(
+            (
+                item
+                for item in range(index, procedure, -1)
+                if re.search(r"\bCOMPUTE\b", lines[item], re.IGNORECASE)
+            ),
+            None,
+        )
+        if start is None or any(
+            _HEADER_RE.match(lines[item]) for item in range(start, index + 1)
+        ):
+            continue
+        new_line = line[: match.start()] + line[match.end() :]
+        if not new_line.strip():
+            continue
+        old = line.strip()
+        lines[index] = new_line
+        return _EditPlan(
+            source=replace(base, text=_join_like(base.text, lines)),
+            touches=(_Touch(base.program, None, index + 1, index + 1),),
+            old=old,
+            new=new_line.strip(),
+            slice_candidates=tuple(
+                dict.fromkeys((match.group(1).upper(), *base.touched_variables))
+            ),
+        )
+    return None
+
+
+def _apply_mo3(base: ProgramSource) -> _EditPlan:
+    """Contradict the clause through a shape a maintainer would plausibly ship."""
+
+    plan = _apply_mo3_grace_widening(base) or _apply_mo3_capitalization(base)
+    if plan is None:
+        # DECISION (T2.4b): MO-3 emits only recognized contradiction shapes. The
+        # retired fallback inverted whatever comparator it found first, which on
+        # a sign guard ("IF WS-BASE > ZERO" -> "<= ZERO") made the regulated
+        # branch unreachable. An always-false condition is not a contradiction a
+        # maintainer ships, and the judge rejected it as artificial. Rejecting
+        # costs D3 yield; emitting an implausible mutant costs the benchmark.
+        raise MutationRejected("MO-3 found no plausible contradiction shape")
+    return plan
 
 
 def _alternate_reference_value(old: str, existing: set[str]) -> str:
@@ -711,6 +927,67 @@ def _apply_mo4(base: ProgramSource, _rng: random.Random) -> _EditPlan:
         touches=(_Touch(base.program, name, index + 1, index + 1),),
         old=old,
         new=new,
+        slice_candidates=tuple(variables),
+    )
+
+
+def _apply_mo4_member_removal(base: ProgramSource, _rng: random.Random) -> _EditPlan:
+    """D4 realized by dropping the last entry of a reference-list 88-level.
+
+    Selected per clause via ``check.d4_mode == "member_removal"``. For reference
+    sets whose members are named-identity mnemonics (accepted-OVD codes, UNSC
+    mandated-list sources), substituting a generic alternate reads as
+    artificial — a stale reference list does not sprout a meaningless code, it
+    drops a mandated entry. Country-code style lists keep the substitution path
+    in :func:`_apply_mo4`, which is deliberately left unchanged.
+    """
+    copybooks = sorted(
+        name for name in base.files if name.lower().endswith((".cpy", ".cob"))
+    )
+    candidates: list[
+        tuple[int, str, int, str, list[re.Match[str]], re.Match[str] | None]
+    ] = []
+    for name in copybooks:
+        lines = base.files[name].splitlines()
+        for index, line in enumerate(lines):
+            if "88 " not in line.upper() or "VALUE" not in line.upper():
+                continue
+            literals = list(re.finditer(r"'([^']+)'", line))
+            # Removing from a single-entry list would leave an empty VALUES.
+            if len(literals) < 2:
+                continue
+            condition = re.search(r"\b88\s+([A-Z0-9-]+)", line, re.IGNORECASE)
+            candidates.append((len(literals), name, index, line, literals, condition))
+    if not candidates:
+        raise MutationRejected(
+            "MO-4 member removal requires an 88-level VALUES list with >=2 entries"
+        )
+
+    _, name, index, line, literals, condition = max(
+        candidates, key=lambda item: (item[0], item[1], -item[2])
+    )
+    removed = literals[-1]
+    old = removed.group(1)
+    # Drop the trailing entry and its separator, preserving the terminating
+    # period and the line itself (line-count fidelity).
+    lines = base.files[name].splitlines()
+    lines[index] = line[: literals[-2].end()] + line[removed.end() :]
+    files = dict(base.files)
+    files[name] = _join_like(base.files[name], lines)
+    variables = (
+        (
+            condition.group(1).upper(),
+            *base.touched_variables,
+            *_variables(base.text),
+        )
+        if condition
+        else base.touched_variables
+    )
+    return _EditPlan(
+        source=replace(base, files=files),
+        touches=(_Touch(base.program, name, index + 1, index + 1),),
+        old=old,
+        new="(deleted)",
         slice_candidates=tuple(variables),
     )
 
@@ -1302,6 +1579,15 @@ def _apply(
     if op == "MO-3":
         return _apply_mo3(base)
     if op == "MO-4":
+        # DECISION (T2.4b): how D4 is realized is clause-driven, not a new
+        # operator. Named-identity mnemonic sets (OVD codes, UNSC list sources)
+        # drift by losing a mandated entry; generic-token substitution reads as
+        # artificial there. Country-code style sets keep the substitution path.
+        if (
+            isinstance(record.check, dict)
+            and record.check.get("d4_mode") == "member_removal"
+        ):
+            return _apply_mo4_member_removal(base, rng)
         return _apply_mo4(base, rng)
     if op == "MO-5":
         _, current = _target_leaf(base, record)
@@ -1626,6 +1912,11 @@ def mutate(
         f"{op}; locus={_locus_description(loci)}; old={plan.old!r}; "
         f"new={plan.new!r}; validation={validation.level}"
     )
+    # Whether this D1 stale value is real regulatory history or plausible
+    # synthesis is a reviewer question; answer it per instance rather than
+    # leaving the ratio to be reconstructed.
+    if plan.stale_source:
+        mutation_note += f"; stale_source={plan.stale_source}"
     instance = DriftInstance(
         instance_id=_instance_id(diversified, record, op),
         regulation_clause=record.clause,
