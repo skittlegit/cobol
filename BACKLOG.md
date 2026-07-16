@@ -33,6 +33,66 @@ on PRs to `master`. Also confirm the tracked branch-protection / ruleset JSONs
 were actually installed in GitHub repo settings — they enforce nothing by merely
 existing in the tree.
 
+### BL-6 — Re-adjudicate T2.4 on the current 591-row catalogue (reopen M2) · source: audit H2 · owner: B · trigger: now — blocks headline eval
+The closing T2.4 evidence (98% on a 50-sample, 301/311 full) was judged on the
+**pre-T2.3b 311-row** catalogue. The current catalogue is **591 rows**
+(regenerated in `1bce6b9`); its own full `gpt-5.6-luna`/high run in
+`data/benchmark/drift_instances.manifest.json:78` records **`gate_passed: false`
+at 89.51%** with **5 `unsure` left unadjudicated**, and the historical 50-sample
+overlaps the current IDs by only 1/50. T2.4 requires human adjudication of
+`unsure` (`T2.4-work-order.md:29`) and T2.6 requires T2.4's gates green
+(`T2.6-work-order.md:17`). Resolve by either (a) adjudicating the 5 cases and
+running a current-catalogue stratified 50-sample to ≥90%, or (b) formally
+amending the work order to permit conservative exclusion + historical-sample
+reuse. Until then M2's PASSED is provisional (see the STATUS M2/T2.4 caveats).
+
+### BL-7 — `run_cobol` path-escape + unbounded output collection · source: audit H1 · owner: A · trigger: soon — before MCP self-host (T7.1)
+`RunInputs.files` names are joined straight onto the temp dir and written
+without validation (`model/run_cobol.py:174-177`); an absolute path or `../`
+name escapes the sandbox dir and can overwrite files before compile. Output
+collection (`run_cobol.py:234`) then reads **every** generated file with no
+size/count cap. SECURITY.md already treats `run_cobol` as an ACE surface needing
+an external sandbox, but the in-process temp-dir guarantee is still breachable.
+Reject absolute/traversal names, resolve-and-contain under the tmpdir, and cap
+collected output count + bytes. Track A owns the module.
+
+### BL-8 — Benchmark manifest records the wrong generating commit · source: audit M3 · owner: B · trigger: with the BL-6 regeneration
+`drift_instances.manifest.json:70` stamps `git_sha` `f880b6e`, but the
+generator/operator changes and corpus regeneration landed in `1bce6b9`.
+Reconstructing from the recorded SHA cannot reproduce the catalogue. Stamp the
+actual generating HEAD; naturally fixed when BL-6 regenerates, but flag it so a
+stale SHA is not carried forward again.
+
+### BL-9 — Reconcile the locked GnuCOBOL version · source: audit M4 · owner: infra (touches CLAUDE.md locked decision #3) · trigger: team decision
+CLAUDE.md decision #3 locks GnuCOBOL **3.1.2**, but STATUS T1.5/T2.2 record
+validation on **3.2.0** and `scripts/setup_cobc.sh:15` installs whatever
+`gnucobol3` apt currently ships. Pick one version of record and enforce it (pin
+the setup script, or amend the locked decision). CLAUDE.md locked-decision edits
+are a team call, not a unilateral fix — hence backlog, not a direct edit.
+
+### BL-10 — Split repair can report false infeasibility · source: audit M5 · owner: B · trigger: when a 2-move split need arises
+The repair loop at `benchmark/splits.py:278` only accepts a move that
+*immediately* reduces the failed-gate count (`len(candidate_errors) >=
+len(errors): continue`), so a feasible solution needing two intermediate moves
+is rejected as infeasible. Use quantitative deficit scoring or a bounded
+constrained search, and add a multi-move fixture. The current corpus passes, so
+this is latent.
+
+### BL-11 — Security / review governance gaps · source: audit M6 · owner: infra · trigger: before benchmark/v1 (T5.2) or MCP ship (T7.1)
+Three items: (a) `SECURITY.md:27` still has the `<security-contact@REPLACE-ME>`
+placeholder; (b) the frozen contract shape `tool_types.py` has **no** CODEOWNER
+entry and `schemas.py`'s CODEOWNERS line omits Track A (`@twiswiz`); (c) the
+branch-protection rulesets in `.github/rulesets/` enforce nothing unless actually
+installed in GitHub settings (see also BL-4). Fill the contact, add the missing
+code-owners, and confirm required review is live.
+
+### BL-12 — Runnable-base provenance stale in the manifest · source: audit M7 · owner: B · trigger: with the next manifest bump
+`data/manifest.json:58-61` still lists the runnable base with `pinned_commit:
+null` and "Selection and pinning due at T1.5/T2.5 start", though both tasks and
+the native bases (`OVRLIM1.cbl`, `CLOSPEN5.cbl`, …) are authored and in use.
+Update the role notes and pin, or document that the bases are repo-native and
+need no external pin.
+
 ## Done / promoted
 
 ### BL-1 — MO operator coverage for T2.2 · resolved by T2.2

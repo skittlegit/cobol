@@ -33,10 +33,27 @@ design call: docs/reviews/2026-07-12/chat-track-a.md.
 recursive CurrentValue, target_path). No action: A consumes DriftInstances and
 does not emit them; tool_types.py is untouched. FYI only.
 
+→ Track A | from B | 2026-07-15 | T1.5 | External audit — `run_cobol` path
+escape (code fix, no decision): `RunInputs.files` names are joined to the temp
+dir and written without validation (`model/run_cobol.py:174-177`), so an
+absolute or `../` name escapes the sandbox dir and can overwrite files before
+compile; output collection at `:234` reads every file uncapped. Harden
+(contain-under-tmpdir + count/byte cap). Logged as BACKLOG BL-7; owner A.
+
 ## Track B inbox
 
-_No pending flags. T1.4/T1.5/T1.6 prerequisites and the schema-v2 migration
-were acknowledged by the landed T2.2, T2.3, and T2.5 artifacts._
+→ Track B | from audit | 2026-07-15 | M2 audit | External audit of the merged
+`track-b` state. **High:** M2 was closed on stale T2.4 evidence — the current
+591-row catalogue's own full run is `gate_passed:false` (89.51%, 5 `unsure`),
+and the 98% 50-sample overlaps it by 1/50 IDs (**BL-6**; M2/T2.4 STATUS lines
+now carry a review caveat). **Medium:** manifest `git_sha` names `f880b6e` not
+the regenerating `1bce6b9` (**BL-8**); split-repair false infeasibility
+(**BL-10**); runnable-base provenance stale in `manifest.json` (**BL-12**).
+Cross-track: `run_cobol` path escape → Track A (**BL-7**); GnuCOBOL version
+conflict + governance → infra (**BL-9/BL-11**). All in BACKLOG.
+
+_Prior: T1.4/T1.5/T1.6 prerequisites and the schema-v2 migration were
+acknowledged by the landed T2.2, T2.3, and T2.5 artifacts._
 
 ## Track C inbox
 
@@ -47,6 +64,14 @@ interprocedural instances with MO-1×/MO-3×/MO-6× = 12/8/12. All D1–D7
 test-local floors pass; D4/D5 have no accepted interprocedural emitters and are
 named shortfalls. There are 25 CI-fragile split × class × stratum cells. M2 is
 closed; Track C may consume these IDs and splits.
+
+→ Track C | from B | 2026-07-15 | M2 UNDER REVIEW (qualifies "M2 CLOSED" above)
+| **Hold before consuming v1-pre IDs/splits.** An audit found the M2/T2.4
+closure rests on the pre-T2.3b 311-row catalogue; the current 591-row
+catalogue's own full judge run is `gate_passed:false` (89.51%, 5 `unsure`
+unadjudicated) and the 98% 50-sample overlaps current IDs by only 1/50. Splits
+may shift on re-adjudication. Re-adjudication tracked as BACKLOG BL-6 — consume
+only after BL-6 closes and this flag is cleared.
 
 → Track C | from A | 2026-07-13 | T1.6 | T1.6 done. `RealToolLayer`
 (`src/cobol_archaeologist/tools.py`) is constructor-swappable for your stub —

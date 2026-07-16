@@ -83,7 +83,9 @@ One entry per task: ID, state, owner, and artifact.
   (57 implausible + 5 unsure retained in rejected sidecars); generated
   MO-1×/MO-3×/MO-6× = 12/24/12 and all manifest/operator/base-floor gates pass.
 - **T2.4** | done | B | stands (98% plausible on 50-sample); `judge_family`
-  backfilled as `openai` in the T2.3b manifest gate.
+  backfilled as `openai` in the T2.3b manifest gate. **⚠ UNDER REVIEW (BL-6):**
+  that 98% sample was judged on the pre-T2.3b 311-row catalogue and overlaps the
+  current 591-row catalogue by 1/50 IDs; 5 current `unsure` are unadjudicated.
 - **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21
   instances, 5 intact verdict-flipping T6 pairs, zero degraded pairs, gates
   green**) + pinned primary-source archive.
@@ -93,7 +95,11 @@ One entry per task: ID, state, owner, and artifact.
   (MO-1×/MO-3×/MO-6× = 12/8/12), every D1–D7 test-local floor passes, and
   D4/D5 interprocedural shortfalls are explicitly reported.
 - **M2 (Synthetic v1 + Seed Started): PASSED 2026-07-15 — corrected,
-  purpose-valid v1-pre is ready for Track C.**
+  purpose-valid v1-pre is ready for Track C.** **⚠ PROVISIONAL — UNDER REVIEW
+  (BL-6):** the closing T2.4 evidence predates the current 591-row catalogue,
+  whose own full judge run records `gate_passed:false` (89.51%, 5 `unsure`) in
+  `data/benchmark/drift_instances.manifest.json:78`. Re-adjudicate or amend the
+  work order before headline eval; Track C flagged to hold consumption.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
