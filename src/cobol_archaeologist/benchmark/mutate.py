@@ -1519,6 +1519,24 @@ def mutate(
 
     surface_rng = random.Random(rng.getrandbits(64))
     plan = _apply(base, record, op, rng)
+    # T2.4b / BL-6 guard: a reference-copybook edit's recorded pre-image must
+    # actually exist at the touched locus in the authentic base. This catches a
+    # build-time-fabricated reference target (the old CC-29 D4 recorded
+    # old='D' against an in-memory-rewritten copybook). Scoped to copybook loci
+    # -- the fabrication surface -- to leave interprocedural source touches
+    # untouched.
+    for touch in plan.touches:
+        if not plan.old or touch.file is None:
+            continue
+        if not touch.file.lower().endswith((".cpy", ".copy")):
+            continue
+        base_lines = base.files.get(touch.file, "").splitlines()
+        idx = touch.line_start - 1
+        if not (0 <= idx < len(base_lines) and plan.old in base_lines[idx]):
+            raise MutationRejected(
+                f"{op} pre-image {plan.old!r} not found at "
+                f"{touch.file}:{touch.line_start} in the authentic base"
+            )
     pre_validation = _validate(plan.source, base)
     if not pre_validation.ok:
         raise MutationRejected(

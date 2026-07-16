@@ -270,7 +270,7 @@ def _cases() -> dict[str, tuple[ProgramSource, ClauseRecord]]:
                 files={"WSREFLST.cpy": REFERENCE_COPYBOOK},
                 touched_variables=("WS-COUNTRY",),
             ),
-            records["CC-29"],
+            records["KYC-ovd-list"],
         ),
         "MO-5": (
             _seed(

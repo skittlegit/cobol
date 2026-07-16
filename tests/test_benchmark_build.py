@@ -194,11 +194,27 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
     assert "old=\"MOVE 'N' TO WS-CONSENT-ON-FILE\"" in (d3x.provenance.mutation or "")
     assert "new='(deleted)'" in (d3x.provenance.mutation or "")
 
-    d4 = next(
-        item for item in instances if item.drift_type == "D4_stale_reference_data"
+    # T2.4b / BL-6: D4 is anchored to two authentic KYC reference-list hosts
+    # (OVD accepted-document table, UNSC mandated-list registry). MO-4 corrupts
+    # one enumerated member so it drifts from the clause-side enum_set.
+    d4_ovd = next(
+        item
+        for item in instances
+        if item.drift_type == "D4_stale_reference_data"
+        and item.provenance.base_program == "OVDCHK1.cbl"
     )
-    assert "old='D'" in (d4.provenance.mutation or "")
-    assert "new='W'" in (d4.provenance.mutation or "")
+    assert "old='NPR'" in (d4_ovd.provenance.mutation or "")
+    assert "new='STD'" in (d4_ovd.provenance.mutation or "")
+    assert d4_ovd.regulation_clause.clause_id == "5(xiv)"
+    d4_unsc = next(
+        item
+        for item in instances
+        if item.drift_type == "D4_stale_reference_data"
+        and item.provenance.base_program == "SCRNGATE1.cbl"
+    )
+    assert "old='S88'" in (d4_unsc.provenance.mutation or "")
+    assert "new='STD'" in (d4_unsc.provenance.mutation or "")
+    assert d4_unsc.regulation_clause.clause_id == "56"
 
     d6 = next(
         item
@@ -215,6 +231,37 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
     assert "old=\"VALUE 'Y'\"" in (d6.provenance.mutation or "")
     assert "new=\"VALUE 'N'\"" in (d6.provenance.mutation or "")
     assert len(d6.code_locus.loci) == 2
+
+
+def test_d4_reference_hosts_are_authentic_and_diverse():
+    # T2.4b / BL-6: no cobc/tree-sitter needed -- pure catalog + guard checks.
+    from dataclasses import replace
+
+    from cobol_archaeologist.benchmark.build import (
+        BuildConfigurationError,
+        _assert_d4_reference_hosts,
+        _candidate_catalog,
+    )
+
+    programs = ROOT / "data" / "benchmark" / "seed" / "programs"
+    catalog = _candidate_catalog(ROOT)  # calls the guard; must not raise
+    d4 = catalog["D4_stale_reference_data"]
+    assert {c.base.filename for c in d4} == {"OVDCHK1.cbl", "SCRNGATE1.cbl"}
+    assert all(c.op == "MO-4" for c in d4)
+    for candidate in d4:
+        cv = candidate.record.clause.current_value
+        assert cv is not None and cv.kind == "enum_set" and len(cv.value) >= 2
+
+    # single host -> diversity guard
+    with pytest.raises(BuildConfigurationError, match="distinct reference-list hosts"):
+        _assert_d4_reference_hosts({"D4_stale_reference_data": [d4[0]]}, programs)
+
+    # build-time-fabricated base text -> authenticity guard
+    tampered = replace(d4[0], base=replace(d4[0].base, text=d4[0].base.text + "\n"))
+    with pytest.raises(BuildConfigurationError, match="fabricated"):
+        _assert_d4_reference_hosts(
+            {"D4_stale_reference_data": [tampered, d4[1]]}, programs
+        )
 
 
 def test_gate_e_surface_probe_sample_is_at_chance(built_pair):
