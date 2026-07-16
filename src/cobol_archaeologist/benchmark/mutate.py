@@ -538,6 +538,37 @@ def _assert_snap_direction(
         )
 
 
+def _exact_wrong_value(
+    record: ClauseRecord, current: float, rng: random.Random
+) -> tuple[float, str]:
+    """A fixed statutory constant has no laxer side -- only a wrong value.
+
+    The 2x penalty on unsolicited-card charges is not a threshold with a window
+    that slid: drift here is the constant itself being wrong. Selected via
+    ``check.mo1_mode == "exact_wrong"``, so the clause declares that it is
+    non-directional rather than the snap logic inferring it -- the inference
+    hole BL-15 was. Candidates are declared too, never derived.
+    """
+
+    declared = record.check.get("mo1_wrong_values")
+    if not isinstance(declared, list) or not declared:
+        raise ClauseDataError(
+            f"{record.record_id}: mo1_mode='exact_wrong' declares no "
+            "mo1_wrong_values, so the wrong value would be invented"
+        )
+    candidates = [
+        float(value)
+        for value in declared
+        if isinstance(value, (int, float)) and float(value) != current
+    ]
+    if not candidates:
+        raise ClauseDataError(
+            f"{record.record_id}: mo1_wrong_values holds no value distinct "
+            f"from the current {current}"
+        )
+    return candidates[rng.randrange(len(candidates))], "exact_wrong"
+
+
 def _stale_value(
     record: ClauseRecord,
     current: float,
@@ -717,13 +748,21 @@ def _apply_mo1(
     if not isinstance(raw_current, (int, float)):
         raise MutationRejected("MO-1 requires a numeric current_value leaf")
     current = float(raw_current)
-    stale, stale_source = _stale_value(
-        record,
-        current,
-        rng,
-        _leaf_kind(record.clause.current_value, path),
-        is_floor=_is_floor(record.clause.current_value, path, record.record_id),
-    )
+    mode = record.check.get("mo1_mode") if isinstance(record.check, dict) else None
+    if mode == "exact_wrong":
+        # Declared non-directional: skip the comparator entirely rather than
+        # let a fixed constant masquerade as a threshold with a stale side.
+        stale, stale_source = _exact_wrong_value(record, current, rng)
+    elif mode is not None:
+        raise ClauseDataError(f"{record.record_id}: unknown mo1_mode {mode!r}")
+    else:
+        stale, stale_source = _stale_value(
+            record,
+            current,
+            rng,
+            _leaf_kind(record.clause.current_value, path),
+            is_floor=_is_floor(record.clause.current_value, path, record.record_id),
+        )
     primary = _numeric_occurrence(base.text, current, base.touched_variables)
     sites = _coupled_sites(base, current, primary)
     primary_index, primary_match = primary

@@ -17,6 +17,7 @@ from cobol_archaeologist.benchmark.mutate import (
     MutationResult,
     ProgramSource,
     _apply_mo3,
+    _exact_wrong_value,
     _flatten_value,
     _is_floor,
     _leaf_kind,
@@ -570,6 +571,16 @@ def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
             if not isinstance(value, (int, float)) or isinstance(value, bool):
                 continue
             kind = _leaf_kind(current, path)
+            if record.check.get("mo1_mode") == "exact_wrong":
+                # A fixed statutory constant is exempt from the direction rule,
+                # but only because the clause *declares* it is -- the exemption
+                # must be earned by data, not by a missing comparator.
+                stale, source = _exact_wrong_value(record, float(value), random.Random(7))
+                assert source == "exact_wrong"
+                assert stale != float(value)
+                seen.setdefault(source, 0)
+                seen[source] += 1
+                continue
             try:
                 is_floor = _is_floor(current, path, record.record_id)
             except ClauseDataError:
