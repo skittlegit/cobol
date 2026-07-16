@@ -12,10 +12,12 @@ import pytest
 
 from cobol_archaeologist.benchmark.mutate import (
     ClauseRecord,
+    MutationRejected,
     MutationResult,
     ProgramSource,
     _apply_mo3,
     _flatten_value,
+    _is_floor,
     _leaf_kind,
     _STALE_GRIDS,
     _stale_value,
@@ -556,6 +558,7 @@ def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
     """
 
     seen: dict[str, int] = {"prior_verified": 0, "grid_fallback": 0}
+    refused = 0
     for record in load_clause_records(CLAUSES_PATH):
         if "MO-1" not in record.check.get("mutation_ops", ()):
             continue
@@ -565,7 +568,18 @@ def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
             if not isinstance(value, (int, float)) or isinstance(value, bool):
                 continue
             kind = _leaf_kind(current, path)
-            stale, source = _stale_value(record, float(value), random.Random(7), kind)
+            is_floor = _is_floor(current, path)
+            try:
+                stale, source = _stale_value(
+                    record, float(value), random.Random(7), kind, is_floor=is_floor
+                )
+            except MutationRejected as exc:
+                # A leaf already at the lax end of its grid has no believable
+                # laxer former value (a 10-year ceiling is the loosest the KYC
+                # lineage ever ran). MO-1 refuses rather than invert direction.
+                assert "no laxer" in str(exc), f"{record.record_id}.{path}: {exc}"
+                refused += 1
+                continue
             assert stale != float(value), f"{record.record_id}.{path} did not move"
             seen[source] += 1
             grid = _STALE_GRIDS.get(kind or "")
@@ -573,6 +587,21 @@ def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
                 assert stale in grid, (
                     f"{record.record_id}.{path}: {stale} is off-grid for {kind}"
                 )
+                # The conceptual invariant, asserted so the next at_least clause
+                # to enter the set fails loudly rather than drifting the wrong
+                # way: stale is laxer for the obligated party. Floors never snap
+                # up, ceilings never snap down.
+                if is_floor:
+                    assert stale < float(value), (
+                        f"{record.record_id}.{path}: floor clause snapped up "
+                        f"({value} -> {stale}) -- that encodes the regulator "
+                        "loosening the rule, the opposite of drift"
+                    )
+                else:
+                    assert stale > float(value), (
+                        f"{record.record_id}.{path}: ceiling clause snapped down "
+                        f"({value} -> {stale})"
+                    )
     # Both arms must stay exercised: all-synthesis would mean the curated prior
     # versions are unwired, all-prior would leave the fallback untested.
     assert seen["prior_verified"] >= 1

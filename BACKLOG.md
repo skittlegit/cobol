@@ -119,3 +119,28 @@ The v1-pre purpose failure is now scheduled by
 `docs/tasks/T2.3b-T2.6b-corrective-work-order.md`: expand independent bases,
 repair zero-emission MO-1×/MO-6×, re-judge new rows, and regenerate the split
 without relaxing group-preservation or real-curated-test-only rules.
+
+## BL-14 — MO-0 is not a matched control (gate E blocker)
+**Owner:** B · **Severity:** High · **Blocks:** T2.4b re-closure (Stage 2 judging)
+
+`test_gate_e_surface_probe_sample_is_at_chance` fails at AUC 0.757 (CI
+0.684–0.824) on seed 2601: D1 mutants are separable from their D7 pairs by
+surface features alone (CLAUDE.md #7). Driven by `diff_size` (0.678) and
+`literal_roundness` (0.545) — the grid's stale values change digit width and
+divisible-by-5 status one-directionally, while MO-0's control edit only nudges a
+DISPLAY string.
+
+The old `current * 1.1` fallback passed this gate **by accident** (it preserved
+digit width and shared a leading digit). The real defect is that MO-0 is not a
+matched control. Fix is an integrity-rule-level decision — see BLOCKER B1 in
+`docs/tasks/T2.4b-readjudication-work-order.md`. Do not judge until resolved.
+
+## BL-15 — floor-shaped clause values carry no `comparator`
+**Owner:** B · **Severity:** Medium
+
+`_stale_value` picks the stale side from the leaf's `comparator` (`at_least` =
+floor = snap down). `CC-08a.penalty_per_day` (₹500/day) is floor-shaped but
+declares no comparator, so it reads as a ceiling and drifts *up* to ₹1000 — a
+stricter penalty, the opposite of drift. `_assert_snap_direction` cannot catch
+what the data does not declare. Needs a curation pass over `clauses.jsonl` to
+record comparators on every numeric leaf MO-1/MO-5 can target.

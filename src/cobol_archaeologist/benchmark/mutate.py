@@ -445,15 +445,62 @@ def _next_round_amount(current: float) -> float:
     return current * 2
 
 
-def _leaf_kind(current, path: str | None) -> str | None:
+# Stale drift is laxer *for the obligated party* -- an un-updated rule lets the
+# bank do less than it currently must. Which numeric direction that is depends
+# on what the clause's comparator makes the value: a ceiling the bank must stay
+# under (SLA <= 30 days) is laxer when larger; a floor it must provide
+# (notice >= 15 days) is laxer when smaller -- 7 days' notice is the customer
+# getting less. Conflating the two holds for ceilings and inverts for floors.
+_FLOOR_COMPARATORS = frozenset({"at_least"})
+
+
+def _leaf_node(current, path: str | None):
     if current is None:
         return None
     if path is None:
-        return current.kind
+        return current
     try:
-        return resolve_path(current, path).kind
+        return resolve_path(current, path)
     except KeyError:
         return None
+
+
+def _leaf_kind(current, path: str | None) -> str | None:
+    node = _leaf_node(current, path)
+    return node.kind if node is not None else None
+
+
+def _is_floor(current, path: str | None) -> bool:
+    node = _leaf_node(current, path)
+    comparator = getattr(node, "comparator", None) if node is not None else None
+    return comparator in _FLOOR_COMPARATORS
+
+
+def _assert_snap_direction(
+    record: ClauseRecord, current: float, stale: float, is_floor: bool
+) -> None:
+    """Floor clauses never snap upward; ceiling clauses never snap downward.
+
+    The snap direction is a conceptual claim about how drift accumulates, not an
+    implementation detail, so it is asserted rather than merely implemented: a
+    floor clause drifting *up* would encode the regulator having loosened
+    consumer protection. The moment a second ``at_least`` clause enters the set
+    this fails loudly instead of silently mislabelling its D1 instances.
+
+    Only clauses that declare a ``comparator`` are protected -- a floor-shaped
+    value with no recorded comparator reads as a ceiling here.
+    """
+
+    if is_floor and stale > current:
+        raise MutationRejected(
+            f"{record.record_id}: floor clause snapped up ({current} -> {stale}); "
+            "a stale value must be laxer for the obligated party"
+        )
+    if not is_floor and stale < current:
+        raise MutationRejected(
+            f"{record.record_id}: ceiling clause snapped down ({current} -> {stale}); "
+            "a stale value must be laxer for the obligated party"
+        )
 
 
 def _stale_value(
@@ -461,6 +508,8 @@ def _stale_value(
     current: float,
     rng: random.Random,
     kind: str | None = None,
+    *,
+    is_floor: bool = False,
 ) -> tuple[float, str]:
     """Return ``(stale_value, stale_source)`` for a D1 threshold.
 
@@ -490,14 +539,20 @@ def _stale_value(
 
     grid = _STALE_GRIDS.get(kind or "")
     if grid:
-        # Stale side first: a rule that tightened over time was laxer before, so
-        # the believable former value is the next larger window/threshold.
-        laxer = [value for value in grid if value > current]
-        if laxer:
-            return min(laxer), "grid_fallback"
-        stricter = [value for value in grid if value < current]
-        if stricter:
-            return max(stricter), "grid_fallback"
+        # The comparator picks the side; the grid picks the value.
+        laxer = [
+            value for value in grid if (value < current if is_floor else value > current)
+        ]
+        if not laxer:
+            # Emitting the strict side would encode the regulator having
+            # *loosened* the rule -- historically false and the opposite of
+            # drift. Reject rather than misrepresent the direction.
+            raise MutationRejected(
+                f"{record.record_id}: no laxer {kind} on the grid for {current}"
+            )
+        stale = max(laxer) if is_floor else min(laxer)
+        _assert_snap_direction(record, current, stale, is_floor)
+        return stale, "grid_fallback"
     if kind == "amount_inr":
         return _next_round_amount(current), "grid_fallback"
     return current + 1.0, "grid_fallback"
@@ -528,8 +583,15 @@ def _apply_mo0(
     )
 
 
-def _slice_lines(source: ProgramSource, variable: str) -> set[int]:
-    """1-based lines of ``source`` covered by the backward slice of ``variable``."""
+def _slice_units(
+    source: ProgramSource, variables: tuple[str, ...]
+) -> list[tuple[int, int, str]]:
+    """``(line_start, line_end, text)`` units in the backward slice of any var.
+
+    Units, not lines: a COBOL statement spans several lines and its variables
+    are spread across them, so line-local matching misses the coupling it is
+    looking for.
+    """
 
     with tempfile.TemporaryDirectory(prefix="t22_couple_") as tmp:
         directory = Path(tmp)
@@ -537,14 +599,19 @@ def _slice_lines(source: ProgramSource, variable: str) -> set[int]:
         for name, text in source.files.items():
             (directory / name).write_text(text, encoding="utf-8")
         program = parse_program(directory / source.filename, include_preamble=True)
-        graph = build_call_graph([program], {program.program_id: preprocess(source.text)})
-        sliced = slice_on(variable.upper(), [program], graph, program=None)
-        covered: set[int] = set()
-        for statement in sliced.statements:
-            if statement.ref.program != program.program_id:
-                continue
-            covered.update(range(statement.ref.line_start, statement.ref.line_end + 1))
-        return covered
+        graph = build_call_graph(
+            [program], {program.program_id: preprocess(source.text)}
+        )
+        units: dict[tuple[int, int], str] = {}
+        for variable in dict.fromkeys(item.upper() for item in variables if item):
+            sliced = slice_on(variable, [program], graph, program=None)
+            for statement in sliced.statements:
+                if statement.ref.program != program.program_id:
+                    continue
+                units[(statement.ref.line_start, statement.ref.line_end)] = (
+                    statement.text
+                )
+        return [(start, end, text) for (start, end), text in sorted(units.items())]
 
 
 def _coupled_sites(
@@ -565,30 +632,35 @@ def _coupled_sites(
     sites = [primary]
     lines = base.text.splitlines()
     primary_index, primary_match = primary
+    # The quantity the comparison is about.
     anchors = _variables(lines[primary_index])
     if not anchors:
         return sites
     try:
         procedure = _procedure_index(lines)
-    except MutationRejected:
+        # Slice on the touched variables as well as the compared one. The
+        # coupled arithmetic *reads* the regulated quantity to produce a
+        # downstream value, so it lives in the downstream variable's backward
+        # slice, never in the compared variable's own.
+        units = _slice_units(
+            base, tuple(dict.fromkeys((*anchors, *base.touched_variables)))
+        )
+    except Exception:
+        # DECISION (T2.4b): def-use is Track A's. Where it cannot resolve a
+        # locus we ship the single-site edit on the comparison -- the clause's
+        # semantic anchor -- rather than guess at coupling.
         return sites
     pattern = _numeric_pattern(value)
     seen = {(primary_index, primary_match.start())}
-    for anchor in anchors:
-        try:
-            covered = _slice_lines(base, anchor)
-        except Exception:
-            # DECISION (T2.4b): def-use is Track A's. Where it cannot resolve a
-            # locus we ship the single-site edit on the comparison -- the
-            # clause's semantic anchor -- rather than guess at coupling.
+    for start, end, text in units:
+        upper = text.upper()
+        if not any(anchor in upper for anchor in anchors):
             continue
-        for index in range(procedure + 1, len(lines)):
+        for index in range(start - 1, min(end, len(lines))):
+            if index <= procedure or index == primary_index:
+                continue
             line = lines[index]
-            if index == primary_index or (index + 1) not in covered:
-                continue
             if len(line) > 6 and line[6] in "*/":
-                continue
-            if anchor not in line.upper():
                 continue
             for match in pattern.finditer(line):
                 if (index, match.start()) in seen:
@@ -606,7 +678,11 @@ def _apply_mo1(
         raise MutationRejected("MO-1 requires a numeric current_value leaf")
     current = float(raw_current)
     stale, stale_source = _stale_value(
-        record, current, rng, _leaf_kind(record.clause.current_value, path)
+        record,
+        current,
+        rng,
+        _leaf_kind(record.clause.current_value, path),
+        is_floor=_is_floor(record.clause.current_value, path),
     )
     primary = _numeric_occurrence(base.text, current, base.touched_variables)
     sites = _coupled_sites(base, current, primary)
