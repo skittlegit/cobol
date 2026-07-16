@@ -715,6 +715,67 @@ def _apply_mo4(base: ProgramSource, _rng: random.Random) -> _EditPlan:
     )
 
 
+def _apply_mo4_member_removal(base: ProgramSource, _rng: random.Random) -> _EditPlan:
+    """D4 realized by dropping the last entry of a reference-list 88-level.
+
+    Selected per clause via ``check.d4_mode == "member_removal"``. For reference
+    sets whose members are named-identity mnemonics (accepted-OVD codes, UNSC
+    mandated-list sources), substituting a generic alternate reads as
+    artificial — a stale reference list does not sprout a meaningless code, it
+    drops a mandated entry. Country-code style lists keep the substitution path
+    in :func:`_apply_mo4`, which is deliberately left unchanged.
+    """
+    copybooks = sorted(
+        name for name in base.files if name.lower().endswith((".cpy", ".cob"))
+    )
+    candidates: list[
+        tuple[int, str, int, str, list[re.Match[str]], re.Match[str] | None]
+    ] = []
+    for name in copybooks:
+        lines = base.files[name].splitlines()
+        for index, line in enumerate(lines):
+            if "88 " not in line.upper() or "VALUE" not in line.upper():
+                continue
+            literals = list(re.finditer(r"'([^']+)'", line))
+            # Removing from a single-entry list would leave an empty VALUES.
+            if len(literals) < 2:
+                continue
+            condition = re.search(r"\b88\s+([A-Z0-9-]+)", line, re.IGNORECASE)
+            candidates.append((len(literals), name, index, line, literals, condition))
+    if not candidates:
+        raise MutationRejected(
+            "MO-4 member removal requires an 88-level VALUES list with >=2 entries"
+        )
+
+    _, name, index, line, literals, condition = max(
+        candidates, key=lambda item: (item[0], item[1], -item[2])
+    )
+    removed = literals[-1]
+    old = removed.group(1)
+    # Drop the trailing entry and its separator, preserving the terminating
+    # period and the line itself (line-count fidelity).
+    lines = base.files[name].splitlines()
+    lines[index] = line[: literals[-2].end()] + line[removed.end() :]
+    files = dict(base.files)
+    files[name] = _join_like(base.files[name], lines)
+    variables = (
+        (
+            condition.group(1).upper(),
+            *base.touched_variables,
+            *_variables(base.text),
+        )
+        if condition
+        else base.touched_variables
+    )
+    return _EditPlan(
+        source=replace(base, files=files),
+        touches=(_Touch(base.program, name, index + 1, index + 1),),
+        old=old,
+        new="(deleted)",
+        slice_candidates=tuple(variables),
+    )
+
+
 def _apply_mo6(base: ProgramSource) -> _EditPlan:
     lines = base.text.splitlines()
     procedure = _procedure_index(lines)
@@ -1302,6 +1363,15 @@ def _apply(
     if op == "MO-3":
         return _apply_mo3(base)
     if op == "MO-4":
+        # DECISION (T2.4b): how D4 is realized is clause-driven, not a new
+        # operator. Named-identity mnemonic sets (OVD codes, UNSC list sources)
+        # drift by losing a mandated entry; generic-token substitution reads as
+        # artificial there. Country-code style sets keep the substitution path.
+        if (
+            isinstance(record.check, dict)
+            and record.check.get("d4_mode") == "member_removal"
+        ):
+            return _apply_mo4_member_removal(base, rng)
         return _apply_mo4(base, rng)
     if op == "MO-5":
         _, current = _target_leaf(base, record)

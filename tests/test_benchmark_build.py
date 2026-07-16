@@ -204,7 +204,7 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
         and item.provenance.base_program == "OVDCHK1.cbl"
     )
     assert "old='NPR'" in (d4_ovd.provenance.mutation or "")
-    assert "new='STD'" in (d4_ovd.provenance.mutation or "")
+    assert "new='(deleted)'" in (d4_ovd.provenance.mutation or "")
     assert d4_ovd.regulation_clause.clause_id == "5(xiv)"
     # gold_rationale carries the host-specific drift story (not a vague label)
     assert "in-clause enumeration" in d4_ovd.gold_rationale
@@ -216,7 +216,7 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
         and item.provenance.base_program == "SCRNGATE1.cbl"
     )
     assert "old='S88'" in (d4_unsc.provenance.mutation or "")
-    assert "new='STD'" in (d4_unsc.provenance.mutation or "")
+    assert "new='(deleted)'" in (d4_unsc.provenance.mutation or "")
     assert d4_unsc.regulation_clause.clause_id == "56(prevention)"
     # UNSC is the deliberately weaker D4: registry completeness, not membership
     assert "registry completeness" in d4_unsc.gold_rationale
@@ -262,6 +262,11 @@ def test_d4_reference_hosts_are_authentic_and_diverse():
         assert "COPY" in candidate.base.text.upper()
         # ... and carry an honest, host-specific D4 drift story
         assert candidate.record.check.get("drift_story"), candidate.record.record_id
+        # named-identity mnemonic sets drift by losing a mandated entry, not by
+        # sprouting a generic substitute token (which the judge reads as artificial)
+        assert candidate.record.check.get("d4_mode") == "member_removal", (
+            candidate.record.record_id
+        )
 
     # single host -> diversity guard
     with pytest.raises(BuildConfigurationError, match="distinct reference-list hosts"):

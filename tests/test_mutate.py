@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import random
 import shutil
@@ -203,6 +204,16 @@ def _records_by_id() -> dict[str, ClauseRecord]:
     return {record.record_id: record for record in load_clause_records(CLAUSES_PATH)}
 
 
+def _substitution_record(record: ClauseRecord) -> ClauseRecord:
+    """Same clause with check.d4_mode stripped, so MO-4 takes the literal-
+    substitution path (the country-code style realization) rather than the
+    clause-driven member_removal path."""
+    return dataclasses.replace(
+        record,
+        check={key: value for key, value in record.check.items() if key != "d4_mode"},
+    )
+
+
 def _conformant_late_fee() -> ProgramSource:
     source = (PROGRAMS_DIR / "LATEFEE1.cbl").read_text(encoding="utf-8")
     source = source.replace(
@@ -270,7 +281,11 @@ def _cases() -> dict[str, tuple[ProgramSource, ClauseRecord]]:
                 files={"WSREFLST.cpy": REFERENCE_COPYBOOK},
                 touched_variables=("WS-COUNTRY",),
             ),
-            records["KYC-ovd-list"],
+            # Exercises the untouched literal-substitution path: a country-code
+            # style list, i.e. a clause WITHOUT check.d4_mode. The clause-driven
+            # member_removal path is covered by the D4 reference-list hosts in
+            # test_benchmark_build.
+            _substitution_record(records["KYC-ovd-list"]),
         ),
         "MO-5": (
             _seed(
