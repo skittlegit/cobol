@@ -14,6 +14,11 @@ from cobol_archaeologist.benchmark.mutate import (
     ClauseRecord,
     MutationResult,
     ProgramSource,
+    _apply_mo3,
+    _flatten_value,
+    _leaf_kind,
+    _STALE_GRIDS,
+    _stale_value,
     load_clause_records,
     mutate,
     seed_mutation_plan,
@@ -535,8 +540,102 @@ def test_mo1_targets_business_condition_before_matching_pic_width():
         random.Random(2251),
     )
     assert "PIC 9(2) VALUE ZERO" in result.source.text
-    assert "IF WS-YEARS-SINCE-KYC >= 3" in result.source.text
+    # 5, not the retired current*1.1 fallback's 3: duration_years drifts on the
+    # lineage's own grid (T2.4b). The targeting this test guards is unchanged.
+    assert "IF WS-YEARS-SINCE-KYC >= 5" in result.source.text
     assert result.instance.code_locus.loci[0].line_span == (25, 25)
+
+
+def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
+    """A D1 threshold must be real history or a believable former value.
+
+    The retired ``current * 1.1`` fallback emitted off-grid thresholds -- a
+    33-day SLA no maintainer ever wrote -- which the judge read as generated.
+    Every MO-1 stale value now resolves either to a recorded prior version or
+    onto the grid its ``kind`` actually takes across the RBI lineage.
+    """
+
+    seen: dict[str, int] = {"prior_verified": 0, "grid_fallback": 0}
+    for record in load_clause_records(CLAUSES_PATH):
+        if "MO-1" not in record.check.get("mutation_ops", ()):
+            continue
+        current = record.clause.current_value
+        assert current is not None, record.record_id
+        for path, value in _flatten_value(current):
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                continue
+            kind = _leaf_kind(current, path)
+            stale, source = _stale_value(record, float(value), random.Random(7), kind)
+            assert stale != float(value), f"{record.record_id}.{path} did not move"
+            seen[source] += 1
+            grid = _STALE_GRIDS.get(kind or "")
+            if source == "grid_fallback" and grid:
+                assert stale in grid, (
+                    f"{record.record_id}.{path}: {stale} is off-grid for {kind}"
+                )
+    # Both arms must stay exercised: all-synthesis would mean the curated prior
+    # versions are unwired, all-prior would leave the fallback untested.
+    assert seen["prior_verified"] >= 1
+    assert seen["grid_fallback"] >= 1
+
+
+def test_mo3_emits_semantic_contradictions_not_comparator_inversions():
+    """MO-3 must not weaken a rule by making its branch unreachable.
+
+    ``IF WS-BASE > ZERO`` -> ``<= ZERO`` charges interest only when nothing is
+    owed: an always-false guard is not drift a maintainer ships, and the judge
+    rejected it as artificial. Every D3 host resolves to a recognized
+    contradiction shape -- a widened gate or a re-capitalized base.
+    """
+
+    late_fee = _seed("LATEFEE1.cbl", touched_variables=("WS-DAYS-PAST-DUE", "WS-LATE-CHARGE"))
+    late_fee_new = _seed(
+        "train-bases/LATEFEE2.cbl",
+        touched_variables=("WS-DAYS-PAST-DUE", "WS-OUTSTANDING", "WS-CHARGE"),
+    )
+    interest = _seed(
+        "train-bases/INTCOMP1.cbl",
+        touched_variables=("WS-BASE", "WS-UNPAID-FEES", "WS-CREDITS", "WS-INT"),
+    )
+
+    # Both grace hosts widen their gate with their own outstanding-amount field.
+    for base, disjunct in ((late_fee, "WS-OUTSTANDING-AMT"), (late_fee_new, "WS-OUTSTANDING")):
+        text = _apply_mo3(base).source.text
+        assert f"OR {disjunct} > ZERO" in text
+        assert "IF WS-DAYS-PAST-DUE > 3" in text
+        assert "IF WS-DAYS-PAST-DUE <= 3" not in text
+
+    # The interest base drops its unpaid-charges term, so unpaid fees start
+    # accruing interest -- the contradiction CC-09b-ii names. The field is still
+    # ACCEPTed, which is what makes the edit read as a maintainer's slip.
+    plan = _apply_mo3(interest)
+    assert "- WS-UNPAID-FEES" not in plan.source.text
+    assert "ACCEPT WS-UNPAID-FEES" in plan.source.text
+    assert "IF WS-BASE <= ZERO" not in plan.source.text
+    assert len(plan.source.text.splitlines()) == len(interest.text.splitlines())
+
+
+def test_mo1_moves_every_coupled_occurrence_of_the_regulated_literal():
+    """A partial threshold edit is incoherence, not drift.
+
+    CLOSPEN6 compares against the SLA window and subtracts it in the penalty
+    arithmetic. Moving only the comparison leaves a program that charges nothing
+    at 8 days and a full day's penalty at 9 -- a self-contradiction no
+    maintainer would ship. Occurrences proven coupled by def-use move together.
+    """
+
+    base = _seed(
+        "train-bases/CLOSPEN6.cbl",
+        touched_variables=("WS-REQ-DAYS", "WS-TOT-PENALTY"),
+        target_path="closure_window",
+    )
+    result = mutate(base, _clause("CC-08a"), "MO-1", random.Random(2601))
+
+    text = result.source.text
+    assert "IF WS-REQ-DAYS (WS-IDX) > 10" in text
+    assert "(WS-REQ-DAYS (WS-IDX) - 10)" in text
+    assert "- 7)" not in text
+    assert len(result.instance.labels.line_level) == 2
 
 
 def test_surface_diversification_is_deterministic_and_line_preserving():
