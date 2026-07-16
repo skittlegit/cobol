@@ -82,10 +82,10 @@ One entry per task: ID, state, owner, and artifact.
   529 plausible accepted** after full `gpt-5.6-luna`/OpenAI/high judging
   (57 implausible + 5 unsure retained in rejected sidecars); generated
   MO-1×/MO-3×/MO-6× = 12/24/12 and all manifest/operator/base-floor gates pass.
-- **T2.4** | done | B | stands (98% plausible on 50-sample); `judge_family`
-  backfilled as `openai` in the T2.3b manifest gate. **⚠ UNDER REVIEW (BL-6):**
-  that 98% sample was judged on the pre-T2.3b 311-row catalogue and overlaps the
-  current 591-row catalogue by 1/50 IDs; 5 current `unsure` are unadjudicated.
+- **T2.4** | wip | B | T2.4b re-adjudication per BL-6 —
+  `docs/tasks/T2.4b-readjudication-work-order.md`. Prior 98% closure was judged
+  on the pre-T2.3b 311-row catalogue (1/50 ID overlap with the current 591);
+  Stage 1 adjudicates the 5 current `unsure`, Stage 2 re-samples on current IDs.
 - **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21
   instances, 5 intact verdict-flipping T6 pairs, zero degraded pairs, gates
   green**) + pinned primary-source archive.
