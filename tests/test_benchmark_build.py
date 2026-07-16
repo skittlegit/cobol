@@ -214,7 +214,7 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
     )
     assert "old='S88'" in (d4_unsc.provenance.mutation or "")
     assert "new='STD'" in (d4_unsc.provenance.mutation or "")
-    assert d4_unsc.regulation_clause.clause_id == "56"
+    assert d4_unsc.regulation_clause.clause_id == "56(prevention)"
 
     d6 = next(
         item
