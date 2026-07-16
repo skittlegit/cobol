@@ -93,6 +93,17 @@ the native bases (`OVRLIM1.cbl`, `CLOSPEN5.cbl`, …) are authored and in use.
 Update the role notes and pin, or document that the bases are repo-native and
 need no external pin.
 
+### BL-13 — Chunker emits duplicate `clause_id` `5(xiv)` (OVD vs REs) · source: T2.4b reconciliation · owner: C · trigger: before T2.4b/M2 re-closure
+`rag/chunker.py::build_all_chunks()` produces **two** chunks with
+`clause_id='5(xiv)'` for RBI-KYC-Directions-2025 — the genuine OVD definition
+(page 8) and a mislabeled "Regulated Entities (REs)" item (page 12). This fails
+`test_chunker::test_gate_a_clause_records_reconcile_to_exactly_one_chunk` for the
+new D4 anchor `KYC-ovd-list` (whose text overlaps the page-8 OVD chunk at 1.0).
+The clause is correct; the chunker must dedup/disambiguate the page-12 `(xiv)`
+label. Only this one gate is red — the drift catalogue and judging are
+unaffected. Flagged to Track C (FLAGS 2026-07-16). Gate goes green the moment
+the dup is removed; no Track B change needed.
+
 ## Done / promoted
 
 ### BL-1 — MO operator coverage for T2.2 · resolved by T2.2

@@ -203,3 +203,15 @@ single full-set `unsure` was human-accepted as a natural conformant DISPLAY
 edit; final drop policy is 302 accepted / 9 implausible / 0 unsure. The exact
 15-item chat review agrees 14/15 (93.33%); the D4 disagreement remains visible.
 T2.4 is closed and T2.6 may consume the accepted synthetic artifact.
+
+→ Track C | from B | 2026-07-16 | T3.1 chunker bug | The reconciliation gate
+`test_chunker::test_gate_a_clause_records_reconcile_to_exactly_one_chunk` is RED
+on the new D4 anchor `KYC-ovd-list` (clause `5(xiv)`, the OVD definition). Root
+cause is the chunker, not the clause: `build_all_chunks()` emits **two** chunks
+with `clause_id='5(xiv)'` for RBI-KYC-Directions-2025 — the real OVD definition
+(page 8) and a mislabeled "Regulated Entities (REs)" item (page 12). The clause
+text overlaps the page-8 OVD chunk at 1.0, so it reconciles the instant the dup
+is removed. Please dedup / disambiguate the page-12 `(xiv)` label. Until then
+this one gate stays red; it does **not** affect the drift catalogue or judging.
+(The UNSC D4 anchor was moved to the unique `56(prevention)` and reconciles OK.)
+Tracked as BACKLOG BL-13; blocks the T2.4b/M2 re-closure gate.

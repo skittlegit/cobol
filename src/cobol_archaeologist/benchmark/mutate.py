@@ -1597,9 +1597,18 @@ def mutate(
     if target_path is not None and current is not None:
         resolve_path(current, target_path)
 
+    # An optional per-clause drift story lets a curated record spell out the
+    # exact D4 semantics (e.g. whether the mutated literal is itself a
+    # clause-named object or a synthetic registry code) so gold_rationale is
+    # honest per host rather than a vague class label. Empty for clauses that
+    # do not set it, so existing instances are unchanged.
+    drift_story = (
+        record.check.get("drift_story") if isinstance(record.check, dict) else None
+    )
     if drift_type == "D7_conformant":
         line_labels = []
         program_label = paragraph_label = "conformant"
+        drift_story = None
         rationale = (
             f"{op} applies only benign surface variation at {_locus_description(loci)}; "
             "the regulatory behavior is unchanged."
@@ -1610,6 +1619,8 @@ def mutate(
             f"{op} changes {plan.old!r} to {plan.new!r} at "
             f"{_locus_description(loci)}, producing {drift_type}."
         )
+        if drift_story:
+            rationale = f"{rationale} {drift_story}"
 
     mutation_note = (
         f"{op}; locus={_locus_description(loci)}; old={plan.old!r}; "
@@ -1635,7 +1646,7 @@ def mutate(
             source="synthetic",
             base_program=diversified.filename,
             mutation=mutation_note,
-            annotator_notes=None,
+            annotator_notes=drift_story,
         ),
     )
     return MutationResult(
