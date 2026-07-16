@@ -397,28 +397,24 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
         ),
     )
 
-    # DECISION: the sole D4 scale base normalizes the seed's shipped day-basis
-    # declaration into its shipped shared copybook. It remains seed-derived and
-    # compiled, while making the mutated 88-level list an actually consumed file.
-    d4_base = _seed_base(
+    # DECISION (T2.4b / BL-6): D4 is anchored to two authentic KYC reference-
+    # list hosts, each COPYing a real on-disk copybook (auto-discovered by
+    # ProgramSource.from_path) whose 88-level enumeration is a genuine regulator
+    # reference set. The prior single CLOSPEN3/WSDAYBAS D4 base synthesized its
+    # own mutation target (injected COPY + rewrote the 88-level so MO-4 had a
+    # value to flip) and was anchored to CC-29/para-90 whose current_value is
+    # null; it produced 20 clones of one fabricated locus that the plausibility
+    # judge rejected as artificial. Removed and forbidden by
+    # _assert_d4_reference_hosts below.
+    ovd_base = _seed_base(
         programs,
-        "CLOSPEN3.cbl",
-        touched_variables=("WS-WORK-DAYS-ELAPSED", "WS-DAY-BASIS"),
+        "OVDCHK1.cbl",
+        touched_variables=("WS-OVD-CODE",),
     )
-    d4_base = replace(
-        d4_base,
-        text=d4_base.text.replace(
-            "       WORKING-STORAGE SECTION.",
-            "       WORKING-STORAGE SECTION.\n       COPY WSDAYBAS.",
-        ),
-        files={
-            "WSDAYBAS.cpy": (programs / "WSDAYBAS.cpy")
-            .read_text(encoding="utf-8")
-            .replace(
-                "88  BASIS-CALENDAR    VALUE 'C'.",
-                "88  BASIS-PENALTY-ACCRUAL VALUES 'C' 'D'.",
-            )
-        },
+    unsc_base = _seed_base(
+        programs,
+        "SCRNGATE1.cbl",
+        touched_variables=("WS-LIST-SOURCE",),
     )
 
     # The D2 scale base keeps ordinary record-readiness classification around
@@ -509,7 +505,10 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
             _Candidate(overlimit, clauses["CC-06b-v"], "MO-3×"),
             _Candidate(transaction_gate, clauses["CC-06b-v"], "MO-3×"),
         ],
-        "D4_stale_reference_data": [_Candidate(d4_base, clauses["CC-29"], "MO-4")],
+        "D4_stale_reference_data": [
+            _Candidate(ovd_base, clauses["KYC-ovd-list"], "MO-4"),
+            _Candidate(unsc_base, clauses["KYC-unsc-screening"], "MO-4"),
+        ],
         "D5_boundary_error": d5,
         "D6_dead_code": [
             _Candidate(d6_base, clauses["CC-08a"], "MO-6"),
@@ -546,7 +545,67 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
             f"corrective bases have no mutation candidates: {sorted(missing_corrective)}"
         )
     catalog["corrective_free"] = corrective
+    _assert_d4_reference_hosts(catalog, programs)
     return catalog
+
+
+def _assert_d4_reference_hosts(catalog: dict, programs: Path) -> None:
+    """T2.4b / BL-6 guards for MO-4 / D4 (stale reference data).
+
+    Codifies why the prior CC-29/CLOSPEN3 D4 was defective so it cannot recur:
+
+    1. No build-time fabrication of the mutation target — every D4 host's base
+       text and each of its copybooks must equal the authentic on-disk file
+       (the old base injected a COPY and rewrote the 88-level in memory).
+    2. Genuine reference set — the backing clause must carry a non-null
+       ``enum_set`` ``current_value`` with >=2 members (CC-29/para-90 was
+       ``null``), and the targeted copybook must hold an ``88``-level VALUES
+       enumeration with >=2 literals for MO-4 to perturb.
+    3. Class diversity — D4 must draw from >=2 distinct hosts, not N clones of
+       one locus.
+    """
+    d4 = catalog["D4_stale_reference_data"]
+    hosts = {candidate.base.filename for candidate in d4}
+    if len(hosts) < 2:
+        raise BuildConfigurationError(
+            f"D4 requires >=2 distinct reference-list hosts; got {sorted(hosts)}"
+        )
+    for candidate in d4:
+        if candidate.op != "MO-4":
+            raise BuildConfigurationError(
+                f"D4 candidate {candidate.base.filename} must use MO-4, not {candidate.op}"
+            )
+        cv = candidate.record.clause.current_value
+        if (
+            cv is None
+            or cv.kind != "enum_set"
+            or not isinstance(cv.value, list)
+            or len(cv.value) < 2
+        ):
+            raise BuildConfigurationError(
+                f"MO-4 clause {candidate.record.record_id} lacks a >=2-member "
+                "enum_set reference set (the CC-29/para-90 null-reference failure)"
+            )
+        on_disk = (programs / candidate.base.filename).read_text(encoding="utf-8")
+        if candidate.base.text != on_disk:
+            raise BuildConfigurationError(
+                f"D4 host {candidate.base.filename} text is build-time fabricated"
+            )
+        code_members = 0
+        for name, content in candidate.base.files.items():
+            disk = (programs / name).read_text(encoding="utf-8")
+            if content != disk:
+                raise BuildConfigurationError(
+                    f"D4 host {candidate.base.filename} copybook {name} is fabricated"
+                )
+            for line in content.splitlines():
+                if "88 " in line.upper() and "VALUE" in line.upper():
+                    code_members = max(code_members, len(re.findall(r"'[^']+'", line)))
+        if code_members < 2:
+            raise BuildConfigurationError(
+                f"D4 host {candidate.base.filename} has no >=2-member 88 VALUES "
+                "reference list for MO-4 to target"
+            )
 
 
 def _llm_comment_variant(base: ProgramSource, seed: int) -> ProgramSource:
@@ -638,6 +697,8 @@ def _variant_base(
         "REFADJ2.cbl",
         "BATCHCT2.cbl",
         "TRNVAL1.cbl",
+        "OVDCHK1.cbl",
+        "SCRNGATE1.cbl",
     }:
         # The short corrective × hosts have only one comment and therefore only
         # a handful of comment variants. Vary inert trailing whitespace across
