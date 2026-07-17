@@ -33,18 +33,26 @@ on PRs to `master`. Also confirm the tracked branch-protection / ruleset JSONs
 were actually installed in GitHub repo settings — they enforce nothing by merely
 existing in the tree.
 
-### BL-6 — Re-adjudicate T2.4 on the current 591-row catalogue (reopen M2) · source: audit H2 · owner: B · trigger: now — blocks headline eval
+### BL-6 — Re-adjudicate T2.4 on the current 603-row catalogue (reopen M2) · source: audit H2 · owner: B · trigger: now — sole remaining M2 blocker
 The closing T2.4 evidence (98% on a 50-sample, 301/311 full) was judged on the
-**pre-T2.3b 311-row** catalogue. The current catalogue is **591 rows**
-(regenerated in `1bce6b9`); its own full `gpt-5.6-luna`/high run in
-`data/benchmark/drift_instances.manifest.json:78` records **`gate_passed: false`
-at 89.51%** with **5 `unsure` left unadjudicated**, and the historical 50-sample
-overlaps the current IDs by only 1/50. T2.4 requires human adjudication of
-`unsure` (`T2.4-work-order.md:29`) and T2.6 requires T2.4's gates green
-(`T2.6-work-order.md:17`). Resolve by either (a) adjudicating the 5 cases and
-running a current-catalogue stratified 50-sample to ≥90%, or (b) formally
-amending the work order to permit conservative exclusion + historical-sample
-reuse. Until then M2's PASSED is provisional (see the STATUS M2/T2.4 caveats).
+**pre-T2.3b 311-row** catalogue, which overlaps the current IDs by 1/50. The
+catalogue is now **603 rows** (generated at `cb0442b`, recorded in `d35adb6`).
+
+**The manifest now carries no judge evidence at all** — not stale, absent. The
+regeneration correctly dropped the prior `gate_passed: false` / 89.51% run
+rather than carrying it forward, because a rebuilt catalogue has never been
+judged. Every judge number for the current catalogue must be produced fresh.
+
+Path (b) of the original item — conservative exclusion plus historical-sample
+reuse — is **foreclosed by AMENDMENT A1** (ratified 2026-07-17): the raw judge
+rate on a current-catalogue sample is the gate, and human overrides affect
+acceptance only. Path (a) is therefore the only one: a fresh stratified
+50-sample on current IDs to ≥90% raw, then the drop policy, then the [CHAT]
+15-item spot-check.
+
+Every other blocker cleared 2026-07-17 (Gate E artifact-only gate green at
+0.51765; BL-13, BL-14, A1 all resolved). This is now the only thing keeping M2's
+PASSED provisional (see the STATUS M2/T2.4 caveats).
 
 ### BL-7 — `run_cobol` path-escape + unbounded output collection · source: audit H1 · owner: A · trigger: soon — before MCP self-host (T7.1)
 `RunInputs.files` names are joined straight onto the temp dir and written
@@ -55,13 +63,6 @@ size/count cap. SECURITY.md already treats `run_cobol` as an ACE surface needing
 an external sandbox, but the in-process temp-dir guarantee is still breachable.
 Reject absolute/traversal names, resolve-and-contain under the tmpdir, and cap
 collected output count + bytes. Track A owns the module.
-
-### BL-8 — Benchmark manifest records the wrong generating commit · source: audit M3 · owner: B · trigger: with the BL-6 regeneration
-`drift_instances.manifest.json:70` stamps `git_sha` `f880b6e`, but the
-generator/operator changes and corpus regeneration landed in `1bce6b9`.
-Reconstructing from the recorded SHA cannot reproduce the catalogue. Stamp the
-actual generating HEAD; naturally fixed when BL-6 regenerates, but flag it so a
-stale SHA is not carried forward again.
 
 ### BL-9 — Reconcile the locked GnuCOBOL version · source: audit M4 · owner: infra (touches CLAUDE.md locked decision #3) · trigger: team decision
 CLAUDE.md decision #3 locks GnuCOBOL **3.1.2**, but STATUS T1.5/T2.2 record
@@ -86,13 +87,6 @@ branch-protection rulesets in `.github/rulesets/` enforce nothing unless actuall
 installed in GitHub settings (see also BL-4). Fill the contact, add the missing
 code-owners, and confirm required review is live.
 
-### BL-12 — Runnable-base provenance stale in the manifest · source: audit M7 · owner: B · trigger: with the next manifest bump
-`data/manifest.json:58-61` still lists the runnable base with `pinned_commit:
-null` and "Selection and pinning due at T1.5/T2.5 start", though both tasks and
-the native bases (`OVRLIM1.cbl`, `CLOSPEN5.cbl`, …) are authored and in use.
-Update the role notes and pin, or document that the bases are repo-native and
-need no external pin.
-
 ### BL-16 — Local probe harness is not faithful — do not close gates on it · source: T2.4b · owner: B · trigger: standing rule, applies now
 **Owner:** B · **Severity:** High (process)
 
@@ -107,6 +101,34 @@ after changing the code it models is the defect.
 generate hypotheses; they may not close gates.
 
 ## Done / promoted
+
+### BL-8 — Benchmark manifest records the wrong generating commit · resolved by `cb0442b` + `d35adb6`
+**Owner:** B · **Resolved by:** `cb0442b` (guard) + `d35adb6` (regeneration)
+
+The manifest stamped `f880b6e` while the catalogue was generated in `1bce6b9`,
+so it could not be reproduced from its own provenance. It now records `cb0442b`,
+the HEAD that generated the 603-row catalogue.
+
+**Kept structural, not hardcoded:**
+`test_bl8_checked_in_manifest_names_the_head_that_generated_it` asserts `git_sha`
+is a **parent of the commit that last touched the manifest file** — so a stale
+carry-forward fails, without a literal SHA that would need maintaining on every
+regeneration. This encodes the workflow it protects: generate, then commit the
+manifest as a direct child of the HEAD that generated it.
+
+### BL-12 — Runnable-base provenance stale in the manifest · resolved by `cb0442b`
+**Owner:** B · **Resolved by:** `cb0442b`
+
+`data/manifest.json` carried `pinned_commit: null` plus "Selection and pinning
+due at T1.5/T2.5 start" long after both tasks shipped and the native bases were
+in use. Resolved by **documenting the absence rather than inventing a pin**: the
+bases are repo-native (`pin_status: not_applicable_repo_native`), located at
+`data/benchmark/seed/programs/**`, enumerated in `base_roster.json`.
+`test_bl12_runnable_base_is_repo_native_and_rostered` asserts the roster and a
+named base exist on disk, so the note cannot drift from the tree.
+
+**Consistent with the session's lesson:** a null pin was ambiguous between "not
+yet done" and "not applicable" — absence read as permission. It now says which.
 
 ### BL-13 — Chunker duplicate `5(xiv)` · resolved 2026-07-17
 
