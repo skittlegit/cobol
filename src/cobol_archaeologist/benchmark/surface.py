@@ -473,13 +473,16 @@ def surface_probe_report(
     *,
     seed: int,
     bootstrap_samples: int = 1000,
+    feature_names: tuple[str, ...] = FEATURE_NAMES,
 ) -> ProbeReport:
     """Fit a deterministic logistic probe and bootstrap its AUC predictions."""
 
     if len(rows) < 4 or {row.label for row in rows} != {0, 1}:
         raise ValueError("surface probe requires both labels and at least four rows")
+    if not feature_names or set(feature_names) - set(FEATURE_NAMES):
+        raise ValueError("surface probe feature_names must be a non-empty known subset")
     matrix = _standardize(
-        [[row.features[name] for name in FEATURE_NAMES] for row in rows]
+        [[row.features[name] for name in feature_names] for row in rows]
     )
     labels = [row.label for row in rows]
     weights, bias = _train_logistic(matrix, labels)

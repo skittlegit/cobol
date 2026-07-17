@@ -93,35 +93,6 @@ the native bases (`OVRLIM1.cbl`, `CLOSPEN5.cbl`, …) are authored and in use.
 Update the role notes and pin, or document that the bases are repo-native and
 need no external pin.
 
-### BL-13 — Chunker emits duplicate `clause_id` `5(xiv)` (OVD vs REs) · source: T2.4b reconciliation · owner: C · trigger: before T2.4b/M2 re-closure
-`rag/chunker.py::build_all_chunks()` produces **two** chunks with
-`clause_id='5(xiv)'` for RBI-KYC-Directions-2025 — the genuine OVD definition
-(page 8) and a mislabeled "Regulated Entities (REs)" item (page 12). This fails
-`test_chunker::test_gate_a_clause_records_reconcile_to_exactly_one_chunk` for the
-new D4 anchor `KYC-ovd-list` (whose text overlaps the page-8 OVD chunk at 1.0).
-The clause is correct; the chunker must dedup/disambiguate the page-12 `(xiv)`
-label. Only this one gate is red — the drift catalogue and judging are
-unaffected. Flagged to Track C (FLAGS 2026-07-16). Gate goes green the moment
-the dup is removed; no Track B change needed.
-
-### BL-14 — MO-0 is not a matched control (Gate E) · source: T2.4b Gate E · owner: B (escalated to C) · trigger: T2.4/T5.5 probe-design review
-**Owner:** B · **Severity:** High · **Status:** improved 0.757 -> 0.6537, still
-red. Escalated to Track C as a probe-design review item (Gate E re-runs at
-T2.4/T5.5 under their eval ownership). Full arc in
-`docs/tasks/T2.4b-readjudication-work-order.md` BLOCKER B1.
-
-`test_gate_e_surface_probe_sample_is_at_chance` fails at AUC 0.757 (CI
-0.684–0.824) on seed 2601: D1 mutants are separable from their D7 pairs by
-surface features alone (CLAUDE.md #7). Driven by `diff_size` (0.678) and
-`literal_roundness` (0.545) — the grid's stale values change digit width and
-divisible-by-5 status one-directionally, while MO-0's control edit only nudges a
-DISPLAY string.
-
-The old `current * 1.1` fallback passed this gate **by accident** (it preserved
-digit width and shared a leading digit). The real defect is that MO-0 is not a
-matched control. Fix is an integrity-rule-level decision — see BLOCKER B1 in
-`docs/tasks/T2.4b-readjudication-work-order.md`. Do not judge until resolved.
-
 ### BL-16 — Local probe harness is not faithful — do not close gates on it · source: T2.4b · owner: B · trigger: standing rule, applies now
 **Owner:** B · **Severity:** High (process)
 
@@ -136,6 +107,21 @@ after changing the code it models is the defect.
 generate hypotheses; they may not close gates.
 
 ## Done / promoted
+
+### BL-13 — Chunker duplicate `5(xiv)` · resolved 2026-07-17
+
+The chunker now preserves numbered definition groups as hierarchy levels. The
+KYC second definition group's Regulated Entities entry is structurally distinct
+from Track B's curated OVD `5(xiv)` instead of collapsing both local `(xiv)`
+labels onto one ID. Gate A and the dedicated nested-definition regression pass.
+
+### BL-14 — Gate E conflated two attacker models · resolved by CONTRACT v1.3
+
+Track C ratified and Track B signed the threat-model split on 2026-07-17. The
+artifact-only `literal_roundness` probe remains a hard at-chance bootstrap gate;
+the aggregate attacker-with-bases probe is recorded as a mandatory seventh T5.3
+baseline and must be cleared by a predeclared margin with paired CIs. Decision:
+`docs/reviews/2026-07-17/contract-change-gate-e-RESOLVED.md`.
 
 ### BL-1 — MO operator coverage for T2.2 · resolved by T2.2
 

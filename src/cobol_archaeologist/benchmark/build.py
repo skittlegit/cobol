@@ -956,6 +956,15 @@ def build_benchmark(
             f"surface probe requires 200 paired emissions; generated {len(probe_rows)}"
         )
     probe_report = surface_probe_report(probe_rows, seed=seed, bootstrap_samples=400)
+    artifact_only_report = surface_probe_report(
+        probe_rows,
+        seed=seed,
+        bootstrap_samples=400,
+        feature_names=("literal_roundness",),
+    )
+    artifact_only_passed = (
+        artifact_only_report.ci_low <= 0.5 <= artifact_only_report.ci_high
+    )
     ordered = sorted(
         emissions,
         key=lambda item: (
@@ -1033,6 +1042,21 @@ def build_benchmark(
             # feature level and not only in aggregate. A reviewer can see which
             # axis carries signal rather than taking one number on trust.
             "per_feature_auc": per_feature_auc(probe_rows),
+            # CONTRACT v1.3 / BL-14 threat-model split. Only this feature is
+            # computable from the shipped artifact without the seed bases, so
+            # it remains the hard at-chance integrity gate. The aggregate is a
+            # measured attacker-with-bases floor consumed as a T5.3 baseline.
+            "artifact_only_gate": {
+                "feature": "literal_roundness",
+                "auc": artifact_only_report.auc,
+                "ci_low": artifact_only_report.ci_low,
+                "ci_high": artifact_only_report.ci_high,
+                "passed": artifact_only_passed,
+                "definition": "bootstrap 95% AUC CI includes 0.5 chance",
+            },
+            "aggregate_role": (
+                "mandatory_t5.3_attacker_with_bases_baseline_floor"
+            ),
         },
     }
 

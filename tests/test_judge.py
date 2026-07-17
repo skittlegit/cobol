@@ -15,11 +15,13 @@ from cobol_archaeologist.benchmark.judge import (
     FamilyIntegrityError,
     JudgeConfig,
     JudgeConfigurationError,
+    JudgeOverride,
     Judgement,
     PlausibilityGateError,
     UnsureAdjudication,
     apply_drop_policy,
     judge_benchmark,
+    load_judge_overrides,
     load_judgements,
     plausibility_gate,
     reconstruct_sources,
@@ -191,7 +193,11 @@ def test_gate_c_stratified_50_run_is_deterministic_and_updates_manifest(
     assert manifest["judging"]["model"] == "gpt-test-judge"
     assert manifest["judging"]["model_family"] == "openai"
     assert manifest["judging"]["sample"]["plausible_rate"] == 1.0
+    assert manifest["judging"]["sample"]["raw_plausible_rate"] == 1.0
     assert manifest["judging"]["sample"]["gate_passed"] is True
+    assert "before human overrides" in manifest["judging"]["sample"][
+        "gate_definition"
+    ]
 
 
 def test_judging_checkpoints_each_verdict_and_resumes_after_endpoint_failure(
@@ -342,11 +348,21 @@ def test_gate_e_drop_policy_separates_implausible_and_unsure(tmp_path):
         "implausible": 1,
         "unsure": 1,
         "adjudicated": 0,
+        "judge_override_count": 0,
+        "judge_override_rate": 0.0,
     }
     assert len(accepted.read_text(encoding="utf-8").splitlines()) == 1
     assert (rejected / "implausible.jsonl").is_file()
     assert (rejected / "unsure.jsonl").is_file()
 
+    overrides = [
+        JudgeOverride(
+            instance_id=instances[2].instance_id,
+            judge_verdict="unsure",
+            human_verdict="plausible",
+            rationale="Natural conformant maintenance edit.",
+        )
+    ]
     adjudicated = apply_drop_policy(
         source,
         judgements,
@@ -359,14 +375,175 @@ def test_gate_e_drop_policy_separates_implausible_and_unsure(tmp_path):
                 reason="Natural conformant maintenance edit.",
             )
         ],
+        overrides,
     )
     assert adjudicated == {
         "accepted": 2,
         "implausible": 1,
         "unsure": 0,
         "adjudicated": 1,
+        "judge_override_count": 1,
+        "judge_override_rate": 1 / 3,
     }
     assert not (rejected / "unsure.jsonl").read_text(encoding="utf-8")
+
+
+def test_overrides_change_acceptance_but_never_the_raw_judge_gate(tmp_path):
+    instances = _instances()[:10]
+    source = tmp_path / "instances.jsonl"
+    source.write_text(
+        "\n".join(item.model_dump_json() for item in instances) + "\n",
+        encoding="utf-8",
+    )
+    judgements = [
+        Judgement(
+            instance_id=instance.instance_id,
+            drift_type=instance.drift_type,
+            is_interprocedural=instance.code_locus.is_interprocedural,
+            verdict="plausible" if index < 8 else "implausible",
+            reason="raw judge verdict",
+            model="gpt-test-judge",
+            model_family="openai",
+        )
+        for index, instance in enumerate(instances)
+    ]
+    overrides = [
+        JudgeOverride(
+            instance_id=instance.instance_id,
+            judge_verdict="implausible",
+            human_verdict="plausible",
+            rationale="Human review found a credible legacy-maintenance shape.",
+        )
+        for instance in instances[8:]
+    ]
+
+    with pytest.raises(PlausibilityGateError):
+        plausibility_gate(judgements)
+    report = apply_drop_policy(
+        source,
+        judgements,
+        tmp_path / "accepted.jsonl",
+        tmp_path / "rejected",
+        overrides=overrides,
+    )
+    assert report["accepted"] == 10
+    assert report["judge_override_count"] == 2
+    assert report["judge_override_rate"] == 0.2
+    with pytest.raises(PlausibilityGateError):
+        plausibility_gate(judgements)
+
+
+def test_drop_policy_rejects_unlogged_or_mismatched_overrides(tmp_path):
+    instance = _instances()[0]
+    source = tmp_path / "instances.jsonl"
+    source.write_text(instance.model_dump_json() + "\n", encoding="utf-8")
+    judgement = Judgement(
+        instance_id=instance.instance_id,
+        drift_type=instance.drift_type,
+        is_interprocedural=instance.code_locus.is_interprocedural,
+        verdict="unsure",
+        reason="needs human review",
+        model="gpt-test-judge",
+        model_family="openai",
+    )
+    adjudication = UnsureAdjudication(
+        instance_id=instance.instance_id,
+        verdict="plausible",
+        reason="Reviewed as plausible.",
+    )
+    with pytest.raises(ValueError, match="judge_overrides.jsonl"):
+        apply_drop_policy(
+            source,
+            [judgement],
+            tmp_path / "accepted.jsonl",
+            tmp_path / "rejected",
+            [adjudication],
+        )
+    with pytest.raises(ValueError, match="judge_verdict"):
+        apply_drop_policy(
+            source,
+            [judgement],
+            tmp_path / "accepted.jsonl",
+            tmp_path / "rejected",
+            overrides=[
+                JudgeOverride(
+                    instance_id=instance.instance_id,
+                    judge_verdict="implausible",
+                    human_verdict="plausible",
+                    rationale="Reviewed as plausible.",
+                )
+            ],
+        )
+
+
+def test_cli_adjudication_writes_override_log_and_headline_rate(tmp_path):
+    instances = _instances()[:3]
+    source = tmp_path / "drift_instances.jsonl"
+    source.write_text(
+        "\n".join(item.model_dump_json() for item in instances) + "\n",
+        encoding="utf-8",
+    )
+    manifest = source.with_suffix(".manifest.json")
+    manifest.write_text(json.dumps({"judging": {}}), encoding="utf-8")
+    judgements_path = tmp_path / "judgements.jsonl"
+    judgements = [
+        Judgement(
+            instance_id=instance.instance_id,
+            drift_type=instance.drift_type,
+            is_interprocedural=instance.code_locus.is_interprocedural,
+            verdict=verdict,
+            reason="raw judge verdict",
+            model="gpt-test-judge",
+            model_family="openai",
+        )
+        for instance, verdict in zip(
+            instances, ("plausible", "implausible", "unsure"), strict=True
+        )
+    ]
+    judgements_path.write_text(
+        "\n".join(item.model_dump_json() for item in judgements) + "\n",
+        encoding="utf-8",
+    )
+    adjudications = tmp_path / "adjudications.jsonl"
+    adjudications.write_text(
+        UnsureAdjudication(
+            instance_id=instances[2].instance_id,
+            verdict="plausible",
+            reason="Human review found ordinary legacy maintenance drift.",
+        ).model_dump_json()
+        + "\n",
+        encoding="utf-8",
+    )
+    overrides_path = tmp_path / "judge_overrides.jsonl"
+
+    assert (
+        main(
+            [
+                "benchmark-judge",
+                "--input",
+                str(source),
+                "--out",
+                str(judgements_path),
+                "--adjudications",
+                str(adjudications),
+                "--overrides",
+                str(overrides_path),
+                "--accepted-out",
+                str(tmp_path / "accepted.jsonl"),
+                "--rejected-dir",
+                str(tmp_path / "rejected"),
+            ]
+        )
+        == 0
+    )
+    overrides = load_judge_overrides(overrides_path)
+    assert len(overrides) == 1
+    assert overrides[0].judge_verdict == "unsure"
+    assert overrides[0].human_verdict == "plausible"
+    saved = json.loads(manifest.read_text(encoding="utf-8"))
+    assert saved["judge_override_count"] == 1
+    assert saved["judge_override_rate"] == 1 / 3
+    assert saved["judging"]["overrides"]["gate_effect"].startswith("excluded")
 
 
 def test_gate_f_records_exactly_fifteen_human_reviews(tmp_path):

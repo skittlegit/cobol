@@ -13,6 +13,12 @@ Append-only inbox per track. Rules:
 
 ## Track A inbox
 
+→ Track A | from C/B | 2026-07-17 | CONTRACT v1.3 FYI | Gate E now splits
+artifact-only and attacker-with-bases threat models. No Track A implementation
+change: `literal_roundness` is the hard at-chance build gate; the aggregate
+surface probe is a mandatory T5.3 baseline. Resolution:
+`docs/reviews/2026-07-17/contract-change-gate-e-RESOLVED.md`.
+
 → Track A | from C | 2026-07-07 | T0.4 | CONTRACT.md v1.1 reproduces your
 committed ToolLayer Protocol verbatim. Two deltas beyond your A1/A2 flag were
 picked up from tool_types.py and folded in as part of A1: run_cobol inputs typed
@@ -203,58 +209,3 @@ single full-set `unsure` was human-accepted as a natural conformant DISPLAY
 edit; final drop policy is 302 accepted / 9 implausible / 0 unsure. The exact
 15-item chat review agrees 14/15 (93.33%); the D4 disagreement remains visible.
 T2.4 is closed and T2.6 may consume the accepted synthetic artifact.
-
-→ Track C | from B | 2026-07-16 | T3.1 chunker bug | The reconciliation gate
-`test_chunker::test_gate_a_clause_records_reconcile_to_exactly_one_chunk` is RED
-on the new D4 anchor `KYC-ovd-list` (clause `5(xiv)`, the OVD definition). Root
-cause is the chunker, not the clause: `build_all_chunks()` emits **two** chunks
-with `clause_id='5(xiv)'` for RBI-KYC-Directions-2025 — the real OVD definition
-(page 8) and a mislabeled "Regulated Entities (REs)" item (page 12). The clause
-text overlaps the page-8 OVD chunk at 1.0, so it reconciles the instant the dup
-is removed. Please dedup / disambiguate the page-12 `(xiv)` label. Until then
-this one gate stays red; it does **not** affect the drift catalogue or judging.
-(The UNSC D4 anchor was moved to the unique `56(prevention)` and reconciles OK.)
-Tracked as BACKLOG BL-13; blocks the T2.4b/M2 re-closure gate.
-
-## → Track C · 2026-07-17 · **RATIFICATION REQUESTED** — BL-14 Gate E standard (travels with BL-13)
-
-Two Track C items now gate the same M2 re-closure. **BL-13** (chunker emits a
-duplicate `5(xiv)`) is unchanged and still blocks the OVD reconciliation gate on
-its own. **BL-14** below needs a decision, not a fix.
-
-**Measurement.** Gate E `test_gate_e_surface_probe_sample_is_at_chance`: Track B
-took it from **AUC 0.757 → 0.6537** (CI 0.581–0.730; WSL seed 2601,
-bit-identical across two runs) and stopped under a pre-committed stop-loss. Red.
-Full arc and per-feature attribution: T2.4b work order, BLOCKER B1.
-
-**Track B's committed position — split the gate along the threat model it
-conflates.** Not "publish the red gate", not "change the target":
-
-1. **Artifact-only attacker** (sees only what ships at eval): just
-   `literal_roundness` is computable, and it is near chance. Stays a **hard gate
-   at chance** — this is the integrity claim CLAUDE.md #7 makes about the
-   benchmark *as evaluated*.
-2. **Attacker-with-bases** (diffs against the published seed bases, which must
-   ship for provenance, or against memorized CardDemo): honest number 0.6537.
-   Four passes of principled equalization could not reach chance. Right
-   instrument is a **measured floor, not a binary gate** — the surface probe
-   becomes a **mandatory seventh baseline in T5.3**, and headline systems must
-   clear it by a stated margin with CIs.
-
-Rationale: aggregate-at-chance demanded that a one-character DISPLAY nudge and a
-regulated-value rewrite be statistically indistinguishable under diff features —
-close to structurally impossible for honest numeric drift, and the arc is the
-evidence. The split preserves the claim that governs evaluation and makes the
-residual leak **load-bearing in the results table** rather than a methodology
-caveat: it bounds the exploit instead of asserting its absence.
-
-**Two conditions on Track B's signature:**
-- **Judging stays blocked until you ratify.** A red gate shipped unilaterally is
-  the M2-audit failure mode — and so is a gate quietly redefined by the track it
-  blocks.
-- **The ratified standard goes into `docs/CONTRACT.md`'s metrics part**, since it
-  changes what T5.3's baseline suite contains: a **flagged contract amendment**,
-  decided in chat, not a Gate E footnote.
-
-`surface_probe.per_feature_auc` is now in the build manifest, so scoring can see
-which axis carries signal rather than trusting one aggregate.

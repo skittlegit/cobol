@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
 
 from cobol_archaeologist.benchmark.build import build_benchmark, manifest_path_for
-from cobol_archaeologist.benchmark.surface import ProbeRow, surface_probe_report
+from cobol_archaeologist.benchmark.surface import (
+    ProbeRow,
+    per_feature_auc,
+    surface_probe_report,
+)
 from cobol_archaeologist.cli import main
 from cobol_archaeologist.schemas import DriftInstance
 
@@ -70,7 +75,13 @@ def test_gate_c_manifest_accounts_for_floors_rejects_and_validation(built_pair):
     manifest = json.loads(manifest_path_for(output).read_text(encoding="utf-8"))
     assert manifest == first.manifest
     assert manifest["seed"] == 2601
-    assert manifest["git_sha"]
+    assert manifest["git_sha"] == subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
     assert manifest["diversify"] == "deterministic"
     assert sum(manifest["operator_counts"].values()) == manifest["instance_count"]
     assert sum(manifest["base_counts"].values()) == manifest["instance_count"]
@@ -280,18 +291,38 @@ def test_d4_reference_hosts_are_authentic_and_diverse():
         )
 
 
-def test_gate_e_surface_probe_sample_is_at_chance(built_pair):
+def test_gate_e_splits_artifact_only_gate_from_with_bases_floor(built_pair):
     first, _, _, _ = built_pair
     rows = [ProbeRow(**row) for row in first.probe_rows]
     assert len(rows) == 200
     assert {row.label for row in rows} == {0, 1}
-    report = surface_probe_report(rows, seed=2601, bootstrap_samples=400)
-    assert report.ci_low <= 0.5 <= report.ci_high, report
+    aggregate = surface_probe_report(rows, seed=2601, bootstrap_samples=400)
+    artifact_only = surface_probe_report(
+        rows,
+        seed=2601,
+        bootstrap_samples=400,
+        feature_names=("literal_roundness",),
+    )
+
+    # CONTRACT v1.3 / BL-14: only artifact-computable literal roundness is a
+    # hard build gate. The aggregate assumes access to bases and is recorded as
+    # the mandatory T5.3 surface-baseline floor, not asserted at chance here.
+    assert artifact_only.ci_low <= 0.5 <= artifact_only.ci_high, artifact_only
     assert first.manifest["surface_probe"] == {
-        "auc": report.auc,
-        "ci_low": report.ci_low,
-        "ci_high": report.ci_high,
+        "auc": aggregate.auc,
+        "ci_low": aggregate.ci_low,
+        "ci_high": aggregate.ci_high,
         "samples": 200,
+        "per_feature_auc": per_feature_auc(rows),
+        "artifact_only_gate": {
+            "feature": "literal_roundness",
+            "auc": artifact_only.auc,
+            "ci_low": artifact_only.ci_low,
+            "ci_high": artifact_only.ci_high,
+            "passed": True,
+            "definition": "bootstrap 95% AUC CI includes 0.5 chance",
+        },
+        "aggregate_role": "mandatory_t5.3_attacker_with_bases_baseline_floor",
     }
 
 
@@ -347,3 +378,40 @@ def test_checked_in_synthetic_v1_matches_its_manifest():
         "interprocedural": 0,
         "minimum_instances": 0,
     }
+
+
+def test_bl8_checked_in_manifest_names_the_head_that_generated_it():
+    manifest_path = manifest_path_for(ARTIFACT)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    commit = subprocess.run(
+        ["git", "log", "-1", "--format=%H", "--", str(manifest_path)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    parents = subprocess.run(
+        ["git", "show", "-s", "--format=%P", commit],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.split()
+    assert manifest["git_sha"] in parents, (
+        "checked-in manifest is a stale carry-forward: git_sha must name the "
+        "HEAD at generation time (the parent of the commit that recorded it)"
+    )
+
+
+def test_bl12_runnable_base_is_repo_native_and_rostered():
+    manifest = json.loads((ROOT / "data" / "manifest.json").read_text(encoding="utf-8"))
+    runnable = next(
+        item for item in manifest["codebases"] if item["role"] == "runnable_base"
+    )
+    assert runnable["pinned_commit"] is None
+    assert runnable["pin_status"] == "not_applicable_repo_native"
+    assert runnable["location"] == "data/benchmark/seed/programs/**"
+    assert runnable["roster"] == "data/benchmark/seed/base_roster.json"
+    assert (ROOT / runnable["roster"]).is_file()
+    assert (ROOT / "data/benchmark/seed/programs/OVRLIM1.cbl").is_file()
+    assert "external upstream pin applies" in runnable["notes"]

@@ -82,10 +82,10 @@ One entry per task: ID, state, owner, and artifact.
   529 plausible accepted** after full `gpt-5.6-luna`/OpenAI/high judging
   (57 implausible + 5 unsure retained in rejected sidecars); generated
   MO-1×/MO-3×/MO-6× = 12/24/12 and all manifest/operator/base-floor gates pass.
-- **T2.4** | wip | B | T2.4b **frozen pending Track C ratification of the BL-14 Gate E standard** — `docs/tasks/T2.4b-readjudication-work-order.md` (BLOCKER B1 resolved into a position). Judging deliberately not run: Gate E is red at AUC 0.6537 (ci 0.581–0.730). D4 rebuilt, BL-15 closed, MO-1/MO-3 shapes fixed. Re-closure also needs BL-13 (Track C chunker dup).
+- **T2.4** | wip | B | T2.4b **unblocked for current-catalogue evidence** — `docs/tasks/T2.4b-readjudication-work-order.md`. Track C ratified the BL-14 threat-model split and Track B signed CONTRACT v1.3 on 2026-07-17; Gate E now hard-gates artifact-only `literal_roundness` and records the aggregate as the mandatory T5.3 surface baseline. Track B also ratified AMENDMENT A1: raw judge rate is the gate; logged human overrides affect acceptance only and their rate is headline-reported. BL-13 is fixed by nested definition-group IDs in the chunker. D4 rebuilt, BL-15 closed, and MO-1/MO-3 shapes fixed.
   `docs/tasks/T2.4b-readjudication-work-order.md`. Prior 98% closure was judged
-  on the pre-T2.3b 311-row catalogue (1/50 ID overlap with the current 591);
-  Stage 1 adjudicates the 5 current `unsure`, Stage 2 re-samples on current IDs.
+  on the pre-T2.3b 311-row catalogue. The checked-in pre-evidence build now has
+  603 rows; Stage 2 re-samples and judges only its current IDs.
 - **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21
   instances, 5 intact verdict-flipping T6 pairs, zero degraded pairs, gates
   green**) + pinned primary-source archive.
@@ -103,7 +103,8 @@ One entry per task: ID, state, owner, and artifact.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
-  C green.
+  C green; BL-13 nested-definition regression keeps KYC OVD `5(xiv)` distinct
+  from the second definition group's Regulated Entities `(xiv)`.
 - **T3.2** | done | C | `src/cobol_archaeologist/rag/{index,embed}.py` +
   `tests/test_retrieval.py` + `docs/tasks/T3.2-relevance-report.md` +
   `tests/fixtures/retrieval/{queries,chunks}.jsonl`. Gates A/B/C green; bar
