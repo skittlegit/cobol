@@ -4,7 +4,8 @@
 **Effect:** `schemas.py` SCHEMA FREEZE is broken and **re-frozen** at v2.
 `docs/CONTRACT.md` → v1.2. **Affects Tracks A/B/C** (A: consumes only, no edits).
 
-Executed by the T0.3a work order (`docs/tasks/T0.3a-work-order.md`). No Track B
+Executed by the integrated T0.3 schema-v2 amendment
+(`docs/tasks/T0.3-work-order.md`). No Track B
 emitter may target the v1 shape after this lands.
 
 ---

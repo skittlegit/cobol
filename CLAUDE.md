@@ -18,8 +18,10 @@ the moat.
 - `BACKLOG.md` (repo root): deferred technical debt & future work not yet
   scheduled as a task — distinct from `STATUS.md` (tracked tasks) and `FLAGS.md`
   (messages). An item leaves it when it becomes a work order or is fixed.
-- `docs/tasks/T<n>.<n>-work-order.md`: work orders, one per active task. For
-  that task, this file wins.
+- `docs/tasks/T<n>.<n>-work-order.md`: exactly one work order per task. Fold
+  corrective/amendment phases into this canonical file; do not create `a`/`b`
+  work-order variants or combined multi-task work orders. For that task, this
+  file wins.
 - `docs/tasks/T<n>.<n>-<slug>.md`: decision records and task deliverable notes
   (e.g. `T0.5-ast-decision-note.md`, `T0.2-taxonomy-examples.md`). Decision
   notes live in `docs/tasks/` alongside work orders — that is the repo
@@ -71,7 +73,7 @@ trust it over your reading of older docs. Standing expectations:
    stage; raw CardDemo CICS code is unparseable by every backend without it.
 3. **GnuCOBOL `cobc` (3.1.2) is the compile/behavior oracle only** — never the
    parser. Only batch `CB*` programs compile; CICS programs failing under it is
-   expected, not an error. **Generalized (T2.4b, BL-16): local harnesses
+   expected, not an error. **Generalized (T2.4 corrective pass, BL-16): local harnesses
    generate hypotheses; only the real toolchain closes gates.** A pure-text
    probe harness once reproduced a build's gate number exactly, was trusted
    through six iterations of changes to the code it modelled, and diverged

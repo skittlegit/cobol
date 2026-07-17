@@ -58,23 +58,18 @@ branch-protection rulesets in `.github/rulesets/` enforce nothing unless actuall
 installed in GitHub settings (see also BL-4). Fill the contact, add the missing
 code-owners, and confirm required review is live.
 
-### BL-16 — Local probe harness is not faithful — do not close gates on it · source: T2.4b · owner: B · trigger: standing rule, applies now
-**Owner:** B · **Severity:** High (process)
-
-A pure-text harness reproduced the build's Gate E number (0.75715) *exactly*,
-and was then trusted through six iterations of MO-0 work. It diverged: it
-reported 0.5457 where WSL reports 0.6537, and "Gate E passes" was claimed on
-that basis. Cause: the harness has no validation step, so it cannot model
-`run_candidate` dropping mutations that fail compilation and thereby changing
-the probe's host composition. Validating an instrument once and trusting it
-after changing the code it models is the defect.
-**Rule:** Gate E's number of record is the WSL build. Local harnesses may
-generate hypotheses; they may not close gates.
-
 ## Done / promoted
 
+### BL-16 — Local probe harness is not faithful · resolved 2026-07-17
+**Owner:** B · **Resolution:** promoted to locked decision in `CLAUDE.md`
+
+The local text probe diverged from the compiled build because it could not model
+validation rejects. The standing rule is now codified in `CLAUDE.md`: local
+harnesses may generate hypotheses, but only the real toolchain can close a
+gate. No Track B implementation work remains.
+
 ### BL-6 — Re-adjudicate T2.4 on the corrected current catalogue · resolved 2026-07-17
-**Owner:** B · **Resolved by:** T2.4b current-catalogue evidence
+**Owner:** B · **Resolved by:** T2.4 current-catalogue evidence
 
 The final 594-row catalogue passed the fresh Luna/high gate at **50/50 (100%)**
 on the stratified sample and **557/594 (93.77%)** raw on the full set. Five
@@ -95,7 +90,7 @@ the gate by making the already-authored and judged three-row `CLSRUN7` group
 test-eligible.
 
 ### BL-18 — Replicated rows can satisfy class floors without semantic diversity · resolved 2026-07-17
-**Owner:** B · **Resolved by:** T2.4b corrective catalogue and semantic floor
+**Owner:** B · **Resolved by:** T2.4 corrective catalogue and semantic floor
 
 The superseded 603-row catalogue collapsed 425 D1-D6 rows into only 37 semantic
 mutations (D2=2, D4=2, D6=3). The build now requires four structured distinct
@@ -155,12 +150,12 @@ tokens use the canonical multiplication sign; CC-29 carries the bridge-backed
 MO-4 reference-list host, and the natural CC-06b-v/CC-09b-ii loci carry the
 MO-3×/MO-6× variants. MO-0 remains the mandatory global benign pass.
 
-### BL-5 — Independent benchmark bases for non-empty dev · promoted to T2.3b/T2.6b
+### BL-5 — Independent benchmark bases for non-empty dev · resolved by T2.3/T2.6
 
-The v1-pre purpose failure is now scheduled by
-`docs/tasks/T2.3b-T2.6b-corrective-work-order.md`: expand independent bases,
-repair zero-emission MO-1×/MO-6×, re-judge new rows, and regenerate the split
-without relaxing group-preservation or real-curated-test-only rules.
+The corrective requirements are integrated into the single authoritative
+`docs/tasks/T2.3-work-order.md` and `docs/tasks/T2.6-work-order.md`. Independent
+bases, repaired MO-1×/MO-6× emission, re-judging, and purpose-valid splits all
+landed without relaxing group preservation or real-curated-test-only rules.
 
 ### BL-15 — Floor-shaped clause values carry no `comparator` · resolved by the BL-15 curation pass + `fb621f9`/`0591fa4`
 **Owner:** B · **Severity:** Medium · **Resolved by:** `clauses.jsonl` curation
