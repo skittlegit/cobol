@@ -7,7 +7,7 @@ Edges:
 The AST cannot see into masked ``EXEC`` blocks, so LINK/XCTL edges are
 recovered by regex over ``PreprocessResult.masked_spans[*].original_text`` —
 those blocks are rigidly formatted and this side-channel is the deliberate
-design (CLAUDE.md locked decision + track brief), not a fallback.
+design (CLAUDE.md locked decision + T1.2 work order), not a fallback.
 
 Node identity is ``tool_types.NodeRef`` = (program_id, paragraph_name).
 Anything the analysis cannot resolve to a concrete target — a dynamic
@@ -169,7 +169,7 @@ class CallGraph(BaseModel):
         target; ``forest_roots`` now carries that "no incoming edge" query. COBOL
         ``ENTRY`` statements would add alternate entries, but CardDemo has none;
         if one is encountered it is a documented limitation (see
-        docs/tool-semantics.md), not silently handled here.
+        docs/tasks/T1.6-work-order.md), not silently handled here.
         """
         nodes = self.nodes_by_program.get(program, [])
         return [nodes[0]] if nodes else []

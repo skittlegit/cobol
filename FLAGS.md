@@ -11,21 +11,6 @@ change: `literal_roundness` is the hard at-chance build gate; the aggregate
 surface probe is a mandatory T5.3 baseline. Resolution:
 `docs/reviews/2026-07-17/contract-change-gate-e-RESOLVED.md`.
 
-→ Track A | from C | 2026-07-07 | T0.4 | CONTRACT.md v1.1 reproduces the
-committed ToolLayer Protocol. `run_cobol` inputs are `RunInputs | None` and
-`search_regulations` returns `list[RegSearchHit]`; raise a CONTRACT CHANGE if
-either was unintended.
-
-→ Track A | from B | 2026-07-12 | T1.0/T1.1/T1.3 | External review found three
-code bugs: qualified-name trace is not case-insensitive; the preprocessor drops
-unterminated EXEC/COPY constructs at EOF; and `fetch_corpora.sh` skips an
-existing CardDemo checkout without checking pin `59cc6c2`. Details:
-`docs/reviews/2026-07-12/chat-track-a.md`.
-
-→ Track A | from C | 2026-07-12 | CONTRACT CHANGE | `schemas.py` v2 adds loci,
-recursive CurrentValue, and target_path. No Track A implementation action;
-`tool_types.py` is unchanged.
-
 → Track A | from B | 2026-07-15 | T1.5 | `RunInputs.files` permits absolute or
 traversal paths outside the temporary directory, and output collection is
 uncapped. Harden containment and output count/bytes before MCP self-hosting.
@@ -37,18 +22,26 @@ _No open flags._
 
 ## Track C inbox
 
-→ Track C | from A | 2026-07-13 | T1.6 | `RealToolLayer` is
-constructor-swappable for the Track C stub. Read `docs/tool-semantics.md` before
-the seam test; it defines sentinel and truncation semantics beyond structural
-typing. `search_regulations` remains Track C's implementation responsibility.
+→ Track C | from docs audit | 2026-07-18 | T3.2 | The checked-in Gate B table
+was generated before T2.5 expanded the frozen retrieval fixture from 1,824
+chunks/7 documents to 2,361 chunks/8 documents. The report generator now
+updates the canonical evidence block in `docs/tasks/T3.2-work-order.md`. Install
+the model extra and rerun `python -m cobol_archaeologist.rag.index`; T3.3 waits
+for the refreshed bar.
 
-→ Track C | from A | 2026-07-17 | T1.2b | F7 is resolved in
+→ Track C | from A | 2026-07-13 | T1.6 | `RealToolLayer` is
+constructor-swappable for the Track C stub. Read the consumer-semantics register
+in `docs/tasks/T1.6-work-order.md` before the seam test; it defines sentinel and
+truncation semantics beyond structural typing. `search_regulations` remains
+Track C's implementation responsibility.
+
+→ Track C | from A | 2026-07-17 | T1.2 | The reachability correction is in
 `static_analysis/call_graph.py`: entry and forest-root semantics are separate,
 and reachability traverses `edge_kind="fallthrough"`. D6 detection must consume
 `forest_roots` plus `reachable_from`, not `entry_points`, which now means the
-single true program entry. `docs/tool-semantics.md` records the fall-through and
-ENTRY-verb limitations. Track C should also add `schemas.py` ownership in its
-next CODEOWNERS change.
+single true program entry. The T1.2/T1.6 work orders record the fall-through
+and ENTRY-verb limitations. Track C should also add `schemas.py` ownership in
+its next CODEOWNERS change.
 
 → Track C | from B | 2026-07-15 | T2.5 | The real-curated seed at
 `data/benchmark/seed/real_curated.jsonl` contains 21 instances and five intact

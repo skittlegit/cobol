@@ -1,6 +1,6 @@
 """T2.1 gate: every clause record in data/regulations/clauses.jsonl validates
 against the frozen RegulationClause schema, and the curation set meets the
-Track B brief's done-when bar (>=15 clauses, each pinned to version +
+T2.1 work order's done-when bar (>=15 clauses, each pinned to version +
 effective_date).
 
 The nested `clause` object is the schema-frozen contract shape; the sibling

@@ -39,10 +39,14 @@ Two invariants hold everywhere:
 ## Status
 
 - **M0 — spike & decisions:** parser bake-off and AST decision. Done.
-- **M1 — slicing validated:** Phase 1, T1.0-T1.6: preprocessor, parser, call
-  graph, dataflow, slicer, run harness, and tool layer. Active.
-- **M2+:** mutation-based benchmark generation, drift detectors, regulation
-  search, and migration. Planned.
+- **M1 — slicing validated:** T1.0–T1.6 (preprocessor, parser, call graph,
+  dataflow, slicer, run harness, and ToolLayer). Complete.
+- **M2 — benchmark v1-pre:** 594 compiled instances; independent Luna judging
+  passed the raw plausibility gate, with 562 accepted rows and purpose-valid
+  train/dev/test splits. Complete.
+- **Track C retrieval:** T3.1 is complete; T3.2 needs its model-backed relevance
+  gate refreshed on the expanded eight-document fixture before HyDE,
+  verification, agent loop, and policy hunts (T3.3–T3.6).
 
 The validated spike is retained at
 [`docs/reference/spike_parser.py`](docs/reference/spike_parser.py). Its production
@@ -92,7 +96,7 @@ src/cobol_archaeologist/
 vendor/tree-sitter-cobol/        # pinned grammar
 tests/                           # pytest; golden fixtures under tests/fixtures/
 scripts/fetch_corpora.sh         # pinned corpus fetch (data/ is gitignored)
-docs/                            # task briefs and decision notes
+docs/                            # canonical task work orders + contract/workflow
 ```
 
 ## Corpora
@@ -107,7 +111,7 @@ outside version control under `data/corpora/`.
 
 Work is tracked by task IDs (T0.1…T7.5); commits are prefixed with the task
 being implemented (`T1.1: <what changed>`). Each task has an explicit "done
-when" gate in [the Phase 1 brief](docs/track-a-brief.md), written as a test
-_before_ implementation. Locked technical decisions (grammar pin, preprocessor
+when" gate in its canonical file under [`docs/tasks/`](docs/tasks/), written as
+a test _before_ implementation. Locked technical decisions (grammar pin, preprocessor
 contract, oracle boundary, line-map invariant) are recorded in
 [`CLAUDE.md`](CLAUDE.md) — read it before contributing.

@@ -19,6 +19,7 @@ from cobol_archaeologist.rag.index import (
     MODES,
     BM25,
     RegulationIndex,
+    _write_relevance_report,
     build_relevance_report,
     evaluate_modes,
     load_corpus,
@@ -83,7 +84,9 @@ def test_bm25_mode_needs_no_model(corpus):
 def test_doc_filter_restricts_to_one_document(corpus):
     doc = "RBI-KYC-Directions-2025"
     index = RegulationIndex.build(corpus)
-    hits = index.search("beneficial owner partnership threshold", k=5, doc=doc, mode="bm25")
+    hits = index.search(
+        "beneficial owner partnership threshold", k=5, doc=doc, mode="bm25"
+    )
     assert hits and all(h.chunk.doc == doc for h in hits)
 
 
@@ -154,3 +157,21 @@ def test_build_relevance_report_writes_table(tmp_path):
     text = out.read_text(encoding="utf-8")
     assert "Mode comparison" in text and "hybrid_rerank" in text
     assert set(result["metrics"]) == set(MODES)
+
+
+def test_relevance_report_replaces_only_canonical_generated_block(tmp_path):
+    out = tmp_path / "T3.2-work-order.md"
+    out.write_text(
+        "# Work order\n\nkeep before\n"
+        "<!-- BEGIN GENERATED RELEVANCE REPORT -->\nold evidence\n"
+        "<!-- END GENERATED RELEVANCE REPORT -->\nkeep after\n",
+        encoding="utf-8",
+    )
+
+    _write_relevance_report(out, ["## Relevance evidence", "", "new evidence"])
+
+    text = out.read_text(encoding="utf-8")
+    assert "keep before" in text and "keep after" in text
+    assert "new evidence" in text and "old evidence" not in text
+    assert text.count("<!-- BEGIN GENERATED RELEVANCE REPORT -->") == 1
+    assert text.count("<!-- END GENERATED RELEVANCE REPORT -->") == 1
