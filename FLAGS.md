@@ -216,25 +216,45 @@ this one gate stays red; it does **not** affect the drift catalogue or judging.
 (The UNSC D4 anchor was moved to the unique `56(prevention)` and reconciles OK.)
 Tracked as BACKLOG BL-13; blocks the T2.4b/M2 re-closure gate.
 
-## → Track C · 2026-07-17 · Gate E probe design (BL-14) — review requested
-Track B has taken `test_gate_e_surface_probe_sample_is_at_chance` from **AUC
-0.757 → 0.6537** (CI 0.581–0.730, WSL, deterministic across two runs) and is
-stopping there per a pre-committed stop-loss. It remains **red**.
+## → Track C · 2026-07-17 · **RATIFICATION REQUESTED** — BL-14 Gate E standard (travels with BL-13)
 
-Raising it to you because Gate E re-runs at T2.4/T5.5 under your eval ownership,
-and one design question is yours to weigh rather than ours:
+Two Track C items now gate the same M2 re-closure. **BL-13** (chunker emits a
+duplicate `5(xiv)`) is unchanged and still blocks the OVD reconciliation gate on
+its own. **BL-14** below needs a decision, not a fix.
 
-- **Four of the six features need `before`** (`diff_size`, `touched_line_count`,
-  `whitespace_churn`, the two deltas). Only `literal_roundness` is computable
-  from the shipped artifact alone. Track B Lead's ruling is that the
-  before-dependent set is nonetheless **attacker-realistic** — the seed bases
-  ship with the benchmark (provenance and regeneration require it) and
-  CardDemo-derived bases are in pretraining already, so a motivated system can
-  diff. The gate therefore stands as designed. Recorded here so T5.2 has the
-  argument if withholding bases is ever proposed.
-- The manifest now carries `surface_probe.per_feature_auc`, so scoring can see
-  which axis carries signal instead of trusting one aggregate.
+**Measurement.** Gate E `test_gate_e_surface_probe_sample_is_at_chance`: Track B
+took it from **AUC 0.757 → 0.6537** (CI 0.581–0.730; WSL seed 2601,
+bit-identical across two runs) and stopped under a pre-committed stop-loss. Red.
+Full arc and per-feature attribution: T2.4b work order, BLOCKER B1.
 
-**Not blocking you.** No Track C change is requested; this is context for the
-probe-design review. BL-13 (chunker duplicate `5(xiv)`) is still the one item
-gating T2.4b/M2 re-closure from your side.
+**Track B's committed position — split the gate along the threat model it
+conflates.** Not "publish the red gate", not "change the target":
+
+1. **Artifact-only attacker** (sees only what ships at eval): just
+   `literal_roundness` is computable, and it is near chance. Stays a **hard gate
+   at chance** — this is the integrity claim CLAUDE.md #7 makes about the
+   benchmark *as evaluated*.
+2. **Attacker-with-bases** (diffs against the published seed bases, which must
+   ship for provenance, or against memorized CardDemo): honest number 0.6537.
+   Four passes of principled equalization could not reach chance. Right
+   instrument is a **measured floor, not a binary gate** — the surface probe
+   becomes a **mandatory seventh baseline in T5.3**, and headline systems must
+   clear it by a stated margin with CIs.
+
+Rationale: aggregate-at-chance demanded that a one-character DISPLAY nudge and a
+regulated-value rewrite be statistically indistinguishable under diff features —
+close to structurally impossible for honest numeric drift, and the arc is the
+evidence. The split preserves the claim that governs evaluation and makes the
+residual leak **load-bearing in the results table** rather than a methodology
+caveat: it bounds the exploit instead of asserting its absence.
+
+**Two conditions on Track B's signature:**
+- **Judging stays blocked until you ratify.** A red gate shipped unilaterally is
+  the M2-audit failure mode — and so is a gate quietly redefined by the track it
+  blocks.
+- **The ratified standard goes into `docs/CONTRACT.md`'s metrics part**, since it
+  changes what T5.3's baseline suite contains: a **flagged contract amendment**,
+  decided in chat, not a Gate E footnote.
+
+`surface_probe.per_feature_auc` is now in the build manifest, so scoring can see
+which axis carries signal rather than trusting one aggregate.

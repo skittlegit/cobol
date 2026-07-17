@@ -132,7 +132,6 @@ that basis. Cause: the harness has no validation step, so it cannot model
 `run_candidate` dropping mutations that fail compilation and thereby changing
 the probe's host composition. Validating an instrument once and trusting it
 after changing the code it models is the defect.
-
 **Rule:** Gate E's number of record is the WSL build. Local harnesses may
 generate hypotheses; they may not close gates.
 

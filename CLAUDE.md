@@ -71,7 +71,14 @@ trust it over your reading of older docs. Standing expectations:
    stage; raw CardDemo CICS code is unparseable by every backend without it.
 3. **GnuCOBOL `cobc` (3.1.2) is the compile/behavior oracle only** — never the
    parser. Only batch `CB*` programs compile; CICS programs failing under it is
-   expected, not an error.
+   expected, not an error. **Generalized (T2.4b, BL-16): local harnesses
+   generate hypotheses; only the real toolchain closes gates.** A pure-text
+   probe harness once reproduced a build's gate number exactly, was trusted
+   through six iterations of changes to the code it modelled, and diverged
+   (0.5457 vs the build's 0.6537) — because it had no validation step and so
+   could not model rejected mutations changing the sample. Validating an
+   instrument once and trusting it after changing its subject is the defect. A
+   gate's number of record comes from the run that owns it.
 4. **Line-number fidelity is sacred:** every public return that mentions a line
    refers to the **original source file**; all transformations carry a line-map.
    Benchmark labels are line-level; breaking this breaks the benchmark.
