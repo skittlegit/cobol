@@ -8,9 +8,9 @@
        01  WS-ACTIVATED              PIC X(1) VALUE 'N'.
        01  WS-CONSENT-DAYS           PIC 9(4) VALUE ZERO.
        01  WS-ACTION                 PIC X(8) VALUE SPACES.
-       01  WS-RPT-HEADING            PIC X(25)
-           VALUE 'CARD ACTIVATION AUDIT'.
-       01  WS-PAGE-NBR               PIC 9(8) VALUE ZERO.
+       01  WS-RPT-HEADING            PIC X(2)
+           VALUE SPACES.
+       01  FILLER                    PIC X(3) VALUE SPACES.
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-DAYS-SINCE-ISSUE

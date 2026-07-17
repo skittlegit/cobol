@@ -7,9 +7,9 @@
        01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.
        01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.
        01  WS-CHARGE                 PIC 9(7)V99 VALUE ZERO.
-       01  WS-RPT-HEADING            PIC X(30)
-           VALUE 'LATE CHARGE ASSESMENT LOG'.
-       01  WS-PAGE-NBR               PIC 9(5) VALUE ZERO.
+       01  WS-RPT-HEADING            PIC X(10)
+           VALUE SPACES.
+       01  FILLER                    PIC X(2) VALUE SPACES.
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-OUTSTANDING
