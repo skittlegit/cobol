@@ -9,7 +9,7 @@
            05  WS-REQ-DAYS OCCURS 10 PIC 9(4).
        01  WS-IDX                    PIC 9(2) VALUE 1.
        01  WS-TOT-PENALTY            PIC 9(9)V99 VALUE ZERO.
-       01  WS-RPT-HEADING            PIC X(36)
+       01  WS-RPT-HEADING            PIC X(32)
            VALUE 'CLOSURE REQUEST BATCH REGISTER'.
        01  WS-PAGE-NBR               PIC 9(4) VALUE ZERO.
        PROCEDURE DIVISION.

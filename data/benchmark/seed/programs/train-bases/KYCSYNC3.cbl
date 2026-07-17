@@ -8,7 +8,7 @@
        01  WS-TODAY-DAY              PIC 9(5) VALUE ZERO.
        01  WS-DUE-DAY                PIC 9(5) VALUE ZERO.
        01  WS-STATUS                 PIC X(8) VALUE SPACES.
-       01  WS-RPT-HEADING            PIC X(36)
+       01  WS-RPT-HEADING            PIC X(29)
            VALUE 'CKYCR UPLOAD CONTROL'.
        01  WS-PAGE-NBR               PIC 9(4) VALUE ZERO.
        PROCEDURE DIVISION.

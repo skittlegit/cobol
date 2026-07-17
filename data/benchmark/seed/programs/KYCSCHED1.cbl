@@ -12,8 +12,8 @@
            05  WS-YEARS-SINCE-KYC    PIC 9(2) VALUE ZERO.
        01  WS-FLAGS.
            05  WS-KYC-DUE            PIC X(1) VALUE 'N'.
-       01  WS-PAGE-NBR               PIC 9(4) VALUE ZERO.
-       01  FILLER                    PIC X(13) VALUE SPACES.
+       01  WS-PAGE-NBR               PIC 9(5) VALUE ZERO.
+       01  FILLER                    PIC X(12) VALUE SPACES.
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-RISK-RATING

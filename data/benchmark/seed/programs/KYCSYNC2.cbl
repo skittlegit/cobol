@@ -12,10 +12,10 @@
            05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.
        01  WS-FLAGS.
            05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.
-       01  WS-RPT-HEADING            PIC X(36)
+       01  WS-RPT-HEADING            PIC X(29)
            VALUE 'CKYCR SYNCRONISATION REGISTER'.
        01  WS-PRINT-AREA.
-           05  WS-PRINT-LINE OCCURS 66 PIC X(72).
+           05  WS-PRINT-LINE OCCURS 44 PIC X(29).
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-CUST-ID

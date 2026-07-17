@@ -16,9 +16,9 @@
            05  WS-IS-BO              PIC X(1) VALUE 'N'.
        01  WS-CONSTANTS.
            05  WS-BO-THRESHOLD       PIC 9(3)V99 VALUE 10.00.
-       01  WS-RPT-HEADING            PIC X(36)
+       01  WS-RPT-HEADING            PIC X(31)
            VALUE 'BENEFICIAL OWNER IDENTIFICATION'.
-       01  WS-PAGE-NBR               PIC 9(4) VALUE ZERO.
+       01  WS-PAGE-NBR               PIC 9(6) VALUE ZERO.
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-CAPITAL-PCT
