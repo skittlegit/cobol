@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from cobol_archaeologist.benchmark.splits import CLASS_ORDER, build_splits
+import cobol_archaeologist.benchmark.splits as splits_module
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -199,3 +200,34 @@ def test_gate_regeneration_is_byte_deterministic(tmp_path):
     )
     for filename in FILENAMES:
         assert (left / filename).read_bytes() == (right / filename).read_bytes()
+
+
+def test_quantitative_repair_allows_a_deficit_reducing_first_move(monkeypatch):
+    """BL-10: two small groups may be needed to clear one cell minimum."""
+
+    groups = {"D4-A": [object()], "D4-B": [object()]}
+    assignments = {"D4-A": "train", "D4-B": "train"}
+    allowed = {
+        "D4-A": ("train", "test"),
+        "D4-B": ("train", "test"),
+    }
+
+    def errors(_groups, candidate):
+        return [] if all(split == "test" for split in candidate.values()) else [
+            "test-local D4 has fewer than 10 instances"
+        ]
+
+    def deficit(_groups, candidate):
+        return float(sum(split != "test" for split in candidate.values()))
+
+    monkeypatch.setattr(splits_module, "_purpose_errors", errors)
+    monkeypatch.setattr(splits_module, "_purpose_deficit", deficit)
+    monkeypatch.setattr(
+        splits_module,
+        "_assignment_score_for_groups",
+        lambda _groups, _candidate: 0.0,
+    )
+
+    repaired = splits_module._repair_assignments(groups, assignments, allowed)
+
+    assert repaired == {"D4-A": "test", "D4-B": "test"}

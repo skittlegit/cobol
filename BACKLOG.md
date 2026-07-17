@@ -50,12 +50,6 @@ validation on **3.2.0** and `scripts/setup_cobc.sh:15` installs whatever
 the setup script, or amend the locked decision). CLAUDE.md locked-decision edits
 are a team call, not a unilateral fix — hence backlog, not a direct edit.
 
-### BL-10 — Split repair can report false infeasibility · source: audit M5 · owner: B · trigger: T2.6 regeneration
-The repair loop only accepts a move that immediately reduces failed-gate count,
-so a feasible solution needing two whole-group moves can be rejected. T2.6 must
-add quantitative deficit scoring plus a multi-move regression if the corrected
-accepted catalogue triggers the defect; no purpose gate may be relaxed.
-
 ### BL-11 — Security / review governance gaps · source: audit M6 · owner: infra · trigger: before benchmark/v1 (T5.2) or MCP ship (T7.1)
 Three items: (a) `SECURITY.md:27` still has the `<security-contact@REPLACE-ME>`
 placeholder; (b) the frozen contract shape `tool_types.py` has **no** CODEOWNER
@@ -88,6 +82,17 @@ on the stratified sample and **557/594 (93.77%)** raw on the full set. Five
 shipping set is **562 accepted / 32 implausible / 0 unsure**, with a **0.84%**
 override rate. The prescribed 15-item review agreed **15/15**. Canonical judge,
 drop-policy, review, and manifest evidence now describe the same catalogue.
+
+### BL-10 — Split repair can report false infeasibility · resolved 2026-07-17
+**Owner:** B · **Resolved by:** quantitative purpose-deficit repair
+
+The repair loop now ranks moves by both failed-gate count and numeric distance
+from every purpose minimum, so the first of two whole-group moves can make
+progress without immediately clearing an error label. A dedicated regression
+requires that behavior. The corrected corpus also exposed a genuine capacity
+failure—only seven test-eligible local D6 rows existed—resolved without relaxing
+the gate by making the already-authored and judged three-row `CLSRUN7` group
+test-eligible.
 
 ### BL-18 — Replicated rows can satisfy class floors without semantic diversity · resolved 2026-07-17
 **Owner:** B · **Resolved by:** T2.4b corrective catalogue and semantic floor
