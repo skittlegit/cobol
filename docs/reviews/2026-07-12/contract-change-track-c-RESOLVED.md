@@ -1,7 +1,8 @@
 # CONTRACT CHANGE — RATIFIED by Track C (schema owner)
 
-**Date:** 2026-07-12 · **Responds to:** `docs/reviews/2026-07-12/contract-change-track-c.md`
-**Effect:** `schemas.py` SCHEMA FREEZE is broken and **re-frozen** at v2.
+**Date:** 2026-07-12 · **Status:** ratified (the superseded proposal has been
+folded into this decision record) · **Effect:** `schemas.py` SCHEMA FREEZE was
+broken and **re-frozen** at v2.
 `docs/CONTRACT.md` → v1.2. **Affects Tracks A/B/C** (A: consumes only, no edits).
 
 Executed by the integrated T0.3 schema-v2 amendment

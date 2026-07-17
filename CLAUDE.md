@@ -19,33 +19,29 @@ the moat.
   scheduled as a task — distinct from `STATUS.md` (tracked tasks) and `FLAGS.md`
   (messages). An item leaves it when it becomes a work order or is fixed.
 - `docs/tasks/T<n>.<n>-work-order.md`: exactly one work order per task. Fold
-  corrective/amendment phases into this canonical file; do not create `a`/`b`
-  work-order variants or combined multi-task work orders. For that task, this
-  file wins.
-- `docs/tasks/T<n>.<n>-<slug>.md`: decision records and task deliverable notes
-  (e.g. `T0.5-ast-decision-note.md`, `T0.2-taxonomy-examples.md`). Decision
-  notes live in `docs/tasks/` alongside work orders — that is the repo
-  convention.
-- `docs/track-a-brief.md`, `docs/track-b-brief.md`, `docs/track-c-brief.md`:
-  stable per-track specs, task definitions, and gates.
+  corrective/amendment phases, rubrics, reports, and durable evidence into this
+  canonical file; do not create `a`/`b` variants, sidecars, or combined
+  multi-task work orders. For that task, this file wins.
 - `docs/CONTRACT.md`: frozen cross-track interfaces.
+- `docs/README.md`: documentation index and retention rules.
 - `docs/team-workflow.md`: how the humans, chats, and Claude Code loop works.
 - `data/manifest.json`: canonical record of anchor regulations (with versions
   and effective dates) and codebase roles (with pinned commits). Any doc or code
   referencing a corpus commit or regulation version must agree with it.
 - `CLAUDE.md`: this file, with conventions, pins, and locked decisions.
 
-**Precedence for a given task: work order > track brief > CLAUDE.md.** If they
-conflict, STOP and report the conflict — do not silently pick one. If asked to
-execute a task that has no work order in `docs/tasks/`, say so and fall back to
-the track brief.
+**Precedence for a given task: work order > CLAUDE.md.** The signed
+`docs/CONTRACT.md` separately governs cross-track interfaces. If these records
+conflict, STOP and report the conflict—do not silently pick one. A task without
+its canonical work order is not executable; create or request that work order
+instead of falling back to another document.
 
 ## How you (Claude Code) are used here
 
 You are always invoked as: _"Read CLAUDE.md and
 `docs/tasks/T<n>.<n>-work-order.md`. Execute."_ The work order carries current
-state (what's merged, what the track chat decided since the brief was written) —
-trust it over your reading of older docs. Standing expectations:
+state, accepted amendments, and durable evidence—trust it over chat memory.
+Standing expectations:
 
 - Write the gate test **first**; the task is done only when it and all prior
   gates pass.
@@ -104,7 +100,7 @@ trust it over your reading of older docs. Standing expectations:
    2025 paragraph numbers were primary-confirmed against the archived PDF during
    T2.5 Phase 2 with zero corrections. Pure-KYC logic with no CardDemo host will
    live in the planned GnuCOBOL-native runnable base. Taxonomy v1 with per-class CardDemo loci:
-   `docs/tasks/T0.2-taxonomy-examples.md`.
+   `docs/tasks/T0.2-work-order.md`.
 7. **Integrity rules (benchmark):** MO-0 benign edits + style diversification
    mandatory; verification tiered (1 executed / 2 static / 3 entailment-only,
    tier recorded per finding); LLM judges/verifiers must be a different model
@@ -144,7 +140,7 @@ the one file every track writes — but only its own tasks' lines.
   raw dumps**. Code text is capped at about 60 lines with a pointer to fetch
   more.
 - `tree_sitter==0.21.3` pinned; changing bindings is a deliberate migration.
-- Keep the regex fallback path alive wherever a brief says so.
+- Keep the regex fallback path alive wherever a work order says so.
 
 ## Commands
 

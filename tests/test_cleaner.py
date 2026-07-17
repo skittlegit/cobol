@@ -128,7 +128,7 @@ def test_sequence_area_and_col_73_plus_ignored():
 
 
 def test_not_equal_glued_normalized():
-    """Regression: docs/preprocessor-notes.md — CBACT04C.cbl:194 NOT= glued."""
+    """Regression: T1.1 work-order rule register — CBACT04C.cbl:194 NOT= glued."""
     src = (
         "       MAIN-PARA.\n"
         "           IF TRANCAT-ACCT-ID NOT= WS-LAST-ACCT-NUM\n"
@@ -142,7 +142,7 @@ def test_not_equal_glued_normalized():
 
 
 def test_continued_literal_spliced():
-    """Regression: docs/preprocessor-notes.md — CBSTM03A.CBL:157-158 continuation."""
+    """Regression: T1.1 work-order rule register — CBSTM03A.CBL:157-158 continuation."""
     src = (
         "       01  HTML-LINES.\n"
         "             88  HTML-L08 VALUE '<table  align=\"center\" frame=\"box\" styl\n"

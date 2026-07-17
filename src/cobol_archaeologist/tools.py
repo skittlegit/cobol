@@ -13,7 +13,8 @@ consumer where to fetch the rest. Every line number in every return refers to
 the ORIGINAL source file (CLAUDE.md rule 4).
 
 The sentinels and edge semantics a consumer must know are enumerated in
-``docs/tool-semantics.md`` — read that before wiring an agent to this.
+``docs/tasks/T1.6-work-order.md`` — read its consumer-semantics register before
+wiring an agent to this.
 """
 from __future__ import annotations
 
@@ -208,7 +209,7 @@ class RealToolLayer:
         and the parse reaches zero ERROR nodes). Structure is read from that
         buffer; text — VALUE literals above all — must NOT be, because the
         continued-literal splice rewrites them to a placeholder there
-        (docs/preprocessor-notes.md). Callers read text from the original file
+        (docs/tasks/T1.1-work-order.md). Callers read text from the original file
         via the returned line numbers.
         """
         from tree_sitter import Parser
@@ -319,7 +320,7 @@ class RealToolLayer:
     def _node(self, program: str, para: str) -> NodeRef:
         """NodeRef passthrough, with a typo guard: the program must be one this
         corpus knows — either parsed, or named as the target of a cross-program
-        CALL/LINK/XCTL (those carry paragraph="" — see docs/tool-semantics.md).
+        CALL/LINK/XCTL (those carry paragraph="" — see the T1.6 work order).
         An unknown PARAGRAPH is not an error: it yields [] the same way a real
         leaf does."""
         pid = program.upper()

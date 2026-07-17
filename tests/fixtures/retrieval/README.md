@@ -20,6 +20,6 @@
   ```
 
 The 4×3 mode comparison (bm25/dense/hybrid/hybrid_rerank × hit@1/hit@3/mrr@5) is
-written to `docs/tasks/T3.2-relevance-report.md` by
+written into the generated evidence block in `docs/tasks/T3.2-work-order.md` by
 `python -m cobol_archaeologist.rag.index` (Gate B — loads the pinned models, run
 locally). The offline gates in `tests/test_retrieval.py` do not need it.

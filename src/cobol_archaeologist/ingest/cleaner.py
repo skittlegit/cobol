@@ -70,7 +70,7 @@ def _fix_glued_not(line: str) -> str:
     """Normalize ``NOT=`` (no space) to ``NOT =``.
 
     DECISION: the vendored grammar (pinned, never patched) fails to parse the
-    relational operator when glued to NOT (see docs/preprocessor-notes.md,
+    relational operator when glued to NOT (see docs/tasks/T1.1-work-order.md,
     CBACT04C.cbl:194). This is a one-space insertion, not a masking op — the
     line count and semantics are unchanged, so it is not tracked as a
     MaskedSpan (no downstream consumer needs the original spacing back).
@@ -134,7 +134,7 @@ def preprocess(source: str) -> PreprocessResult:
         if not comment:
             # DECISION: a genuine COBOL alphanumeric-literal continuation (col 7
             # '-') defeats this grammar even on valid syntax (see
-            # docs/preprocessor-notes.md, CBSTM03A.CBL:157-158) — the grammar's
+            # docs/tasks/T1.1-work-order.md, CBSTM03A.CBL:157-158) — the grammar's
             # scanner cannot resume a literal across a continuation line. The
             # DATA DIVISION literal's exact text is not consumed downstream by
             # any T1.x tool, so splice the continued literal into a short

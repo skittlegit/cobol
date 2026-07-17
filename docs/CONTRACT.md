@@ -8,8 +8,8 @@ the evaluation metrics + targets (Track C implements, Tracks A/B build toward).
 Changes from here on are **CONTRACT CHANGEs** and must be flagged to all three
 tracks before merge.
 
-Binding order: this document > track briefs > CLAUDE.md, for the interfaces it
-covers. The `DriftInstance` schema itself is frozen separately (T0.3,
+Binding order: this document > canonical task work orders > CLAUDE.md, for the
+interfaces it covers. The `DriftInstance` schema itself is frozen separately (T0.3,
 `src/cobol_archaeologist/schemas.py`); this document binds against it.
 
 ---

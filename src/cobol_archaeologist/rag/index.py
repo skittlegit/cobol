@@ -30,7 +30,9 @@ ROOT = Path(__file__).resolve().parents[3]
 CLAUSES = ROOT / "data" / "regulations" / "clauses.jsonl"
 QUERIES = ROOT / "tests" / "fixtures" / "retrieval" / "queries.jsonl"
 CORPUS_FIXTURE = ROOT / "tests" / "fixtures" / "retrieval" / "chunks.jsonl"
-REPORT_MD = ROOT / "docs" / "tasks" / "T3.2-relevance-report.md"
+REPORT_MD = ROOT / "docs" / "tasks" / "T3.2-work-order.md"
+REPORT_BEGIN = "<!-- BEGIN GENERATED RELEVANCE REPORT -->"
+REPORT_END = "<!-- END GENERATED RELEVANCE REPORT -->"
 
 MODES = ("bm25", "dense", "hybrid", "hybrid_rerank")
 
@@ -62,7 +64,12 @@ def tokenize(text: str) -> list[str]:
 def _stem(word: str) -> str:
     if word.isdigit():
         return word
-    for suffix, keep in (("ations", "ate"), ("ation", "ate"), ("ements", "e"), ("ement", "e")):
+    for suffix, keep in (
+        ("ations", "ate"),
+        ("ation", "ate"),
+        ("ements", "e"),
+        ("ement", "e"),
+    ):
         if word.endswith(suffix) and len(word) - len(suffix) >= 3:
             return word[: -len(suffix)] + keep
     for suffix in ("ings", "ing", "edly", "ed", "ies", "ied", "es", "s", "ly", "al"):
@@ -125,7 +132,9 @@ class BM25:
         for d in self._docs:
             for term in d:
                 df[term] += 1
-        self._idf = {t: math.log((n - f + 0.5) / (f + 0.5) + 1.0) for t, f in df.items()}
+        self._idf = {
+            t: math.log((n - f + 0.5) / (f + 0.5) + 1.0) for t, f in df.items()
+        }
         return self
 
     def scores(self, query: str, candidates: Sequence[int]) -> list[float]:
@@ -202,7 +211,11 @@ class RegulationIndex:
         return [cosine(qv, self._vectors[i]) for i in candidates]
 
     def search(
-        self, query: str, k: int = 5, doc: str | None = None, mode: str = "hybrid_rerank"
+        self,
+        query: str,
+        k: int = 5,
+        doc: str | None = None,
+        mode: str = "hybrid_rerank",
     ) -> list[Hit]:
         if mode not in MODES:
             raise ValueError(f"unknown mode {mode!r}; expected one of {MODES}")
@@ -237,9 +250,7 @@ class RegulationIndex:
             raise RuntimeError("hybrid_rerank requires a reranker; build with one")
         head = [j for j, _ in fused[: self.rerank_depth]]
         rr = self.reranker.score(query, [self.chunks[cand[j]].text for j in head])
-        ranked = sorted(
-            range(len(head)), key=lambda p: (-rr[p], cand_ids[head[p]])
-        )
+        ranked = sorted(range(len(head)), key=lambda p: (-rr[p], cand_ids[head[p]]))
         return [Hit(self.chunks[cand[head[p]]], rr[p]) for p in ranked[:k]]
 
 
@@ -275,8 +286,12 @@ def resolve_gold_queries(
         clause = clause_by_record[q["record_id"]]
         out.append(
             GoldQuery(
-                q["query_id"], q["record_id"], q["query"], q.get("note", ""),
-                clause["doc"], clause["clause_id"],
+                q["query_id"],
+                q["record_id"],
+                q["query"],
+                q.get("note", ""),
+                clause["doc"],
+                clause["clause_id"],
             )
         )
     return out
@@ -348,6 +363,20 @@ def _perquery_table(per_query: list[dict], only: set[str] | None = None) -> list
     return rows
 
 
+def _write_relevance_report(report_path: Path, lines: Sequence[str]) -> None:
+    """Write a standalone report or replace the canonical work-order block."""
+    rendered = "\n".join(lines).rstrip() + "\n"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    existing = report_path.read_text(encoding="utf-8") if report_path.exists() else ""
+    if REPORT_BEGIN in existing and REPORT_END in existing:
+        prefix, remainder = existing.split(REPORT_BEGIN, 1)
+        _, suffix = remainder.split(REPORT_END, 1)
+        output = f"{prefix}{REPORT_BEGIN}\n{rendered}{REPORT_END}{suffix}"
+    else:
+        output = f"# T3.2 — Retrieval relevance report\n\n{rendered}"
+    report_path.write_text(output, encoding="utf-8")
+
+
 def build_relevance_report(
     report_path: Path = REPORT_MD, k: int = 5, corpus_path: Path = CORPUS_FIXTURE
 ) -> dict:
@@ -379,7 +408,7 @@ def build_relevance_report(
     )
 
     lines = [
-        "# T3.2 — Retrieval relevance report",
+        "## Relevance evidence",
         "",
         f"- Corpus: {len(chunks)} chunks over {len({c.doc for c in chunks})} documents "
         f"(`{corpus_path.relative_to(ROOT).as_posix()}`).",
@@ -404,8 +433,7 @@ def build_relevance_report(
         *_perquery_table(result["per_query"]),
         "",
     ]
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    _write_relevance_report(report_path, lines)
     result["bar_met"] = bar_met
     return result
 
