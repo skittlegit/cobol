@@ -629,9 +629,170 @@ def _stale_value(
     return stale, "grid_fallback"
 
 
+def regulated_literals(records: list[ClauseRecord]) -> frozenset[float]:
+    """Every numeric value any clause in the corpus mandates, plus what MO-1
+    can drift them to.
+
+    MO-0's benign pass must never touch one of these. Scoped corpus-wide, not
+    per-record: a literal that is inert in its own program may be the regulated
+    value of a clause hosted elsewhere, and MO-0 editing it there would emit a
+    conformant instance carrying a real drift.
+
+    Scoped to the values clauses actually *mandate*, and deliberately not to the
+    grids' outputs: MO-1 targets a clause's current value, so a decorative
+    ``PIC X(45)`` is no decoy for it even though 45 is a value MO-1 can emit.
+    Denying the grid outputs too would leave ``_widen_like_mo1`` nothing to draw
+    from -- it snaps onto those same grids -- and silently collapse MO-0 back to
+    the cosmetic path, which is the bug this control exists to fix.
+    """
+
+    values: set[float] = set()
+    for record in records:
+        current = record.clause.current_value
+        if current is None:
+            continue
+        for _, value in _flatten_value(current):
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                values.add(float(value))
+    return frozenset(values)
+
+
+# A decorative literal: display/layout only, never a bound live logic reads.
+_INERT_PIC_RE = re.compile(r"\bPIC\s+[X9]\((\d+)\)", re.IGNORECASE)
+_INERT_OCCURS_RE = re.compile(r"\bOCCURS\s+(\d+)", re.IGNORECASE)
+
+
+def _inert_numeric_sites(
+    base: ProgramSource, denylist: frozenset[float]
+) -> list[tuple[int, re.Match[str]]]:
+    """Widenable literals on fields no PROCEDURE statement mentions at all.
+
+    Proof obligation, not a heuristic: if a field is referenced anywhere in the
+    procedure we cannot cheaply prove widening it is inert, so we do not select
+    it. Narrowing is never offered -- ``PIC 9(2) -> 9(4)`` on a field feeding a
+    loop bound over an ``OCCURS 10`` table is an overrun, which is why liveness
+    alone is not enough and the field must be untouched by logic entirely.
+    """
+
+    lines = base.text.splitlines()
+    try:
+        procedure = _procedure_index(lines)
+    except MutationRejected:
+        return []
+    referenced: set[str] = set()
+    for line in lines[procedure:]:
+        if len(line) > 6 and line[6] in "*/":
+            continue
+        referenced.update(_variables(line))
+
+    sites: list[tuple[int, re.Match[str]]] = []
+    owner: str | None = None
+    for index, line in enumerate(lines[:procedure]):
+        if len(line) > 6 and line[6] in "*/":
+            continue
+        declaration = re.match(r"^\s*(?:01|05|10|15|20|25|49)\s+([A-Z0-9-]+)", line, re.I)
+        if declaration:
+            owner = declaration.group(1).upper()
+        if owner is None or owner in referenced:
+            continue
+        for pattern in (_INERT_PIC_RE, _INERT_OCCURS_RE):
+            for match in pattern.finditer(line):
+                if float(match.group(1)) in denylist:
+                    continue
+                sites.append((index, match))
+    return sites
+
+
+def _widen_like_mo1(
+    value: float, rng: random.Random, denylist: frozenset[float]
+) -> float | None:
+    """Widen a decorative literal using MO-1's own value-selection machinery.
+
+    Not calibration against the probe's feature list -- the same generative
+    process. MO-1 snaps a numeric onto one of the stale grids (or the 1-2-5
+    ladder), so MO-0 does too, and the resulting distribution of digit-width
+    changes and divisibility crossings matches by construction. There is no knob
+    here to turn, which is the point: tuning to observed features would just move
+    the tell.
+    """
+
+    grids = sorted(_STALE_GRIDS)
+    grid = _STALE_GRIDS[grids[rng.randrange(len(grids))]]
+    larger = [item for item in grid if item > value and item not in denylist]
+    if larger:
+        return min(larger)
+    try:
+        candidate = _round_amount(value, downward=False)
+    except MutationRejected:
+        return None
+    return None if candidate in denylist else candidate
+
+
+def _apply_mo0_numeric(
+    base: ProgramSource,
+    rng: random.Random,
+    denylist: frozenset[float],
+    count: int | None = None,
+) -> _EditPlan | None:
+    """MO-0's matched numeric control: benign edits with MO-1's footprint.
+
+    ``count`` is the caller's, because the two arms must match on *total* edits,
+    not on benign ones. The conformant arm draws 1 or 2 benign edits; the
+    drifted arm carries the regulated edit plus 0 or 1, so both totals are
+    distributed over {1, 2}. Jittering both arms over the same benign range
+    would not overlap them -- it would shift one by exactly the regulated edit,
+    which is how "drift always has one more edit" becomes the tell.
+    """
+
+    sites = _inert_numeric_sites(base, denylist)
+    if not sites:
+        return None
+    wanted = min(len(sites), 1 + rng.randrange(2) if count is None else count)
+    if wanted <= 0:
+        return None
+    chosen = sorted(
+        rng.sample(sites, wanted), key=lambda item: (item[0], -item[1].start(1))
+    )
+    lines = base.text.splitlines()
+    edits: list[SurfaceEdit] = []
+    touches: list[_Touch] = []
+    for index, match in chosen:
+        old_value = float(match.group(1))
+        new_value = _widen_like_mo1(old_value, rng, denylist)
+        if new_value is None or new_value <= old_value:
+            continue
+        line = lines[index]
+        old_line = line
+        lines[index] = (
+            line[: match.start(1)]
+            + _format_number_like(match.group(1), new_value)
+            + line[match.end(1) :]
+        )
+        edits.append(
+            SurfaceEdit("inert_numeric", index + 1, old_line, lines[index])
+        )
+        touches.append(_Touch(base.program, None, index + 1, index + 1))
+    if not edits:
+        return None
+    return _EditPlan(
+        source=replace(base, text=_join_like(base.text, lines)),
+        touches=tuple(touches),
+        old=edits[0].old.strip(),
+        new=edits[0].new.strip(),
+        slice_candidates=base.touched_variables,
+        surface_edits=tuple(edits),
+    )
+
+
 def _apply_mo0(
-    base: ProgramSource, record: ClauseRecord, rng: random.Random
+    base: ProgramSource,
+    record: ClauseRecord,
+    rng: random.Random,
+    denylist: frozenset[float] = frozenset(),
 ) -> _EditPlan:
+    plan = _apply_mo0_numeric(base, rng, denylist)
+    if plan is not None:
+        return plan
     protected = (
         {str(value) for _, value in _flatten_value(record.clause.current_value)}
         if record.clause.current_value
@@ -1722,11 +1883,41 @@ def _apply_mo6x(base: ProgramSource) -> _EditPlan:
     raise MutationRejected("MO-6× requires a related program flag initialized to Y")
 
 
+def _benign_numeric_pass(
+    plan: _EditPlan, rng: random.Random, denylist: frozenset[float] | None
+) -> _EditPlan:
+    """Run MO-0's numeric control over a drifted arm too.
+
+    Without this, "a decorative literal moved" appears only in D7 and the label
+    is recoverable from field identity alone -- the monoculture signal, one
+    level up. Both arms carry benign numeric edits; only the drifted arm also
+    carries the regulated one.
+    """
+
+    if denylist is None:
+        return plan
+    # 0 or 1, against MO-0's 1 or 2: totals match, arms overlap.
+    benign = _apply_mo0_numeric(plan.source, rng, denylist, count=rng.randrange(2))
+    if benign is None:
+        return plan
+    return replace(
+        plan,
+        source=benign.source,
+        surface_edits=plan.surface_edits + benign.surface_edits,
+    )
+
+
 def _apply(
-    base: ProgramSource, record: ClauseRecord, op: str, rng: random.Random
+    base: ProgramSource,
+    record: ClauseRecord,
+    op: str,
+    rng: random.Random,
+    denylist: frozenset[float] | None = None,
 ) -> _EditPlan:
     if op == "MO-0":
-        return _apply_mo0(base, record, rng)
+        # None means the caller cannot prove which literals are regulated, so
+        # the numeric control is withheld rather than risk editing one.
+        return _apply_mo0(base, record, rng, denylist or frozenset())
     if op == "MO-1":
         return _apply_mo1(base, record, rng)
     if op == "MO-2":
@@ -1947,6 +2138,7 @@ def mutate(
     record: ClauseRecord,
     op: str,
     rng: random.Random,
+    denylist: frozenset[float] | None = None,
 ) -> MutationResult:
     """Mutate one conformant COBOL source deterministically under ``rng``."""
 
@@ -1959,7 +2151,9 @@ def mutate(
         )
 
     surface_rng = random.Random(rng.getrandbits(64))
-    plan = _apply(base, record, op, rng)
+    plan = _apply(base, record, op, rng, denylist)
+    if op != "MO-0":
+        plan = _benign_numeric_pass(plan, rng, denylist)
     # T2.4b / BL-6 guard: a reference-copybook edit's recorded pre-image must
     # actually exist at the touched locus in the authentic base. This catches a
     # build-time-fabricated reference target (the old CC-29 D4 recorded
