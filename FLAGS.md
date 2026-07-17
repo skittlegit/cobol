@@ -209,3 +209,12 @@ single full-set `unsure` was human-accepted as a natural conformant DISPLAY
 edit; final drop policy is 302 accepted / 9 implausible / 0 unsure. The exact
 15-item chat review agrees 14/15 (93.33%); the D4 disagreement remains visible.
 T2.4 is closed and T2.6 may consume the accepted synthetic artifact.
+
+→ Track C | from B | 2026-07-17 | T2.4b EVIDENCE GREEN / T2.6 PENDING | The
+corrected catalogue has **594 compiled rows** and distinct D1–D6 mutations
+**13/6/5/4/12/7**. Current `gpt-5.6-luna`/OpenAI/high evidence is **50/50
+(100%)** on the stratified sample and **557/594 (93.77%)** raw on the full set;
+after five logged human acceptances, the drop policy is **562 accepted / 32
+implausible / 0 unsure** with a **0.84%** override rate. Human review agrees
+**15/15**. T2.4 is closed, but the no-consumption hold remains until T2.6
+regenerates v1-pre and every purpose-level split gate passes.

@@ -33,27 +33,6 @@ on PRs to `master`. Also confirm the tracked branch-protection / ruleset JSONs
 were actually installed in GitHub repo settings — they enforce nothing by merely
 existing in the tree.
 
-### BL-6 — Re-adjudicate T2.4 on the current 603-row catalogue (reopen M2) · source: audit H2 · owner: B · trigger: now — sole remaining M2 blocker
-The closing T2.4 evidence (98% on a 50-sample, 301/311 full) was judged on the
-**pre-T2.3b 311-row** catalogue, which overlaps the current IDs by 1/50. The
-catalogue is now **603 rows** (generated at `cb0442b`, recorded in `d35adb6`).
-
-**The manifest now carries no judge evidence at all** — not stale, absent. The
-regeneration correctly dropped the prior `gate_passed: false` / 89.51% run
-rather than carrying it forward, because a rebuilt catalogue has never been
-judged. Every judge number for the current catalogue must be produced fresh.
-
-Path (b) of the original item — conservative exclusion plus historical-sample
-reuse — is **foreclosed by AMENDMENT A1** (ratified 2026-07-17): the raw judge
-rate on a current-catalogue sample is the gate, and human overrides affect
-acceptance only. Path (a) is therefore the only one: a fresh stratified
-50-sample on current IDs to ≥90% raw, then the drop policy, then the [CHAT]
-15-item spot-check.
-
-Every other blocker cleared 2026-07-17 (Gate E artifact-only gate green at
-0.51765; BL-13, BL-14, A1 all resolved). This is now the only thing keeping M2's
-PASSED provisional (see the STATUS M2/T2.4 caveats).
-
 ### BL-7 — `run_cobol` path-escape + unbounded output collection · source: audit H1 · owner: A · trigger: soon — before MCP self-host (T7.1)
 `RunInputs.files` names are joined straight onto the temp dir and written
 without validation (`model/run_cobol.py:174-177`); an absolute path or `../`
@@ -71,13 +50,11 @@ validation on **3.2.0** and `scripts/setup_cobc.sh:15` installs whatever
 the setup script, or amend the locked decision). CLAUDE.md locked-decision edits
 are a team call, not a unilateral fix — hence backlog, not a direct edit.
 
-### BL-10 — Split repair can report false infeasibility · source: audit M5 · owner: B · trigger: when a 2-move split need arises
-The repair loop at `benchmark/splits.py:278` only accepts a move that
-*immediately* reduces the failed-gate count (`len(candidate_errors) >=
-len(errors): continue`), so a feasible solution needing two intermediate moves
-is rejected as infeasible. Use quantitative deficit scoring or a bounded
-constrained search, and add a multi-move fixture. The current corpus passes, so
-this is latent.
+### BL-10 — Split repair can report false infeasibility · source: audit M5 · owner: B · trigger: T2.6 regeneration
+The repair loop only accepts a move that immediately reduces failed-gate count,
+so a feasible solution needing two whole-group moves can be rejected. T2.6 must
+add quantitative deficit scoring plus a multi-move regression if the corrected
+accepted catalogue triggers the defect; no purpose gate may be relaxed.
 
 ### BL-11 — Security / review governance gaps · source: audit M6 · owner: infra · trigger: before benchmark/v1 (T5.2) or MCP ship (T7.1)
 Three items: (a) `SECURITY.md:27` still has the `<security-contact@REPLACE-ME>`
@@ -102,6 +79,27 @@ generate hypotheses; they may not close gates.
 
 ## Done / promoted
 
+### BL-6 — Re-adjudicate T2.4 on the corrected current catalogue · resolved 2026-07-17
+**Owner:** B · **Resolved by:** T2.4b current-catalogue evidence
+
+The final 594-row catalogue passed the fresh Luna/high gate at **50/50 (100%)**
+on the stratified sample and **557/594 (93.77%)** raw on the full set. Five
+`unsure` rows were independently human-accepted and logged as overrides; the
+shipping set is **562 accepted / 32 implausible / 0 unsure**, with a **0.84%**
+override rate. The prescribed 15-item review agreed **15/15**. Canonical judge,
+drop-policy, review, and manifest evidence now describe the same catalogue.
+
+### BL-18 — Replicated rows can satisfy class floors without semantic diversity · resolved 2026-07-17
+**Owner:** B · **Resolved by:** T2.4b corrective catalogue and semantic floor
+
+The superseded 603-row catalogue collapsed 425 D1-D6 rows into only 37 semantic
+mutations (D2=2, D4=2, D6=3). The build now requires four structured distinct
+mutations per D1-D6 class and records counts/floors/shortfalls in its manifest.
+Seven separately authored loci brought the real WSL 594-row build to D1-D6
+counts **13/6/5/4/12/7**, with every shortfall zero and every row compiled.
+Replication can no longer satisfy a class floor. BL-6's fresh plausibility
+evidence is now complete on this catalogue.
+
 ### BL-8 — Benchmark manifest records the wrong generating commit · resolved by `cb0442b` + `d35adb6`
 **Owner:** B · **Resolved by:** `cb0442b` (guard) + `d35adb6` (regeneration)
 
@@ -110,11 +108,11 @@ so it could not be reproduced from its own provenance. It now records `cb0442b`,
 the HEAD that generated the 603-row catalogue.
 
 **Kept structural, not hardcoded:**
-`test_bl8_checked_in_manifest_names_the_head_that_generated_it` asserts `git_sha`
-is a **parent of the commit that last touched the manifest file** — so a stale
-carry-forward fails, without a literal SHA that would need maintaining on every
-regeneration. This encodes the workflow it protects: generate, then commit the
-manifest as a direct child of the HEAD that generated it.
+`test_bl8_checked_in_manifest_names_the_head_that_generated_it` handles both
+valid workflow states: a newly generated dirty manifest must name current HEAD;
+a committed catalogue must name the parent of the commit that first recorded
+its non-`judging` state. Later judge-only stamps are intentionally ignored, so
+evidence commits cannot make a correct catalogue provenance test turn red.
 
 ### BL-12 — Runnable-base provenance stale in the manifest · resolved by `cb0442b`
 **Owner:** B · **Resolved by:** `cb0442b`

@@ -8,7 +8,11 @@ from pathlib import Path
 
 import pytest
 
-from cobol_archaeologist.benchmark.build import build_benchmark, manifest_path_for
+from cobol_archaeologist.benchmark.build import (
+    _semantic_mutation_key,
+    build_benchmark,
+    manifest_path_for,
+)
 from cobol_archaeologist.benchmark.surface import (
     ProbeRow,
     per_feature_auc,
@@ -31,6 +35,121 @@ EXPECTED_CLASSES = {
     "D6_dead_code",
     "D7_conformant",
 }
+
+
+def test_distinct_mutation_key_ignores_replication_metadata():
+    instance = next(
+        DriftInstance.model_validate_json(line)
+        for line in ARTIFACT.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    )
+    mutation = instance.provenance.mutation or ""
+    left = instance.model_copy(
+        update={
+            "provenance": instance.provenance.model_copy(
+                update={
+                    "mutation": (
+                        f"{mutation}; validation=compiled; "
+                        "diversify=deterministic; stale_source=grid"
+                    )
+                }
+            )
+        }
+    )
+    right = instance.model_copy(
+        update={
+            "provenance": instance.provenance.model_copy(
+                update={
+                    "mutation": (
+                        f"{mutation}; validation=ast; "
+                        "diversify=llm; stale_source=lineage"
+                    )
+                }
+            )
+        }
+    )
+
+    assert _semantic_mutation_key(left) == _semantic_mutation_key(right)
+    assert _semantic_mutation_key(left) != _semantic_mutation_key(
+        right.model_copy(
+            update={
+                "provenance": right.provenance.model_copy(
+                    update={"base_program": "OTHER.cbl"}
+                )
+            }
+        )
+    )
+
+
+def test_distinct_mutation_key_ignores_cobol_surface_form_but_not_literals():
+    instance = next(
+        DriftInstance.model_validate_json(line)
+        for line in ARTIFACT.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    )
+
+    def with_mutation(mutation: str) -> DriftInstance:
+        return instance.model_copy(
+            update={
+                "provenance": instance.provenance.model_copy(
+                    update={"mutation": mutation}
+                )
+            }
+        )
+
+    upper = with_mutation(
+        "MO-2; locus=SYNC:2000-CHECK:20-22; "
+        'old="IF WS-DAYS > 7 MOVE \'OK\' TO WS-STATUS"; '
+        'new="IF WS-DAYS <= 7 MOVE \'OK\' TO WS-STATUS"; '
+        "validation=compiled; diversify=deterministic"
+    )
+    restyled = with_mutation(
+        "mo-2;  locus=sync:2000-check:20-22; "
+        'old="if ws-days  >  7   move \'OK\' to ws-status"; '
+        'new="if ws-days <= 7 move \'OK\' to ws-status"; '
+        "validation=ast; diversify=llm"
+    )
+    changed_literal = with_mutation(
+        "MO-2; locus=SYNC:2000-CHECK:20-22; "
+        'old="IF WS-DAYS > 7 MOVE \'ok\' TO WS-STATUS"; '
+        'new="IF WS-DAYS <= 7 MOVE \'ok\' TO WS-STATUS"'
+    )
+
+    assert _semantic_mutation_key(upper) == _semantic_mutation_key(restyled)
+    assert _semantic_mutation_key(upper) != _semantic_mutation_key(changed_literal)
+
+
+def test_distinct_mutation_key_parses_semicolons_and_double_quoted_cobol_literals():
+    instance = next(
+        DriftInstance.model_validate_json(line)
+        for line in ARTIFACT.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    )
+
+    def with_mutation(mutation: str) -> DriftInstance:
+        return instance.model_copy(
+            update={
+                "provenance": instance.provenance.model_copy(
+                    update={"mutation": mutation}
+                )
+            }
+        )
+
+    upper = with_mutation(
+        "MO-2; locus=SYNC:2000-CHECK:20-20; "
+        "old='DISPLAY \"OK;READY\"'; new='CONTINUE'; validation=compiled"
+    )
+    restyled = with_mutation(
+        "mo-2; locus=sync:2000-check:20-20; "
+        "old='display   \"OK;READY\"'; new='continue'; diversify=llm"
+    )
+    changed_literal = with_mutation(
+        "MO-2; locus=SYNC:2000-CHECK:20-20; "
+        "old='DISPLAY \"ok;ready\"'; new='CONTINUE'"
+    )
+
+    assert _semantic_mutation_key(upper) == _semantic_mutation_key(restyled)
+    assert _semantic_mutation_key(upper) != _semantic_mutation_key(changed_literal)
 
 
 @pytest.fixture(scope="module")
@@ -115,6 +234,15 @@ def test_corrective_manifest_has_complete_operator_and_judge_gates(built_pair):
     }
     for operator, floor in manifest["operator_floors"].items():
         assert manifest["operator_counts"][operator] >= floor
+    drift_classes = EXPECTED_CLASSES - {"D7_conformant"}
+    assert manifest["distinct_mutation_floors"] == {
+        drift_class: 4 for drift_class in sorted(drift_classes)
+    }
+    assert manifest["distinct_mutation_shortfalls"] == {
+        drift_class: 0 for drift_class in sorted(drift_classes)
+    }
+    for drift_class, floor in manifest["distinct_mutation_floors"].items():
+        assert manifest["distinct_mutation_counts"][drift_class] >= floor
 
 
 def test_corrective_build_wires_every_authored_program_group(built_pair):
@@ -145,6 +273,37 @@ def test_corrective_build_wires_every_authored_program_group(built_pair):
         name: 0 for name in sorted(train_bases)
     }
     assert all(first.manifest["base_counts"][name] >= 32 for name in train_bases)
+
+
+def test_purpose_authored_loci_are_rostered_and_emitted(built_pair):
+    first, _, _, _ = built_pair
+    purpose_bases = {
+        "ACTRECON2.cbl",
+        "CKYQUEUE2.cbl",
+        "OVDROUT2.cbl",
+        "SANCBAT2.cbl",
+        "CLSRUN7.cbl",
+        "INTROLL2.cbl",
+        "CICROLL2.cbl",
+    }
+    roster = json.loads(
+        (
+            ROOT / "data" / "benchmark" / "seed" / "base_roster.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    assert {
+        f"train-bases/{name}" for name in purpose_bases
+    } <= roster["reservations"].keys()
+    assert purpose_bases <= first.manifest["base_counts"].keys()
+    assert all(first.manifest["base_counts"][name] > 0 for name in purpose_bases)
+
+    # Purpose-level minima: the repaired classes must exercise the promised
+    # number of independent base/locus pairs, not satisfy row floors by styling
+    # replicas of a smaller semantic set.
+    assert first.manifest["distinct_mutation_counts"]["D2_missing_rule"] >= 6
+    assert first.manifest["distinct_mutation_counts"]["D4_stale_reference_data"] >= 4
+    assert first.manifest["distinct_mutation_counts"]["D6_dead_code"] >= 6
 
 
 def test_gate_d_interprocedural_floor_or_documented_shortfall(built_pair):
@@ -185,8 +344,8 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
         and item.provenance.base_program == "LATEFEE1.cbl"
     )
     d3_source = first.sources[d3.instance_id].text
-    assert "IF WS-DAYS-PAST-DUE > 3" in d3_source
-    assert "OR WS-OUTSTANDING-AMT > ZERO" in d3_source
+    assert "IF WS-DAYS-PAST-DUE > ZERO" in d3_source
+    assert "OR WS-OUTSTANDING-AMT > ZERO" not in d3_source
     assert "IF WS-DAYS-PAST-DUE <= 3" not in d3_source
 
     d3x = next(
@@ -197,16 +356,16 @@ def test_scale_mutations_use_plausible_legacy_shapes(built_pair):
         and item.provenance.base_program == "OVRLIM1.cbl"
     )
     d3x_source = first.sources[d3x.instance_id].text
-    assert "MOVE 'N' TO WS-CONSENT-ON-FILE" not in d3x_source
+    assert "MOVE 'N' TO WS-CONSENT-ON-FILE" in d3x_source
     assert "PERFORM 1500-LOAD-CONSENT" in d3x_source
     assert "IF WS-CONSENT-REC-FOUND = 'Y'" in d3x_source
     assert "IF WS-PROJECTED-BAL > WS-CREDIT-LIMIT" in d3x_source
     assert "IF WS-CONSENT-ON-FILE NOT = 'Y'" in d3x_source
-    assert "old=\"MOVE 'N' TO WS-CONSENT-ON-FILE\"" in (d3x.provenance.mutation or "")
-    assert "new='(deleted)'" in (d3x.provenance.mutation or "")
+    assert "OR WS-CREDIT-LIMIT = ZERO" in d3x_source
+    assert "new='OR WS-CREDIT-LIMIT = ZERO'" in (d3x.provenance.mutation or "")
 
-    # T2.4b / BL-6: D4 is anchored to two authentic KYC reference-list hosts
-    # (OVD accepted-document table, UNSC mandated-list registry). MO-4 corrupts
+    # T2.4b / BL-6: D4 is anchored to authentic KYC reference-list hosts (OVD
+    # accepted-document tables and UNSC mandated-list registries). MO-4 drops
     # one enumerated member so it drifts from the clause-side enum_set.
     d4_ovd = next(
         item
@@ -263,7 +422,12 @@ def test_d4_reference_hosts_are_authentic_and_diverse():
     programs = ROOT / "data" / "benchmark" / "seed" / "programs"
     catalog = _candidate_catalog(ROOT)  # calls the guard; must not raise
     d4 = catalog["D4_stale_reference_data"]
-    assert {c.base.filename for c in d4} == {"OVDCHK1.cbl", "SCRNGATE1.cbl"}
+    assert {c.base.filename for c in d4} == {
+        "OVDCHK1.cbl",
+        "SCRNGATE1.cbl",
+        "OVDROUT2.cbl",
+        "SANCBAT2.cbl",
+    }
     assert all(c.op == "MO-4" for c in d4)
     for candidate in d4:
         cv = candidate.record.clause.current_value
@@ -287,7 +451,7 @@ def test_d4_reference_hosts_are_authentic_and_diverse():
     tampered = replace(d4[0], base=replace(d4[0].base, text=d4[0].base.text + "\n"))
     with pytest.raises(BuildConfigurationError, match="fabricated"):
         _assert_d4_reference_hosts(
-            {"D4_stale_reference_data": [tampered, d4[1]]}, programs
+            {"D4_stale_reference_data": [tampered, *d4[1:]]}, programs
         )
 
 
@@ -383,15 +547,60 @@ def test_checked_in_synthetic_v1_matches_its_manifest():
 def test_bl8_checked_in_manifest_names_the_head_that_generated_it():
     manifest_path = manifest_path_for(ARTIFACT)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    commit = subprocess.run(
-        ["git", "log", "-1", "--format=%H", "--", str(manifest_path)],
+
+    def catalogue_state(payload: dict) -> dict:
+        """Judge stamps are evidence metadata, not catalogue generations."""
+
+        return {key: value for key, value in payload.items() if key != "judging"}
+
+    relative = manifest_path.relative_to(ROOT).as_posix()
+    head = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
         cwd=ROOT,
         check=True,
         capture_output=True,
         text=True,
     ).stdout.strip()
+
+    head_payload = json.loads(
+        subprocess.run(
+            ["git", "show", f"HEAD:{relative}"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+    )
+    if catalogue_state(manifest) != catalogue_state(head_payload):
+        # A freshly generated, not-yet-recorded manifest correctly names the
+        # current HEAD. Requiring a future parent commit made the test fail in
+        # the exact interval between generation and commit.
+        assert manifest["git_sha"] == head
+        return
+
+    commits = subprocess.run(
+        ["git", "log", "--format=%H", "--", relative],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.split()
+    generation_commit = commits[0]
+    for commit in commits[1:]:
+        historical = json.loads(
+            subprocess.run(
+                ["git", "show", f"{commit}:{relative}"],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+        )
+        if catalogue_state(historical) != catalogue_state(manifest):
+            break
+        generation_commit = commit
     parents = subprocess.run(
-        ["git", "show", "-s", "--format=%P", commit],
+        ["git", "show", "-s", "--format=%P", generation_commit],
         cwd=ROOT,
         check=True,
         capture_output=True,
@@ -399,7 +608,8 @@ def test_bl8_checked_in_manifest_names_the_head_that_generated_it():
     ).stdout.split()
     assert manifest["git_sha"] in parents, (
         "checked-in manifest is a stale carry-forward: git_sha must name the "
-        "HEAD at generation time (the parent of the commit that recorded it)"
+        "HEAD at generation time (the parent of the commit that first recorded "
+        "this catalogue state); later judge-only stamps do not change that state"
     )
 
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
@@ -31,6 +32,7 @@ from cobol_archaeologist.benchmark.surface import (
     surface_features,
     surface_probe_report,
 )
+from cobol_archaeologist.schemas import DriftInstance
 
 
 DiversifyMode = Literal["deterministic", "llm"]
@@ -43,6 +45,14 @@ CLASS_FLOORS = {
     "D5_boundary_error": 20,
     "D6_dead_code": 20,
     "D7_conformant": 60,
+}
+DISTINCT_MUTATION_FLOORS = {
+    "D1_stale_threshold": 4,
+    "D2_missing_rule": 4,
+    "D3_contradictory": 4,
+    "D4_stale_reference_data": 4,
+    "D5_boundary_error": 4,
+    "D6_dead_code": 4,
 }
 INTERPROCEDURAL_FLOOR = 30
 PROBE_PER_LABEL = 100
@@ -97,6 +107,80 @@ class _Emission:
 def manifest_path_for(output: str | Path) -> Path:
     path = Path(output)
     return path.with_suffix(".manifest.json")
+
+
+def _note_segments(note: str) -> list[str]:
+    """Split provenance fields on semicolons outside Python repr strings."""
+
+    segments: list[str] = []
+    start = 0
+    quote: str | None = None
+    escaped = False
+    for index, char in enumerate(note):
+        if quote is not None:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+        elif char in "'\"":
+            quote = char
+        elif char == ";":
+            segments.append(note[start:index].strip())
+            start = index + 1
+    segments.append(note[start:].strip())
+    return segments
+
+
+def _canonical_cobol_fragment(fragment: str) -> str:
+    """Normalize COBOL surface form without changing quoted literal contents."""
+
+    parts = re.split(r'''('(?:[^']|'')*'|"(?:[^"]|"")*")''', fragment)
+    return "".join(
+        part if index % 2 else re.sub(r"\s+", " ", part.upper())
+        for index, part in enumerate(parts)
+    ).strip()
+
+
+def _semantic_mutation_key(instance: DriftInstance) -> tuple[object, ...]:
+    """Identify one structured base/locus/old→new regulatory edit."""
+
+    segments = _note_segments(instance.provenance.mutation or "")
+    operator = segments[0].upper() if segments else ""
+    fields: dict[str, str] = {}
+    for segment in segments[1:]:
+        key, separator, value = segment.partition("=")
+        if separator:
+            fields[key.strip().lower()] = value.strip()
+    try:
+        old = ast.literal_eval(fields["old"])
+        new = ast.literal_eval(fields["new"])
+    except (KeyError, SyntaxError, ValueError) as exc:
+        raise BuildConfigurationError(
+            f"mutation provenance lacks parseable old/new fields: {segments[:4]}"
+        ) from exc
+    if not isinstance(old, str) or not isinstance(new, str):
+        raise BuildConfigurationError("mutation provenance old/new fields must be strings")
+    base_program = instance.provenance.base_program
+    if not base_program:
+        raise BuildConfigurationError("mutation provenance lacks base_program")
+    loci = tuple(
+        (
+            locus.program.upper(),
+            locus.file.upper() if locus.file else None,
+            locus.paragraph.upper() if locus.paragraph else None,
+            tuple(locus.line_span),
+        )
+        for locus in instance.code_locus.loci
+    )
+    return (
+        base_program.upper(),
+        operator,
+        loci,
+        _canonical_cobol_fragment(old),
+        _canonical_cobol_fragment(new),
+    )
 
 
 def _repository_root() -> Path:
@@ -302,7 +386,7 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
     bo_ident = _seed_base(
         programs,
         "train-bases/BOIDENT3.cbl",
-        touched_variables=("WS-OWN-PCT", "WS-IS-BO"),
+        touched_variables=("WS-OWN-PCT", "WS-CTRL-IND", "WS-IS-BO"),
     )
     kyc_sync = _seed_base(
         programs,
@@ -355,6 +439,33 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
         "train-bases/REFADJ1.cbl",
         touched_variables=("WS-CUTOFF", "WS-REFUND-AMT"),
         target_path="cutoff",
+    )
+    activation_reconcile = _seed_base(
+        programs,
+        "train-bases/ACTRECON2.cbl",
+        touched_variables=("WS-DAYS-SINCE-ISSUE", "WS-ACTIVATED", "WS-ACTION"),
+        target_path="activation_window",
+    )
+    ckycr_queue = _seed_base(
+        programs,
+        "train-bases/CKYQUEUE2.cbl",
+        touched_variables=("WS-QUEUE-AGE", "WS-ROUTE"),
+    )
+    closure_rollout = _seed_base(
+        programs,
+        "train-bases/CLSRUN7.cbl",
+        touched_variables=("WS-CLOSE-DAYS", "WS-PENALTY-AMT"),
+        target_path="penalty_per_day",
+    )
+    interest_rollout = _seed_base(
+        programs,
+        "train-bases/INTROLL2.cbl",
+        touched_variables=("WS-INT-BASE", "WS-INTEREST-AMT"),
+    )
+    cic_rollout = _seed_base(
+        programs,
+        "train-bases/CICROLL2.cbl",
+        touched_variables=("WS-DAYS-SINCE-SETTLE", "WS-CIC-ACTION"),
     )
 
     late_fee = _seed_base(
@@ -417,6 +528,16 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
         programs,
         "SCRNGATE1.cbl",
         touched_variables=("WS-LIST-SOURCE",),
+    )
+    ovd_route = _seed_base(
+        programs,
+        "train-bases/OVDROUT2.cbl",
+        touched_variables=("WS-OVD-CODE", "WS-ROUTE"),
+    )
+    sanctions_batch = _seed_base(
+        programs,
+        "train-bases/SANCBAT2.cbl",
+        touched_variables=("WS-LIST-SOURCE", "WS-BATCH-ROUTE"),
     )
 
     # The D2 scale base keeps ordinary record-readiness classification around
@@ -497,6 +618,8 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
             _Candidate(activation, clauses["CC-06a-vi"], "MO-2"),
             _Candidate(kyc_sync, clauses["KYC-ckycr-update"], "MO-2"),
             _Candidate(cic_report, clauses["CC-12b"], "MO-2"),
+            _Candidate(activation_reconcile, clauses["CC-06a-vi"], "MO-2"),
+            _Candidate(ckycr_queue, clauses["KYC-ckycr-update"], "MO-2"),
         ],
         "D3_contradictory": [
             _Candidate(late_fee, clauses["CC-09b-v"], "MO-3"),
@@ -510,12 +633,17 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
         "D4_stale_reference_data": [
             _Candidate(ovd_base, clauses["KYC-ovd-list"], "MO-4"),
             _Candidate(unsc_base, clauses["KYC-unsc-screening"], "MO-4"),
+            _Candidate(ovd_route, clauses["KYC-ovd-list"], "MO-4"),
+            _Candidate(sanctions_batch, clauses["KYC-unsc-screening"], "MO-4"),
         ],
         "D5_boundary_error": d5,
         "D6_dead_code": [
             _Candidate(d6_base, clauses["CC-08a"], "MO-6"),
             _Candidate(interest, clauses["CC-09b-ii"], "MO-6"),
             _Candidate(cic_report, clauses["CC-12b"], "MO-6"),
+            _Candidate(closure_rollout, clauses["CC-08a"], "MO-6"),
+            _Candidate(interest_rollout, clauses["CC-09b-ii"], "MO-6"),
+            _Candidate(cic_rollout, clauses["CC-12b"], "MO-6"),
         ],
         "D1_interprocedural": [_Candidate(refund_cross, clauses["CC-10h"], "MO-1×")],
         "D6_interprocedural": [
@@ -563,14 +691,14 @@ def _assert_d4_reference_hosts(catalog: dict, programs: Path) -> None:
        ``enum_set`` ``current_value`` with >=2 members (CC-29/para-90 was
        ``null``), and the targeted copybook must hold an ``88``-level VALUES
        enumeration with >=2 literals for MO-4 to perturb.
-    3. Class diversity — D4 must draw from >=2 distinct hosts, not N clones of
-       one locus.
+    3. Class diversity — D4 must draw from >=4 distinct hosts (the two original
+       gates plus two separately authored workflows), not N clones of one locus.
     """
     d4 = catalog["D4_stale_reference_data"]
     hosts = {candidate.base.filename for candidate in d4}
-    if len(hosts) < 2:
+    if len(hosts) < 4:
         raise BuildConfigurationError(
-            f"D4 requires >=2 distinct reference-list hosts; got {sorted(hosts)}"
+            f"D4 requires >=4 distinct reference-list hosts; got {sorted(hosts)}"
         )
     for candidate in d4:
         if candidate.op != "MO-4":
@@ -588,7 +716,14 @@ def _assert_d4_reference_hosts(catalog: dict, programs: Path) -> None:
                 f"MO-4 clause {candidate.record.record_id} lacks a >=2-member "
                 "enum_set reference set (the CC-29/para-90 null-reference failure)"
             )
-        on_disk = (programs / candidate.base.filename).read_text(encoding="utf-8")
+        host_paths = list(programs.rglob(candidate.base.filename))
+        if len(host_paths) != 1:
+            raise BuildConfigurationError(
+                f"D4 host {candidate.base.filename} resolves to {len(host_paths)} "
+                "on-disk files"
+            )
+        host_path = host_paths[0]
+        on_disk = host_path.read_text(encoding="utf-8")
         if candidate.base.text != on_disk:
             raise BuildConfigurationError(
                 f"D4 host {candidate.base.filename} text is build-time fabricated"
@@ -603,7 +738,7 @@ def _assert_d4_reference_hosts(catalog: dict, programs: Path) -> None:
         }
         code_members = 0
         for name, content in candidate.base.files.items():
-            disk = (programs / name).read_text(encoding="utf-8")
+            disk = (host_path.parent / name).read_text(encoding="utf-8")
             if content != disk:
                 raise BuildConfigurationError(
                     f"D4 host {candidate.base.filename} copybook {name} is fabricated"
@@ -977,6 +1112,20 @@ def build_benchmark(
         operator: max(0, floor - operator_counts[operator])
         for operator, floor in OPERATOR_FLOORS.items()
     }
+    distinct_mutation_counts = {
+        name: len(
+            {
+                _semantic_mutation_key(emission.result.instance)
+                for emission in ordered
+                if emission.result.instance.drift_type == name
+            }
+        )
+        for name in DISTINCT_MUTATION_FLOORS
+    }
+    distinct_mutation_shortfalls = {
+        name: max(0, floor - distinct_mutation_counts[name])
+        for name, floor in DISTINCT_MUTATION_FLOORS.items()
+    }
     corrective_base_shortfalls = {
         name: max(0, CORRECTIVE_BASE_FLOOR - count_base(name))
         for name in sorted(CORRECTIVE_BASES)
@@ -987,6 +1136,11 @@ def build_benchmark(
         **{
             f"operator:{name}": count
             for name, count in operator_shortfalls.items()
+            if count
+        },
+        **{
+            f"distinct:{name}": count
+            for name, count in distinct_mutation_shortfalls.items()
             if count
         },
         **{
@@ -1023,6 +1177,11 @@ def build_benchmark(
         "operator_counts": dict(sorted(operator_counts.items())),
         "operator_floors": dict(sorted(OPERATOR_FLOORS.items())),
         "operator_shortfalls": dict(sorted(operator_shortfalls.items())),
+        "distinct_mutation_counts": dict(sorted(distinct_mutation_counts.items())),
+        "distinct_mutation_floors": dict(sorted(DISTINCT_MUTATION_FLOORS.items())),
+        "distinct_mutation_shortfalls": dict(
+            sorted(distinct_mutation_shortfalls.items())
+        ),
         "corrective_base_floor": CORRECTIVE_BASE_FLOOR,
         "corrective_base_shortfalls": corrective_base_shortfalls,
         "base_counts": dict(sorted(base_counts.items())),

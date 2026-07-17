@@ -33,7 +33,9 @@ from cobol_archaeologist.benchmark.surface import (
     load_probe_rows,
     surface_probe_report,
 )
+from cobol_archaeologist.model.run_cobol import run_cobol
 from cobol_archaeologist.schemas import DriftInstance
+from cobol_archaeologist.tool_types import RunInputs
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -382,6 +384,261 @@ def _clause(record_id: str) -> ClauseRecord:
     )
 
 
+@pytest.mark.skipif(shutil.which("cobc") is None, reason="cobc unavailable")
+@pytest.mark.parametrize(
+    ("relative_path", "touched_variables", "record_id", "operator"),
+    [
+        (
+            "train-bases/ACTIVAT1.cbl",
+            ("WS-DAYS-SINCE-ISSUE", "WS-CONSENT-DAYS", "WS-ACTION"),
+            "CC-06a-vi",
+            "MO-2",
+        ),
+        (
+            "train-bases/CICREP1.cbl",
+            ("WS-DAYS-SINCE-SETTLE", "WS-ACTION"),
+            "CC-12b",
+            "MO-2",
+        ),
+        (
+            "train-bases/CICREP1.cbl",
+            ("WS-DAYS-SINCE-SETTLE", "WS-ACTION"),
+            "CC-12b",
+            "MO-6",
+        ),
+    ],
+)
+def test_nested_if_operator_hosts_compile(
+    relative_path: str,
+    touched_variables: tuple[str, ...],
+    record_id: str,
+    operator: str,
+):
+    base = _seed(relative_path, touched_variables=touched_variables)
+
+    result = mutate(base, _clause(record_id), operator, random.Random(2404))
+
+    assert result.validation.level == "compiled"
+
+
+def test_mo2_retains_success_guard_instead_of_orphaning_due_date_flow():
+    base = _seed(
+        "train-bases/KYCSYNC3.cbl",
+        touched_variables=("WS-TODAY-DAY", "WS-DUE-DAY", "WS-STATUS"),
+    )
+
+    result = mutate(
+        base,
+        _clause("KYC-ckycr-update"),
+        "MO-2",
+        random.Random(2404),
+    )
+
+    assert result.validation.level == "compiled"
+    assert "COMPUTE WS-DUE-DAY = WS-RECEIPT-DAY + 7" in result.source.text
+    assert "IF WS-TODAY-DAY <= WS-DUE-DAY" in result.source.text
+    assert "MOVE 'OK' TO WS-STATUS" in result.source.text
+    assert "MOVE 'OVERDUE' TO WS-STATUS" not in result.source.text
+
+
+def test_mo2_ignores_control_keywords_and_variables_inside_literals():
+    base = ProgramSource(
+        program="LITCTRL1",
+        filename="LITCTRL1.cbl",
+        text="""\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. LITCTRL1.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-DAYS PIC 9(4) VALUE ZERO.
+       01  WS-STATUS PIC X(8) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           DISPLAY 'IF WS-DAYS ELSE END-IF'
+           IF WS-DAYS > 7
+              MOVE 'OVERDUE' TO WS-STATUS
+           ELSE
+              MOVE 'INSLA' TO WS-STATUS
+           END-IF
+           DISPLAY WS-STATUS
+           STOP RUN.
+""",
+        kind="native",
+        touched_variables=("WS-DAYS", "WS-STATUS"),
+    )
+
+    result = mutate(
+        base,
+        _clause("KYC-ckycr-update"),
+        "MO-2",
+        random.Random(2404),
+    )
+
+    assert result.validation.level == "compiled"
+    assert "DISPLAY 'IF WS-DAYS ELSE END-IF'" in result.source.text
+    assert "IF WS-DAYS <= 7" in result.source.text
+    assert "MOVE 'OVERDUE' TO WS-STATUS" not in result.source.text
+
+
+@pytest.mark.skipif(shutil.which("cobc") is None, reason="cobc unavailable")
+@pytest.mark.parametrize(
+    ("relative_path", "touched_variables", "record_id", "operator"),
+    [
+        (
+            "train-bases/ACTRECON2.cbl",
+            ("WS-DAYS-SINCE-ISSUE", "WS-ACTIVATED", "WS-ACTION"),
+            "CC-06a-vi",
+            "MO-2",
+        ),
+        (
+            "train-bases/CKYQUEUE2.cbl",
+            ("WS-QUEUE-AGE", "WS-ROUTE"),
+            "KYC-ckycr-update",
+            "MO-2",
+        ),
+        (
+            "train-bases/OVDROUT2.cbl",
+            ("WS-OVD-CODE", "WS-ROUTE"),
+            "KYC-ovd-list",
+            "MO-4",
+        ),
+        (
+            "train-bases/SANCBAT2.cbl",
+            ("WS-LIST-SOURCE", "WS-BATCH-ROUTE"),
+            "KYC-unsc-screening",
+            "MO-4",
+        ),
+        (
+            "train-bases/CLSRUN7.cbl",
+            ("WS-CLOSE-DAYS", "WS-PENALTY-AMT"),
+            "CC-08a",
+            "MO-6",
+        ),
+        (
+            "train-bases/INTROLL2.cbl",
+            ("WS-INT-BASE", "WS-INTEREST-AMT"),
+            "CC-09b-ii",
+            "MO-6",
+        ),
+        (
+            "train-bases/CICROLL2.cbl",
+            ("WS-DAYS-SINCE-SETTLE", "WS-CIC-ACTION"),
+            "CC-12b",
+            "MO-6",
+        ),
+    ],
+)
+def test_purpose_authored_operator_hosts_compile(
+    relative_path: str,
+    touched_variables: tuple[str, ...],
+    record_id: str,
+    operator: str,
+):
+    """The anti-concentration bases must survive the real compiler after mutation."""
+
+    base = _seed(relative_path, touched_variables=touched_variables)
+    result = mutate(base, _clause(record_id), operator, random.Random(2404))
+
+    assert result.validation.level == "compiled"
+    if operator == "MO-2":
+        assert "<=" in result.source.text
+        assert "REVIEW" in result.source.text or "PENDING" in result.source.text
+    elif operator == "MO-4":
+        assert result.source.files != base.files
+        assert "new='(deleted)'" in (result.instance.provenance.mutation or "")
+    else:
+        assert "VALUE 'N'" in result.source.text
+        assert "WS-COMPLIANCE-FLAG" not in result.source.text
+
+
+@pytest.mark.skipif(shutil.which("cobc") is None, reason="cobc unavailable")
+@pytest.mark.parametrize(
+    ("relative_path", "touched_variables", "record_id", "stdin", "before", "after"),
+    [
+        (
+            "train-bases/CLSRUN7.cbl",
+            ("WS-CLOSE-DAYS", "WS-PENALTY-AMT"),
+            "CC-08a",
+            "10\n",
+            "PENALTY: 000001500",
+            "PENALTY: 000000000",
+        ),
+        (
+            "train-bases/INTROLL2.cbl",
+            ("WS-INT-BASE", "WS-INTEREST-AMT"),
+            "CC-09b-ii",
+            "1000\n100\n0\n",
+            "INTEREST: 000002700",
+            "INTEREST: 000000000",
+        ),
+        (
+            "train-bases/CICROLL2.cbl",
+            ("WS-DAYS-SINCE-SETTLE", "WS-CIC-ACTION"),
+            "CC-12b",
+            "10\nN\n",
+            "CIC: UPDATE",
+            "CIC: DEFER",
+        ),
+    ],
+)
+def test_purpose_authored_mo6_flags_disable_live_regulated_paths(
+    relative_path: str,
+    touched_variables: tuple[str, ...],
+    record_id: str,
+    stdin: str,
+    before: str,
+    after: str,
+):
+    base = _seed(relative_path, touched_variables=touched_variables)
+    result = mutate(base, _clause(record_id), "MO-6", random.Random(2404))
+
+    base_run = run_cobol(base.text, RunInputs(stdin=stdin))
+    mutant_run = run_cobol(result.source.text, RunInputs(stdin=stdin))
+
+    assert base_run.compiled_ok and base_run.exit_code == 0
+    assert mutant_run.compiled_ok and mutant_run.exit_code == 0
+    assert before in base_run.stdout
+    assert after in mutant_run.stdout
+
+
+def test_mo5_targets_the_partnership_branch_not_same_valued_corporate_branch():
+    base = _seed(
+        "train-bases/BOIDENT3.cbl",
+        touched_variables=("WS-OWN-PCT", "WS-CTRL-IND", "WS-IS-BO"),
+    )
+
+    result = mutate(
+        base,
+        _clause("KYC-bo-threshold"),
+        "MO-5",
+        random.Random(2404),
+    )
+
+    lines = result.source.text.splitlines()
+    corporate = next(index for index, line in enumerate(lines) if "WHEN 'C'" in line)
+    partnership = next(
+        index for index, line in enumerate(lines) if "WHEN 'P'" in line
+    )
+    assert "> 10.00" in lines[corporate + 1]
+    assert ">= 10.00" in lines[partnership + 1]
+
+
+def test_mo6_can_omit_a_real_rule_loader_instead_of_inventing_a_false_flag():
+    base = _seed(
+        "train-bases/INTROLL2.cbl",
+        touched_variables=("WS-INT-BASE", "WS-INTEREST-AMT"),
+    )
+
+    result = mutate(base, _clause("CC-09b-ii"), "MO-6", random.Random(2404))
+
+    assert "PERFORM 1500-LOAD-INTEREST-RULE" in base.text
+    assert "PERFORM 1500-LOAD-INTEREST-RULE" not in result.source.text
+    assert "1500-LOAD-INTEREST-RULE." in result.source.text
+    assert "MOVE 'Y' TO WS-INTEREST-RULE-FLAG" in result.source.text
+    assert "WS-COMPLIANCE-FLAG" not in result.source.text
+
+
 def test_corrective_mo1x_emits_from_authored_copybook_host():
     base = ProgramSource.from_path(
         PROGRAMS_DIR / "test-bases-x" / "REFADJ2.cbl",
@@ -412,13 +669,61 @@ def test_corrective_mo3x_emits_from_authored_validate_gate_post_host():
     result = mutate(base, _clause("CC-06b-v"), "MO-3×", random.Random(2312))
 
     assert result.validation.ok
-    assert "MOVE 102 TO WS-FAIL-REASON" not in result.source.text
+    assert "MOVE 102 TO WS-FAIL-REASON" in result.source.text
     assert "IF WS-FAIL-REASON = ZERO" in result.source.text
+    assert "OR WS-LIMIT = ZERO" in result.source.text
     assert result.instance.code_locus.is_interprocedural
     assert {locus.paragraph for locus in result.instance.code_locus.loci} >= {
         "1000-MAIN",
         "2000-VALIDATE",
     }
+
+
+@pytest.mark.skipif(shutil.which("cobc") is None, reason="cobc unavailable")
+@pytest.mark.parametrize(
+    ("relative_path", "touched_variables", "zero_limit", "configured", "in_limit"),
+    [
+        (
+            "test-bases-x/TRNVAL1.cbl",
+            ("WS-LIMIT", "WS-PROJ-BAL", "WS-FAIL-REASON", "WS-POSTED"),
+            "0\n100\n",
+            "50\n100\n",
+            "100\n50\n",
+        ),
+        (
+            "OVRLIM1.cbl",
+            ("WS-CONSENT-ON-FILE", "WS-PROJECTED-BAL", "WS-CREDIT-LIMIT"),
+            "100\n0\nN\nN\n",
+            "100\n50\nN\nN\n",
+            "50\n100\nN\nN\n",
+        ),
+    ],
+)
+def test_mo3x_zero_limit_exception_is_narrow_not_vacuous(
+    relative_path: str,
+    touched_variables: tuple[str, ...],
+    zero_limit: str,
+    configured: str,
+    in_limit: str,
+):
+    result = mutate(
+        _seed(relative_path, touched_variables=touched_variables),
+        _clause("CC-06b-v"),
+        "MO-3×",
+        random.Random(2312),
+    )
+
+    outputs = [
+        run_cobol(result.source.text, RunInputs(stdin=stdin))
+        for stdin in (zero_limit, configured, in_limit)
+    ]
+
+    assert all(output.compiled_ok and output.exit_code == 0 for output in outputs)
+    assert [output.stdout for output in outputs] == [
+        "POSTED: Y\n",
+        "POSTED: N\n",
+        "POSTED: Y\n",
+    ]
 
 
 def test_corrective_mo6x_emits_from_rostered_batch_chain():
@@ -497,19 +802,21 @@ def test_plausibility_shapes_avoid_generator_sentinels(emitted):
     assert "DISPLAY 'XO" not in mo0.source.text
 
     mo2 = emitted["MO-2"].source.text
-    assert "MOVE 'INSLA' TO WS-SLA-STATUS." in mo2
+    assert "IF WS-DAYS-SINCE-UPD <= 7" in mo2
+    assert "MOVE 'INSLA' TO WS-SLA-STATUS" in mo2
     assert "CONTINUE (required check removed)" not in mo2
-    assert "IF WS-DAYS-SINCE-UPD" not in mo2
+    assert "MOVE 'OVERDUE' TO WS-SLA-STATUS" not in mo2
 
     mo3 = emitted["MO-3"].source.text
-    assert "IF WS-DAYS-PAST-DUE > 3" in mo3
-    assert "OR WS-OUTSTANDING-AMT > ZERO" in mo3
+    assert "IF WS-DAYS-PAST-DUE > ZERO" in mo3
+    assert "OR WS-OUTSTANDING-AMT > ZERO" not in mo3
     assert "IF WS-DAYS-PAST-DUE <= 3" not in mo3
 
     mo3x = emitted["MO-3×"].source.text
-    assert "MOVE 'N' TO WS-CONSENT-ON-FILE" not in mo3x
+    assert "MOVE 'N' TO WS-CONSENT-ON-FILE" in mo3x
     assert "IF WS-CONSENT-REC-FOUND = 'Y'" in mo3x
     assert "IF WS-CONSENT-ON-FILE NOT = 'Y'" in mo3x
+    assert "OR WS-CREDIT-LIMIT = ZERO" in mo3x
 
     mo6 = emitted["MO-6"].source.text
     assert "WS-PEN-ENABLED        PIC X(1) VALUE 'N'." in mo6
@@ -637,16 +944,19 @@ def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
     assert seen["grid_fallback"] >= 1
 
 
-def test_mo3_emits_semantic_contradictions_not_comparator_inversions():
+def test_mo3_emits_semantic_contradictions_not_boolean_inversions():
     """MO-3 must not weaken a rule by making its branch unreachable.
 
     ``IF WS-BASE > ZERO`` -> ``<= ZERO`` charges interest only when nothing is
     owed: an always-false guard is not drift a maintainer ships, and the judge
-    rejected it as artificial. Every D3 host resolves to a recognized
-    contradiction shape -- a widened gate or a re-capitalized base.
+    rejected it as artificial. An AND/OR flip is equally mechanical. Every D3
+    host resolves to a recognized contradiction shape -- a retained pre-grace
+    policy or a re-capitalized base.
     """
 
-    late_fee = _seed("LATEFEE1.cbl", touched_variables=("WS-DAYS-PAST-DUE", "WS-LATE-CHARGE"))
+    late_fee = _seed(
+        "LATEFEE1.cbl", touched_variables=("WS-DAYS-PAST-DUE", "WS-LATE-CHARGE")
+    )
     late_fee_new = _seed(
         "train-bases/LATEFEE2.cbl",
         touched_variables=("WS-DAYS-PAST-DUE", "WS-OUTSTANDING", "WS-CHARGE"),
@@ -656,11 +966,12 @@ def test_mo3_emits_semantic_contradictions_not_comparator_inversions():
         touched_variables=("WS-BASE", "WS-UNPAID-FEES", "WS-CREDITS", "WS-INT"),
     )
 
-    # Both grace hosts widen their gate with their own outstanding-amount field.
-    for base, disjunct in ((late_fee, "WS-OUTSTANDING-AMT"), (late_fee_new, "WS-OUTSTANDING")):
+    # Both grace hosts retain the coherent pre-grace policy: any day past due
+    # may be charged. This is a business-rule mismatch, not a Boolean token flip.
+    for base in (late_fee, late_fee_new):
         text = _apply_mo3(base).source.text
-        assert f"OR {disjunct} > ZERO" in text
-        assert "IF WS-DAYS-PAST-DUE > 3" in text
+        assert "IF WS-DAYS-PAST-DUE > ZERO" in text
+        assert " OR " not in text
         assert "IF WS-DAYS-PAST-DUE <= 3" not in text
 
     # The interest base drops its unpaid-charges term, so unpaid fees start
@@ -671,6 +982,32 @@ def test_mo3_emits_semantic_contradictions_not_comparator_inversions():
     assert "ACCEPT WS-UNPAID-FEES" in plan.source.text
     assert "IF WS-BASE <= ZERO" not in plan.source.text
     assert len(plan.source.text.splitlines()) == len(interest.text.splitlines())
+
+
+@pytest.mark.skipif(shutil.which("cobc") is None, reason="cobc unavailable")
+def test_mo3_pre_grace_policy_is_behaviorally_coherent_and_contradictory():
+    base = _seed(
+        "train-bases/LATEFEE2.cbl",
+        touched_variables=("WS-DAYS-PAST-DUE", "WS-OUTSTANDING", "WS-CHARGE"),
+    )
+    result = mutate(
+        base,
+        _clause("CC-09b-v"),
+        "MO-3",
+        random.Random(2404),
+    )
+
+    outputs = [
+        run_cobol(result.source.text, RunInputs(stdin=f"100\n{days}\n"))
+        for days in (0, 1, 4)
+    ]
+
+    assert all(output.compiled_ok and output.exit_code == 0 for output in outputs)
+    assert [output.stdout for output in outputs] == [
+        "CHARGE: 000000000\n",
+        "CHARGE: 000000250\n",
+        "CHARGE: 000000250\n",
+    ]
 
 
 def test_mo1_moves_every_coupled_occurrence_of_the_regulated_literal():
