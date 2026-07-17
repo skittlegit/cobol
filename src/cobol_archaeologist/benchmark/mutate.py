@@ -679,11 +679,34 @@ def _inert_numeric_sites(
         procedure = _procedure_index(lines)
     except MutationRejected:
         return []
+    # An 88-level aliases its parent: CLOSPEN5 guards WS-PEN-ENABLED with
+    # "IF PENALTY-ON", so the field's own name never appears in the procedure
+    # and a name-only check reads it as inert. It is not -- live logic reads it
+    # through the condition name. Map each condition name back to its owner
+    # before deciding anything is untouched.
+    owner_of_condition: dict[str, str] = {}
+    parent: str | None = None
+    for line in lines[:procedure]:
+        if len(line) > 6 and line[6] in "*/":
+            continue
+        declaration = re.match(
+            r"^\s*(?:01|05|10|15|20|25|49)\s+([A-Z0-9-]+)", line, re.IGNORECASE
+        )
+        if declaration:
+            parent = declaration.group(1).upper()
+            continue
+        condition = re.match(r"^\s*88\s+([A-Z0-9-]+)", line, re.IGNORECASE)
+        if condition and parent:
+            owner_of_condition[condition.group(1).upper()] = parent
+
     referenced: set[str] = set()
     for line in lines[procedure:]:
         if len(line) > 6 and line[6] in "*/":
             continue
         referenced.update(_variables(line))
+        for name, owner_name in owner_of_condition.items():
+            if re.search(rf"\b{re.escape(name)}\b", line, re.IGNORECASE):
+                referenced.add(owner_name)
 
     sites: list[tuple[int, re.Match[str]]] = []
     owner: str | None = None

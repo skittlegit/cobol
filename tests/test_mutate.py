@@ -489,9 +489,12 @@ def test_gate_b_labels_and_provenance_follow_contract(emitted):
 
 
 def test_plausibility_shapes_avoid_generator_sentinels(emitted):
-    mo0 = emitted["MO-0"].source.text
-    assert "DISPLAY 'BO= '" in mo0
-    assert "DISPLAY 'XO" not in mo0
+    # MO-0 is now a matched numeric control (BL-14): it perturbs a decorative
+    # numeric so "was this edited" carries no label information, rather than
+    # nudging a DISPLAY string the drift operators never touch.
+    mo0 = emitted["MO-0"]
+    assert {edit.kind for edit in mo0.surface_edits} & {"inert_numeric"}
+    assert "DISPLAY 'XO" not in mo0.source.text
 
     mo2 = emitted["MO-2"].source.text
     assert "MOVE 'INSLA' TO WS-SLA-STATUS." in mo2
@@ -547,7 +550,9 @@ def test_mo1_targets_business_condition_before_matching_pic_width():
     # 5, not the retired current*1.1 fallback's 3: duration_years drifts on the
     # lineage's own grid (T2.4b). The targeting this test guards is unchanged.
     assert "IF WS-YEARS-SINCE-KYC >= 5" in result.source.text
-    assert result.instance.code_locus.loci[0].line_span == (25, 25)
+    # 27, not 25: the T0.2 cruft pass added two WORKING-STORAGE lines above
+    # the procedure. The targeting this test guards is unchanged.
+    assert result.instance.code_locus.loci[0].line_span == (27, 27)
 
 
 def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
