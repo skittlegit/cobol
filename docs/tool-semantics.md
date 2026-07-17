@@ -122,6 +122,24 @@ same as a genuine leaf. Cross-program reachability is **not** traversed: within 
 program the only flow between paragraphs is `PERFORM`/`GO TO`, and cross-program
 entry happens through the callee's own entry points.
 
+> **Fall-through is not a caller/callee edge.** The call graph also carries internal
+> `edge_kind="fallthrough"` edges (paragraph N → N+1 in source order, unless N ends in
+> an unconditional transfer — `GO TO` / `GOBACK` / `STOP RUN` / `EXIT PROGRAM`). These
+> exist so `reachable_from` sees a paragraph entered only by falling off the end of its
+> predecessor. They are held in a separate list and **excluded** from
+> `find_callers`/`find_callees` (which answer "who *invokes* this paragraph", not
+> "what precedes it"). Consumers of the call graph get two distinct reachability
+> queries (internal `static_analysis` APIs, not `ToolLayer` members):
+>
+> - `entry_points(program)` → the **single true entry** (`<preamble>`, else the first
+>   paragraph). This is where control enters the program.
+> - `forest_roots(program)` → every paragraph with **no incoming edge of any kind**
+>   (perform/goto/call/link/xctl/fallthrough), excluding the true entry. These are the
+>   **D6 (dead compliance code)** candidates: an isolated dead paragraph lands here; a
+>   paragraph reached only by fall-through does **not** (it has an incoming fallthrough
+>   edge). D6 detection consumes `forest_roots` together with `reachable_from`. (This
+>   is the F7 split — `entry_points` no longer doubles as "forest roots".)
+
 **`trace_variable` / `slice_on`** — `program=None` is corpus-wide (union over every
 program declaring the field); `program=<id>` scopes to one (contract amendment A2). A
 named scope that does not exist raises rather than returning an empty trace.
@@ -191,12 +209,11 @@ task, raise it rather than working around it locally.
 - **CICS pseudo-conversational edges** (`RETURN TRANSID` / `START TRANSID`) are not
   call-graph edges — they transfer control through the CICS transaction table, and
   resolving them needs the transaction→program map.
-- **`entry_points` currently returns forest roots**, i.e. *every* paragraph with no
-  incoming `PERFORM`/`GO TO`. An isolated dead paragraph is therefore counted as an
-  entry (and so as reachable). This is unsuitable as the basis for **D6 (dead
-  compliance code)** detection and is **pending the F7 / D6 split** of "true program
-  entry roots" from "forest roots" (review 2026-07-12; owner Track A). Do not build
-  D6 reachability on `entry_points` until that lands.
+- **COBOL `ENTRY` statements are not modeled.** `entry_points` assumes a single
+  entry (`<preamble>`/first paragraph); a secondary `ENTRY 'name'` alternate entry
+  point would be missed. CardDemo has none (verified); if one is encountered it is a
+  documented limitation, and the F7 note in `call_graph.py` says to stop and report
+  rather than guess.
 - **Copybook nesting is capped at one level.** A `COPY` inside an already-included
   copybook is left as literal text rather than resolved (no CardDemo program
   exercises deeper nesting).

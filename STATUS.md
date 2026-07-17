@@ -35,6 +35,14 @@ One entry per task: ID, state, owner, and artifact.
   `include_preamble` for batch main-driver roots). Gate `tests/test_call_graph.py`
   + fixtures `tests/fixtures/call_graph/*.json` (5 programs, hand-verified) and
   `tests/fixtures/synthetic/DEADEX.cbl` (dead-code negative case).
+- **T1.2b** | done | A | F7 fix → reachability D6-ready
+  (`static_analysis/call_graph.py`): `entry_points` = the single true entry
+  (`<preamble>`/first para), new `forest_roots` = no-incoming-edge paragraphs,
+  and `reachable_from` now traverses `edge_kind="fallthrough"` edges (N→N+1
+  unless N ends in GO TO/GOBACK/STOP RUN/EXIT PROGRAM). `find_callers`/`find_callees`
+  bit-identical (fall-through kept out of `edges`). New synthetic fixtures
+  `DEADISO.cbl`/`FALLTHRU.cbl`; slicer glue rebased off the old `entry_points`
+  semantics; `docs/tool-semantics.md` updated.
 - **T1.3** | done | A | `src/cobol_archaeologist/static_analysis/dataflow.py`
   (`trace_variable(var, programs, call_graph, program=None)` → AST-based def/use
   per the normative table; qualified/bare/ambiguous name resolution, REDEFINES-

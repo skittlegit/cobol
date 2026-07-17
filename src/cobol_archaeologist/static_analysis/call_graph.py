@@ -23,6 +23,7 @@ call sites, and need the transaction→program map to resolve.
 from __future__ import annotations
 
 import re
+from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
@@ -35,7 +36,16 @@ _LINK_XCTL_RE = re.compile(r"\bEXEC\s+CICS\b.*?\b(LINK|XCTL)\b", re.I | re.S)
 _PROGRAM_LITERAL_RE = re.compile(r"\bPROGRAM\s*\(\s*['\"]([A-Z0-9][A-Z0-9$#@_-]*)['\"]", re.I)
 _PROGRAM_ANY_RE = re.compile(r"\bPROGRAM\s*\(", re.I)
 
+# Intra-program control-flow edges that carry reachability alongside fallthrough.
 _FLOW_KINDS = frozenset({"perform", "goto"})
+
+# Unconditional program-terminating verbs whose original-source text ends a
+# paragraph's fall-through. GO TO is handled separately (it surfaces as a GOTO
+# Statement kind); GOBACK/STOP RUN/EXIT PROGRAM classify as OTHER, so they are
+# recognised by text. (DECISION in _last_stmt_is_transfer below.)
+_GOBACK_RE = re.compile(r"\bGOBACK\b", re.I)
+_STOP_RUN_RE = re.compile(r"\bSTOP\s+RUN\b", re.I)
+_EXIT_PROGRAM_RE = re.compile(r"\bEXIT\s+PROGRAM\b", re.I)
 
 
 class _HNodeRef(NodeRef):
@@ -57,7 +67,7 @@ def _h(program: str, paragraph: str) -> _HNodeRef:
 class CallEdge(BaseModel):
     source: NodeRef
     target: NodeRef
-    edge_kind: str  # perform | goto | call | link | xctl
+    edge_kind: str  # perform | goto | call | link | xctl | fallthrough
     ref_line: int
 
 
@@ -73,19 +83,38 @@ class LinkXctlShapeError(ValueError):
 
 class CallGraph(BaseModel):
     edges: list[CallEdge]
+    # Fall-through edges (paragraph N -> N+1 in source order) are kept OUT of
+    # ``edges`` on purpose: ``callers``/``callees`` and the T1.2 golden adjacency
+    # answer "who invokes this paragraph", which fall-through is not. Only
+    # ``reachable_from``/``forest_roots`` consume them. Keeping the two lists
+    # separate makes find_callers/find_callees bit-identical before/after F7.
+    fallthrough_edges: list[CallEdge] = []
     unresolved: list[UnresolvedCall]
     # Ordered paragraph nodes per program (program order); backs THRU expansion
     # and entry-point detection.
     nodes_by_program: dict[str, list[NodeRef]]
 
     _out: dict[tuple[str, str], list[CallEdge]] = PrivateAttr(default_factory=dict)
-    _incoming_flow: set[tuple[str, str]] = PrivateAttr(default_factory=set)
+    # Reachability adjacency: intra-program PERFORM/GO TO targets + fall-through
+    # successors. Consumed by reachable_from only.
+    _reach_out: dict[tuple[str, str], list[tuple[str, str]]] = PrivateAttr(default_factory=dict)
+    # Every paragraph that is the target of ANY edge (perform/goto/call/link/
+    # xctl/fallthrough). A forest root is a node absent from this set.
+    _incoming_any: set[tuple[str, str]] = PrivateAttr(default_factory=set)
 
     def model_post_init(self, __context) -> None:
         for edge in self.edges:
             self._out.setdefault((edge.source.program, edge.source.paragraph), []).append(edge)
+            self._incoming_any.add((edge.target.program, edge.target.paragraph))
             if edge.edge_kind in _FLOW_KINDS and edge.source.program == edge.target.program:
-                self._incoming_flow.add((edge.target.program, edge.target.paragraph))
+                self._reach_out.setdefault(
+                    (edge.source.program, edge.source.paragraph), []
+                ).append((edge.target.program, edge.target.paragraph))
+        for edge in self.fallthrough_edges:
+            self._incoming_any.add((edge.target.program, edge.target.paragraph))
+            self._reach_out.setdefault(
+                (edge.source.program, edge.source.paragraph), []
+            ).append((edge.target.program, edge.target.paragraph))
 
     # -- queries ---------------------------------------------------------
 
@@ -107,43 +136,65 @@ class CallGraph(BaseModel):
         return [NodeRef(program=p, paragraph=q) for p, q in sorted(seen)]
 
     def reachable_from(self, entries: list[NodeRef]) -> set[NodeRef]:
-        """Nodes reachable via control flow (PERFORM/GO TO) — the basis for
-        per-program dead-code detection.
+        """Nodes reachable via control flow (PERFORM/GO TO **and fall-through**)
+        — the basis for per-program dead-code detection.
 
         DECISION: cross-program edges (call/link/xctl) are NOT traversed for
         reachability. Within a program the only flow between paragraphs is
-        PERFORM and GO TO; cross-program entry happens through the callee's own
-        entry points, so following call/link/xctl would conflate separate
-        programs' reachability and defeat per-program dead-code analysis.
+        PERFORM, GO TO, and sequential fall-through; cross-program entry happens
+        through the callee's own entry points, so following call/link/xctl would
+        conflate separate programs' reachability and defeat per-program
+        dead-code analysis. Fall-through IS traversed (F7): a paragraph reached
+        only by falling off the end of its predecessor must count as reachable.
         """
-        visited: set[_HNodeRef] = set()
-        frontier = [_h(e.program, e.paragraph) for e in entries]
+        visited: set[tuple[str, str]] = set()
+        frontier = [(e.program, e.paragraph) for e in entries]
         while frontier:
-            node = frontier.pop()
-            if node in visited:
+            key = frontier.pop()
+            if key in visited:
                 continue
-            visited.add(node)
-            for edge in self._out.get((node.program, node.paragraph), []):
-                if edge.edge_kind in _FLOW_KINDS:
-                    nxt = _h(edge.target.program, edge.target.paragraph)
-                    if nxt not in visited:
-                        frontier.append(nxt)
-        return set(visited)
+            visited.add(key)
+            for nxt in self._reach_out.get(key, []):
+                if nxt not in visited:
+                    frontier.append(nxt)
+        return {_h(p, q) for (p, q) in visited}
 
     def entry_points(self, program: str) -> list[NodeRef]:
-        """First paragraph + any paragraph with no incoming PERFORM/GO TO edge
-        from within the same program (the roots of the control-flow forest)."""
+        """The program's **true entry roots** only: ``<preamble>`` when present,
+        else the first paragraph. Contrast ``forest_roots`` (F7 split).
+
+        DECISION: this is the single point control enters the program. Isolated
+        dead paragraphs used to be miscounted here as self-rooted entries (and so
+        as reachable), which would make D6 (dead compliance code) miss its exact
+        target; ``forest_roots`` now carries that "no incoming edge" query. COBOL
+        ``ENTRY`` statements would add alternate entries, but CardDemo has none;
+        if one is encountered it is a documented limitation (see
+        docs/tool-semantics.md), not silently handled here.
+        """
+        nodes = self.nodes_by_program.get(program, [])
+        return [nodes[0]] if nodes else []
+
+    def forest_roots(self, program: str) -> list[NodeRef]:
+        """Paragraphs with **no incoming edge of any kind** (perform/goto/call/
+        link/xctl/fallthrough), excluding the true entry — the D6 dead-code
+        candidates, in program order.
+
+        An isolated dead paragraph lands here; a paragraph reached only by
+        fall-through does not (it has an incoming fallthrough edge). D6 detection
+        (Track C) consumes this together with ``reachable_from``.
+        """
         nodes = self.nodes_by_program.get(program, [])
         if not nodes:
             return []
-        entries: list[NodeRef] = [nodes[0]]
-        chosen = {(nodes[0].program, nodes[0].paragraph)}
-        for node in nodes[1:]:
+        entry_keys = {(e.program, e.paragraph) for e in self.entry_points(program)}
+        roots: list[NodeRef] = []
+        for node in nodes:
             key = (node.program, node.paragraph)
-            if key not in self._incoming_flow and key not in chosen:
-                entries.append(node)
-                chosen.add(key)
-        return entries
+            if key in entry_keys:
+                continue
+            if key not in self._incoming_any:
+                roots.append(node)
+        return roots
 
 
 def _flatten(statements: list[Statement]):
@@ -168,6 +219,64 @@ def _locate_paragraph(program: Program, line: int) -> str | None:
     return None
 
 
+def _read_source_lines(path: str) -> list[str] | None:
+    try:
+        return Path(path).read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return None
+
+
+def _stmt_text(stmt: Statement, source_lines: list[str]) -> str:
+    lo = max(stmt.ref.line_start - 1, 0)
+    hi = min(stmt.ref.line_end, len(source_lines))
+    return "\n".join(source_lines[lo:hi])
+
+
+def _last_stmt_is_transfer(stmt: Statement, source_lines: list[str] | None) -> bool:
+    """Does this (paragraph-final, top-level) statement unconditionally transfer
+    control, so no fall-through follows?
+
+    DECISION: detected from the statement's ORIGINAL-source text rather than the
+    grammar's goback/stop/exit-program node types. The call graph consumes the
+    parsed ``Statement`` stream (kind + original line ref), not raw tree-sitter
+    nodes — a top-level ``GO TO`` already surfaces as ``kind == "GOTO"`` (and a
+    top-level GO TO is by definition unconditional), while GOBACK / STOP RUN /
+    EXIT PROGRAM all classify as ``OTHER``. Re-parsing solely to reclassify those
+    three terminal verbs would duplicate the parse, so we read their line text.
+    When the source is unreadable we return False (conservative: add the
+    fall-through edge — the safe over-approximation for D6).
+    """
+    if stmt.kind == "GOTO":
+        return True
+    if stmt.kind != "OTHER" or source_lines is None:
+        return False
+    text = _stmt_text(stmt, source_lines)
+    return bool(
+        _GOBACK_RE.search(text) or _STOP_RUN_RE.search(text) or _EXIT_PROGRAM_RE.search(text)
+    )
+
+
+def _fallthrough_edges(program: Program) -> list[CallEdge]:
+    """Edge paragraph N -> N+1 in source order unless N ends in an unconditional
+    transfer. Conservative: an empty paragraph, or one whose final-statement
+    shape we cannot read, still gets the edge."""
+    pid = program.program_id
+    source_lines = _read_source_lines(program.path)
+    edges: list[CallEdge] = []
+    paras = program.paragraphs
+    for i in range(len(paras) - 1):
+        cur, nxt = paras[i], paras[i + 1]
+        last = cur.statements[-1] if cur.statements else None
+        if last is not None and _last_stmt_is_transfer(last, source_lines):
+            continue
+        edges.append(CallEdge(
+            source=NodeRef(program=pid, paragraph=cur.span.name),
+            target=NodeRef(program=pid, paragraph=nxt.span.name),
+            edge_kind="fallthrough", ref_line=cur.span.line_end,
+        ))
+    return edges
+
+
 def build_call_graph(
     programs: list[Program],
     preprocess_results: dict[str, PreprocessResult],
@@ -185,6 +294,7 @@ def build_call_graph(
     para_set: dict[str, set[str]] = {pid: set(names) for pid, names in para_order.items()}
 
     edges: list[CallEdge] = []
+    fallthrough_edges: list[CallEdge] = []
     unresolved: list[UnresolvedCall] = []
 
     for program in programs:
@@ -203,8 +313,12 @@ def build_call_graph(
                     _handle_call(stmt, src, nodes_by_program, edges, unresolved)
 
         _handle_link_xctl(program, preprocess_results.get(pid), nodes_by_program, edges, unresolved)
+        fallthrough_edges.extend(_fallthrough_edges(program))
 
-    return CallGraph(edges=edges, unresolved=unresolved, nodes_by_program=nodes_by_program)
+    return CallGraph(
+        edges=edges, fallthrough_edges=fallthrough_edges,
+        unresolved=unresolved, nodes_by_program=nodes_by_program,
+    )
 
 
 def _handle_perform(stmt, src, pid, names, order, edges, unresolved) -> None:
