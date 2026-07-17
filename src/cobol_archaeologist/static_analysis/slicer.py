@@ -232,7 +232,18 @@ def _glue_units(model: _ProgramModel, included_paras: set[str], call_graph) -> l
     if call_graph is None or len(included_paras) <= 1:
         return []
     adj = _flow_adjacency(call_graph, model.program.program_id)
-    entries = [n.paragraph for n in call_graph.entry_points(model.program.program_id)]
+    # DECISION (T1.2b/F7): glue BFS starts from the roots of the PERFORM/GO TO
+    # flow forest — the first paragraph plus any paragraph with no incoming
+    # PERFORM/GO TO edge. This used to be `call_graph.entry_points`, but F7
+    # redefined that to the single true program entry (for D6). We reconstruct
+    # the old flow-forest-root set locally from `adj` (which is exactly the
+    # PERFORM/GO TO adjacency) so glue paths still reach every included paragraph.
+    para_order = [p.span.name for p in model.program.paragraphs]
+    flow_targets = {t for targets in adj.values() for t in targets}
+    entries = (
+        [para_order[0]] + [p for p in para_order[1:] if p not in flow_targets]
+        if para_order else []
+    )
 
     # Call units indexed by (source_paragraph, target_paragraph).
     call_units: dict[tuple[str, str], _Unit] = {}

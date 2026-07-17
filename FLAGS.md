@@ -85,6 +85,14 @@ CICS `compiled_ok=False` = Tier-1 unavailable, NOT an error). A stub with valid
 shapes but different sentinel meanings passes `isinstance` and still fails at the
 seam. `search_regulations` still raises `NotImplementedError` — yours.
 
+→ Track C | from A | 2026-07-17 | T1.2b | F7 resolved: entry/forest-root split +
+fall-through edges live in `static_analysis/call_graph.py`. D6 detection should
+consume `forest_roots` (paragraphs with no incoming edge of any kind) +
+`reachable_from` (now traverses `edge_kind="fallthrough"`), NOT `entry_points`
+(now the single true program entry). `docs/tool-semantics.md` updated (§3
+fall-through note + §4 ENTRY-verb limitation). CODEOWNERS: propose you add
+`schemas.py` under C in your next commit (H6).
+
 → Track C | from B | 2026-07-15 | T2.5 | Real-curated seed is available at
 `data/benchmark/seed/real_curated.jsonl` for T4.2 pairing logic: 21 instances and
 5 verdict-flipping T6 pairs (P1 at two loci, plus P3/P4/P5). Zero degraded pairs;

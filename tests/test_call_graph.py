@@ -125,14 +125,19 @@ def test_reachability_marks_known_reachable(graph):
     assert any(n.program == "COACTUPC" and n.paragraph == "9000-READ-ACCT" for n in reachable)
 
 
+def _synthetic_graph(name: str):
+    path = SYNTHETIC_DIR / f"{name}.cbl"
+    program = parse_program(path, backend="ast", include_preamble=True)
+    return build_call_graph(
+        [program], {program.program_id: preprocess(path.read_text(encoding="utf-8"))})
+
+
 def test_synthetic_dead_code_unreachable():
     """Negative case: DEAD-A/DEAD-B form an unreferenced PERFORM cycle — each
     has an incoming edge (so neither is an entry point) yet neither is
-    reachable from MAIN-PARA."""
-    path = SYNTHETIC_DIR / "DEADEX.cbl"
-    program = parse_program(path, backend="ast", include_preamble=True)
-    graph = build_call_graph(
-        [program], {program.program_id: preprocess(path.read_text(encoding="utf-8"))})
+    reachable from MAIN-PARA. LIVE-PARA's GOBACK is the fall-through barrier
+    that keeps the cycle from being fallen into (F7)."""
+    graph = _synthetic_graph("DEADEX")
 
     entries = graph.entry_points("DEADEX")
     assert [e.paragraph for e in entries] == ["MAIN-PARA"]
@@ -141,6 +146,64 @@ def test_synthetic_dead_code_unreachable():
     all_nodes = {(n.program, n.paragraph) for n in graph.nodes_by_program["DEADEX"]}
     dead = all_nodes - reachable
     assert dead == {("DEADEX", "DEAD-A"), ("DEADEX", "DEAD-B")}
+
+
+# -- Gate: F7 entry / forest-root split + fall-through edges -------------------
+
+def test_deadiso_isolated_paragraph_is_forest_root_not_reachable():
+    """DEADISO: ISO-PARA has no incoming edge of any kind and is not fallen into
+    (MAIN-PARA's GOBACK blocks fall-through). It is a forest root and is NOT
+    reachable from the true entry — exactly the D6 dead-code target that the old
+    entry_points self-rooted (and so miscounted as reachable)."""
+    graph = _synthetic_graph("DEADISO")
+
+    assert [e.paragraph for e in graph.entry_points("DEADISO")] == ["MAIN-PARA"]
+
+    reachable = {n.paragraph for n in graph.reachable_from(graph.entry_points("DEADISO"))}
+    assert "ISO-PARA" not in reachable
+
+    roots = {n.paragraph for n in graph.forest_roots("DEADISO")}
+    assert roots == {"ISO-PARA"}
+
+
+def test_fallthru_fallen_into_paragraph_reachable_not_forest_root():
+    """FALLTHRU: NEXT-PARA has no PERFORM/GO TO in-edge but is fallen into from
+    the entry. It must be reachable and must NOT be a forest root (it carries an
+    incoming fall-through edge)."""
+    graph = _synthetic_graph("FALLTHRU")
+
+    assert [e.paragraph for e in graph.entry_points("FALLTHRU")] == ["MAIN-PARA"]
+
+    fallthrough = {(e.source.paragraph, e.target.paragraph) for e in graph.fallthrough_edges}
+    assert ("MAIN-PARA", "NEXT-PARA") in fallthrough
+
+    reachable = {n.paragraph for n in graph.reachable_from(graph.entry_points("FALLTHRU"))}
+    assert "NEXT-PARA" in reachable
+
+    roots = {n.paragraph for n in graph.forest_roots("FALLTHRU")}
+    assert roots == set()
+
+
+def test_fallthrough_excluded_from_call_edges_and_callers_callees():
+    """Gate 4 invariant: fall-through never leaks into the call-edge list or into
+    callers/callees — those answer "who invokes this paragraph", not "what
+    precedes it". find_callers/find_callees stay bit-identical to T1.2."""
+    graph = _synthetic_graph("FALLTHRU")
+
+    assert all(e.edge_kind != "fallthrough" for e in graph.edges)
+    assert graph.fallthrough_edges  # they exist, but in their own list
+    # NEXT-PARA is fallen-into, not called -> no callers; MAIN-PARA calls nobody.
+    assert graph.callers(NodeRef(program="FALLTHRU", paragraph="NEXT-PARA")) == []
+    assert graph.callees(NodeRef(program="FALLTHRU", paragraph="MAIN-PARA")) == []
+
+
+@corpus_only
+def test_entry_points_is_single_true_entry(graph):
+    """entry_points is the one true program entry (batch: <preamble>), no longer
+    the whole forest of no-incoming paragraphs."""
+    nodes = graph.nodes_by_program["CBACT01C"]
+    assert graph.entry_points("CBACT01C") == [nodes[0]]
+    assert nodes[0].paragraph == "<preamble>"
 
 
 # -- callers/callees sanity ---------------------------------------------------
