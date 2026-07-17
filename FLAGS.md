@@ -1,59 +1,39 @@
 # FLAGS — cross-track message ledger
 
-Append-only inbox per track. Rules:
-
-1. A flag rides the commit of the deliverable that caused it (same-commit rule,
-   like STATUS lines).
-2. Format: `→ Track X | from Y | YYYY-MM-DD | T-n.n | message`.
-3. The receiving track deletes its own entries once acknowledged in its chat
-   (each track edits only its own inbox).
-4. Session-start protocol includes reading this file alongside STATUS.md.
-5. Urgent mid-session CONTRACT CHANGEs still get relayed directly in chat; this
-   file is the async path, not the emergency path.
+Per-track inbox. A receiving track deletes an entry after acknowledging it;
+resolved and superseded progress messages do not remain as history here.
 
 ## Track A inbox
 
-→ Track A | from C | 2026-07-07 | T0.4 | CONTRACT.md v1.1 reproduces your
-committed ToolLayer Protocol verbatim. Two deltas beyond your A1/A2 flag were
-picked up from tool_types.py and folded in as part of A1: run_cobol inputs typed
-`RunInputs | None`, search_regulations returns `list[RegSearchHit]`. If either
-was unintentional, raise a CONTRACT CHANGE.
+→ Track A | from C/B | 2026-07-17 | CONTRACT v1.3 FYI | Gate E now splits
+artifact-only and attacker-with-bases threat models. No Track A implementation
+change: `literal_roundness` is the hard at-chance build gate; the aggregate
+surface probe is a mandatory T5.3 baseline. Resolution:
+`docs/reviews/2026-07-17/contract-change-gate-e-RESOLVED.md`.
 
-→ Track A | from B | 2026-07-12 | T1.0/T1.1/T1.3 | External review — 3 code bugs
-(no decision needed): (F5) qualified-name trace not case-insensitive —
-`dataflow.py:374` splits uppercase " OF "/" IN " then uppercases, so
-`errmsgo of cosgn0ao` → 0 sites vs 2 uppercase; normalize spec to upper BEFORE
-splitting. (F6) preprocessor drops unterminated EXEC…END-EXEC / COPY…REPLACING
-at EOF (masked output, 0 masked_spans, no error) — raise a structured error;
-line-fidelity invariant. (F10) fetch_corpora.sh skips CardDemo when the dir
-exists without checking HEAD == 59cc6c2. Full detail + the F7 entry_points/D6
-design call: docs/reviews/2026-07-12/chat-track-a.md.
+→ Track A | from C | 2026-07-07 | T0.4 | CONTRACT.md v1.1 reproduces the
+committed ToolLayer Protocol. `run_cobol` inputs are `RunInputs | None` and
+`search_regulations` returns `list[RegSearchHit]`; raise a CONTRACT CHANGE if
+either was unintended.
 
-→ Track A | from C | 2026-07-12 | CONTRACT CHANGE | schemas.py v2 (loci,
-recursive CurrentValue, target_path). No action: A consumes DriftInstances and
-does not emit them; tool_types.py is untouched. FYI only.
+→ Track A | from B | 2026-07-12 | T1.0/T1.1/T1.3 | External review found three
+code bugs: qualified-name trace is not case-insensitive; the preprocessor drops
+unterminated EXEC/COPY constructs at EOF; and `fetch_corpora.sh` skips an
+existing CardDemo checkout without checking pin `59cc6c2`. Details:
+`docs/reviews/2026-07-12/chat-track-a.md`.
 
-→ Track A | from B | 2026-07-15 | T1.5 | External audit — `run_cobol` path
-escape (code fix, no decision): `RunInputs.files` names are joined to the temp
-dir and written without validation (`model/run_cobol.py:174-177`), so an
-absolute or `../` name escapes the sandbox dir and can overwrite files before
-compile; output collection at `:234` reads every file uncapped. Harden
-(contain-under-tmpdir + count/byte cap). Logged as BACKLOG BL-7; owner A.
+→ Track A | from C | 2026-07-12 | CONTRACT CHANGE | `schemas.py` v2 adds loci,
+recursive CurrentValue, and target_path. No Track A implementation action;
+`tool_types.py` is unchanged.
+
+→ Track A | from B | 2026-07-15 | T1.5 | `RunInputs.files` permits absolute or
+traversal paths outside the temporary directory, and output collection is
+uncapped. Harden containment and output count/bytes before MCP self-hosting.
+Tracked as BACKLOG BL-7; owner A.
 
 ## Track B inbox
 
-→ Track B | from audit | 2026-07-15 | M2 audit | External audit of the merged
-`track-b` state. **High:** M2 was closed on stale T2.4 evidence — the current
-591-row catalogue's own full run is `gate_passed:false` (89.51%, 5 `unsure`),
-and the 98% 50-sample overlaps it by 1/50 IDs (**BL-6**; M2/T2.4 STATUS lines
-now carry a review caveat). **Medium:** manifest `git_sha` names `f880b6e` not
-the regenerating `1bce6b9` (**BL-8**); split-repair false infeasibility
-(**BL-10**); runnable-base provenance stale in `manifest.json` (**BL-12**).
-Cross-track: `run_cobol` path escape → Track A (**BL-7**); GnuCOBOL version
-conflict + governance → infra (**BL-9/BL-11**). All in BACKLOG.
-
-_Prior: T1.4/T1.5/T1.6 prerequisites and the schema-v2 migration were
-acknowledged by the landed T2.2, T2.3, and T2.5 artifacts._
+_No open flags._
 
 ## Track C inbox
 
@@ -223,3 +203,24 @@ is removed. Please dedup / disambiguate the page-12 `(xiv)` label. Until then
 this one gate stays red; it does **not** affect the drift catalogue or judging.
 (The UNSC D4 anchor was moved to the unique `56(prevention)` and reconciles OK.)
 Tracked as BACKLOG BL-13; blocks the T2.4b/M2 re-closure gate.
+→ Track C | from A | 2026-07-13 | T1.6 | `RealToolLayer` is
+constructor-swappable for the Track C stub. Read `docs/tool-semantics.md` before
+the seam test; it defines sentinel and truncation semantics beyond structural
+typing. `search_regulations` remains Track C's implementation responsibility.
+
+→ Track C | from B | 2026-07-15 | T2.5 | The real-curated seed at
+`data/benchmark/seed/real_curated.jsonl` contains 21 instances and five intact
+verdict-flipping T6 pairs for T4.2. P2 was retired on primary evidence; P6 is a
+citation-axis probe rather than a verdict-flipping pair.
+
+→ Track C | from B | 2026-07-15 | T2.2 | The balanced anti-gaming probe is
+`data/benchmark/probes/t2.2_surface_probe.jsonl` (50 drifted + 50 MO-0,
+AUC 0.50). Reuse its six-feature contract at T5.3/T5.5.
+
+→ Track C | from B | 2026-07-17 | M2 CLOSED (RE-EVIDENCED) | The corrected
+catalogue has 594 compiled rows and distinct D1–D6 mutations 13/6/5/4/12/7.
+Current Luna/OpenAI/high evidence is 50/50 on the stratified sample and 557/594
+(93.77%) raw on the full set; final drop policy is 562 accepted / 32
+implausible / 0 unsure with five logged overrides and 15/15 human agreement.
+Corrected v1-pre train/dev/test = 297/106/180; all purpose gates pass. Track C
+may consume `data/benchmark/v1-pre/` and begin headline evaluation.

@@ -23,6 +23,26 @@ def test_gate_a_clause_records_reconcile_to_exactly_one_chunk():
         assert _content_overlap(clause["text"], matches[0].text) >= 0.8, record["record_id"]
 
 
+def test_bl13_nested_definition_groups_do_not_reuse_curated_clause_ids():
+    chunks = build_all_chunks()
+    ovd = next(
+        record
+        for record in load_clause_records()
+        if record["record_id"] == "KYC-ovd-list"
+    )["clause"]
+    regulated_entities = next(
+        chunk
+        for chunk in chunks
+        if chunk.doc == ovd["doc"]
+        and chunk.page_start >= 10
+        and "Regulated Entities (REs)" in chunk.text.splitlines()[0]
+    )
+
+    assert regulated_entities.clause_id != ovd["clause_id"]
+    assert regulated_entities.clause_id is not None
+    assert "(2)" in regulated_entities.clause_id
+
+
 def test_gate_b_anchor_boundary_report_contains_promoted_golden_boundaries():
     main()
     promoted = (

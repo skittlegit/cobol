@@ -18,11 +18,14 @@ from cobol_archaeologist.benchmark.judge import (
     FamilyIntegrityError,
     JudgeConfig,
     JudgeConfigurationError,
+    JudgeOverride,
     apply_drop_policy,
     judge_benchmark,
+    load_judge_overrides,
     load_judgements,
     load_unsure_adjudications,
     record_human_agreement,
+    write_judge_overrides,
 )
 
 
@@ -83,7 +86,53 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         help="apply human plausible/implausible decisions to all unsure rows",
     )
+    judge.add_argument(
+        "--overrides",
+        type=Path,
+        help=(
+            "judge override log (default: judge_overrides.jsonl beside --input); "
+            "overrides affect acceptance but never the raw judge gate"
+        ),
+    )
     return parser
+
+
+def _override_path(args: argparse.Namespace) -> Path:
+    return args.overrides or args.input.parent / "judge_overrides.jsonl"
+
+
+def _load_overrides_if_present(path: Path) -> list[JudgeOverride]:
+    return load_judge_overrides(path) if path.is_file() else []
+
+
+def _record_override_metrics(
+    manifest_path: Path,
+    override_path: Path,
+    report: dict[str, int | float],
+    judgement_count: int,
+) -> None:
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    count = int(report["judge_override_count"])
+    rate = float(report["judge_override_rate"])
+    # Headline fields are intentionally duplicated outside the nested judging
+    # record so the eventual datasheet cannot omit the human-override rate.
+    manifest["judge_override_count"] = count
+    manifest["judge_override_rate"] = rate
+    manifest["judge_override_rate_definition"] = (
+        "human overrides divided by raw judge verdicts; excluded from the "
+        "plausibility gate"
+    )
+    manifest.setdefault("judging", {})["overrides"] = {
+        "file": str(override_path),
+        "count": count,
+        "denominator": judgement_count,
+        "rate": rate,
+        "gate_effect": "excluded; gate uses the raw judge plausible rate",
+    }
+    manifest_path.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -130,12 +179,42 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
                 rejected = args.rejected_dir or args.input.parent / "rejected"
                 decisions = load_unsure_adjudications(args.adjudications)
+                judgements = load_judgements(args.out)
+                judgement_by_id = {item.instance_id: item for item in judgements}
+                override_path = _override_path(args)
+                existing_overrides = _load_overrides_if_present(override_path)
+                override_by_id = {
+                    item.instance_id: item for item in existing_overrides
+                }
+                if len(override_by_id) != len(existing_overrides):
+                    raise ValueError("judge overrides contain duplicate instance IDs")
+                for decision in decisions:
+                    judgement = judgement_by_id.get(decision.instance_id)
+                    if judgement is None:
+                        raise ValueError(
+                            f"adjudication references unknown instance {decision.instance_id!r}"
+                        )
+                    candidate = JudgeOverride(
+                        instance_id=decision.instance_id,
+                        judge_verdict=judgement.verdict,
+                        human_verdict=decision.verdict,
+                        rationale=decision.reason,
+                    )
+                    prior = override_by_id.get(decision.instance_id)
+                    if prior is not None and prior != candidate:
+                        raise ValueError(
+                            f"conflicting judge override for {decision.instance_id}"
+                        )
+                    override_by_id[decision.instance_id] = candidate
+                overrides = list(override_by_id.values())
+                write_judge_overrides(override_path, overrides)
                 report = apply_drop_policy(
                     args.input,
-                    load_judgements(args.out),
+                    judgements,
                     accepted,
                     rejected,
                     decisions,
+                    overrides,
                 )
                 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
                 manifest.setdefault("judging", {})["unsure_adjudication"] = {
@@ -154,6 +233,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                     )
                     + "\n",
                     encoding="utf-8",
+                )
+                _record_override_metrics(
+                    manifest_path,
+                    override_path,
+                    report,
+                    len(judgements),
                 )
             except (OSError, ValueError) as exc:
                 print(f"benchmark-judge: {exc}", file=sys.stderr)
@@ -202,8 +287,21 @@ def main(argv: Sequence[str] | None = None) -> int:
                     f"{args.input.stem}.plausible.jsonl"
                 )
                 rejected = args.rejected_dir or args.input.parent / "rejected"
+                judgements = load_judgements(args.out)
+                override_path = _override_path(args)
+                overrides = _load_overrides_if_present(override_path)
                 report["drop_policy"] = apply_drop_policy(
-                    args.input, load_judgements(args.out), accepted, rejected
+                    args.input,
+                    judgements,
+                    accepted,
+                    rejected,
+                    overrides=overrides,
+                )
+                _record_override_metrics(
+                    manifest_path,
+                    override_path,
+                    report["drop_policy"],
+                    len(judgements),
                 )
         except (
             FamilyIntegrityError,

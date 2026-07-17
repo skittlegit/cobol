@@ -1,8 +1,8 @@
 # CONTRACT.md — Cross-track interface contract (T0.4)
 
-**Version:** 1.2 · **Status:** ACCEPTED
-Signed by all three tracks: 2026-07-07; amended 2026-07-12 (CONTRACT CHANGE,
-ratified by Track C, blast radius B — see the amendment log)
+**Version:** 1.3 · **Status:** ACCEPTED
+Signed by all three tracks: 2026-07-07; amended 2026-07-12 and 2026-07-17
+(CONTRACT CHANGEs; see the amendment log)
 **Governs:** the tool I/O boundary (Track A implements, Track C consumes) and
 the evaluation metrics + targets (Track C implements, Tracks A/B build toward).
 Changes from here on are **CONTRACT CHANGEs** and must be flagged to all three
@@ -150,6 +150,28 @@ Headline comparisons carry **bootstrap 95% confidence intervals** and a **paired
 significance test** (paired by instance). Stratified cells are small (7 classes
 × 2 locus types); no headline claim without an interval.
 
+### Surface-leakage standard (Gate E; v1.3)
+
+Gate E is split by the information available to the attacker:
+
+1. **Artifact-only attacker.** This attacker sees only the shipped evaluation
+   artifact. Of the registered surface features, only `literal_roundness` is
+   computable without a seed base. It remains a **hard build gate at chance**:
+   the deterministic one-feature probe passes only when its bootstrap 95% AUC
+   confidence interval includes 0.5. The build manifest records the feature,
+   AUC, interval, pass/fail result, and this definition together.
+2. **Attacker with bases.** This attacker may diff against the published seed
+   bases or memorized source. The aggregate registered surface probe is
+   **reported with its bootstrap AUC interval, not gated at chance**. It is the
+   mandatory seventh baseline in T5.3. Before headline runs, T5.3 must declare
+   the margin by which a system must beat this baseline; the results report the
+   paired delta and bootstrap 95% CI, and a headline system clears the floor
+   only when the declared margin is met and the interval excludes zero.
+
+This split is normative: the artifact-only gate cannot be replaced by the
+aggregate, and the aggregate attacker-with-bases result cannot be omitted or
+turned into a methodology footnote.
+
 ---
 
 ## Part 4 — Targets (the bar, set at Schema Freeze)
@@ -182,9 +204,11 @@ Decision rules (not bars):
 - **Track A:** Part 1 is normative via `tool_types.py`; amendments A1 and A2
   are folded in. Status: **accepted 2026-07-07**.
 - **Track B:** Part 2 literals/strata match T2.2–T2.6; Part 3 scores them; notes
-  1–3 are recorded. Status: **accepted 2026-07-07**.
+  1–3 are recorded; v1.3 Gate E split signed. Status: **accepted 2026-07-07;
+  v1.3 accepted 2026-07-17**.
 - **Track C:** Owns Parts 3–4 implementation (T4.2), the stub parity clause, and
-  document ownership. Status: **author / accepted 2026-07-07**.
+  document ownership. Status: **author / accepted 2026-07-07; v1.3 ratified
+  2026-07-17**.
 
 ---
 
@@ -211,3 +235,10 @@ Decision rules (not bars):
   top-level hoist). Item 3 (F-C1) — `DriftInstance.target_path` disambiguates
   which leaf of a composite clause drifted (required for composite D1/D5).
   Track A: no action (consumes DriftInstances, `tool_types.py` untouched).
+- **v1.2 → v1.3 (2026-07-17, CONTRACT CHANGE, ratified by C, signed by B,
+  blast radius B/C; A FYI):** splits Gate E by attacker information. The
+  artifact-only `literal_roundness` probe remains a hard at-chance build gate
+  (bootstrap 95% AUC CI includes 0.5). The aggregate attacker-with-bases probe
+  becomes a reported floor and mandatory seventh T5.3 baseline; headline runs
+  must beat it by a predeclared margin with paired bootstrap CIs. Resolution:
+  `docs/reviews/2026-07-17/contract-change-gate-e-RESOLVED.md`.
