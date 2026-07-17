@@ -104,23 +104,7 @@ label. Only this one gate is red — the drift catalogue and judging are
 unaffected. Flagged to Track C (FLAGS 2026-07-16). Gate goes green the moment
 the dup is removed; no Track B change needed.
 
-## Done / promoted
-
-### BL-1 — MO operator coverage for T2.2 · resolved by T2.2
-
-Gate A now covers MO-0…MO-6 plus MO-1×/MO-3×/MO-6×. Clause targeting
-tokens use the canonical multiplication sign; CC-29 carries the bridge-backed
-MO-4 reference-list host, and the natural CC-06b-v/CC-09b-ii loci carry the
-MO-3×/MO-6× variants. MO-0 remains the mandatory global benign pass.
-
-### BL-5 — Independent benchmark bases for non-empty dev · promoted to T2.3b/T2.6b
-
-The v1-pre purpose failure is now scheduled by
-`docs/tasks/T2.3b-T2.6b-corrective-work-order.md`: expand independent bases,
-repair zero-emission MO-1×/MO-6×, re-judge new rows, and regenerate the split
-without relaxing group-preservation or real-curated-test-only rules.
-
-## BL-14 — MO-0 is not a matched control (gate E) — **PARTIAL; ESCALATED**
+### BL-14 — MO-0 is not a matched control (Gate E) · source: T2.4b Gate E · owner: B (escalated to C) · trigger: T2.4/T5.5 probe-design review
 **Owner:** B · **Severity:** High · **Status:** improved 0.757 -> 0.6537, still
 red. Escalated to Track C as a probe-design review item (Gate E re-runs at
 T2.4/T5.5 under their eval ownership). Full arc in
@@ -138,7 +122,37 @@ digit width and shared a leading digit). The real defect is that MO-0 is not a
 matched control. Fix is an integrity-rule-level decision — see BLOCKER B1 in
 `docs/tasks/T2.4b-readjudication-work-order.md`. Do not judge until resolved.
 
-## BL-15 — floor-shaped clause values carry no `comparator` — **DONE**
+### BL-16 — Local probe harness is not faithful — do not close gates on it · source: T2.4b · owner: B · trigger: standing rule, applies now
+**Owner:** B · **Severity:** High (process)
+
+A pure-text harness reproduced the build's Gate E number (0.75715) *exactly*,
+and was then trusted through six iterations of MO-0 work. It diverged: it
+reported 0.5457 where WSL reports 0.6537, and "Gate E passes" was claimed on
+that basis. Cause: the harness has no validation step, so it cannot model
+`run_candidate` dropping mutations that fail compilation and thereby changing
+the probe's host composition. Validating an instrument once and trusting it
+after changing the code it models is the defect.
+
+**Rule:** Gate E's number of record is the WSL build. Local harnesses may
+generate hypotheses; they may not close gates.
+
+## Done / promoted
+
+### BL-1 — MO operator coverage for T2.2 · resolved by T2.2
+
+Gate A now covers MO-0…MO-6 plus MO-1×/MO-3×/MO-6×. Clause targeting
+tokens use the canonical multiplication sign; CC-29 carries the bridge-backed
+MO-4 reference-list host, and the natural CC-06b-v/CC-09b-ii loci carry the
+MO-3×/MO-6× variants. MO-0 remains the mandatory global benign pass.
+
+### BL-5 — Independent benchmark bases for non-empty dev · promoted to T2.3b/T2.6b
+
+The v1-pre purpose failure is now scheduled by
+`docs/tasks/T2.3b-T2.6b-corrective-work-order.md`: expand independent bases,
+repair zero-emission MO-1×/MO-6×, re-judge new rows, and regenerate the split
+without relaxing group-preservation or real-curated-test-only rules.
+
+### BL-15 — Floor-shaped clause values carry no `comparator` · resolved by the BL-15 curation pass + `fb621f9`/`0591fa4`
 **Owner:** B · **Severity:** Medium · **Resolved by:** `clauses.jsonl` curation
 pass (Lead) + `fb621f9` / `0591fa4` (guards)
 
@@ -163,21 +177,7 @@ absence is now a hard `ClauseDataError` rather than a silent ceiling default.
 gate while being the exact bug. Verification therefore checks resolved snaps
 against a ruling stated in advance, not just declaration coverage.
 
-## BL-16 — the local probe harness is not faithful; do not iterate on it
-**Owner:** B · **Severity:** High (process)
-
-A pure-text harness reproduced the build's Gate E number (0.75715) *exactly*,
-and was then trusted through six iterations of MO-0 work. It diverged: it
-reported 0.5457 where WSL reports 0.6537, and "Gate E passes" was claimed on
-that basis. Cause: the harness has no validation step, so it cannot model
-`run_candidate` dropping mutations that fail compilation and thereby changing
-the probe's host composition. Validating an instrument once and trusting it
-after changing the code it models is the defect.
-
-**Rule:** Gate E's number of record is the WSL build. Local harnesses may
-generate hypotheses; they may not close gates.
-
-## BL-17 — MO-0 inertness proof must account for 88-level aliases — **DONE**
+### BL-17 — MO-0 inertness proof missed 88-level aliases · resolved by `c2d004f`
 **Owner:** B · **Resolved by:** `c2d004f`
 
 `_inert_numeric_sites` judged a field inert when its *name* never appeared in

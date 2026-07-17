@@ -215,3 +215,26 @@ is removed. Please dedup / disambiguate the page-12 `(xiv)` label. Until then
 this one gate stays red; it does **not** affect the drift catalogue or judging.
 (The UNSC D4 anchor was moved to the unique `56(prevention)` and reconciles OK.)
 Tracked as BACKLOG BL-13; blocks the T2.4b/M2 re-closure gate.
+
+## → Track C · 2026-07-17 · Gate E probe design (BL-14) — review requested
+Track B has taken `test_gate_e_surface_probe_sample_is_at_chance` from **AUC
+0.757 → 0.6537** (CI 0.581–0.730, WSL, deterministic across two runs) and is
+stopping there per a pre-committed stop-loss. It remains **red**.
+
+Raising it to you because Gate E re-runs at T2.4/T5.5 under your eval ownership,
+and one design question is yours to weigh rather than ours:
+
+- **Four of the six features need `before`** (`diff_size`, `touched_line_count`,
+  `whitespace_churn`, the two deltas). Only `literal_roundness` is computable
+  from the shipped artifact alone. Track B Lead's ruling is that the
+  before-dependent set is nonetheless **attacker-realistic** — the seed bases
+  ship with the benchmark (provenance and regeneration require it) and
+  CardDemo-derived bases are in pretraining already, so a motivated system can
+  diff. The gate therefore stands as designed. Recorded here so T5.2 has the
+  argument if withholding bases is ever proposed.
+- The manifest now carries `surface_probe.per_feature_auc`, so scoring can see
+  which axis carries signal instead of trusting one aggregate.
+
+**Not blocking you.** No Track C change is requested; this is context for the
+probe-design review. BL-13 (chunker duplicate `5(xiv)`) is still the one item
+gating T2.4b/M2 re-closure from your side.
