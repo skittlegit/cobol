@@ -448,6 +448,26 @@ def _auc(labels: list[int], scores: list[float]) -> float:
     return wins / (len(positive) * len(negative))
 
 
+def per_feature_auc(rows: list[ProbeRow]) -> dict[str, float]:
+    """Single-feature AUC for each probe feature, drift vs conformant.
+
+    0.5 is chance. Reported alongside the aggregate because an aggregate alone
+    cannot say whether the probe is riding one leaky axis or many, and the
+    datasheet's anti-gaming claim should be falsifiable per feature.
+    """
+
+    scores: dict[str, float] = {}
+    for name in FEATURE_NAMES:
+        pos = [row.features[name] for row in rows if row.label == 1]
+        neg = [row.features[name] for row in rows if row.label == 0]
+        if not pos or not neg:
+            scores[name] = float("nan")
+            continue
+        wins = sum((a > b) + 0.5 * (a == b) for a in pos for b in neg)
+        scores[name] = round(wins / (len(pos) * len(neg)), 5)
+    return scores
+
+
 def surface_probe_report(
     rows: list[ProbeRow],
     *,

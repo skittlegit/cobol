@@ -25,6 +25,7 @@ from cobol_archaeologist.benchmark.mutate import (
     mutate,
 )
 from cobol_archaeologist.benchmark.surface import (
+    per_feature_auc,
     ProbeRow,
     diversify_with_edits,
     surface_features,
@@ -1028,6 +1029,10 @@ def build_benchmark(
             "ci_low": probe_report.ci_low,
             "ci_high": probe_report.ci_high,
             "samples": probe_report.samples,
+            # Per-feature, so the anti-gaming claim is falsifiable at the
+            # feature level and not only in aggregate. A reviewer can see which
+            # axis carries signal rather than taking one number on trust.
+            "per_feature_auc": per_feature_auc(probe_rows),
         },
     }
 

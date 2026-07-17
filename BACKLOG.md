@@ -120,8 +120,11 @@ The v1-pre purpose failure is now scheduled by
 repair zero-emission MO-1×/MO-6×, re-judge new rows, and regenerate the split
 without relaxing group-preservation or real-curated-test-only rules.
 
-## BL-14 — MO-0 is not a matched control (gate E blocker)
-**Owner:** B · **Severity:** High · **Blocks:** T2.4b re-closure (Stage 2 judging)
+## BL-14 — MO-0 is not a matched control (gate E) — **PARTIAL; ESCALATED**
+**Owner:** B · **Severity:** High · **Status:** improved 0.757 -> 0.6537, still
+red. Escalated to Track C as a probe-design review item (Gate E re-runs at
+T2.4/T5.5 under their eval ownership). Full arc in
+`docs/tasks/T2.4b-readjudication-work-order.md` BLOCKER B1.
 
 `test_gate_e_surface_probe_sample_is_at_chance` fails at AUC 0.757 (CI
 0.684–0.824) on seed 2601: D1 mutants are separable from their D7 pairs by
@@ -159,3 +162,29 @@ absence is now a hard `ClauseDataError` rather than a silent ceiling default.
 **right** — a file snapping `penalty_per_day` upward would pass the declaration
 gate while being the exact bug. Verification therefore checks resolved snaps
 against a ruling stated in advance, not just declaration coverage.
+
+## BL-16 — the local probe harness is not faithful; do not iterate on it
+**Owner:** B · **Severity:** High (process)
+
+A pure-text harness reproduced the build's Gate E number (0.75715) *exactly*,
+and was then trusted through six iterations of MO-0 work. It diverged: it
+reported 0.5457 where WSL reports 0.6537, and "Gate E passes" was claimed on
+that basis. Cause: the harness has no validation step, so it cannot model
+`run_candidate` dropping mutations that fail compilation and thereby changing
+the probe's host composition. Validating an instrument once and trusting it
+after changing the code it models is the defect.
+
+**Rule:** Gate E's number of record is the WSL build. Local harnesses may
+generate hypotheses; they may not close gates.
+
+## BL-17 — MO-0 inertness proof must account for 88-level aliases — **DONE**
+**Owner:** B · **Resolved by:** `c2d004f`
+
+`_inert_numeric_sites` judged a field inert when its *name* never appeared in
+the PROCEDURE DIVISION. CLOSPEN5 guards `WS-PEN-ENABLED` with `IF PENALTY-ON`,
+an 88-level condition name, so the field read as inert and MO-0 widened a PIC on
+a field live logic reads through its alias — a correctness bug in the
+*conformant* class, found only because the WSL suite ran. Condition names now
+map back to their owner. **Kept as a lesson:** every bug this session was an
+absence read as permission — a missing comparator, a missing prior value, a
+missing name in a procedure.
