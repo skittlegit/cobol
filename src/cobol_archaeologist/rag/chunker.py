@@ -217,6 +217,7 @@ def _segments(lines: list[TextLine], doc_end: int) -> list[Segment]:
     section: str | None = None
     current_top: str | None = None
     current_top_title: str | None = None
+    current_numeric_group: str | None = None
 
     for line in lines:
         if _is_toc_line(line.text):
@@ -236,6 +237,7 @@ def _segments(lines: list[TextLine], doc_end: int) -> list[Segment]:
         if top_match:
             current_top = normalize_clause_id(top_match.group(1))
             current_top_title = _title(top_match.group(2))
+            current_numeric_group = None
             starts.append(
                 (
                     line.start,
@@ -250,7 +252,25 @@ def _segments(lines: list[TextLine], doc_end: int) -> list[Segment]:
         if sub_match and current_top is not None:
             if sub_match.group(2).lower().startswith("of "):
                 continue
-            sub_id = normalize_clause_id(f"{current_top}({sub_match.group(1)})")
+            part = normalize_part(sub_match.group(1))
+            if part.isdigit():
+                current_numeric_group = part
+                sub_id = normalize_clause_id(f"{current_top}({part})")
+                sub_path = [f"({part})"]
+            elif current_numeric_group is not None:
+                # DECISION (BL-13): a numbered definition group establishes a
+                # real hierarchy level for the following roman/alpha entries.
+                # Without it, KYC 5(1)(xiv) OVD and 5(2)(xiv) REs both collapsed
+                # to 5(xiv). Track B's curated vocabulary still wins during
+                # reconciliation (5(xiv) for OVD), while the second group keeps
+                # its honest structural identity instead of masquerading as OVD.
+                sub_id = normalize_clause_id(
+                    f"{current_top}({current_numeric_group})({part})"
+                )
+                sub_path = [f"({current_numeric_group})", f"({part})"]
+            else:
+                sub_id = normalize_clause_id(f"{current_top}({part})")
+                sub_path = [f"({part})"]
             starts.append(
                 (
                     line.start,
@@ -261,7 +281,7 @@ def _segments(lines: list[TextLine], doc_end: int) -> list[Segment]:
                         chapter,
                         section,
                         f"{current_top}. {current_top_title or ''}".strip(),
-                        f"({normalize_part(sub_match.group(1))})",
+                        *sub_path,
                     ),
                 )
             )

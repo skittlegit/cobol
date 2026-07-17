@@ -1,0 +1,30 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CICROLL2.
+      * CIC SETTLEMENT-STATUS FEED AFTER THE THIRTY-DAY RULE ROLLOUT.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-CIC-UPDATE-FLAG PIC X VALUE 'Y'.
+           88  CIC-UPDATE-ON VALUE 'Y'.
+       01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.
+       01  WS-DISPUTE-OPEN      PIC X VALUE 'N'.
+       01  WS-CIC-ACTION        PIC X(8) VALUE 'PENDING'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-DAYS-SINCE-SETTLE
+           ACCEPT WS-DISPUTE-OPEN
+           IF CIC-UPDATE-ON
+              IF WS-DISPUTE-OPEN = 'Y'
+                 MOVE 'HOLD' TO WS-CIC-ACTION
+              ELSE
+                 IF WS-DAYS-SINCE-SETTLE <= 30
+                    MOVE 'UPDATE' TO WS-CIC-ACTION
+                 ELSE
+                    MOVE 'BREACH' TO WS-CIC-ACTION
+                 END-IF
+              END-IF
+           ELSE
+              MOVE 'DEFER' TO WS-CIC-ACTION
+           END-IF
+           DISPLAY 'CIC: ' WS-CIC-ACTION
+           STOP RUN.

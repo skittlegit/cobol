@@ -22,7 +22,9 @@
        2000-CLASSIFY.
            EVALUATE WS-ENTITY-TYPE
              WHEN 'C'
-               IF WS-OWN-PCT > 10.00 MOVE 'Y' TO WS-IS-BO END-IF
+               IF WS-OWN-PCT > 10.00
+                  MOVE 'Y' TO WS-IS-BO
+               END-IF
              WHEN 'P'
                IF WS-OWN-PCT > 10.00 OR WS-CTRL-IND = 'Y'
                   MOVE 'Y' TO WS-IS-BO

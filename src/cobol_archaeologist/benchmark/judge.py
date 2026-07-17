@@ -58,6 +58,17 @@ class UnsureAdjudication(BaseModel):
     reason: str = Field(min_length=1)
 
 
+class JudgeOverride(BaseModel):
+    """Auditable human override of one raw judge verdict (T2.4b/A1)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    instance_id: str = Field(pattern=r"^drift_\d{6}$")
+    judge_verdict: Verdict
+    human_verdict: Literal["plausible", "implausible"]
+    rationale: str = Field(min_length=1)
+
+
 class _VerdictPayload(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -142,6 +153,29 @@ def load_unsure_adjudications(path: str | Path) -> list[UnsureAdjudication]:
         for line in Path(path).read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
+
+
+def load_judge_overrides(path: str | Path) -> list[JudgeOverride]:
+    return [
+        JudgeOverride.model_validate_json(line)
+        for line in Path(path).read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+def write_judge_overrides(
+    path: str | Path, overrides: list[JudgeOverride]
+) -> None:
+    by_id = {item.instance_id: item for item in overrides}
+    if len(by_id) != len(overrides):
+        raise ValueError("judge overrides contain duplicate instance IDs")
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "\n".join(item.model_dump_json() for item in overrides)
+        + ("\n" if overrides else ""),
+        encoding="utf-8",
+    )
 
 
 def _load_instances(path: str | Path) -> list[DriftInstance]:
@@ -537,7 +571,9 @@ def judge_benchmark(
             checkpoint.write(judgement.model_dump_json() + "\n")
             checkpoint.flush()
 
-    plausible_rate = sum(item.verdict == "plausible" for item in judgements) / len(
+    raw_plausible_rate = sum(
+        item.verdict == "plausible" for item in judgements
+    ) / len(
         judgements
     )
     try:
@@ -559,7 +595,15 @@ def judge_benchmark(
         "verdict_counts": {
             name: counts[name] for name in ("plausible", "implausible", "unsure")
         },
-        "plausible_rate": plausible_rate,
+        # DECISION (T2.4b/A1): this gate is deliberately the raw independent
+        # judge rate. Human overrides govern what ships, but can never turn the
+        # automated screen green.
+        "plausible_rate": raw_plausible_rate,
+        "raw_plausible_rate": raw_plausible_rate,
+        "gate_definition": (
+            "raw judge plausible rate before human overrides; pass iff >= 0.90; "
+            "overrides are excluded from the gate"
+        ),
         "gate_passed": gate_passed,
     }
     manifest_path = manifest_path_for(instances_path)
@@ -585,11 +629,32 @@ def apply_drop_policy(
     accepted_path: str | Path,
     rejected_dir: str | Path,
     adjudications: list[UnsureAdjudication] | None = None,
-) -> dict[str, int]:
+    overrides: list[JudgeOverride] | None = None,
+) -> dict[str, int | float]:
     instances = _load_instances(instances_path)
     by_id = {item.instance_id: item for item in judgements}
     if set(by_id) != {item.instance_id for item in instances}:
         raise ValueError("drop policy requires one judgement for every input instance")
+    override_by_id = {item.instance_id: item for item in overrides or []}
+    if len(override_by_id) != len(overrides or []):
+        raise ValueError("judge overrides contain duplicate instance IDs")
+    unknown_overrides = set(override_by_id) - set(by_id)
+    if unknown_overrides:
+        raise ValueError(
+            "judge overrides reference unknown instance IDs: "
+            + ", ".join(sorted(unknown_overrides))
+        )
+    for instance_id, override in override_by_id.items():
+        raw_verdict = by_id[instance_id].verdict
+        if override.judge_verdict != raw_verdict:
+            raise ValueError(
+                f"override {instance_id} judge_verdict {override.judge_verdict!r} "
+                f"does not match raw judgement {raw_verdict!r}"
+            )
+        if override.human_verdict == raw_verdict:
+            raise ValueError(
+                f"override {instance_id} does not change the raw judge verdict"
+            )
     adjudication_by_id = {
         item.instance_id: item for item in adjudications or []
     }
@@ -603,14 +668,22 @@ def apply_drop_policy(
             raise ValueError(
                 "unsure adjudications must cover every and only unsure judgement"
             )
+        for instance_id, adjudication in adjudication_by_id.items():
+            override = override_by_id.get(instance_id)
+            if override is None or override.human_verdict != adjudication.verdict:
+                raise ValueError(
+                    "every human adjudication that changes a judge verdict must "
+                    "be logged consistently in judge_overrides.jsonl"
+                )
 
     accepted: list[DriftInstance] = []
     rejected: dict[str, list[dict]] = {"implausible": [], "unsure": []}
     for instance in instances:
         judgement = by_id[instance.instance_id]
         adjudication = adjudication_by_id.get(instance.instance_id)
+        override = override_by_id.get(instance.instance_id)
         effective_verdict = (
-            adjudication.verdict if adjudication is not None else judgement.verdict
+            override.human_verdict if override is not None else judgement.verdict
         )
         if effective_verdict == "plausible":
             accepted.append(instance)
@@ -621,6 +694,8 @@ def apply_drop_policy(
             }
             if adjudication is not None:
                 row["adjudication"] = adjudication.model_dump(mode="json")
+            if override is not None:
+                row["judge_override"] = override.model_dump(mode="json")
             rejected[effective_verdict].append(row)
     _write_jsonl(accepted, Path(accepted_path))
     rejected_dir = Path(rejected_dir)
@@ -640,6 +715,8 @@ def apply_drop_policy(
         "implausible": len(rejected["implausible"]),
         "unsure": len(rejected["unsure"]),
         "adjudicated": len(adjudication_by_id),
+        "judge_override_count": len(override_by_id),
+        "judge_override_rate": len(override_by_id) / len(judgements),
     }
 
 

@@ -207,6 +207,119 @@ def _purpose_errors(
     return errors
 
 
+def _purpose_deficit(
+    groups: dict[str, list[DriftInstance]], assignments: dict[str, str]
+) -> float:
+    """Return the total numeric distance from all purpose-level minima.
+
+    Error-count alone cannot guide a whole-group repair when one cell needs two
+    smaller groups: the first move improves the cell but leaves the same error
+    label. Summing the actual shortfalls gives that intermediate move credit
+    without weakening any hard gate.
+    """
+
+    split_rows = {
+        split: [
+            item
+            for group, items in groups.items()
+            if assignments[group] == split
+            for item in items
+        ]
+        for split in SPLITS
+    }
+    synthetic_total = sum(
+        item.provenance.source == "synthetic"
+        for items in groups.values()
+        for item in items
+    )
+    synthetic_counts = {
+        split: sum(
+            item.provenance.source == "synthetic" for item in split_rows[split]
+        )
+        for split in SPLITS
+    }
+    deficit = max(0.0, 0.12 * synthetic_total - synthetic_counts["dev"])
+    deficit += max(0.0, 0.40 * synthetic_total - synthetic_counts["train"])
+    for split in ("train", "dev"):
+        deficit += max(
+            0,
+            5 - len({item.drift_type for item in split_rows[split]}),
+        )
+
+    test_local = [
+        item for item in split_rows["test"] if _stratum(item) == "local"
+    ]
+    local_counts = Counter(item.drift_type for item in test_local)
+    deficit += sum(
+        max(0, 10 - local_counts[drift_type]) for drift_type in CLASS_ORDER
+    )
+
+    test_interprocedural = [
+        item
+        for item in split_rows["test"]
+        if _stratum(item) == "interprocedural"
+    ]
+    deficit += max(0, 30 - len(test_interprocedural))
+    operator_counts = Counter(_operator(item) for item in test_interprocedural)
+    deficit += sum(
+        max(0, 8 - operator_counts[operator])
+        for operator in ("MO-1×", "MO-3×", "MO-6×")
+    )
+    return float(deficit)
+
+
+def _repair_assignments(
+    groups: dict[str, list[DriftInstance]],
+    assignments: dict[str, str],
+    allowed: dict[str, tuple[str, ...]],
+) -> dict[str, str]:
+    """Move whole groups until every purpose gate passes."""
+
+    errors = _purpose_errors(groups, assignments)
+    while errors:
+        current_rank = (len(errors), _purpose_deficit(groups, assignments))
+        repairs: list[
+            tuple[int, float, float, str, int, dict[str, str], list[str]]
+        ] = []
+        for group in sorted(groups):
+            current = assignments[group]
+            for split_index, split in enumerate(SPLITS):
+                if split == current or split not in allowed[group]:
+                    continue
+                candidate = dict(assignments)
+                candidate[group] = split
+                candidate_errors = _purpose_errors(groups, candidate)
+                candidate_deficit = _purpose_deficit(groups, candidate)
+                if (len(candidate_errors), candidate_deficit) >= current_rank:
+                    continue
+                repairs.append(
+                    (
+                        len(candidate_errors),
+                        candidate_deficit,
+                        _assignment_score_for_groups(groups, candidate),
+                        group,
+                        split_index,
+                        candidate,
+                        candidate_errors,
+                    )
+                )
+        if not repairs:
+            raise SplitConfigurationError(
+                "quantitative roster repair cannot satisfy purpose-level gates: "
+                + "; ".join(errors)
+            )
+        (
+            _error_count,
+            _deficit,
+            _score,
+            _group,
+            _split_index,
+            assignments,
+            errors,
+        ) = min(repairs, key=lambda item: item[:5])
+    return assignments
+
+
 def _assign_groups(
     groups: dict[str, list[DriftInstance]],
     roster: dict[str, frozenset[str]],
@@ -274,40 +387,7 @@ def _assign_groups(
         counts[chosen].update(group_cells)
         totals[chosen] += len(groups[group])
 
-    errors = _purpose_errors(groups, assignments)
-    while errors:
-        repairs: list[
-            tuple[int, float, str, int, dict[str, str], list[str]]
-        ] = []
-        for group in sorted(groups):
-            current = assignments[group]
-            for split_index, split in enumerate(SPLITS):
-                if split == current or split not in allowed[group]:
-                    continue
-                candidate = dict(assignments)
-                candidate[group] = split
-                candidate_errors = _purpose_errors(groups, candidate)
-                if len(candidate_errors) >= len(errors):
-                    continue
-                repairs.append(
-                    (
-                        len(candidate_errors),
-                        _assignment_score_for_groups(groups, candidate),
-                        group,
-                        split_index,
-                        candidate,
-                        candidate_errors,
-                    )
-                )
-        if not repairs:
-            raise SplitConfigurationError(
-                "greedy roster assignment cannot satisfy purpose-level gates: "
-                + "; ".join(errors)
-            )
-        _error_count, _score, _group, _split_index, assignments, errors = min(
-            repairs, key=lambda item: item[:4]
-        )
-    return assignments
+    return _repair_assignments(groups, assignments, allowed)
 
 
 def _locus_key(instance: DriftInstance) -> str:
