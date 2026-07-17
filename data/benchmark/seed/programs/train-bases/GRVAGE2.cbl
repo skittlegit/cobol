@@ -6,9 +6,9 @@
        WORKING-STORAGE SECTION.
        01  WS-DAYS-OPEN              PIC 9(4) VALUE ZERO.
        01  WS-ESCALATE               PIC X(1) VALUE 'N'.
-       01  WS-RPT-HEADING            PIC X(31)
+       01  WS-RPT-HEADING            PIC X(45)
            VALUE 'GRIEVANCE AGEING REGISTER'.
-       01  FILLER                    PIC X(9) VALUE SPACES.
+       01  FILLER                    PIC X(3) VALUE SPACES.
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-DAYS-OPEN

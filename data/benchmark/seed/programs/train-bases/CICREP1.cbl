@@ -7,10 +7,10 @@
        01  WS-DAYS-SINCE-SETTLE      PIC 9(4) VALUE ZERO.
        01  WS-DISPUTE-OPEN           PIC X(1) VALUE 'N'.
        01  WS-ACTION                 PIC X(8) VALUE SPACES.
-       01  WS-RPT-HEADING            PIC X(29)
+       01  WS-RPT-HEADING            PIC X(25)
            VALUE 'CIC STATUS UPDATE LOG'.
        01  WS-PRINT-AREA.
-           05  WS-PRINT-LINE OCCURS 11 PIC X(46).
+           05  WS-PRINT-LINE OCCURS 10 PIC X(45).
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-DAYS-SINCE-SETTLE

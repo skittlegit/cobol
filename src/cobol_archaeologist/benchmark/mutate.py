@@ -697,8 +697,12 @@ def _inert_numeric_sites(
             continue
         for pattern in (_INERT_PIC_RE, _INERT_OCCURS_RE):
             for match in pattern.finditer(line):
-                if float(match.group(1)) in denylist:
-                    continue
+                # Deliberately NOT value-filtered. Field inertness is the proof:
+                # a regulated literal lives on a live field by definition, so it
+                # cannot reach here. Value-filtering as well would skip cruft
+                # drawn from the grids -- which is exactly what makes MO-0's
+                # input distribution identical to MO-1's -- and starve the
+                # control back into the cosmetic path.
                 sites.append((index, match))
     return sites
 
@@ -718,14 +722,13 @@ def _widen_like_mo1(
 
     grids = sorted(_STALE_GRIDS)
     grid = _STALE_GRIDS[grids[rng.randrange(len(grids))]]
-    larger = [item for item in grid if item > value and item not in denylist]
+    larger = [item for item in grid if item > value]
     if larger:
         return min(larger)
     try:
-        candidate = _round_amount(value, downward=False)
+        return _round_amount(value, downward=False)
     except MutationRejected:
         return None
-    return None if candidate in denylist else candidate
 
 
 def _apply_mo0_numeric(
@@ -750,17 +753,28 @@ def _apply_mo0_numeric(
     wanted = min(len(sites), 1 + rng.randrange(2) if count is None else count)
     if wanted <= 0:
         return None
-    chosen = sorted(
-        rng.sample(sites, wanted), key=lambda item: (item[0], -item[1].start(1))
-    )
+    # Retry across eligible targets rather than let a None silently drop an
+    # edit: asymmetric loss is "absence becomes a statistic" one layer down, and
+    # it is what the touched_line_count residual was measuring.
+    pool = list(sites)
+    rng.shuffle(pool)
     lines = base.text.splitlines()
     edits: list[SurfaceEdit] = []
     touches: list[_Touch] = []
-    for index, match in chosen:
+    accepted: list[tuple[int, "re.Match[str]", float]] = []
+    for index, match in pool:
+        if len(accepted) == wanted:
+            break
         old_value = float(match.group(1))
         new_value = _widen_like_mo1(old_value, rng, denylist)
         if new_value is None or new_value <= old_value:
             continue
+        accepted.append((index, match, new_value))
+    if len(accepted) < wanted:
+        return None
+    for index, match, new_value in sorted(
+        accepted, key=lambda item: (item[0], -item[1].start(1))
+    ):
         line = lines[index]
         old_line = line
         lines[index] = (

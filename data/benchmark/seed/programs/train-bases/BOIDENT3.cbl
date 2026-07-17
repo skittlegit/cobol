@@ -8,9 +8,9 @@
        01  WS-OWN-PCT                PIC 9(3)V99 VALUE ZERO.
        01  WS-CTRL-IND               PIC X(1) VALUE 'N'.
        01  WS-IS-BO                  PIC X(1) VALUE 'N'.
-       01  WS-PAGE-NBR               PIC 9(6) VALUE ZERO.
+       01  WS-PAGE-NBR               PIC 9(5) VALUE ZERO.
        01  WS-PRINT-AREA.
-           05  WS-PRINT-LINE OCCURS 6 PIC X(26).
+           05  WS-PRINT-LINE OCCURS 6 PIC X(45).
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-ENTITY-TYPE
