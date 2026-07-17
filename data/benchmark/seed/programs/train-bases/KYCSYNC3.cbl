@@ -8,6 +8,9 @@
        01  WS-TODAY-DAY              PIC 9(5) VALUE ZERO.
        01  WS-DUE-DAY                PIC 9(5) VALUE ZERO.
        01  WS-STATUS                 PIC X(8) VALUE SPACES.
+       01  WS-RPT-HEADING            PIC X(2)
+           VALUE SPACES.
+       01  FILLER                    PIC X(30) VALUE SPACES.
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-RECEIPT-DAY

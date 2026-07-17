@@ -15,6 +15,10 @@
            05  WS-DELAY-CAL-DAYS     PIC S9(5) VALUE ZERO.
            05  WS-SLA-BREACH-DAY     PIC 9(4) VALUE ZERO.
            05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.
+       01  WS-RPT-HEADING            PIC X(3)
+           VALUE SPACES.
+       01  WS-PRINT-AREA.
+           05  WS-PRINT-LINE OCCURS 30 PIC X(3).
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-CAL-DAYS-ELAPSED

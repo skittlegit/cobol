@@ -135,12 +135,27 @@ digit width and shared a leading digit). The real defect is that MO-0 is not a
 matched control. Fix is an integrity-rule-level decision — see BLOCKER B1 in
 `docs/tasks/T2.4b-readjudication-work-order.md`. Do not judge until resolved.
 
-## BL-15 — floor-shaped clause values carry no `comparator`
-**Owner:** B · **Severity:** Medium
+## BL-15 — floor-shaped clause values carry no `comparator` — **DONE**
+**Owner:** B · **Severity:** Medium · **Resolved by:** `clauses.jsonl` curation
+pass (Lead) + `fb621f9` / `0591fa4` (guards)
 
 `_stale_value` picks the stale side from the leaf's `comparator` (`at_least` =
 floor = snap down). `CC-08a.penalty_per_day` (₹500/day) is floor-shaped but
-declares no comparator, so it reads as a ceiling and drifts *up* to ₹1000 — a
+declared no comparator, so it read as a ceiling and drifted *up* to ₹1000 — a
 stricter penalty, the opposite of drift. `_assert_snap_direction` cannot catch
-what the data does not declare. Needs a curation pass over `clauses.jsonl` to
-record comparators on every numeric leaf MO-1/MO-5 can target.
+what the data does not declare.
+
+**It was never one field:** 13 of 21 MO-targetable leaves declared no
+comparator, and every one was a composite leaf — comparators were omitted
+wherever the value "felt" unambiguous. Resolved on both sides: all 13 now
+declare one (7 `at_most` ceilings; `penalty_per_day` `at_least` → ₹500→₹200;
+`inactivity_threshold` `strictly_greater`; the 3 KYC intervals `at_most` —
+"at least once every N years" is a floor on *frequency* but a ceiling on the
+*interval* the leaf stores; `CC-06a-iv` exempt via `check.mo1_mode`), and
+absence is now a hard `ClauseDataError` rather than a silent ceiling default.
+
+**Lesson (kept, not archived):** BL-15 existed only because absence was
+*interpretable*. The gate proves a comparator is **declared**, not that it is
+**right** — a file snapping `penalty_per_day` upward would pass the declaration
+gate while being the exact bug. Verification therefore checks resolved snaps
+against a ruling stated in advance, not just declaration coverage.

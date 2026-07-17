@@ -7,6 +7,9 @@
        01  WS-RISK                   PIC X(1) VALUE SPACE.
        01  WS-LAST-KYC-YYYY          PIC 9(4) VALUE ZERO.
        01  WS-DUE-YYYY               PIC 9(4) VALUE ZERO.
+       01  WS-PRINT-AREA.
+           05  WS-PRINT-LINE OCCURS 30 PIC X(7).
+       01  FILLER                    PIC X(7) VALUE SPACES.
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-RISK

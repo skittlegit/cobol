@@ -7,6 +7,9 @@
        01  WS-CHARGES-BILLED         PIC 9(7)V99 VALUE ZERO.
        01  WS-REVERSAL               PIC 9(7)V99 VALUE ZERO.
        01  WS-PENALTY                PIC 9(9)V99 VALUE ZERO.
+       01  WS-PRINT-AREA.
+           05  WS-PRINT-LINE OCCURS 30 PIC X(30).
+       01  FILLER                    PIC X(10) VALUE SPACES.
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-CHARGES-BILLED

@@ -21,6 +21,7 @@ from cobol_archaeologist.benchmark.mutate import (
     MutationResult,
     ProgramSource,
     load_clause_records,
+    regulated_literals,
     mutate,
 )
 from cobol_archaeologist.benchmark.surface import (
@@ -770,6 +771,11 @@ def build_benchmark(
 
     root = Path(repository_root) if repository_root else _repository_root()
     catalog = _candidate_catalog(root)
+    # Computed once, corpus-wide: MO-0's benign numeric pass must never touch a
+    # value any clause mandates, even one hosted in a different program.
+    denylist = regulated_literals(
+        load_clause_records(root / "data" / "regulations" / "clauses.jsonl")
+    )
     emissions: list[_Emission] = []
     seen_ids: set[str] = set()
     rejects: Counter[str] = Counter()
@@ -787,6 +793,7 @@ def build_benchmark(
                 candidate.record,
                 candidate.op,
                 random.Random(seed * 10_000_019 + attempt),
+                denylist,
             )
         except MutationRejected as exc:
             rejects[_reason(exc, candidate)] += 1
