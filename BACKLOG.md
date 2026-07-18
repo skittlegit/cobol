@@ -12,36 +12,11 @@ Format per item: **ID** — title · source · owner · trigger (when to pick it
 
 ## Open
 
-### BL-2 — Wheel / package-data relocatability · source: review F9 · owner: packaging (A+C+pyproject) · trigger: before any wheel/sdist distribution
-`src/cobol_archaeologist/parser/_grammar.py` and `rag/chunker.py` resolve the
-vendored grammar and regulation data from the **repo root** — outside the Python
-package and undeclared in `pyproject.toml`. `pip install -e .` works from a
-checkout, but a built wheel would omit the COBOL grammar and regulation data.
-Move required runtime assets under the package or declare package-data /
-`importlib.resources`. Cross-track, so needs a coordinated packaging pass.
-
 ### BL-3 — Repo-wide `ruff format` sweep · source: review H2 · owner: all tracks · trigger: a coordinated quiet window
 `ruff format --check` flags ~22 files. A single sweep is a large diff touching
 every track's modules at once; land it as one sanctioned commit, or per-track
 (each track formats only its own files), to avoid ownership churn. `ruff check`
 is already clean.
-
-### BL-4 — CI workflow (pytest + ruff) · source: review F3 · owner: infra · trigger: soon
-No PR CI exists. Add `.github/workflows/ci.yml` running `pytest` (network tests
-already excluded by default) + `ruff check` (+ optionally `ruff format --check`)
-on PRs to `master`. Also confirm the tracked branch-protection / ruleset JSONs
-were actually installed in GitHub repo settings — they enforce nothing by merely
-existing in the tree.
-
-### BL-7 — `run_cobol` path-escape + unbounded output collection · source: audit H1 · owner: A · trigger: soon — before MCP self-host (T7.1)
-`RunInputs.files` names are joined straight onto the temp dir and written
-without validation (`model/run_cobol.py:174-177`); an absolute path or `../`
-name escapes the sandbox dir and can overwrite files before compile. Output
-collection (`run_cobol.py:234`) then reads **every** generated file with no
-size/count cap. SECURITY.md already treats `run_cobol` as an ACE surface needing
-an external sandbox, but the in-process temp-dir guarantee is still breachable.
-Reject absolute/traversal names, resolve-and-contain under the tmpdir, and cap
-collected output count + bytes. Track A owns the module.
 
 ### BL-9 — Reconcile the locked GnuCOBOL version · source: audit M4 · owner: infra (touches CLAUDE.md locked decision #3) · trigger: team decision
 CLAUDE.md decision #3 locks GnuCOBOL **3.1.2**, but STATUS T1.5/T2.2 record
@@ -50,15 +25,47 @@ validation on **3.2.0** and `scripts/setup_cobc.sh:15` installs whatever
 the setup script, or amend the locked decision). CLAUDE.md locked-decision edits
 are a team call, not a unilateral fix — hence backlog, not a direct edit.
 
-### BL-11 — Security / review governance gaps · source: audit M6 · owner: infra · trigger: before benchmark/v1 (T5.2) or MCP ship (T7.1)
-Three items: (a) `SECURITY.md:27` still has the `<security-contact@REPLACE-ME>`
-placeholder; (b) the frozen contract shape `tool_types.py` has **no** CODEOWNER
-entry and `schemas.py`'s CODEOWNERS line omits Track A (`@twiswiz`); (c) the
-branch-protection rulesets in `.github/rulesets/` enforce nothing unless actually
-installed in GitHub settings (see also BL-4). Fill the contact, add the missing
-code-owners, and confirm required review is live.
+### BL-11 — Install review rulesets in GitHub · source: audit M6 · owner: infra · trigger: before benchmark/v1 (T5.2) or MCP ship (T7.1)
+The checked-in branch-protection rulesets in `.github/rulesets/` are **not**
+installed: a live GitHub API check on 2026-07-18 returned zero repository
+rulesets. Installing them changes collaborator push/merge behavior and still
+needs an explicit repository-administration action. The other audit findings
+are resolved: private vulnerability reporting is enabled and linked from
+`SECURITY.md`; `tool_types.py` has a Track A owner; and the frozen `schemas.py`
+shape now requires all three tracks in CODEOWNERS.
 
 ## Done / promoted
+
+### BL-2 — Wheel / package-data relocatability · resolved 2026-07-18
+**Owner:** packaging (A+C+pyproject) · **Resolution:** sdist/wheel asset build
+
+The canonical vendored grammar and pinned regulation sources stay in their
+repository-owned locations, while the setuptools build copies them into
+`cobol_archaeologist/_assets` in distributions. Runtime lookup uses
+`importlib.resources`, editable installs use the checkout, and installed
+grammar builds use a platform-tagged writable cache. The packaging gate builds
+an sdist and wheel, installs the wheel outside the checkout, and verifies that
+the grammar, manifest, and clauses resolve there.
+
+### BL-4 — CI workflow (pytest + ruff) · resolved 2026-07-18
+**Owner:** infra · **Resolution:** `.github/workflows/ci.yml`
+
+Pull requests to `master` and pushes to the permanent branches now run Python
+3.12, `ruff check`, and the full offline pytest suite with least-privilege
+permissions and per-ref concurrency. `ruff format --check` remains deliberately
+out until BL-3's coordinated sweep. The required live-settings check also ran:
+no repository rulesets are installed, so that administrative action remains
+open as BL-11 rather than being mistaken for checked-in configuration.
+
+### BL-7 — `run_cobol` path escape and unbounded output · resolved 2026-07-18
+**Owner:** A · **Resolution:** containment and bounded-collection gates
+
+Input filenames are now normalized and rejected before compiler discovery when
+they are absolute, traversal-bearing, reserved, empty, or colliding; resolved
+targets must remain below the temporary directory. Generated-output collection
+skips links and is bounded while scanning and reading: 256 entries inspected,
+32 files returned, 64 KiB per file, and 256 KiB total. Regression tests exercise
+portable Windows/POSIX escape spellings and enforce count/byte limits.
 
 ### BL-16 — Local probe harness is not faithful · resolved 2026-07-17
 **Owner:** B · **Resolution:** promoted to locked decision in `CLAUDE.md`

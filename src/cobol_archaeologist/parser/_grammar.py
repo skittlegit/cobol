@@ -2,17 +2,40 @@
 
 from __future__ import annotations
 
+import os
+import platform
 import shutil
 import subprocess
+import sys
+import tempfile
 import warnings
 from pathlib import Path
 
 from tree_sitter import Language
 
-_REPO_ROOT = Path(__file__).resolve().parents[3]
-_VENDOR_DIR = _REPO_ROOT / "vendor" / "tree-sitter-cobol"
-_BUILD_DIR = _REPO_ROOT / "build"
-_LIB_PATH = _BUILD_DIR / "tree_sitter_cobol.so"
+from cobol_archaeologist._resources import asset_directory
+
+_CHECKOUT_ROOT = Path(__file__).resolve().parents[3]
+_VENDOR_DIR = asset_directory(
+    "vendor/tree-sitter-cobol",
+    "_assets/tree-sitter-cobol",
+)
+if _VENDOR_DIR == _CHECKOUT_ROOT / "vendor" / "tree-sitter-cobol":
+    _BUILD_DIR = _CHECKOUT_ROOT / "build"
+else:
+    _pin = (_VENDOR_DIR / "PINNED").read_text(encoding="ascii").strip()[:12]
+    _cache_tag = sys.implementation.cache_tag or "python"
+    _platform_tag = f"{sys.platform}-{platform.machine().lower()}"
+    _BUILD_DIR = (
+        Path(tempfile.gettempdir())
+        / "cobol-archaeologist"
+        / "grammar"
+        / f"{_pin}-{_cache_tag}-{_platform_tag}"
+    )
+_LIB_NAME = (
+    "tree_sitter_cobol.windows.so" if os.name == "nt" else "tree_sitter_cobol.so"
+)
+_LIB_PATH = _BUILD_DIR / _LIB_NAME
 
 # The grammar's name in vendor/tree-sitter-cobol/src/grammar.json; the shared
 # object exports the symbol tree_sitter_COBOL.
@@ -38,8 +61,16 @@ def _build_with_cc(lib_path: Path) -> None:
             "no C compiler (cc/gcc/clang) is on PATH"
         )
     subprocess.run(
-        [cc, "-shared", "-fPIC", "-O2", f"-I{src_dir}", *map(str, sources),
-         "-o", str(lib_path)],
+        [
+            cc,
+            "-shared",
+            "-fPIC",
+            "-O2",
+            f"-I{src_dir}",
+            *map(str, sources),
+            "-o",
+            str(lib_path),
+        ],
         check=True,
         capture_output=True,
     )
