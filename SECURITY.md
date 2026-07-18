@@ -18,14 +18,10 @@ source and regulation text.
 **Do not open a public issue for security reports.** Public issues are for
 non-sensitive bugs only.
 
-Report privately via one of:
-
-- GitHub's **private vulnerability reporting** — use the "Report a
-  vulnerability" button under the repository's **Security** tab. Enable
-  _Settings → Security → Private vulnerability reporting_ if it is not already
-  on.
-- Email `<security-contact@REPLACE-ME>` (PGP key:
-  `<link or fingerprint, optional>`).
+Report privately through GitHub's **private vulnerability reporting**, which is
+enabled for this repository: use the "Report a vulnerability" button under the
+repository's **Security** tab, or open the
+[private report form](https://github.com/skittlegit/cobol/security/advisories/new).
 
 Please include: affected component (e.g. `run_cobol`, MCP server, `rag/`, agent
 loop), version or commit hash, a description of the impact, and reproduction

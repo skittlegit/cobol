@@ -11,11 +11,6 @@ change: `literal_roundness` is the hard at-chance build gate; the aggregate
 surface probe is a mandatory T5.3 baseline. Resolution:
 `docs/reviews/2026-07-17/contract-change-gate-e-RESOLVED.md`.
 
-→ Track A | from B | 2026-07-15 | T1.5 | `RunInputs.files` permits absolute or
-traversal paths outside the temporary directory, and output collection is
-uncapped. Harden containment and output count/bytes before MCP self-hosting.
-Tracked as BACKLOG BL-7; owner A.
-
 ## Track B inbox
 
 _No open flags._

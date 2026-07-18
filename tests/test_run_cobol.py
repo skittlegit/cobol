@@ -3,6 +3,7 @@
 Skip-marked when ``cobc`` is absent (via COBC env or PATH), so the suite stays
 green on machines without GnuCOBOL — same pattern as the corpora skip.
 """
+
 import os
 import shutil
 import subprocess
@@ -14,6 +15,7 @@ import pytest
 
 from cobol_archaeologist.model.run_cobol import (
     CompileResult,
+    _collect_output_files,
     compile_check,
     run_cobol,
     run_cobol_with_files,
@@ -25,7 +27,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CARDDEMO = REPO_ROOT / "data" / "corpora" / "carddemo"
 
 _HAVE_COBC = bool(os.environ.get("COBC") or shutil.which("cobc"))
-needs_cobc = pytest.mark.skipif(not _HAVE_COBC, reason="cobc not found (run scripts/setup_cobc.sh)")
+needs_cobc = pytest.mark.skipif(
+    not _HAVE_COBC, reason="cobc not found (run scripts/setup_cobc.sh)"
+)
 needs_corpus = pytest.mark.skipif(not CARDDEMO.is_dir(), reason="corpora not fetched")
 
 TRIVIAL = """\
@@ -60,7 +64,8 @@ def _pid_alive(pid: int | None) -> bool:
     if os.name == "nt":
         out = subprocess.run(
             ["tasklist", "/FI", f"PID eq {pid}", "/NH"],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         ).stdout
         return str(pid) in out
     try:
@@ -107,7 +112,9 @@ def test_stdin_is_delivered():
 @needs_cobc
 @needs_corpus
 def test_carddemo_batch_program_compiles():
-    source = (CARDDEMO / "app" / "cbl" / "CBACT04C.cbl").read_text(encoding="utf-8", errors="replace")
+    source = (CARDDEMO / "app" / "cbl" / "CBACT04C.cbl").read_text(
+        encoding="utf-8", errors="replace"
+    )
     search = [CARDDEMO / "app" / "cpy", CARDDEMO / "app" / "cpy-bms"]
     expanded = expand(source, search).text
     result = compile_check(expanded)
@@ -131,7 +138,9 @@ def test_infinite_loop_times_out_and_is_reaped():
 @needs_cobc
 @needs_corpus
 def test_cics_program_fails_to_compile_without_raising():
-    source = (CARDDEMO / "app" / "cbl" / "COSGN00C.cbl").read_text(encoding="utf-8", errors="replace")
+    source = (CARDDEMO / "app" / "cbl" / "COSGN00C.cbl").read_text(
+        encoding="utf-8", errors="replace"
+    )
     result = run_cobol(source)
     assert isinstance(result, RunResult)
     assert result.compiled_ok is False
@@ -184,6 +193,43 @@ def test_run_cobol_with_files_captures_outputs():
     assert outputs["out.txt"].strip() == "HELLO"
 
 
+@pytest.mark.parametrize(
+    "name",
+    [
+        "../escape.txt",
+        "nested/../../escape.txt",
+        "/absolute.txt",
+        r"C:\absolute.txt",
+        r"\\server\share\escape.txt",
+    ],
+)
+def test_input_files_cannot_escape_the_run_directory(tmp_path, name):
+    outside = tmp_path / "escape.txt"
+    with pytest.raises(ValueError, match="relative path"):
+        run_cobol_with_files(TRIVIAL, RunInputs(files={name: "owned"}))
+    assert not outside.exists()
+
+
+def test_output_collection_is_bounded_and_skips_links(tmp_path, monkeypatch):
+    import cobol_archaeologist.model.run_cobol as mod
+
+    monkeypatch.setattr(mod, "_OUTPUT_FILE_LIMIT", 2)
+    monkeypatch.setattr(mod, "_OUTPUT_TOTAL_CAP", 7)
+    monkeypatch.setattr(mod, "_OUTPUT_FILE_CAP", 5)
+    for name in ("a.txt", "b.txt", "c.txt"):
+        (tmp_path / name).write_text("123456789", encoding="utf-8")
+    try:
+        (tmp_path / "outside-link.txt").symlink_to(tmp_path.parent / "secret.txt")
+    except OSError:
+        pass  # Windows may deny unprivileged symlink creation.
+
+    outputs = _collect_output_files(tmp_path, seeded=set())
+
+    assert len(outputs) <= 2
+    assert sum(len(value.encode("utf-8")) for value in outputs.values()) <= 7
+    assert "outside-link.txt" not in outputs
+
+
 # 6. Missing cobc is an error (RuntimeError), unlike a compile failure.
 def test_missing_cobc_raises(monkeypatch):
     monkeypatch.delenv("COBC", raising=False)
@@ -195,6 +241,7 @@ def test_missing_cobc_raises(monkeypatch):
 def test_module_importable_without_cobc():
     """The module and its types import cleanly even where cobc is absent."""
     import cobol_archaeologist.model.run_cobol as mod  # noqa: F401
+
     assert "run_cobol" in dir(mod) and "compile_check" in dir(mod)
 
 

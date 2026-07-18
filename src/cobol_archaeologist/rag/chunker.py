@@ -8,13 +8,23 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from cobol_archaeologist._resources import asset_directory
 from cobol_archaeologist.rag.pdf_loader import LoadedPdf, load_pdf
 from cobol_archaeologist.rag.schemas import RegulationChunk
 
 ROOT = Path(__file__).resolve().parents[3]
-SOURCES = ROOT / "data" / "regulations" / "sources"
+SOURCES = asset_directory(
+    "data/regulations/sources",
+    "_assets/regulations/sources",
+)
 MANIFEST = SOURCES / "MANIFEST.json"
-CLAUSES = ROOT / "data" / "regulations" / "clauses.jsonl"
+CLAUSES = (
+    asset_directory(
+        "data/regulations",
+        "_assets/regulations",
+    )
+    / "clauses.jsonl"
+)
 OUTPUT_DIR = ROOT / "data" / "regulations" / "chunks"
 BOUNDARY_REPORT = ROOT / "tests" / "fixtures" / "chunks" / "anchor-boundary-report.json"
 ANCHOR_FILE = "cc-dc-directions-2025.pdf"
@@ -114,9 +124,13 @@ def load_manifest_entries(path: Path = MANIFEST) -> list[ManifestEntry]:
     for raw in data["entries"]:
         if raw.get("status") != "pinned":
             continue
-        missing = [key for key in ("doc", "version", "effective_date") if key not in raw]
+        missing = [
+            key for key in ("doc", "version", "effective_date") if key not in raw
+        ]
         if missing:
-            raise ValueError(f"{raw.get('file')}: missing T3.1 manifest fields {missing}")
+            raise ValueError(
+                f"{raw.get('file')}: missing T3.1 manifest fields {missing}"
+            )
         entries.append(
             ManifestEntry(
                 file=raw["file"],
@@ -196,7 +210,9 @@ def reconcile_clause_vocabulary(
     return sorted(out, key=lambda c: (c.doc, c.page_start, c.char_span, c.chunk_id))
 
 
-def _best_subset_match(chunks: list[RegulationChunk], clause: dict) -> RegulationChunk | None:
+def _best_subset_match(
+    chunks: list[RegulationChunk], clause: dict
+) -> RegulationChunk | None:
     candidates = [chunk for chunk in chunks if chunk.doc == clause["doc"]]
     scored = [
         (_content_overlap(clause["text"], chunk.text), len(chunk.text), chunk)
@@ -224,7 +240,9 @@ def _segments(lines: list[TextLine], doc_end: int) -> list[Segment]:
             continue
         chapter_match = CHAPTER_RE.match(line.text)
         if chapter_match:
-            chapter = f"{chapter_match.group(1)} \u2013 {chapter_match.group(2).strip()}"
+            chapter = (
+                f"{chapter_match.group(1)} \u2013 {chapter_match.group(2).strip()}"
+            )
             section = None
             starts.append((line.start, line, "front", None, [chapter]))
             continue
@@ -321,7 +339,9 @@ def _iter_lines(loaded: LoadedPdf) -> list[TextLine]:
             end = offset + len(raw.rstrip("\r\n"))
             offset += len(raw)
             if text:
-                lines.append(TextLine(text=text, start=start, end=end, page=page.page_number))
+                lines.append(
+                    TextLine(text=text, start=start, end=end, page=page.page_number)
+                )
     return lines
 
 

@@ -17,27 +17,36 @@ Sandboxing is temp-dir + wall-clock timeout + a minimal subprocess environment
 (only ``cobc``'s own directory on PATH, plus carried-through ``COB_*`` config
 knobs). No network is used or needed.
 """
+
 from __future__ import annotations
 
 import os
 import re
 import shutil
+import stat
 import subprocess
 import tempfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 from pydantic import BaseModel
 
 from cobol_archaeologist.tool_types import RunInputs, RunResult
 
-_STD = "ibm"                       # cobc -std; CLAUDE.md pins the IBM dialect.
+_STD = "ibm"  # cobc -std; CLAUDE.md pins the IBM dialect.
 _RUN_TIMEOUT_S = 5.0
-_OUTPUT_CAP = 64 * 1024            # per-stream capture cap (bytes)
+_OUTPUT_CAP = 64 * 1024  # per-stream capture cap (bytes)
+_OUTPUT_FILE_LIMIT = 32  # generated files returned to the caller
+_OUTPUT_SCAN_LIMIT = 256  # entries inspected before collection stops
+_OUTPUT_FILE_CAP = 64 * 1024  # bytes read from one generated file
+_OUTPUT_TOTAL_CAP = 256 * 1024  # bytes read across generated files
 _SRC_NAME = "prog.cbl"
 _EXE_NAME = "prog"
+_RESERVED_INPUT_NAMES = frozenset({_SRC_NAME, _EXE_NAME, _EXE_NAME + ".exe"})
 
 # cobc diagnostic line: "<file>:<line>: error: <text>" (line part optional).
-_DIAG_RE = re.compile(r"^(?P<file>[^:]+):(?:(?P<line>\d+):)?\s*(?P<kind>error|warning):\s*(?P<text>.*)$")
+_DIAG_RE = re.compile(
+    r"^(?P<file>[^:]+):(?:(?P<line>\d+):)?\s*(?P<kind>error|warning):\s*(?P<text>.*)$"
+)
 
 _INSTALL_HINT = (
     "cobc (GnuCOBOL) not found on PATH; run scripts/setup_cobc.sh "
@@ -57,6 +66,7 @@ class CompileResult(BaseModel):
 # cobc discovery + sandboxed environment
 # --------------------------------------------------------------------------
 
+
 def _find_cobc() -> str:
     cobc = os.environ.get("COBC") or shutil.which("cobc")
     if not cobc:
@@ -71,9 +81,16 @@ def _baseline_path(cobc_dir: str) -> str:
     system DLLs from System32. This is the OS floor, not a 'PATH surprise'."""
     parts = [cobc_dir]
     if os.name == "nt":
-        sysroot = os.environ.get("SystemRoot") or os.environ.get("SYSTEMROOT") or r"C:\Windows"
-        parts += [os.path.join(sysroot, "System32"), sysroot,
-                  os.path.join(sysroot, "System32", "Wbem")]
+        sysroot = (
+            os.environ.get("SystemRoot")
+            or os.environ.get("SYSTEMROOT")
+            or r"C:\Windows"
+        )
+        parts += [
+            os.path.join(sysroot, "System32"),
+            sysroot,
+            os.path.join(sysroot, "System32", "Wbem"),
+        ]
     else:
         parts.append(os.defpath)
     return os.pathsep.join(p for p in parts if p)
@@ -96,7 +113,17 @@ def _sandbox_env(cobc: str) -> dict[str, str]:
     COB_CONFIG_DIR). The user's arbitrary PATH and other vars are not
     inherited."""
     env: dict[str, str] = {}
-    for var in ("SystemRoot", "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "TMPDIR", "HOME", "LANG", "LC_ALL"):
+    for var in (
+        "SystemRoot",
+        "SYSTEMROOT",
+        "WINDIR",
+        "TEMP",
+        "TMP",
+        "TMPDIR",
+        "HOME",
+        "LANG",
+        "LC_ALL",
+    ):
         val = os.environ.get(var)
         if val:
             env[var] = val
@@ -131,6 +158,7 @@ def _parse_messages(cobc_output: str) -> list[str]:
 # D1: compile_check (syntax oracle)
 # --------------------------------------------------------------------------
 
+
 def compile_check(source: str) -> CompileResult:
     """Syntax-only compile of self-contained ``source`` (COPY statements must
     already be expanded — this signature takes no copybook path). Cheap and
@@ -141,8 +169,11 @@ def compile_check(source: str) -> CompileResult:
         (tmpdir / _SRC_NAME).write_text(source, encoding="utf-8")
         proc = subprocess.run(
             [cobc, "-fsyntax-only", f"-std={_STD}", _SRC_NAME],
-            cwd=tmp, env=_sandbox_env(cobc),
-            capture_output=True, text=True, timeout=_RUN_TIMEOUT_S * 4,
+            cwd=tmp,
+            env=_sandbox_env(cobc),
+            capture_output=True,
+            text=True,
+            timeout=_RUN_TIMEOUT_S * 4,
         )
         output = _normalize((proc.stderr or "") + (proc.stdout or ""), tmpdir)
         return CompileResult(ok=proc.returncode == 0, messages=_parse_messages(output))
@@ -151,6 +182,7 @@ def compile_check(source: str) -> CompileResult:
 # --------------------------------------------------------------------------
 # D2: run_cobol (compile + execute)
 # --------------------------------------------------------------------------
+
 
 def _cap(raw: bytes) -> str:
     if len(raw) > _OUTPUT_CAP:
@@ -167,43 +199,166 @@ def _executable(tmpdir: Path) -> Path | None:
     return None
 
 
+def _normalized_input_name(name: str) -> str:
+    """Return a portable relative input path or reject unsafe spellings."""
+    normalized = name.replace("\\", "/")
+    posix = PurePosixPath(normalized)
+    windows = PureWindowsPath(name)
+    raw_parts = normalized.split("/")
+    if (
+        not name
+        or "\x00" in name
+        or posix.is_absolute()
+        or windows.is_absolute()
+        or bool(windows.drive)
+        or any(part in ("", ".", "..") for part in raw_parts)
+    ):
+        raise ValueError(f"input file name must be a contained relative path: {name!r}")
+    portable = posix.as_posix()
+    if portable.casefold() in {item.casefold() for item in _RESERVED_INPUT_NAMES}:
+        raise ValueError(f"input file name is reserved by the harness: {name!r}")
+    return portable
+
+
+def _validate_input_names(files: dict[str, str]) -> dict[str, str]:
+    normalized: dict[str, str] = {}
+    seen: set[str] = set()
+    for name in files:
+        portable = _normalized_input_name(name)
+        collision_key = portable.casefold() if os.name == "nt" else portable
+        if collision_key in seen:
+            raise ValueError(f"input file names collide after normalization: {name!r}")
+        seen.add(collision_key)
+        normalized[name] = portable
+    return normalized
+
+
+def _input_target(tmpdir: Path, portable_name: str) -> Path:
+    root = tmpdir.resolve()
+    target = (root / Path(*PurePosixPath(portable_name).parts)).resolve()
+    try:
+        target.relative_to(root)
+    except ValueError as exc:  # Defence in depth if path semantics change.
+        raise ValueError(
+            f"input file name must be a contained relative path: {portable_name!r}"
+        ) from exc
+    return target
+
+
+def _collect_output_files(tmpdir: Path, seeded: set[str]) -> dict[str, str]:
+    """Collect a bounded set of regular, non-link outputs below ``tmpdir``.
+
+    The scan cap prevents a program from making collection enumerate an
+    unbounded directory tree. Byte caps are applied while reading, rather than
+    after ``read_text``, so a large output is never loaded wholesale.
+    """
+    root = tmpdir.resolve()
+    outputs: dict[str, str] = {}
+    remaining = _OUTPUT_TOTAL_CAP
+    scanned = 0
+    stack = [root]
+
+    while stack and scanned < _OUTPUT_SCAN_LIMIT:
+        directory = stack.pop()
+        try:
+            with os.scandir(directory) as iterator:
+                entries = []
+                for entry in iterator:
+                    if scanned >= _OUTPUT_SCAN_LIMIT:
+                        break
+                    scanned += 1
+                    entries.append(entry)
+        except OSError:
+            continue
+
+        child_dirs: list[Path] = []
+        for entry in sorted(entries, key=lambda item: item.name):
+            if entry.is_symlink():
+                continue
+            path = Path(entry.path)
+            try:
+                if entry.is_dir(follow_symlinks=False):
+                    child_dirs.append(path)
+                    continue
+                info = entry.stat(follow_symlinks=False)
+            except OSError:
+                continue
+            if not stat.S_ISREG(info.st_mode):
+                continue
+            rel = path.relative_to(root).as_posix()
+            if rel in seeded:
+                continue
+            if len(outputs) >= _OUTPUT_FILE_LIMIT or remaining <= 0:
+                return outputs
+            read_cap = min(_OUTPUT_FILE_CAP, remaining)
+            try:
+                with path.open("rb") as handle:
+                    raw = handle.read(read_cap)
+            except OSError:
+                continue
+            outputs[rel] = raw.decode("utf-8", errors="replace")
+            remaining -= len(raw)
+
+        stack.extend(reversed(child_dirs))
+    return outputs
+
+
 def _run_in_dir(source: str, inputs: RunInputs, tmpdir: Path) -> RunResult:
     cobc = _find_cobc()
     env = _sandbox_env(cobc)
     (tmpdir / _SRC_NAME).write_text(source, encoding="utf-8")
+    normalized_names = _validate_input_names(inputs.files)
     for name, content in inputs.files.items():
-        target = tmpdir / name
+        target = _input_target(tmpdir, normalized_names[name])
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content, encoding="utf-8")
 
     compile_proc = subprocess.run(
         [cobc, "-x", f"-std={_STD}", "-I", ".", "-o", _EXE_NAME, _SRC_NAME],
-        cwd=str(tmpdir), env=env, capture_output=True, text=True, timeout=_RUN_TIMEOUT_S * 4,
+        cwd=str(tmpdir),
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=_RUN_TIMEOUT_S * 4,
     )
     exe = _executable(tmpdir)
     if compile_proc.returncode != 0 or exe is None:
         return RunResult(
             compiled_ok=False,
-            stderr=_normalize((compile_proc.stderr or "") + (compile_proc.stdout or ""), tmpdir),
+            stderr=_normalize(
+                (compile_proc.stderr or "") + (compile_proc.stdout or ""), tmpdir
+            ),
         )
 
     proc = subprocess.Popen(
-        [str(exe)], cwd=str(tmpdir), env=env,
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        [str(exe)],
+        cwd=str(tmpdir),
+        env=env,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     run_cobol.last_pid = proc.pid
     try:
-        out, err = proc.communicate(input=inputs.stdin.encode("utf-8"), timeout=_RUN_TIMEOUT_S)
+        out, err = proc.communicate(
+            input=inputs.stdin.encode("utf-8"), timeout=_RUN_TIMEOUT_S
+        )
         return RunResult(
-            compiled_ok=True, stdout=_cap(out), stderr=_cap(err),
-            exit_code=proc.returncode, timed_out=False,
+            compiled_ok=True,
+            stdout=_cap(out),
+            stderr=_cap(err),
+            exit_code=proc.returncode,
+            timed_out=False,
         )
     except subprocess.TimeoutExpired:
         proc.kill()
         out, err = proc.communicate()  # reap — no zombie left behind
         return RunResult(
-            compiled_ok=True, stdout=_cap(out), stderr=_cap(err),
-            exit_code=None, timed_out=True,
+            compiled_ok=True,
+            stdout=_cap(out),
+            stderr=_cap(err),
+            exit_code=None,
+            timed_out=True,
         )
 
 
@@ -219,22 +374,25 @@ def run_cobol(source: str, inputs: RunInputs | None = None) -> RunResult:
 
 
 def run_cobol_with_files(
-    source: str, inputs: RunInputs | None = None,
+    source: str,
+    inputs: RunInputs | None = None,
 ) -> tuple[RunResult, dict[str, str]]:
     """Like :func:`run_cobol`, but also returns files the program left in its
     working directory (for T6.2 output capture). ``RunResult`` stays
-    contract-exact; the extra dict rides alongside."""
+    contract-exact; the extra dict rides alongside. Collection is bounded by
+    the module's scan, file-count, per-file, and total-byte limits."""
     inputs = inputs or RunInputs()
+    normalized_names = _validate_input_names(inputs.files)
     with tempfile.TemporaryDirectory(prefix="cobc_run_") as tmp:
         tmpdir = Path(tmp)
-        seeded = {_SRC_NAME, _EXE_NAME, _EXE_NAME + ".exe", *inputs.files}
+        seeded = {
+            _SRC_NAME,
+            _EXE_NAME,
+            _EXE_NAME + ".exe",
+            *normalized_names.values(),
+        }
         result = _run_in_dir(source, inputs, tmpdir)
-        outputs: dict[str, str] = {}
-        if result.compiled_ok:
-            for path in sorted(tmpdir.rglob("*")):
-                if path.is_file() and path.name not in seeded:
-                    rel = path.relative_to(tmpdir).as_posix()
-                    outputs[rel] = path.read_text(encoding="utf-8", errors="replace")
+        outputs = _collect_output_files(tmpdir, seeded) if result.compiled_ok else {}
         return result, outputs
 
 

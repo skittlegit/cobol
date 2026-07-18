@@ -569,6 +569,7 @@ def test_bl8_checked_in_manifest_names_the_head_that_generated_it():
             check=True,
             capture_output=True,
             text=True,
+            encoding="utf-8",
         ).stdout
     )
     if catalogue_state(manifest) != catalogue_state(head_payload):
@@ -594,6 +595,7 @@ def test_bl8_checked_in_manifest_names_the_head_that_generated_it():
                 check=True,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
             ).stdout
         )
         if catalogue_state(historical) != catalogue_state(manifest):
