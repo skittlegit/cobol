@@ -1,6 +1,23 @@
 # STATUS
 
-One entry per task: ID, state, owner, and artifact.
+Authoritative task-state ledger. Each task has one entry with its state, owner,
+artifact, and durable gate evidence.
+
+## Completed milestones
+
+Milestones are cross-task gates, not roadmap phases. Roadmap phases span all
+three tracks; a task's numeric prefix does not identify its phase.
+
+- **M0 (Spike & Decisions): COMPLETE** — parser bake-off and AST decision
+  landed; T0.1–T0.6 are done.
+- **M1 (Slicing Validated): PASSED 2026-07-12** — `slice_on` matches 10
+  hand-built slices.
+- **M2 (Synthetic v1 + Seed Started): PASSED 2026-07-17 — RE-EVIDENCED** — the
+  594-row compiled catalogue, current Luna judge/drop evidence, 562-row accepted
+  set, 21 real-curated seeds, and purpose-valid 583-row v1-pre splits are aligned.
+  Track C may consume the corrected IDs and begin headline evaluation.
+
+## Task ledger
 
 - **T0.1** | done | B | `data/manifest.json` v1.1: CC Directions widening;
   CardDemo pinned at `59cc6c2`.
@@ -51,14 +68,14 @@ One entry per task: ID, state, owner, and artifact.
   (10 hand-verified slices). Fixed a latent T1.3 refmod/subref index
   over-extraction bug in `dataflow.py` (indices now untracked per the
   documented limitation; T1.3 gate stays green).
-- **M1 (Slicing Validated): PASSED 2026-07-12 — slice_on matches 10 hand-built slices.**
 - **T1.5** | done | A | `src/cobol_archaeologist/model/run_cobol.py`
   (`compile_check` syntax oracle → `CompileResult`; `run_cobol` /
   `run_cobol_with_files` sandboxed compile+execute → `RunResult`; temp-dir +
   5s timeout + minimal self-configuring env) + `scripts/setup_cobc.sh`. Gate
-  `tests/test_run_cobol.py` (verified live on GnuCOBOL 3.2.0; skip-marked
-  without `cobc`). CBACT04C is compile-only (JCL-called `PROCEDURE DIVISION
-  USING` can't link as `-x`); full run on the trivial program.
+  `tests/test_run_cobol.py` (verified on GnuCOBOL 3.2.0; BL-9 supports
+  `>=3.1.2,<4`; skipped without `cobc`). CBACT04C is compile-only because its
+  JCL-called `PROCEDURE DIVISION USING` cannot link as `-x`; full run on the
+  trivial program.
 - **T1.6** | done | A | `src/cobol_archaeologist/tools.py` (`RealToolLayer`:
   all 11 ToolLayer methods over T1.1–T1.5, parse-on-first-touch cache +
   one-shot call graph; `get_data_layout` is new logic — data-division field
@@ -70,7 +87,6 @@ One entry per task: ID, state, owner, and artifact.
   case-insensitive qualified names), F6 (`cleaner.py` `PreprocessError` on
   unterminated EXEC/COPY at EOF), F10 (`fetch_corpora.sh` verifies CardDemo
   HEAD == pin).
-- **Phase 1 (Track A) COMPLETE — tool layer live.**
 - **T2.1** | done | B | `data/regulations/clauses.jsonl` (19 clauses,
   schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
   CC/DC Directions + KYC 2025; 2025 para numbers primary-confirmed at T2.5 +
@@ -84,7 +100,8 @@ One entry per task: ID, state, owner, and artifact.
   `data/benchmark/drift_instances.jsonl`: **594 compiled rows** with D1–D6
   distinct semantic counts **13/6/5/4/12/7**, zero class/operator/distinct
   shortfalls, and artifact-only Gate E **0.51765 [0.4382, 0.5952]**. The judged
-  accepted artifact contains **562** synthetic rows.
+  accepted artifact contains **562** synthetic rows. Manifest schema 2 carries
+  BL-9 compiler provenance; the legacy catalogue banner is marked unavailable.
 - **T2.4** | done | B | Current-catalogue `gpt-5.6-luna`/OpenAI/high evidence:
   canonical sample **50/50 plausible (100%, 0 unsure)**; full raw gate
   **557/594 (93.77%)**, passed. Five full-set `unsure` rows were human-accepted;
@@ -99,10 +116,6 @@ One entry per task: ID, state, owner, and artifact.
   train/dev synthetic shares = **52.8%/18.9%**, test-interprocedural = **36**
   (MO-1×/MO-3×/MO-6× = **12/8/12**), every D1–D7 test-local floor passes,
   D4/D5 interprocedural shortfalls are named, and **23** cells are CI-fragile.
-- **M2 (Synthetic v1 + Seed Started): PASSED 2026-07-17 — RE-EVIDENCED.** The
-  594-row compiled catalogue, current Luna judge/drop evidence, 562-row accepted
-  set, 21 real-curated seeds, and purpose-valid 583-row v1-pre splits are aligned.
-  Track C may consume the corrected IDs and begin headline evaluation.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and

@@ -23,15 +23,6 @@ window
 owned by every track. Land one sanctioned repository-wide commit or let each
 track format only its own files to avoid ownership churn. `ruff check` is clean.
 
-### BL-9 — Reconcile the locked GnuCOBOL version
-
-**Source:** audit M4 · **Owner:** infrastructure · **Trigger:** a team decision
-
-`CLAUDE.md` locks GnuCOBOL 3.1.2, while T1.5/T2.2 evidence records validation
-on 3.2.0 and `scripts/setup_cobc.sh` installs the distribution's `gnucobol3`.
-Choose one version of record and enforce it by pinning the setup script or
-ratifying a change to the locked decision.
-
 ### BL-11 — Install repository review rulesets
 
 **Source:** audit M6 · **Owner:** infrastructure · **Trigger:** before

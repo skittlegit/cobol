@@ -32,6 +32,7 @@ from cobol_archaeologist.benchmark.surface import (
     surface_features,
     surface_probe_report,
 )
+from cobol_archaeologist.model.cobc import compiler_manifest
 from cobol_archaeologist.schemas import DriftInstance
 
 
@@ -1165,7 +1166,8 @@ def build_benchmark(
     )
     judge_family, judge_family_reason = _standing_judge_family(root)
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
+        "compiler": compiler_manifest(),
         "seed": seed,
         "git_sha": _git_sha(root),
         "diversify": diversify_mode,
