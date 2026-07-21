@@ -121,11 +121,13 @@ three tracks; a task's numeric prefix does not identify its phase.
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
   C green; BL-13 nested-definition regression keeps KYC OVD `5(xiv)` distinct
   from the second definition group's Regulated Entities `(xiv)`.
-- **T3.2** | wip | C | Retrieval implementation and offline gates are green,
-  but the embedded Gate B table is from the superseded 1,824-chunk/7-document
-  fixture. T2.5 expanded the frozen fixture to 2,361 chunks/8 documents; rerun
-  `python -m cobol_archaeologist.rag.index` with the pinned models to refresh
-  `docs/tasks/T3.2-work-order.md` before T3.3.
+- **T3.2** | done | C | `src/cobol_archaeologist/rag/{index,embed}.py` +
+  `tests/test_retrieval.py` + the evidence block in
+  `docs/tasks/T3.2-work-order.md`. Gate B table REFRESHED on the T2.5-expanded
+  2,361-chunk/8-document fixture; bar held (`hybrid_rerank` mrr@5 0.744 >
+  `dense` 0.588, ≥ on hit@1/hit@3). Findings vs the 7-doc run are in the work
+  order's refresh section — note that the reranker is no longer a near-wash
+  over `hybrid`; it is what absorbs the added distractors.
 - **T3.3** | todo | C | `docs/tasks/T3.3-work-order.md` — HyDE retrieval.
 - **T3.4** | todo | C | `docs/tasks/T3.4-work-order.md` — tiered verification.
 - **T3.5** | todo | C | `docs/tasks/T3.5-work-order.md` — bounded ReAct loop and

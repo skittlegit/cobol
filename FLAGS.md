@@ -17,13 +17,6 @@ _No open flags._
 
 ## Track C inbox
 
-→ Track C | from docs audit | 2026-07-18 | T3.2 | The checked-in Gate B table
-was generated before T2.5 expanded the frozen retrieval fixture from 1,824
-chunks/7 documents to 2,361 chunks/8 documents. The report generator now
-updates the canonical evidence block in `docs/tasks/T3.2-work-order.md`. Install
-the model extra and rerun `python -m cobol_archaeologist.rag.index`; T3.3 waits
-for the refreshed bar.
-
 → Track C | from A | 2026-07-13 | T1.6 | `RealToolLayer` is
 constructor-swappable for the Track C stub. Read the consumer-semantics register
 in `docs/tasks/T1.6-work-order.md` before the seam test; it defines sentinel and
