@@ -202,6 +202,13 @@ def test_gate_c_manifest_accounts_for_floors_rejects_and_validation(built_pair):
         text=True,
     ).stdout.strip()
     assert manifest["diversify"] == "deterministic"
+    assert manifest["schema_version"] == 2
+    assert manifest["compiler"]["supported_range"] == ">=3.1.2,<4"
+    assert manifest["compiler"]["version_of_record"] == "3.2.0"
+    assert manifest["compiler"]["provenance"] in {
+        "observed_by_cobc_version",
+        "unavailable",
+    }
     assert sum(manifest["operator_counts"].values()) == manifest["instance_count"]
     assert sum(manifest["base_counts"].values()) == manifest["instance_count"]
     assert (
@@ -529,6 +536,15 @@ def test_checked_in_synthetic_v1_matches_its_manifest():
         if line.strip()
     ]
     manifest = json.loads(manifest_path_for(ARTIFACT).read_text(encoding="utf-8"))
+    assert manifest["schema_version"] == 2
+    assert manifest["compiler"] == {
+        "banner": None,
+        "name": "GnuCOBOL cobc",
+        "provenance": "legacy_version_not_recorded",
+        "supported_range": ">=3.1.2,<4",
+        "version": None,
+        "version_of_record": "3.2.0",
+    }
     assert len(instances) == manifest["instance_count"] >= 200
     assert manifest["validation_level_counts"] == {"compiled": len(instances)}
     assert manifest["shortfalls"] == {

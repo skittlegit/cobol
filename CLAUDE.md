@@ -67,8 +67,11 @@ Standing expectations:
    when `END-EXEC.` closed a sentence) and handle `COPY … REPLACING`. Lives in
    `src/cobol_archaeologist/ingest/cleaner.py`. Not a workaround — a pipeline
    stage; raw CardDemo CICS code is unparseable by every backend without it.
-3. **GnuCOBOL `cobc` (3.1.2) is the compile/behavior oracle only** — never the
-   parser. Only batch `CB*` programs compile; CICS programs failing under it is
+3. **GnuCOBOL `cobc` is the compile/behavior oracle only** — never the parser.
+   **BL-9 version policy:** 3.2.0 is the version of record; the supported
+   compatibility range is `>=3.1.2,<4`. The harness and setup script fail closed
+   outside that range, and benchmark manifests record the actual compiler banner
+   used. Only batch `CB*` programs compile; CICS programs failing under it is
    expected, not an error. **Generalized (T2.4 corrective pass, BL-16): local harnesses
    generate hypotheses; only the real toolchain closes gates.** A pure-text
    probe harness once reproduced a build's gate number exactly, was trusted

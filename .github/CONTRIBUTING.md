@@ -65,7 +65,10 @@ python -m pytest -m network
 ```
 
 GnuCOBOL is optional for most work. It is the compile/behavior oracle, never
-the parser, and CICS sources are not expected to compile under it.
+the parser, and CICS sources are not expected to compile under it. GnuCOBOL
+3.2.0 is the version of record; `>=3.1.2,<4` is supported. Run
+`bash scripts/setup_cobc.sh` to install or validate it before compiler-backed
+gates.
 
 ## Making a change
 

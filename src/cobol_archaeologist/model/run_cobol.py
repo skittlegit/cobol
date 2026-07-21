@@ -11,7 +11,8 @@ Two entry points over a sandboxed ``cobc`` invocation:
 ``cobc`` is the compile/behavior oracle only, never the parser (CLAUDE.md
 locked decision #3): CICS programs failing to compile here is expected, and is
 reported as ``compiled_ok=False`` ("Tier-1 verification unavailable"), never an
-exception. A missing ``cobc`` binary, by contrast, IS an error (RuntimeError).
+exception. A missing or unsupported ``cobc`` binary, by contrast, IS an error
+(``RuntimeError``).
 
 Sandboxing is temp-dir + wall-clock timeout + a minimal subprocess environment
 (only ``cobc``'s own directory on PATH, plus carried-through ``COB_*`` config
@@ -22,7 +23,6 @@ from __future__ import annotations
 
 import os
 import re
-import shutil
 import stat
 import subprocess
 import tempfile
@@ -30,6 +30,7 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 
 from pydantic import BaseModel
 
+from cobol_archaeologist.model.cobc import find_cobc, inspect_cobc
 from cobol_archaeologist.tool_types import RunInputs, RunResult
 
 _STD = "ibm"  # cobc -std; CLAUDE.md pins the IBM dialect.
@@ -50,7 +51,7 @@ _DIAG_RE = re.compile(
 
 _INSTALL_HINT = (
     "cobc (GnuCOBOL) not found on PATH; run scripts/setup_cobc.sh "
-    "(apt-get install -y gnucobol3) or set the COBC environment variable"
+    "(apt-get install -y gnucobol) or set the COBC environment variable"
 )
 
 
@@ -68,9 +69,10 @@ class CompileResult(BaseModel):
 
 
 def _find_cobc() -> str:
-    cobc = os.environ.get("COBC") or shutil.which("cobc")
+    cobc = find_cobc()
     if not cobc:
         raise RuntimeError(_INSTALL_HINT)
+    inspect_cobc(cobc)
     return cobc
 
 
