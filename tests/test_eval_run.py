@@ -25,11 +25,15 @@ from cobol_archaeologist.eval.run import (
     RunManifest,
     build_system_context,
     infrastructure_failure,
+    investigate_all_hunts,
+    run_key,
 )
 from cobol_archaeologist.eval.schemas import EvaluationRecord
+from cobol_archaeologist.model import provider as provider_module
 from cobol_archaeologist.model.prompt import CachedDecisionModel
 from cobol_archaeologist.model.provider import (
     AnthropicDecisionModel,
+    OpenAIDecisionModel,
     ProviderUnavailable,
 )
 from cobol_archaeologist.schemas import DriftInstance
@@ -131,6 +135,78 @@ def test_provider_fails_closed_without_credentials(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     with pytest.raises(ProviderUnavailable, match="ANTHROPIC_API_KEY"):
         AnthropicDecisionModel()
+
+
+def test_openai_provider_fails_closed_without_credentials(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    with pytest.raises(ProviderUnavailable, match="OPENAI_API_KEY"):
+        OpenAIDecisionModel()
+
+
+def test_openai_provider_uses_responses_json_contract_without_persisting(
+    monkeypatch,
+):
+    captured = {}
+    response_text = json.dumps(
+        {
+            "kind": "abstain",
+            "thought": "Evidence is insufficient.",
+            "abstention_reason": "No supported code fact.",
+            "final_answer": "Abstained.",
+            "token_count": 0,
+        }
+    )
+    raw_response = {
+        "status": "completed",
+        "output": [
+            {
+                "type": "message",
+                "content": [{"type": "output_text", "text": response_text}],
+            }
+        ],
+        "usage": {"input_tokens": 11, "output_tokens": 7, "total_tokens": 18},
+    }
+
+    class FakeHTTPResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps(raw_response).encode()
+
+    def fake_urlopen(request, timeout):
+        captured["request"] = request
+        captured["timeout"] = timeout
+        return FakeHTTPResponse()
+
+    monkeypatch.setattr(provider_module.urllib.request, "urlopen", fake_urlopen)
+    model = OpenAIDecisionModel(
+        api_key="test-only-key",
+        model_id="gpt-5.6-sol",
+        timeout_s=9,
+    )
+    result = model.respond(
+        system_prompt="system",
+        question="question",
+        transcript=[],
+    )
+
+    request = captured["request"]
+    payload = json.loads(request.data)
+    assert request.full_url == "https://api.openai.com/v1/responses"
+    assert request.get_header("Authorization") == "Bearer test-only-key"
+    assert captured["timeout"] == 9
+    assert payload["model"] == "gpt-5.6-sol"
+    assert payload["reasoning"] == {"effort": "none"}
+    assert payload["temperature"] == 0.0
+    assert payload["text"]["format"] == {"type": "json_object"}
+    assert payload["store"] is False
+    assert "test-only-key" not in json.dumps(payload)
+    assert result.kind == "abstain"
+    assert result.token_count == 18
 
 
 def test_week7_mutation_real_tool_agent_eval_seam(tmp_path):
@@ -242,3 +318,38 @@ def test_append_only_runner_resumes_without_duplicate_execution(tmp_path):
     assert len(first) == len(second) == 2
     assert calls == [row.instance_id for row in rows]
     assert len((tmp_path / "records.jsonl").read_text().splitlines()) == 2
+
+
+def test_run_key_pins_model_and_tool_versions():
+    base = {
+        "instance_id": "drift_000001",
+        "source_sha256": "0" * 64,
+        "system_id": "agent",
+        "model_id": "gpt-5.6-sol",
+        "budgets": {"max_steps": 8},
+        "prompt_version": "m4-live-v1",
+        "tool_version": "tools@abc",
+        "commit": "a" * 40,
+    }
+    key = run_key(**base)
+    assert key != run_key(**{**base, "model_id": "gpt-5.6-terra"})
+    assert key != run_key(**{**base, "tool_version": "tools@def"})
+
+
+def test_benchmark_runner_promotes_provider_failure_to_infrastructure():
+    class BrokenProvider:
+        model_id = "broken"
+        temperature = 0.0
+        seed = None
+
+        def respond(self, **_kwargs):
+            raise ProviderUnavailable("transient provider failure")
+
+    gold = _by_operator("MO-1")
+    tools = RealToolLayer(corpus_root=PROGRAMS, copybook_paths=[PROGRAMS])
+    with pytest.raises(RuntimeError, match="ProviderUnavailable"):
+        investigate_all_hunts(
+            build_system_context(gold),
+            tools=tools,
+            model_factory=BrokenProvider,
+        )

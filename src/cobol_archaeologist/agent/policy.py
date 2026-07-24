@@ -38,6 +38,12 @@ _TIER_CONFIDENCE = {
 }
 
 
+def confidence_for_tier(tier: VerificationTier) -> float:
+    """Return the frozen confidence assigned to a verified evidence tier."""
+
+    return _TIER_CONFIDENCE[tier]
+
+
 # DECISION (frozen schema): confidence and verifier provenance wrap the
 # DriftInstance instead of widening schemas.py, which remains contract-frozen.
 class HuntOutcome(BaseModel):
@@ -209,7 +215,7 @@ class BasePolicyHunt:
         return HuntOutcome(
             hunt=self.drift_type,
             finding=trajectory.finding,
-            confidence=_TIER_CONFIDENCE[tier],
+            confidence=confidence_for_tier(tier),
             verification=verification,
             verification_tier=tier,
             trajectory=trajectory,
