@@ -1,0 +1,83 @@
+[
+  {
+    "kind": "tool",
+    "thought": "Find uses of the statement-total field that may drive late charges.",
+    "tool": "grep",
+    "arguments": {"pattern": "WS-TOTAL-AMT-DUE"},
+    "token_count": 24
+  },
+  {
+    "kind": "tool",
+    "thought": "Inspect the assessment paragraph around the suspicious use.",
+    "tool": "read_paragraph",
+    "arguments": {"program": "LATEFEE1", "name": "2000-ASSESS"},
+    "token_count": 22
+  },
+  {
+    "kind": "tool",
+    "thought": "Retrieve the current clause governing the late-charge base.",
+    "tool": "search_regulations",
+    "arguments": {"query": "late charges outstanding amount after due date total amount due"},
+    "token_count": 25
+  },
+  {
+    "kind": "finding",
+    "thought": "The code multiplies the rate by total amount due, contradicting the retrieved charge-base restriction.",
+    "prediction": {
+      "instance_id": "drift_900001",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "23(5)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "A card account may be levied late charges only when past due for more than three days. Late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "past_due_grace": {
+              "kind": "duration_days",
+              "value": 3,
+              "comparator": "strictly_greater"
+            },
+            "charge_base": {
+              "kind": "enum_set",
+              "value": ["outstanding_after_due_date"]
+            }
+          }
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "LATEFEE1",
+            "paragraph": "2000-ASSESS",
+            "file": null,
+            "line_span": [25, 31]
+          }
+        ],
+        "slice_vars": ["WS-LATE-CHARGE", "WS-TOTAL-AMT-DUE", "WS-DAYS-PAST-DUE"],
+        "is_interprocedural": false
+      },
+      "drift_type": "D3_contradictory",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {"program": "LATEFEE1", "line": 28, "file": null}
+        ]
+      },
+      "gold_rationale": "Late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "provenance": {
+        "source": "real_curated",
+        "base_program": "LATEFEE1.cbl",
+        "mutation": null,
+        "annotator_notes": "Deterministic T3.5 late-fee seam fixture."
+      }
+    },
+    "claim": "Late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+    "static_claim": {"literal": "WS-TOTAL-AMT-DUE"},
+    "final_answer": "LATEFEE1 computes the late charge from total amount due, contradicting RBI paragraph 23(5)'s outstanding-after-due-date charge base.",
+    "token_count": 64
+  }
+]

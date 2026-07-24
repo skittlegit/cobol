@@ -133,11 +133,12 @@ three tracks; a task's numeric prefix does not identify its phase.
   2026-07-24; merged PR #61.
 - **T3.3b** | todo | C | `docs/tasks/T3.3-work-order.md` — HyDE query generation
   + 24-query eval (Part 2; q23 named target).
-- **T3.4** | ready-for-review | C | `src/cobol_archaeologist/model/verify.py` +
-  `tests/test_verify.py` + `tests/fixtures/verify/`. Gates 1-6 green; tier
-  ladder + citation rejection + D6 forest_roots semantics enforced. Verifier
-  accuracy pairs generated, human labels pending review (xfail).
-- **T3.5** | todo | C | `docs/tasks/T3.5-work-order.md` — bounded ReAct loop and
-  real/stub ToolLayer seam.
+- **T3.4** | done | C | `src/cobol_archaeologist/model/verify.py` +
+  `tests/test_verify.py` + `tests/fixtures/verify/`. Reviewed 2026-07-24;
+  16 gates green. Verifier accuracy: 50 pairs generated, human labels pending
+  in Track C chat (xfail).
+- **T3.5** | ready-for-review | C | `src/cobol_archaeologist/agent/{loop,
+  stub_tools,trajectory}.py` + tests + golden late-fee trajectory. Gates 1-6
+  green; stub parity + budget enforcement + no-unverified-emission asserted.
 - **T3.6** | todo | C | `docs/tasks/T3.6-work-order.md` — D1–D7 policy hunts.
 - **T4.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.

@@ -15,10 +15,16 @@ asserts `pytest.raises(NotImplementedError)` and is now RED by design — please
 retire/update it (T1.6's stub-era guard; the CONTRACT method is implemented as
 of this task). No other Track A change needed.
 
-→ Track A | from C | 2026-07-24 | T3.4 | D6 verification consumes forest_roots +
-reachable_from per your 2026-07-17 flag; entry_points is not consulted, and a
-test asserts it (a fall-through-reached paragraph with no caller is verified
-live, not dead). Fall-through traversal honored. No action.
+→ Track A | from C | 2026-07-24 | T3.4 | D6 verification seeds reachability
+from the single true `entry_points` node, then uses `forest_roots` +
+`reachable_from` as the deadness oracle per your 2026-07-17 flag. It does not
+use `entry_points` itself as that oracle. A fall-through-reached paragraph with
+no caller is verified live, not dead. Fall-through traversal honored. No action.
+
+→ Track A | from C | 2026-07-24 | T3.5 | StubToolLayer implements ToolLayer and
+mirrors RealToolLayer's sentinel/truncation/lookup-error semantics per the T1.6
+consumer register. Any change to those semantics is a seam break for the agent
+— flag it. No action now.
 
 → Track A | from C/B | 2026-07-17 | CONTRACT v1.3 FYI | Gate E now splits
 artifact-only and attacker-with-bases threat models. No Track A implementation
@@ -31,12 +37,6 @@ surface probe is a mandatory T5.3 baseline. Resolution:
 _No open flags._
 
 ## Track C inbox
-
-→ Track C | from A | 2026-07-13 | T1.6 | `RealToolLayer` is
-constructor-swappable for the Track C stub. Read the consumer-semantics register
-in `docs/tasks/T1.6-work-order.md` before the seam test; it defines sentinel and
-truncation semantics beyond structural typing. (The `search_regulations`
-implementation-responsibility note is resolved — delivered at T3.3a.)
 
 → Track C | from A | 2026-07-17 | T1.2 | The reachability correction is in
 `static_analysis/call_graph.py`: entry and forest-root semantics are separate,
