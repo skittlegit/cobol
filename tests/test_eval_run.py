@@ -78,11 +78,18 @@ def test_materializes_local_copybook_and_interprogram_edits(operator):
 
 def test_materializer_blanks_deletion_without_changing_line_count(tmp_path):
     row = _by_operator("MO-2")
-    old = (
-        "IF WS-DAYS-SINCE-UPD > 7 MOVE 'OVERDUE' "
-        "TO WS-SYNC-STATUS END-IF"
+    mutation = row.provenance.mutation or ""
+    old = ast.literal_eval(
+        next(
+            segment.strip().partition("=")[2]
+            for segment in mutation.split(";")[1:]
+            if segment.strip().startswith("old=")
+        )
     )
-    lines = ["       01 FILLER PIC X.\n"] * 30 + [f"       {old}\n"]
+    locus = row.code_locus.loci[0]
+    line_count = max(31, locus.line_span[1])
+    lines = ["       01 FILLER PIC X.\n"] * line_count
+    lines[locus.line_span[0] - 1] = f"       {old}\n"
     (tmp_path / row.provenance.base_program).write_text(
         "".join(lines),
         encoding="utf-8",
@@ -91,7 +98,7 @@ def test_materializer_blanks_deletion_without_changing_line_count(tmp_path):
     source = materialize(row, programs_root=tmp_path)
 
     assert old not in source.files[row.provenance.base_program]
-    assert len(source.files[row.provenance.base_program].splitlines()) == 31
+    assert len(source.files[row.provenance.base_program].splitlines()) == line_count
 
 
 def test_materializer_rejects_source_drift_and_ambiguity(tmp_path):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter, defaultdict
 from dataclasses import dataclass
@@ -410,6 +411,8 @@ def _distribution(
     split_rows: dict[str, list[DriftInstance]],
     assignments: dict[str, str],
     seed: int,
+    file_hashes: dict[str, str],
+    t6_pair_count: int,
 ) -> tuple[str, int]:
     lines = [
         "# Benchmark v1-pre Distribution",
@@ -419,6 +422,16 @@ def _distribution(
             "Base-program grouping, roster reservations, and real-curated test "
             "reservation are hard constraints;"
         ),
+        f"T6 verdict-flipping pairs: **{t6_pair_count}**.",
+        "",
+        "## Frozen JSONL hashes",
+        "",
+        "| file | SHA-256 |",
+        "|---|---|",
+        *[
+            f"| {split}.jsonl | `{file_hashes[split]}` |"
+            for split in SPLITS
+        ],
         "`CI-fragile` marks every split × class × stratum cell with n < 10.",
         "",
         "## Split summary",
@@ -542,6 +555,25 @@ def _distribution(
     return "\n".join(lines) + "\n", fragile
 
 
+def _t6_pair_count(rows: list[DriftInstance]) -> int:
+    by_locus: dict[str, list[DriftInstance]] = defaultdict(list)
+    for item in rows:
+        by_locus[_locus_key(item)].append(item)
+    return sum(
+        len(
+            {
+                (
+                    item.regulation_clause.version,
+                    item.regulation_clause.effective_date,
+                )
+                for item in group
+            }
+        )
+        > 1
+        for group in by_locus.values()
+    )
+
+
 def build_splits(
     synthetic_path: str | Path,
     real_curated_path: str | Path,
@@ -588,7 +620,21 @@ def build_splits(
     output_dir.mkdir(parents=True, exist_ok=True)
     for split in SPLITS:
         _write_jsonl(output_dir / f"{split}.jsonl", split_rows[split])
-    distribution, fragile = _distribution(split_rows, assignments, seed)
+    # DECISION: hashes cover the exact UTF-8 JSONL bytes written above. They
+    # bind the public freeze without making distribution.md self-referential.
+    file_hashes = {
+        split: hashlib.sha256(
+            (output_dir / f"{split}.jsonl").read_bytes()
+        ).hexdigest()
+        for split in SPLITS
+    }
+    distribution, fragile = _distribution(
+        split_rows,
+        assignments,
+        seed,
+        file_hashes,
+        _t6_pair_count(split_rows["test"]),
+    )
     (output_dir / "distribution.md").write_text(distribution, encoding="utf-8")
     return SplitReport(
         seed=seed,

@@ -30,14 +30,29 @@ surface probe is a mandatory T5.3 baseline. Resolution:
 
 ## Track B inbox
 
-→ Track B | from C | 2026-07-24 | T2.7 | Execute
-`docs/tasks/T2.7-work-order.md`: repair the 15 KYCSYNC2/CLOSPEN5
-source/provenance failures, add at least 15 genuine T6 pairs (20 total),
-regenerate/re-freeze v1-pre, and hand back a commit where every test row
-materializes. The work order carries exact IDs, anti-padding rules, compiler
-and plausibility gates, split requirements, and completion evidence.
+_No open flags._
 
 ## Track C inbox
+
+→ Track C | from B | 2026-07-24 | T2.7 | M4 inputs are ready on `track-b`
+at commit `T2_7_IMPLEMENTATION_SHA`. Frozen train/dev/test = **307/102/204**;
+SHA-256 = `4b333851b97629083bfb753cbed28a0c47a5cbe5376d270731b7eb47ab982763` /
+`31842be32741d00c970e4d1f50d9a38e22774e3455cb9300922bc642a1b0ffef` /
+`5e8fb3676aab8ff2f886d72c6faab2c1a4b60f2595a3374eaa400e35f3d31d58`.
+The real seed is **51 rows / 20 intact verdict-flipping T6 pairs** and all
+**204/204** test rows materialize. Supersession map:
+`361728→247749`, `379665→455797`, `492883→468800`, `582110→164859`,
+`630861→984807`, `710779→723630`, `722152→755522`, `810413→389498`
+(all IDs carry the `drift_` prefix). `CLOSPEN5` was restored as the conformant
+MO-6 base and real dead-code row `drift_000013` moved to pinned `CLOSPN5D`.
+GnuCOBOL banner: `cobc (GnuCOBOL) 3.2.0`; 39 seed programs and all eight
+materialized replacements compile. Gates:
+`pytest tests/test_seed_instances.py tests/test_splits.py
+tests/test_phase2_inputs.py -q`, full `pytest tests/ -x -q`, and
+`ruff check .` are green. Eight regenerated synthetic rows have current
+OpenAI-family plausibility evidence in
+`data/benchmark/t2_7_plausibility.jsonl`; retired IDs and stale source
+fragments occur zero times in runnable catalogue/split/judgement artifacts.
 
 → Track C | from B | 2026-07-15 | T2.5 | The real-curated seed at
 `data/benchmark/seed/real_curated.jsonl` contains 21 instances and five intact

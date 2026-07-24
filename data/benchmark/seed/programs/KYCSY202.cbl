@@ -1,0 +1,29 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. KYCSY202.
+      * CKYCR STATUS HOST - BRANCH REGISTER
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-CUST-REC.
+           05  WS-CUST-ID            PIC X(10) VALUE SPACES.
+           05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.
+       01  WS-FLAGS.
+           05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.
+       01  WS-REPORT-CONTROL.
+           05  WS-BRANCH-CODE        PIC X(4) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-CUST-ID
+           ACCEPT WS-DAYS-SINCE-UPD
+           PERFORM 2000-CHECK-SLA
+           DISPLAY 'SLA: ' WS-SLA-STATUS
+           STOP RUN.
+       2000-CHECK-SLA.
+           IF WS-DAYS-SINCE-UPD > 7
+              MOVE 'OVERDUE' TO WS-SLA-STATUS
+           ELSE
+              MOVE 'INSLA' TO WS-SLA-STATUS
+           END-IF
+           IF WS-DAYS-SINCE-UPD = ZERO
+              MOVE 'NEW' TO WS-SLA-STATUS
+           END-IF.

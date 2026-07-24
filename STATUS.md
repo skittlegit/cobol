@@ -121,10 +121,14 @@ three tracks; a task's numeric prefix does not identify its phase.
   train/dev synthetic shares = **52.8%/18.9%**, test-interprocedural = **36**
   (MO-1×/MO-3×/MO-6× = **12/8/12**), every D1–D7 test-local floor passes,
   D4/D5 interprocedural shortfalls are named, and **23** cells are CI-fragile.
-- **T2.7** | ready | B | `docs/tasks/T2.7-work-order.md`: repair the 15
-  source/provenance mismatches, expand real-curated T6 from 5 to at least 20
-  intact pairs, regenerate/re-freeze v1-pre, and prove every test row
-  materializes.
+- **T2.7** | done | B | Phase-2 M4 inputs repaired: **204/204** test rows
+  materialize, the real-curated seed has **51 rows / 20 intact T6 pairs**, and
+  v1-pre is re-frozen at **307/102/204**. SHA-256 train/dev/test =
+  `4b333851b97629083bfb753cbed28a0c47a5cbe5376d270731b7eb47ab982763` /
+  `31842be32741d00c970e4d1f50d9a38e22774e3455cb9300922bc642a1b0ffef` /
+  `5e8fb3676aab8ff2f886d72c6faab2c1a4b60f2595a3374eaa400e35f3d31d58`.
+  All T2.5/T2.6/T2.7 gates pass; 39 seed bases and eight materialized
+  replacements compile under **GnuCOBOL 3.2.0**.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
