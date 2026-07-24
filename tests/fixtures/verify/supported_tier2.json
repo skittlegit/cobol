@@ -1,0 +1,71 @@
+{
+  "prediction": {
+    "instance_id": "drift_000102",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "11(6)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "activation_window": {
+            "kind": "duration_days",
+            "value": 30,
+            "comparator": "at_most",
+            "note": null
+          },
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CICSLIT",
+          "paragraph": "2000-CHECK-WINDOW",
+          "file": null,
+          "line_span": [
+            24,
+            29
+          ]
+        }
+      ],
+      "slice_vars": [],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "activation_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": []
+    },
+    "gold_rationale": "Activation window hard-coded to 45 days; para 11(6) fixes 30.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "CICSLIT.cbl",
+      "mutation": null,
+      "annotator_notes": "T3.4 verifier fixture"
+    }
+  },
+  "claim": "If a credit card is not activated within 30 days of issuance the issuer must seek OTP-based consent or close the account.",
+  "exec_probe": {
+    "stdin": "",
+    "expect_substring": "IRRELEVANT",
+    "description": "probe present so Tier-1 records the CICS compile-unavailable path"
+  },
+  "static_claim": {
+    "literal": "45",
+    "comparator": ">",
+    "dead_paragraph": null
+  }
+}

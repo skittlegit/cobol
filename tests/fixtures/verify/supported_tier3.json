@@ -1,0 +1,71 @@
+{
+  "prediction": {
+    "instance_id": "drift_000103",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN1",
+          "paragraph": "2000-COMPUTE-PENALTY",
+          "file": null,
+          "line_span": [
+            31,
+            39
+          ]
+        }
+      ],
+      "slice_vars": [],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "penalty_per_day",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": []
+    },
+    "gold_rationale": "Entailment-only fallback fixture.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "CLOSPEN1.cbl",
+      "mutation": null,
+      "annotator_notes": "T3.4 verifier fixture"
+    }
+  },
+  "claim": "Failure to honour closure within 7 working days incurs a penalty of Rs 500 per calendar day of delay until closure.",
+  "exec_probe": null,
+  "static_claim": null
+}

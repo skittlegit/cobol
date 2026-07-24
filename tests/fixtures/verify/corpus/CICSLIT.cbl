@@ -1,0 +1,29 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CICSLIT.
+      *----------------------------------------------------------------
+      * CARD ACTIVATION WINDOW CHECK (CICS ONLINE)
+      * REF: RBI CC-DC DIRECTIONS 2025 PARA 11(6) - OTP CONSENT / CLOSE
+      *      IF A CARD IS NOT ACTIVATED WITHIN 30 DAYS OF ISSUANCE.
+      * NOTE: THIS IS CICS SOURCE - IT DOES NOT COMPILE UNDER cobc,
+      *       SO TIER-1 IS UNAVAILABLE AND VERIFICATION FALLS TO TIER-2.
+      *----------------------------------------------------------------
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-DAYS-SINCE-ISSUE     PIC 9(4) VALUE ZERO.
+       01  WS-ACTIVATION-LIMIT     PIC 9(2) VALUE 45.
+       01  WS-MSG                  PIC X(40) VALUE SPACES.
+       LINKAGE SECTION.
+       01  DFHCOMMAREA             PIC X(8).
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           EXEC CICS RECEIVE INTO(WS-DAYS-SINCE-ISSUE) END-EXEC
+           PERFORM 2000-CHECK-WINDOW
+           EXEC CICS SEND FROM(WS-MSG) END-EXEC
+           EXEC CICS RETURN END-EXEC.
+       2000-CHECK-WINDOW.
+           IF WS-DAYS-SINCE-ISSUE > 45
+              MOVE 'CLOSE-UNACTIVATED' TO WS-MSG
+           ELSE
+              MOVE 'WITHIN-WINDOW' TO WS-MSG
+           END-IF.
