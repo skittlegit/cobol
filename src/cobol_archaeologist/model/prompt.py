@@ -42,6 +42,25 @@ include concrete execution/static evidence hooks when available. The runtime
 will verify every proposed finding; if evidence is insufficient, abstain.
 """
 
+HYDE_SYSTEM_PROMPT = """\
+Describe the regulatory obligation implemented by the supplied code-oriented
+query. Use one natural-language sentence. Preserve the regulated entity,
+action, threshold, comparator, time unit, and triggering event. Remove COBOL
+identifiers and control-flow syntax. Do not cite or infer a clause identifier.
+"""
+
+
+def build_hyde_prompt(query: str) -> str:
+    """Return the versioned T3.3b slice-to-description prompt."""
+
+    return (
+        f"{HYDE_SYSTEM_PROMPT}\n"
+        "Code-oriented query:\n"
+        f"{query.strip()}\n"
+        "Regulatory rule description:"
+    )
+
+
 HUNT_PROMPTS: dict[str, str] = {
     "D1_stale_threshold": (
         "Hunt D1 stale thresholds: compare the literal at each typed locus "

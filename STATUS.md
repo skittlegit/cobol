@@ -131,8 +131,11 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T3.3a** | done | C | `src/cobol_archaeologist/rag/search.py` + `tools.py`
   (search_regulations live) + `tests/test_search_regulations.py`. Reviewed
   2026-07-24; merged PR #61.
-- **T3.3b** | todo | C | `docs/tasks/T3.3-work-order.md` — HyDE query generation
-  + 24-query eval (Part 2; q23 named target).
+- **T3.3b** | ready-for-review | C |
+  `src/cobol_archaeologist/rag/hyde.py` +
+  `tests/fixtures/retrieval/hyde_cache.json` + `tests/test_hyde.py`. Pinned-model
+  24-query gate: dense mrr@5 0.588→0.722, hybrid-rerank 0.744→0.793; q23
+  improves from absent in all modes to ranks 1/1/1/2.
 - **T3.4** | done | C | `src/cobol_archaeologist/model/verify.py` +
   `tests/test_verify.py` + `tests/fixtures/verify/`. Reviewed 2026-07-24;
   16 gates green. Verifier accuracy: 50 pairs generated, human labels pending
