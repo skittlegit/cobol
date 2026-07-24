@@ -533,7 +533,14 @@ class RealToolLayer:
     # -- ToolLayer: regulations (Track C owns) ------------------------------
 
     def search_regulations(self, query: str) -> list[RegSearchHit]:
-        raise NotImplementedError("Track C implements; see CONTRACT.md Part 1")
+        # Delegate to Track C's clause-anchored search service (T3.3). Built and
+        # held on first use (it loads the retrieval models), keeping this facade
+        # method thin; the pinned default mode/HyDE are RegulationSearch's.
+        from cobol_archaeologist.rag.search import RegulationSearch
+
+        if getattr(self, "_reg_search", None) is None:
+            self._reg_search = RegulationSearch()
+        return self._reg_search.search(query, k=5)
 
 
 # --------------------------------------------------------------------------
