@@ -16,6 +16,9 @@ three tracks; a task's numeric prefix does not identify its phase.
   594-row compiled catalogue, current Luna judge/drop evidence, 562-row accepted
   set, 21 real-curated seeds, and purpose-valid 583-row v1-pre splits are aligned.
   Track C may consume the corrected IDs and begin headline evaluation.
+- **M3 (Agent Grounded): COMPLETE 2026-07-24** — T3.3b HyDE and T3.6 D1–D7
+  policy hunts were independently reviewed and merged in PR #67; verified
+  emission, D6 delegation, anti-shortcut policy, and the real/stub seam stand.
 
 ## Task ledger
 
@@ -118,6 +121,10 @@ three tracks; a task's numeric prefix does not identify its phase.
   train/dev synthetic shares = **52.8%/18.9%**, test-interprocedural = **36**
   (MO-1×/MO-3×/MO-6× = **12/8/12**), every D1–D7 test-local floor passes,
   D4/D5 interprocedural shortfalls are named, and **23** cells are CI-fragile.
+- **T2.7** | ready | B | `docs/tasks/T2.7-work-order.md`: repair the 15
+  source/provenance mismatches, expand real-curated T6 from 5 to at least 20
+  intact pairs, regenerate/re-freeze v1-pre, and prove every test row
+  materializes.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
   golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
@@ -133,22 +140,24 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T3.3a** | done | C | `src/cobol_archaeologist/rag/search.py` + `tools.py`
   (search_regulations live) + `tests/test_search_regulations.py`. Reviewed
   2026-07-24; merged PR #61.
-- **T3.3b** | ready-for-review | C |
+- **T3.3b** | done | C |
   `src/cobol_archaeologist/rag/hyde.py` +
   `tests/fixtures/retrieval/hyde_cache.json` + `tests/test_hyde.py`. Pinned-model
   24-query gate: dense mrr@5 0.588→0.722, hybrid-rerank 0.744→0.793; q23
-  improves from absent in all modes to ranks 1/1/1/2.
+  improves from absent in all modes to ranks 1/1/1/2. Reviewed and merged in
+  PR #67.
 - **T3.4** | done | C | `src/cobol_archaeologist/model/verify.py` +
   `tests/test_verify.py` + `tests/fixtures/verify/`. Reviewed 2026-07-24;
-  16 gates green. Verifier accuracy: 50 pairs generated, human labels pending
-  in Track C chat (xfail).
+  16 gates green. The 55-row offline cache now uses the pinned DeBERTa neural
+  backend. Verifier accuracy: 50 pairs generated, human labels pending in Track
+  C chat (xfail until the complete label pass, then a hard gate).
 - **T3.5** | done | C | `src/cobol_archaeologist/agent/{loop,stub_tools,
   trajectory}.py` + tests + golden late-fee trajectory. Reviewed 2026-07-24;
   17 gates green, seam purity + no-unverified-emission confirmed.
-- **T3.6** | ready-for-review | C | `src/cobol_archaeologist/agent/{policy.py,
+- **T3.6** | done | C | `src/cobol_archaeologist/agent/{policy.py,
   hunts/}` + `tests/test_policy_hunts.py`. Gates 1-8 green; D1-D7 registered,
   D6 delegates to verify.py reachability, anti-shortcut rule enforced.
-  **M3 (Agent Grounded) closes on review.**
+  Reviewed and merged in PR #67; **M3 (Agent Grounded) complete.**
 - **T4.1** | blocked-live-run | C |
   `src/cobol_archaeologist/eval/{schemas,materialize,run}.py` +
   `model/provider.py`. Week-7 mutation→real-tool→eval seam green; 165/180 test
