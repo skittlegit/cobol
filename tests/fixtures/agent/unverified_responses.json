@@ -1,0 +1,62 @@
+[
+  {
+    "kind": "finding",
+    "thought": "This deliberately unsupported fixture probes mandatory abstention.",
+    "prediction": {
+      "instance_id": "drift_900002",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "23(5)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "A card account may be levied late charges only when past due for more than three days. Late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "past_due_grace": {
+              "kind": "duration_days",
+              "value": 3,
+              "comparator": "strictly_greater"
+            },
+            "charge_base": {
+              "kind": "enum_set",
+              "value": ["outstanding_after_due_date"]
+            }
+          }
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "LATEFEE1",
+            "paragraph": "2000-ASSESS",
+            "file": null,
+            "line_span": [25, 31]
+          }
+        ],
+        "slice_vars": ["WS-LATE-CHARGE"],
+        "is_interprocedural": false
+      },
+      "drift_type": "D3_contradictory",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {"program": "LATEFEE1", "line": 28, "file": null}
+        ]
+      },
+      "gold_rationale": "A deliberately unsupported verifier-rejection fixture.",
+      "provenance": {
+        "source": "real_curated",
+        "base_program": "LATEFEE1.cbl",
+        "mutation": null,
+        "annotator_notes": "No-unverified-emission gate."
+      }
+    },
+    "claim": "Cash withdrawals require biometric approval every hour.",
+    "static_claim": {"literal": "BIOMETRIC-OVERRIDE"},
+    "final_answer": "This answer must never be emitted.",
+    "token_count": 40
+  }
+]
