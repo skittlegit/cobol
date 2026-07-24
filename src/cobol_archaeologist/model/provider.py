@@ -26,6 +26,30 @@ class ProviderUnavailable(RuntimeError):
     pass
 
 
+def _normalize_target_path(prediction: dict[str, Any]) -> None:
+    """Canonicalize model notation to the frozen relative-child path schema."""
+
+    target_path = prediction.get("target_path")
+    if not isinstance(target_path, str):
+        return
+    current_value = (
+        prediction.get("regulation_clause", {}).get("current_value")
+        if isinstance(prediction.get("regulation_clause"), dict)
+        else None
+    )
+    if not isinstance(current_value, dict):
+        return
+    if current_value.get("kind") != "composite":
+        # Leaf CurrentValue nodes have no targetable child path.
+        prediction["target_path"] = None
+        return
+    if target_path.startswith("current_value."):
+        target_path = target_path.removeprefix("current_value.")
+    if target_path.startswith("value."):
+        target_path = target_path.removeprefix("value.")
+    prediction["target_path"] = target_path
+
+
 def _agent_response(
     text: str,
     total_tokens: int,
@@ -43,8 +67,10 @@ def _agent_response(
     # calls use a constant, label-free placeholder here; the orchestrator maps
     # it to the current record only after the provider call returns.
     prediction = data.get("prediction")
-    if prediction_instance_id is not None and isinstance(prediction, dict):
-        prediction["instance_id"] = prediction_instance_id
+    if isinstance(prediction, dict):
+        if prediction_instance_id is not None:
+            prediction["instance_id"] = prediction_instance_id
+        _normalize_target_path(prediction)
     # ``final_answer`` is replay-facing duplication of the finding claim, not
     # evidence. JSON Schema cannot express AgentResponse's kind-dependent
     # validator, so derive the summary when a provider omits it.
@@ -187,9 +213,11 @@ class OpenAIDecisionModel:
                 "code_locus.is_interprocedural true exactly when loci span more "
                 "than one program. Always set prediction.instance_id to the "
                 "schema's single allowed placeholder; record identity is assigned "
-                "outside the model. For a finding, final_answer must concisely "
-                "summarize claim. Set token_count to 0; the adapter replaces it "
-                "with provider usage."
+                "outside the model. target_path is relative to a composite "
+                "current_value's value mapping (for example day_basis), and must "
+                "be null for a leaf current_value. For a finding, final_answer "
+                "must concisely summarize claim. Set token_count to 0; the adapter "
+                "replaces it with provider usage."
             ),
         }
         # DECISION (OpenAI live seam): Responses is stateless and non-persisted

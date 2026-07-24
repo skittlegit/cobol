@@ -237,6 +237,29 @@ def test_openai_provider_owns_placeholder_identity_not_model_output():
     assert result.token_count == 17
 
 
+def test_openai_provider_canonicalizes_only_target_path_notation():
+    raw = json.loads(
+        (ROOT / "tests" / "fixtures" / "agent" / "unverified_responses.json").read_text(
+            encoding="utf-8"
+        )
+    )[0]
+    raw["prediction"]["target_path"] = "current_value.value.past_due_grace"
+    composite = provider_module._agent_response(json.dumps(raw), 1)
+    assert composite.prediction is not None
+    assert composite.prediction.target_path == "past_due_grace"
+
+    raw["prediction"]["regulation_clause"]["current_value"] = {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": None,
+    }
+    raw["prediction"]["target_path"] = "current_value.value"
+    leaf = provider_module._agent_response(json.dumps(raw), 1)
+    assert leaf.prediction is not None
+    assert leaf.prediction.target_path is None
+
+
 def test_week7_mutation_real_tool_agent_eval_seam(tmp_path):
     record = next(
         item
