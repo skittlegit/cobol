@@ -191,17 +191,16 @@ def test_require_cache_raises_on_miss():
         e.entail("a premise never cached", "a hypothesis never cached")
 
 
-def test_lexical_entailer_matches_committed_cache_directions(offline_entailer):
-    # The committed cache was seeded by the lexical proxy; re-deriving the fixture
-    # pairs reproduces the same entailment directions (regeneration is stable).
-    lex = LexicalEntailer()
+def test_committed_cache_uses_pinned_neural_backend(offline_entailer):
+    expected_backend = f"{V.NLI_FAMILY}:{V.NLI_MODEL}"
     for name in ("supported_tier1", "supported_tier2", "supported_tier3",
                  "unsupported_citation", "d6_reachability"):
         f = load(name)
         clause = f.prediction.regulation_clause
         cached = offline_entailer.entail(clause.text, f.claim)
-        fresh = lex.entail(clause.text, f.claim)
-        assert cached.entailment == fresh.entailment, name
+        repeated = offline_entailer.entail(clause.text, f.claim)
+        assert cached == repeated, name
+        assert cached.backend == expected_backend, name
 
 
 # --- verifier accuracy report (xfail until human labels; T3.1 Gate B protocol) -
@@ -219,17 +218,20 @@ def _load_accuracy_pairs() -> list[dict]:
 def test_accuracy_pairs_are_well_formed():
     pairs = _load_accuracy_pairs()
     assert len(pairs) >= 50
-    assert all(p["human_label"] is None for p in pairs), "human labels are authored at review, not here"
+    labels = [p["human_label"] for p in pairs]
+    assert set(labels) <= {None, "entailed", "not_entailed"}
+    assert all(label is None for label in labels) or all(
+        label is not None for label in labels
+    ), "commit either the unlabeled set or one complete human-label pass"
     kinds = {p["pair_id"].split("_")[1] for p in pairs}
     assert {"pos", "neg", "part"} <= kinds  # deliberate entailed/not/partial mix
 
 
-@pytest.mark.xfail(reason="pending human labels (Track C chat), per T3.1 Gate B protocol",
-                   strict=False)
 def test_verifier_accuracy_false_accept_rate(offline_entailer):
     pairs = _load_accuracy_pairs()
     labels = [p["human_label"] for p in pairs]
-    assert all(lbl is not None for lbl in labels), "human_label column not yet filled"
+    if any(label is None for label in labels):
+        pytest.xfail("pending human labels (Track C chat), per Gate B protocol")
 
     false_accepts = negatives = 0
     for p in pairs:

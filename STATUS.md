@@ -142,8 +142,9 @@ three tracks; a task's numeric prefix does not identify its phase.
   improves from absent in all modes to ranks 1/1/1/2.
 - **T3.4** | done | C | `src/cobol_archaeologist/model/verify.py` +
   `tests/test_verify.py` + `tests/fixtures/verify/`. Reviewed 2026-07-24;
-  16 gates green. Verifier accuracy: 50 pairs generated, human labels pending
-  in Track C chat (xfail).
+  16 gates green. The 55-row offline cache now uses the pinned DeBERTa neural
+  backend. Verifier accuracy: 50 pairs generated, human labels pending in Track
+  C chat (xfail until the complete label pass, then a hard gate).
 - **T3.5** | done | C | `src/cobol_archaeologist/agent/{loop,stub_tools,
   trajectory}.py` + tests + golden late-fee trajectory. Reviewed 2026-07-24;
   17 gates green, seam purity + no-unverified-emission confirmed.
