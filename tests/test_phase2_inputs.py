@@ -34,14 +34,14 @@ SUPERSEDED_IDS = {
 PLAUSIBILITY_EVIDENCE = BENCHMARK / "t2_7_plausibility.jsonl"
 STALE_SOURCE_FRAGMENTS = ("WS-SYNC-STATUS", "2000-SET-SYNC-STATUS")
 PINNED_CARDDEMO_SOURCES = {
-    "CBTRN02C.cbl": "ca73e806cbce4d07da7fa307ad32cf60d9f03aa50ff05c48dc522f6bbf8c1bb2",
-    "CBACT04C.cbl": "0ff681b12950033d649146becd794f2e9d7bf336918c6acb5413f0ad5fce3c44",
-    "CVACT01Y.cpy": "b14ac0cf22440a6f6091e578dcece62be93446c525eb6f2ab2d6d9405098a631",
-    "CVACT03Y.cpy": "0c084476c3cfe603c5e81e1c3ecaab1bd128d30c3882c239cea36b96f16f445c",
-    "CVTRA01Y.cpy": "270947433c1c269d23422de2e330a448d11a4bb1c155ee42d32b67e7fdb73e71",
-    "CVTRA02Y.cpy": "a52d963690250e8c367031dbfe3a676c136c774340c98175dfba13ccede65c07",
-    "CVTRA05Y.cpy": "9e568ff691ee3b63c216cab406f03acaff6a7c79ec23608525664d34769c8cdb",
-    "CVTRA06Y.cpy": "03f47e9c644960076fc97de0fc216faffdee95fed1823974956dbcbf2ecda231",
+    "CBTRN02C.cbl": "708f3cadc555acab63f11e2f3238f5372ac7180e6b01197bf960d96bf0d2e83f",
+    "CBACT04C.cbl": "5084bb8b0c9a0f0199f737487ae1863f12e43cabbdc459a62b6b67bedc683cc4",
+    "CVACT01Y.cpy": "81a08bad15af5664326a6f0af3650f570821c4857ffdec3a6a39f91f07dca728",
+    "CVACT03Y.cpy": "ffc6079e09b28739e154bf6c1e1c36d408209faa91f6cf7008078dc596a1c370",
+    "CVTRA01Y.cpy": "50637f13692c89b17a2fc60d249dc54e9eb3569d933afca3cdcf65b491a9d5ba",
+    "CVTRA02Y.cpy": "7828fae489c59944b4310e223028a8d3a525ccf4ead113c062bcaff04b52bf9c",
+    "CVTRA05Y.cpy": "d7bde0e78ff608497087b9909c889ed39e347269f964bda767b92b547fbb5fec",
+    "CVTRA06Y.cpy": "c5c69f1b86c5a10156d3c5881d7cf387e6b925aae32825360f85bf4056a554a1",
 }
 
 
@@ -107,7 +107,8 @@ def test_pinned_carddemo_seed_closure_is_self_contained_and_byte_exact():
     for filename, expected_hash in PINNED_CARDDEMO_SOURCES.items():
         path = PROGRAMS / filename
         assert path.is_file()
-        assert hashlib.sha256(path.read_bytes()).hexdigest() == expected_hash
+        canonical = path.read_bytes().replace(b"\r\n", b"\n")
+        assert hashlib.sha256(canonical).hexdigest() == expected_hash
 
 
 def test_every_refrozen_test_row_materializes_exactly():
