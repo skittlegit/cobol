@@ -260,6 +260,26 @@ def test_openai_provider_canonicalizes_only_target_path_notation():
     assert leaf.prediction.target_path is None
 
 
+def test_openai_provider_turns_malformed_finding_into_typed_abstention():
+    raw = json.loads(
+        (ROOT / "tests" / "fixtures" / "agent" / "unverified_responses.json").read_text(
+            encoding="utf-8"
+        )
+    )[0]
+    raw["prediction"]["labels"]["line_level"][0]["line"] = 999_999
+
+    result = provider_module._agent_response(json.dumps(raw), 23)
+
+    assert result.kind == "abstain"
+    assert result.prediction is None
+    assert result.abstention_reason is not None
+    assert result.abstention_reason.startswith(
+        "response contract rejected proposed output:"
+    )
+    assert "matches no locus span" in result.abstention_reason
+    assert result.token_count == 23
+
+
 def test_week7_mutation_real_tool_agent_eval_seam(tmp_path):
     record = next(
         item

@@ -10,6 +10,8 @@ import urllib.error
 import urllib.request
 from typing import Any
 
+from pydantic import ValidationError
+
 from cobol_archaeologist.model.prompt import (
     MODEL_ID,
     MODEL_SEED,
@@ -81,7 +83,25 @@ def _agent_response(
     ):
         data["final_answer"] = data["claim"]
     data["token_count"] = total_tokens
-    return AgentResponse.model_validate(data)
+    try:
+        return AgentResponse.model_validate(data)
+    except ValidationError as exc:
+        details = "; ".join(
+            f"{'.'.join(str(part) for part in error['loc']) or 'response'}: "
+            f"{error['msg']}"
+            for error in exc.errors(include_url=False, include_input=False)
+        )
+        reason = f"response contract rejected proposed output: {details}"
+        # A syntactically valid provider response that proposes a malformed
+        # finding is model behavior, not an API outage. Fail closed as an
+        # explicit abstention so no invalid prediction reaches verification.
+        return AgentResponse(
+            kind="abstain",
+            thought="The proposed output failed the frozen response contract.",
+            abstention_reason=reason,
+            final_answer=f"Abstained: {reason}",
+            token_count=total_tokens,
+        )
 
 
 def _agent_response_schema(
