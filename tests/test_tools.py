@@ -359,12 +359,24 @@ def test_run_cobol_accepts_stdin(layer):
     assert "GOT:PINGED" in result.stdout
 
 
-# -- Gate 2: search_regulations (typed stub, Track C owns) -------------------
+# -- Gate 2: search_regulations (live Track C delegation) --------------------
 
 
-def test_search_regulations_is_a_typed_stub(layer):
-    with pytest.raises(NotImplementedError, match="Track C"):
-        layer.search_regulations("credit card interest")
+def test_search_regulations_delegates_with_typed_list_semantics(layer, monkeypatch):
+    class OfflineRegulationSearch:
+        def search(self, query: str, *, k: int):
+            assert query == "credit card interest"
+            assert k == 5
+            return []
+
+    monkeypatch.setattr(
+        layer, "_reg_search", OfflineRegulationSearch(), raising=False
+    )
+
+    result = layer.search_regulations("credit card interest")
+
+    assert result == []
+    assert isinstance(result, list)
 
 
 # -- Gate 3: the smoke script answers a real question via ToolLayer only -----

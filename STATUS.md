@@ -83,6 +83,8 @@ three tracks; a task's numeric prefix does not identify its phase.
   semantics register in `docs/tasks/T1.6-work-order.md` +
   `scripts/smoke_tools.py` + gate `tests/test_tools.py` (23 tests, incl.
   `isinstance(_, ToolLayer)`) + fixture `tests/fixtures/smoke/acct_curr_bal.json`.
+  The obsolete `search_regulations` stub assertion is retired; its gate now
+  pins offline delegation and typed-list semantics for Track C's live service.
   D0 review fixes landed with regression tests: F5 (`dataflow.py`
   case-insensitive qualified names), F6 (`cleaner.py` `PreprocessError` on
   unterminated EXEC/COPY at EOF), F10 (`fetch_corpora.sh` verifies CardDemo
