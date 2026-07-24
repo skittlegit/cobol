@@ -139,14 +139,20 @@ class OpenAIDecisionModel:
         question: str,
         transcript: list[dict[str, Any]],
     ) -> AgentResponse:
+        schema = AgentResponse.model_json_schema()
         user = {
             "question": question,
             "tool_transcript": transcript,
-            "response_contract": AgentResponse.model_json_schema(),
             "instruction": (
-                "Return exactly one JSON object satisfying response_contract. "
                 "Choose one tool call, a finding, or an explicit abstention. "
-                "Set token_count to 0; the adapter replaces it with provider usage."
+                "For a finding, claim must restate an obligation entailed by the "
+                "supplied clause; put code facts in exec_probe/static_claim. "
+                "D7_conformant requires conformant program/paragraph labels and "
+                "an empty line_level. D1-D6 require drift labels. target_path must "
+                "be null unless it names an exact current_value child path. Set "
+                "code_locus.is_interprocedural true exactly when loci span more "
+                "than one program. Set token_count to 0; the adapter replaces it "
+                "with provider usage."
             ),
         }
         # DECISION (OpenAI live seam): Responses is stateless and non-persisted
@@ -159,7 +165,14 @@ class OpenAIDecisionModel:
             "max_output_tokens": 4096,
             "reasoning": {"effort": self.reasoning_effort},
             "temperature": self.temperature,
-            "text": {"format": {"type": "json_object"}},
+            "text": {
+                "format": {
+                    "type": "json_schema",
+                    "name": "agent_response",
+                    "schema": schema,
+                    "strict": False,
+                }
+            },
             "store": False,
         }
         request = urllib.request.Request(

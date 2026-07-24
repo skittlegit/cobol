@@ -202,7 +202,10 @@ def test_openai_provider_uses_responses_json_contract_without_persisting(
     assert payload["model"] == "gpt-5.6-sol"
     assert payload["reasoning"] == {"effort": "none"}
     assert payload["temperature"] == 0.0
-    assert payload["text"]["format"] == {"type": "json_object"}
+    assert payload["text"]["format"]["type"] == "json_schema"
+    assert payload["text"]["format"]["name"] == "agent_response"
+    assert payload["text"]["format"]["strict"] is False
+    assert payload["text"]["format"]["schema"]["title"] == "AgentResponse"
     assert payload["store"] is False
     assert "test-only-key" not in json.dumps(payload)
     assert result.kind == "abstain"

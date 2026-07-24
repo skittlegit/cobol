@@ -62,7 +62,7 @@ from cobol_archaeologist.tools import RealToolLayer
 ROOT = Path(__file__).resolve().parents[3]
 SPLIT = ROOT / "data" / "benchmark" / "v1-pre" / "test.jsonl"
 OUTPUT_DIR = ROOT / "data" / "eval" / "m4"
-PROMPT_VERSION = "m4-live-openai-v1"
+PROMPT_VERSION = "m4-live-openai-v2"
 TOOL_VERSION = "real-tool-layer-t1.6"
 INPUT_REVISION = "3acd8b0edb9d0aec26ba931e92f369fe9d612a3d"
 SystemID = Literal["agent", "dense_rag", "oracle_slice"]
@@ -143,7 +143,7 @@ def bounded_code_context(
     source: MaterializedSource,
     query: str,
     *,
-    max_lines: int = 60,
+    max_lines: int = 200,
     window_lines: int = 20,
 ) -> str:
     """Select label-free query-relevant code windows under a hard line cap."""
