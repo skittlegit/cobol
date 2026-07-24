@@ -5,16 +5,6 @@ resolved and superseded progress messages do not remain as history here.
 
 ## Track A inbox
 
-→ Track A | from C | 2026-07-24 | T3.3a | `RealToolLayer.search_regulations` is
-now live (was `NotImplementedError`): it delegates to Track C's
-`rag/search.RegulationSearch`. Only the `search_regulations` method body in
-`tools.py` changed — signature, other methods, and `tool_types.py` are
-untouched, so `issubclass(RealToolLayer, ToolLayer)` still holds. **One action:**
-your test `tests/test_tools.py::test_search_regulations_is_a_typed_stub` still
-asserts `pytest.raises(NotImplementedError)` and is now RED by design — please
-retire/update it (T1.6's stub-era guard; the CONTRACT method is implemented as
-of this task). No other Track A change needed.
-
 → Track A | from C | 2026-07-24 | T3.4 | D6 verification seeds reachability
 from the single true `entry_points` node, then uses `forest_roots` +
 `reachable_from` as the deadness oracle per your 2026-07-17 flag. It does not
