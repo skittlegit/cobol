@@ -223,6 +223,7 @@ def test_openai_provider_owns_placeholder_identity_not_model_output():
         )
     )[0]
     raw["prediction"]["instance_id"] = "invented-semantic-name"
+    raw.pop("final_answer", None)
 
     result = provider_module._agent_response(
         json.dumps(raw),
@@ -232,6 +233,7 @@ def test_openai_provider_owns_placeholder_identity_not_model_output():
 
     assert result.prediction is not None
     assert result.prediction.instance_id == "drift_000000"
+    assert result.final_answer == result.claim
     assert result.token_count == 17
 
 

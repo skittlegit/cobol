@@ -45,6 +45,15 @@ def _agent_response(
     prediction = data.get("prediction")
     if prediction_instance_id is not None and isinstance(prediction, dict):
         prediction["instance_id"] = prediction_instance_id
+    # ``final_answer`` is replay-facing duplication of the finding claim, not
+    # evidence. JSON Schema cannot express AgentResponse's kind-dependent
+    # validator, so derive the summary when a provider omits it.
+    if (
+        data.get("kind") == "finding"
+        and not data.get("final_answer")
+        and isinstance(data.get("claim"), str)
+    ):
+        data["final_answer"] = data["claim"]
     data["token_count"] = total_tokens
     return AgentResponse.model_validate(data)
 
@@ -178,7 +187,8 @@ class OpenAIDecisionModel:
                 "code_locus.is_interprocedural true exactly when loci span more "
                 "than one program. Always set prediction.instance_id to the "
                 "schema's single allowed placeholder; record identity is assigned "
-                "outside the model. Set token_count to 0; the adapter replaces it "
+                "outside the model. For a finding, final_answer must concisely "
+                "summarize claim. Set token_count to 0; the adapter replaces it "
                 "with provider usage."
             ),
         }
