@@ -206,10 +206,33 @@ def test_openai_provider_uses_responses_json_contract_without_persisting(
     assert payload["text"]["format"]["name"] == "agent_response"
     assert payload["text"]["format"]["strict"] is False
     assert payload["text"]["format"]["schema"]["title"] == "AgentResponse"
+    prediction_id = payload["text"]["format"]["schema"]["$defs"]["DriftInstance"][
+        "properties"
+    ]["instance_id"]
+    assert prediction_id["enum"] == ["drift_000000"]
     assert payload["store"] is False
     assert "test-only-key" not in json.dumps(payload)
     assert result.kind == "abstain"
     assert result.token_count == 18
+
+
+def test_openai_provider_owns_placeholder_identity_not_model_output():
+    raw = json.loads(
+        (ROOT / "tests" / "fixtures" / "agent" / "unverified_responses.json").read_text(
+            encoding="utf-8"
+        )
+    )[0]
+    raw["prediction"]["instance_id"] = "invented-semantic-name"
+
+    result = provider_module._agent_response(
+        json.dumps(raw),
+        17,
+        prediction_instance_id="drift_000000",
+    )
+
+    assert result.prediction is not None
+    assert result.prediction.instance_id == "drift_000000"
+    assert result.token_count == 17
 
 
 def test_week7_mutation_real_tool_agent_eval_seam(tmp_path):

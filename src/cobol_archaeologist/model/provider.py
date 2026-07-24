@@ -26,7 +26,12 @@ class ProviderUnavailable(RuntimeError):
     pass
 
 
-def _agent_response(text: str, total_tokens: int) -> AgentResponse:
+def _agent_response(
+    text: str,
+    total_tokens: int,
+    *,
+    prediction_instance_id: str | None = None,
+) -> AgentResponse:
     match = _JSON_OBJECT.search(text)
     if match is None:
         raise ProviderUnavailable("provider response contained no JSON object")
@@ -34,8 +39,24 @@ def _agent_response(text: str, total_tokens: int) -> AgentResponse:
         data = json.loads(match.group())
     except json.JSONDecodeError as exc:
         raise ProviderUnavailable("provider response contained invalid JSON") from exc
+    # A model is not the authority for evaluation-record identity.  Live M4
+    # calls use a constant, label-free placeholder here; the orchestrator maps
+    # it to the current record only after the provider call returns.
+    prediction = data.get("prediction")
+    if prediction_instance_id is not None and isinstance(prediction, dict):
+        prediction["instance_id"] = prediction_instance_id
     data["token_count"] = total_tokens
     return AgentResponse.model_validate(data)
+
+
+def _agent_response_schema(
+    prediction_instance_id: str | None = None,
+) -> dict[str, Any]:
+    schema = AgentResponse.model_json_schema()
+    if prediction_instance_id is not None:
+        instance_schema = schema["$defs"]["DriftInstance"]["properties"]["instance_id"]
+        instance_schema["enum"] = [prediction_instance_id]
+    return schema
 
 
 class AnthropicDecisionModel:
@@ -118,6 +139,7 @@ class OpenAIDecisionModel:
         timeout_s: float = 120.0,
         reasoning_effort: str = "none",
         max_retries: int = 4,
+        prediction_instance_id: str = "drift_000000",
     ) -> None:
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
         if not self.api_key:
@@ -131,6 +153,9 @@ class OpenAIDecisionModel:
         self.timeout_s = timeout_s
         self.reasoning_effort = reasoning_effort
         self.max_retries = max_retries
+        if re.fullmatch(r"drift_\d{6}", prediction_instance_id) is None:
+            raise ValueError("prediction_instance_id must match drift_NNNNNN")
+        self.prediction_instance_id = prediction_instance_id
 
     def respond(
         self,
@@ -139,7 +164,7 @@ class OpenAIDecisionModel:
         question: str,
         transcript: list[dict[str, Any]],
     ) -> AgentResponse:
-        schema = AgentResponse.model_json_schema()
+        schema = _agent_response_schema(self.prediction_instance_id)
         user = {
             "question": question,
             "tool_transcript": transcript,
@@ -151,7 +176,9 @@ class OpenAIDecisionModel:
                 "an empty line_level. D1-D6 require drift labels. target_path must "
                 "be null unless it names an exact current_value child path. Set "
                 "code_locus.is_interprocedural true exactly when loci span more "
-                "than one program. Set token_count to 0; the adapter replaces it "
+                "than one program. Always set prediction.instance_id to the "
+                "schema's single allowed placeholder; record identity is assigned "
+                "outside the model. Set token_count to 0; the adapter replaces it "
                 "with provider usage."
             ),
         }
@@ -204,7 +231,11 @@ class OpenAIDecisionModel:
                 usage.get("input_tokens", 0) + usage.get("output_tokens", 0),
             )
         )
-        return _agent_response(text, total_tokens)
+        return _agent_response(
+            text,
+            total_tokens,
+            prediction_instance_id=self.prediction_instance_id,
+        )
 
     def _request(self, request: urllib.request.Request) -> dict[str, Any]:
         for attempt in range(self.max_retries + 1):

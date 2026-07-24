@@ -94,6 +94,37 @@ provenance, or hidden labels. Unsupported findings must be withheld.
 """
 
 
+class _RecordIdentityModel:
+    """Assign the external record ID after a label-free provider response."""
+
+    def __init__(self, inner: DecisionModel, instance_id: str) -> None:
+        self.inner = inner
+        self.instance_id = instance_id
+        self.model_id = inner.model_id
+        self.temperature = inner.temperature
+        self.seed = inner.seed
+
+    def respond(
+        self,
+        *,
+        system_prompt: str,
+        question: str,
+        transcript: list[dict],
+    ) -> AgentResponse:
+        response = self.inner.respond(
+            system_prompt=system_prompt,
+            question=question,
+            transcript=transcript,
+        )
+        if response.prediction is None:
+            return response
+        prediction = response.prediction.model_copy(
+            update={"instance_id": self.instance_id},
+            deep=True,
+        )
+        return response.model_copy(update={"prediction": prediction}, deep=True)
+
+
 def load_split(path: Path = SPLIT) -> list[DriftInstance]:
     return [
         DriftInstance.model_validate_json(line)
@@ -366,7 +397,6 @@ def run_live_system(
     materialized, failures = _materialize_all(rows)
     regulation_search = regulation_search or RegulationSearch()
     entailer = entailer or default_entailer()
-    model_factory = lambda: OpenAIDecisionModel(model_id=model_id)
     budget = AGENT_BUDGET if system_id == "agent" else BASELINE_BUDGET
     budget_payload = budget.model_dump(mode="json")
     tool_version = f"{TOOL_VERSION}@{commit}"
@@ -422,6 +452,10 @@ def run_live_system(
             )
         with tempfile.TemporaryDirectory(prefix=f"m4-{system_id}-") as temp:
             tools = _tool_layer(source, Path(temp), regulation_search)
+            model_factory = lambda: _RecordIdentityModel(
+                OpenAIDecisionModel(model_id=model_id),
+                gold.instance_id,
+            )
             if system_id == "agent":
                 try:
                     outcome = investigate_all_hunts(
