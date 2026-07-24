@@ -16,8 +16,8 @@ The retrieval corpus is the frozen chunker output at
 import pytest
 
 from cobol_archaeologist.rag.index import (
-    MODES,
     BM25,
+    MODES,
     RegulationIndex,
     _write_relevance_report,
     build_relevance_report,

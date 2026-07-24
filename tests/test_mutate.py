@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 from cobol_archaeologist.benchmark.mutate import (
+    _STALE_GRIDS,
     ClauseDataError,
     ClauseRecord,
     MutationRejected,
@@ -21,7 +22,6 @@ from cobol_archaeologist.benchmark.mutate import (
     _flatten_value,
     _is_floor,
     _leaf_kind,
-    _STALE_GRIDS,
     _stale_value,
     load_clause_records,
     mutate,
@@ -36,7 +36,6 @@ from cobol_archaeologist.benchmark.surface import (
 from cobol_archaeologist.model.run_cobol import run_cobol
 from cobol_archaeologist.schemas import DriftInstance
 from cobol_archaeologist.tool_types import RunInputs
-
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CLAUSES_PATH = REPO_ROOT / "data" / "regulations" / "clauses.jsonl"
@@ -619,9 +618,7 @@ def test_mo5_targets_the_partnership_branch_not_same_valued_corporate_branch():
 
     lines = result.source.text.splitlines()
     corporate = next(index for index, line in enumerate(lines) if "WHEN 'C'" in line)
-    partnership = next(
-        index for index, line in enumerate(lines) if "WHEN 'P'" in line
-    )
+    partnership = next(index for index, line in enumerate(lines) if "WHEN 'P'" in line)
     assert "> 10.00" in lines[corporate + 1]
     assert ">= 10.00" in lines[partnership + 1]
 
@@ -889,7 +886,9 @@ def test_mo1_stale_values_are_verified_priors_or_on_the_clause_grid():
                 # A fixed statutory constant is exempt from the direction rule,
                 # but only because the clause *declares* it is -- the exemption
                 # must be earned by data, not by a missing comparator.
-                stale, source = _exact_wrong_value(record, float(value), random.Random(7))
+                stale, source = _exact_wrong_value(
+                    record, float(value), random.Random(7)
+                )
                 assert source == "exact_wrong"
                 assert stale != float(value)
                 seen.setdefault(source, 0)

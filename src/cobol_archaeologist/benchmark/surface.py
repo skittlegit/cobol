@@ -11,7 +11,6 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from statistics import mean
 
-
 FEATURE_NAMES = (
     "diff_size",
     "touched_line_count",

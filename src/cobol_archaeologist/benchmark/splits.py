@@ -9,7 +9,6 @@ from pathlib import Path
 
 from cobol_archaeologist.schemas import DriftInstance
 
-
 SPLITS = ("train", "dev", "test")
 CLASS_ORDER = (
     "D1_stale_threshold",
@@ -62,11 +61,7 @@ def _base_group(instance: DriftInstance) -> str:
 
 
 def _stratum(instance: DriftInstance) -> str:
-    return (
-        "interprocedural"
-        if instance.code_locus.is_interprocedural
-        else "local"
-    )
+    return "interprocedural" if instance.code_locus.is_interprocedural else "local"
 
 
 def _cell(instance: DriftInstance) -> tuple[str, str]:
@@ -128,20 +123,15 @@ def _assignment_score(
 def _assignment_score_for_groups(
     groups: dict[str, list[DriftInstance]], assignments: dict[str, str]
 ) -> float:
-    global_cells = Counter(
-        _cell(item) for items in groups.values() for item in items
-    )
+    global_cells = Counter(_cell(item) for items in groups.values() for item in items)
     total = sum(len(items) for items in groups.values())
     target_cells = {
         split: {
-            cell: count * TARGET_RATIOS[split]
-            for cell, count in global_cells.items()
+            cell: count * TARGET_RATIOS[split] for cell, count in global_cells.items()
         }
         for split in SPLITS
     }
-    target_totals = {
-        split: total * TARGET_RATIOS[split] for split in SPLITS
-    }
+    target_totals = {split: total * TARGET_RATIOS[split] for split in SPLITS}
     counts = {split: Counter() for split in SPLITS}
     totals: Counter = Counter()
     for group, items in groups.items():
@@ -169,10 +159,7 @@ def _purpose_errors(
         for item in items
     )
     synthetic_counts = {
-        split: sum(
-            item.provenance.source == "synthetic"
-            for item in split_rows[split]
-        )
+        split: sum(item.provenance.source == "synthetic" for item in split_rows[split])
         for split in SPLITS
     }
     errors: list[str] = []
@@ -185,18 +172,14 @@ def _purpose_errors(
         if len(classes) < 5:
             errors.append(f"{split} contains fewer than five classes")
 
-    test_local = [
-        item for item in split_rows["test"] if _stratum(item) == "local"
-    ]
+    test_local = [item for item in split_rows["test"] if _stratum(item) == "local"]
     local_counts = Counter(item.drift_type for item in test_local)
     for drift_type in CLASS_ORDER:
         if local_counts[drift_type] < 10:
             errors.append(f"test-local {drift_type} has fewer than 10 instances")
 
     test_interprocedural = [
-        item
-        for item in split_rows["test"]
-        if _stratum(item) == "interprocedural"
+        item for item in split_rows["test"] if _stratum(item) == "interprocedural"
     ]
     if len(test_interprocedural) < 30:
         errors.append("test has fewer than 30 interprocedural instances")
@@ -233,9 +216,7 @@ def _purpose_deficit(
         for item in items
     )
     synthetic_counts = {
-        split: sum(
-            item.provenance.source == "synthetic" for item in split_rows[split]
-        )
+        split: sum(item.provenance.source == "synthetic" for item in split_rows[split])
         for split in SPLITS
     }
     deficit = max(0.0, 0.12 * synthetic_total - synthetic_counts["dev"])
@@ -246,18 +227,12 @@ def _purpose_deficit(
             5 - len({item.drift_type for item in split_rows[split]}),
         )
 
-    test_local = [
-        item for item in split_rows["test"] if _stratum(item) == "local"
-    ]
+    test_local = [item for item in split_rows["test"] if _stratum(item) == "local"]
     local_counts = Counter(item.drift_type for item in test_local)
-    deficit += sum(
-        max(0, 10 - local_counts[drift_type]) for drift_type in CLASS_ORDER
-    )
+    deficit += sum(max(0, 10 - local_counts[drift_type]) for drift_type in CLASS_ORDER)
 
     test_interprocedural = [
-        item
-        for item in split_rows["test"]
-        if _stratum(item) == "interprocedural"
+        item for item in split_rows["test"] if _stratum(item) == "interprocedural"
     ]
     deficit += max(0, 30 - len(test_interprocedural))
     operator_counts = Counter(_operator(item) for item in test_interprocedural)
@@ -338,20 +313,15 @@ def _assign_groups(
             )
         allowed[group] = tuple(split for split in SPLITS if split in choices)
 
-    global_cells = Counter(
-        _cell(item) for items in groups.values() for item in items
-    )
+    global_cells = Counter(_cell(item) for items in groups.values() for item in items)
     total = sum(len(items) for items in groups.values())
     target_cells = {
         split: {
-            cell: count * TARGET_RATIOS[split]
-            for cell, count in global_cells.items()
+            cell: count * TARGET_RATIOS[split] for cell, count in global_cells.items()
         }
         for split in SPLITS
     }
-    target_totals = {
-        split: total * TARGET_RATIOS[split] for split in SPLITS
-    }
+    target_totals = {split: total * TARGET_RATIOS[split] for split in SPLITS}
     counts = {split: Counter() for split in SPLITS}
     totals: Counter = Counter()
     assignments: dict[str, str] = {}
@@ -376,9 +346,7 @@ def _assign_groups(
                 continue
             counts[split].update(group_cells)
             totals[split] += len(groups[group])
-            score = _assignment_score(
-                counts, totals, target_cells, target_totals
-            )
+            score = _assignment_score(counts, totals, target_cells, target_totals)
             counts[split].subtract(group_cells)
             totals[split] -= len(groups[group])
             candidates.append((score, split_index, split))
@@ -433,8 +401,7 @@ def _validate_assignments(
 
 def _write_jsonl(path: Path, rows: list[DriftInstance]) -> None:
     path.write_text(
-        "\n".join(item.model_dump_json() for item in rows)
-        + ("\n" if rows else ""),
+        "\n".join(item.model_dump_json() for item in rows) + ("\n" if rows else ""),
         encoding="utf-8",
     )
 
@@ -474,20 +441,14 @@ def _distribution(
         for item in rows
     )
     synthetic_counts = {
-        split: sum(
-            item.provenance.source == "synthetic" for item in split_rows[split]
-        )
+        split: sum(item.provenance.source == "synthetic" for item in split_rows[split])
         for split in SPLITS
     }
     test_interprocedural = [
-        item
-        for item in split_rows["test"]
-        if _stratum(item) == "interprocedural"
+        item for item in split_rows["test"] if _stratum(item) == "interprocedural"
     ]
     operator_counts = Counter(_operator(item) for item in test_interprocedural)
-    interprocedural_classes = Counter(
-        item.drift_type for item in test_interprocedural
-    )
+    interprocedural_classes = Counter(item.drift_type for item in test_interprocedural)
     train_classes = {item.drift_type for item in split_rows["train"]}
     dev_classes = {item.drift_type for item in split_rows["dev"]}
     lines.extend(
@@ -512,9 +473,7 @@ def _distribution(
         ]
     )
     for operator in ("MO-1×", "MO-3×", "MO-6×"):
-        lines.append(
-            f"| {operator} | >= 8 | {operator_counts[operator]} | pass |"
-        )
+        lines.append(f"| {operator} | >= 8 | {operator_counts[operator]} | pass |")
     lines.extend(
         [
             "",
@@ -567,9 +526,7 @@ def _distribution(
     for item in all_rows:
         by_group[_base_group(item)].append(item)
     for group in sorted(by_group):
-        source_counts = Counter(
-            item.provenance.source for item in by_group[group]
-        )
+        source_counts = Counter(item.provenance.source for item in by_group[group])
         lines.append(
             f"| {group} | {assignments[group]} | {source_counts['synthetic']} | "
             f"{source_counts['real_curated']} | {len(by_group[group])} |"
@@ -614,11 +571,7 @@ def build_splits(
 
     split_rows = {
         split: sorted(
-            (
-                item
-                for item in rows
-                if assignments[_base_group(item)] == split
-            ),
+            (item for item in rows if assignments[_base_group(item)] == split),
             key=lambda item: item.instance_id,
         )
         for split in SPLITS
@@ -635,12 +588,7 @@ def build_splits(
         group_counts=tuple(
             (
                 split,
-                len(
-                    {
-                        _base_group(item)
-                        for item in split_rows[split]
-                    }
-                ),
+                len({_base_group(item) for item in split_rows[split]}),
             )
             for split in SPLITS
         ),

@@ -16,7 +16,6 @@ from cobol_archaeologist.model.cobc import (
     require_supported_cobc,
 )
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 

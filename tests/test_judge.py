@@ -15,8 +15,8 @@ from cobol_archaeologist.benchmark.judge import (
     FamilyIntegrityError,
     JudgeConfig,
     JudgeConfigurationError,
-    JudgeOverride,
     Judgement,
+    JudgeOverride,
     PlausibilityGateError,
     UnsureAdjudication,
     apply_drop_policy,
@@ -30,7 +30,6 @@ from cobol_archaeologist.benchmark.judge import (
 )
 from cobol_archaeologist.cli import main
 from cobol_archaeologist.schemas import DriftInstance
-
 
 ROOT = Path(__file__).resolve().parents[1]
 INSTANCES = ROOT / "data" / "benchmark" / "drift_instances.jsonl"
@@ -93,7 +92,15 @@ def test_endpoint_transport_supports_reasoning_and_reports_api_error(monkeypatch
 
         def read(self):
             return json.dumps(
-                {"choices": [{"message": {"content": '{"verdict":"plausible","reason":"ok"}'}}]}
+                {
+                    "choices": [
+                        {
+                            "message": {
+                                "content": '{"verdict":"plausible","reason":"ok"}'
+                            }
+                        }
+                    ]
+                }
             ).encode("utf-8")
 
     def succeed(request, timeout):
@@ -195,9 +202,7 @@ def test_gate_c_stratified_50_run_is_deterministic_and_updates_manifest(
     assert manifest["judging"]["sample"]["plausible_rate"] == 1.0
     assert manifest["judging"]["sample"]["raw_plausible_rate"] == 1.0
     assert manifest["judging"]["sample"]["gate_passed"] is True
-    assert "before human overrides" in manifest["judging"]["sample"][
-        "gate_definition"
-    ]
+    assert "before human overrides" in manifest["judging"]["sample"]["gate_definition"]
 
 
 def test_judging_checkpoints_each_verdict_and_resumes_after_endpoint_failure(
@@ -279,9 +284,7 @@ def test_judging_reuses_matching_instance_ids_without_endpoint_calls(
     def unexpected_reconstruction(_path):
         raise AssertionError("a fully cached selection does not need source rebuilding")
 
-    monkeypatch.setattr(
-        judge_module, "reconstruct_sources", unexpected_reconstruction
-    )
+    monkeypatch.setattr(judge_module, "reconstruct_sources", unexpected_reconstruction)
     reused = judge_benchmark(
         instances_path=instances,
         output_path=output,

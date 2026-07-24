@@ -36,8 +36,7 @@ from cobol_archaeologist.schemas import (
     resolve_path,
 )
 from cobol_archaeologist.static_analysis.call_graph import build_call_graph
-from cobol_archaeologist.static_analysis.slicer import slice_on
-
+from cobol_archaeologist.static_analysis.slicer import SliceBlowupError, slice_on
 
 ValidationLevel = Literal["compiled", "syntax", "ast"]
 ProgramKind = Literal["native", "cics"]
@@ -103,7 +102,7 @@ class ProgramSource:
         files: dict[str, str] | None = None,
         touched_variables: tuple[str, ...] = (),
         target_path: str | None = None,
-    ) -> "ProgramSource":
+    ) -> ProgramSource:
         source_path = Path(path)
         text = source_path.read_text(encoding="utf-8", errors="replace")
         discovered_files = dict(files or {})
@@ -462,9 +461,11 @@ def _round_amount(current: float, *, downward: bool) -> float:
         for power in range(exponent - 1, exponent + 2)
         for mantissa in (1, 2, 5)
     ]
-    side = [value for value in ladder if value < current] if downward else [
-        value for value in ladder if value > current
-    ]
+    side = (
+        [value for value in ladder if value < current]
+        if downward
+        else [value for value in ladder if value > current]
+    )
     if not side:
         raise MutationRejected(f"no laxer round amount for {current}")
     return max(side) if downward else min(side)
@@ -613,7 +614,9 @@ def _stale_value(
     if grid:
         # The comparator picks the side; the grid picks the value.
         laxer = [
-            value for value in grid if (value < current if is_floor else value > current)
+            value
+            for value in grid
+            if (value < current if is_floor else value > current)
         ]
         if not laxer:
             # Emitting the strict side would encode the regulator having
@@ -719,7 +722,9 @@ def _inert_numeric_sites(
     for index, line in enumerate(lines[:procedure]):
         if len(line) > 6 and line[6] in "*/":
             continue
-        declaration = re.match(r"^\s*(?:01|05|10|15|20|25|49)\s+([A-Z0-9-]+)", line, re.I)
+        declaration = re.match(
+            r"^\s*(?:01|05|10|15|20|25|49)\s+([A-Z0-9-]+)", line, re.IGNORECASE
+        )
         if declaration:
             owner = declaration.group(1).upper()
         if owner is None or owner in referenced:
@@ -790,7 +795,7 @@ def _apply_mo0_numeric(
     lines = base.text.splitlines()
     edits: list[SurfaceEdit] = []
     touches: list[_Touch] = []
-    accepted: list[tuple[int, "re.Match[str]", float]] = []
+    accepted: list[tuple[int, re.Match[str], float]] = []
     for index, match in pool:
         if len(accepted) == wanted:
             break
@@ -811,9 +816,7 @@ def _apply_mo0_numeric(
             + _format_number_like(match.group(1), new_value)
             + line[match.end(1) :]
         )
-        edits.append(
-            SurfaceEdit("inert_numeric", index + 1, old_line, lines[index])
-        )
+        edits.append(SurfaceEdit("inert_numeric", index + 1, old_line, lines[index]))
         touches.append(_Touch(base.program, None, index + 1, index + 1))
     if not edits:
         return None
@@ -920,7 +923,7 @@ def _coupled_sites(
         units = _slice_units(
             base, tuple(dict.fromkeys((*anchors, *base.touched_variables)))
         )
-    except Exception:
+    except (MutationRejected, SliceBlowupError, OSError):
         # DECISION (T2.4b): def-use is Track A's. Where it cannot resolve a
         # locus we ship the single-site edit on the comparison -- the clause's
         # semantic anchor -- rather than guess at coupling.
@@ -1031,7 +1034,7 @@ def _matching_else(lines: list[str], start: int, end: int) -> int | None:
     depth = 0
     for index in range(start, end):
         for token in re.finditer(
-            r"\bEND-IF\b|\bIF\b|\bELSE\b", _control_text(lines[index]), re.I
+            r"\bEND-IF\b|\bIF\b|\bELSE\b", _control_text(lines[index]), re.IGNORECASE
         ):
             keyword = token.group(0).upper()
             if keyword == "IF":

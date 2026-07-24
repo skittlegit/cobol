@@ -11,6 +11,7 @@ Conventions bound by CONTRACT.md:
 - Code text in any return is capped at ``CODE_CAP_LINES``; ``truncated=True``
   plus the ``ref`` pointer tells the consumer where to fetch more.
 """
+
 from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
@@ -26,14 +27,17 @@ CODE_CAP_LINES = 60
 # Pointer primitives
 # --------------------------------------------------------------------------
 
+
 class NodeRef(BaseModel):
     """Identity of a call-graph node: one paragraph in one program."""
+
     program: str
     paragraph: str
 
 
 class SourceRef(BaseModel):
     """Pointer into original source. line_end is inclusive."""
+
     program: str
     paragraph: str | None = None
     line_start: int = Field(ge=1)
@@ -43,6 +47,7 @@ class SourceRef(BaseModel):
 # --------------------------------------------------------------------------
 # read_paragraph / read_program
 # --------------------------------------------------------------------------
+
 
 class ParagraphView(BaseModel):
     ref: SourceRef
@@ -69,11 +74,12 @@ class ProgramView(BaseModel):
 # trace_variable / slice_on
 # --------------------------------------------------------------------------
 
+
 class DefUseSite(BaseModel):
     kind: str = Field(pattern="^(def|use)$")
     ref: SourceRef
     statement_kind: str  # MOVE / COMPUTE / IF / VALUE-clause / ...
-    excerpt: str = ""    # single statement, not a dump
+    excerpt: str = ""  # single statement, not a dump
 
 
 class VariableTrace(BaseModel):
@@ -90,7 +96,7 @@ class SliceStatement(BaseModel):
 class Slice(BaseModel):
     variable: str
     scoped_program: str | None = None  # None = corpus-wide (CONTRACT amendment A2)
-    statements: list[SliceStatement]   # ordered; statements, not whole paragraphs
+    statements: list[SliceStatement]  # ordered; statements, not whole paragraphs
     paragraphs: list[NodeRef]
     is_interprocedural: bool
 
@@ -99,8 +105,10 @@ class Slice(BaseModel):
 # resolve_copybook / get_data_layout
 # --------------------------------------------------------------------------
 
+
 class LineMapEntry(BaseModel):
     """Expanded-line range -> original (file, first line)."""
+
     expanded_start: int = Field(ge=1)
     expanded_end: int = Field(ge=1)
     source_file: str
@@ -116,11 +124,12 @@ class CopybookExpansion(BaseModel):
 
 class FieldLayout(BaseModel):
     """One data item; recursive over group items."""
+
     name: str
     level: int
     pic: str | None = None
     redefines: str | None = None
-    children: list["FieldLayout"] = []
+    children: list[FieldLayout] = []
 
 
 class DataLayout(BaseModel):
@@ -132,6 +141,7 @@ class DataLayout(BaseModel):
 # --------------------------------------------------------------------------
 # grep / run_cobol / search_regulations
 # --------------------------------------------------------------------------
+
 
 class GrepMatch(BaseModel):
     program: str
@@ -166,6 +176,7 @@ class RegSearchHit(BaseModel):
 # --------------------------------------------------------------------------
 # The contract surface
 # --------------------------------------------------------------------------
+
 
 @runtime_checkable
 class ToolLayer(Protocol):

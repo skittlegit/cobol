@@ -32,11 +32,11 @@ DriftType = Literal[
 # the clauses.jsonl migration is mechanical.
 Comparator = Literal[
     "strictly_greater",  # >
-    "at_least",          # >=
-    "strictly_less",     # <
-    "at_most",           # <=
-    "equal",             # =
-    "not_equal",         # <>
+    "at_least",  # >=
+    "strictly_less",  # <
+    "at_most",  # <=
+    "equal",  # =
+    "not_equal",  # <>
 ]
 
 # A leaf value: scalar or a homogeneous string set. Composite nodes instead nest
@@ -57,19 +57,17 @@ class CurrentValue(BaseModel):
     # Free string vocabulary, e.g. "duration_years", "amount_inr", "enum_set",
     # "composite"; Track B extends it. "composite" is the one reserved value.
     kind: str
-    value: Scalar | dict[str, "CurrentValue"]
+    value: Scalar | dict[str, CurrentValue]
     # Leaves only; a composite carrying one is a validation error.
     comparator: Comparator | None = None
     note: str | None = None
 
     @model_validator(mode="after")
-    def _composite_discipline(self) -> "CurrentValue":
+    def _composite_discipline(self) -> CurrentValue:
         is_mapping = isinstance(self.value, dict)
         if self.kind == "composite":
             if not is_mapping:
-                raise ValueError(
-                    "a composite CurrentValue must have a mapping value"
-                )
+                raise ValueError("a composite CurrentValue must have a mapping value")
             if self.comparator is not None:
                 raise ValueError(
                     "a composite CurrentValue must not carry a comparator "
@@ -152,15 +150,16 @@ class CodeLocus(BaseModel):
     is_interprocedural: bool
 
     @model_validator(mode="after")
-    def _multi_program_is_interprocedural(self) -> "CodeLocus":
+    def _multi_program_is_interprocedural(self) -> CodeLocus:
         # One-way only: >1 distinct program forces is_interprocedural=True.
         # NOT the reverse — is_interprocedural also covers cross-paragraph
         # single-program cases (playbook §1E), so a single-program locus may
         # legitimately be either.
-        if len({locus.program for locus in self.loci}) > 1 and not self.is_interprocedural:
-            raise ValueError(
-                "loci spanning >1 program require is_interprocedural=True"
-            )
+        if (
+            len({locus.program for locus in self.loci}) > 1
+            and not self.is_interprocedural
+        ):
+            raise ValueError("loci spanning >1 program require is_interprocedural=True")
         return self
 
 
@@ -200,7 +199,7 @@ class DriftInstance(BaseModel):
     provenance: Provenance
 
     @model_validator(mode="after")
-    def _labels_consistent_with_drift_type(self) -> "DriftInstance":
+    def _labels_consistent_with_drift_type(self) -> DriftInstance:
         # (v1 rule 1) D7 ⇒ conformant everywhere and empty line_level.
         if self.drift_type == "D7_conformant":
             if (
@@ -229,7 +228,7 @@ class DriftInstance(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _line_level_within_loci(self) -> "DriftInstance":
+    def _line_level_within_loci(self) -> DriftInstance:
         # (v2 rule 4) every line_level ref must fall inside some locus on its
         # (program, file), so interprocedural line-overlap scoring is defined.
         for ref in self.labels.line_level:
@@ -247,16 +246,14 @@ class DriftInstance(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _target_path_resolves(self) -> "DriftInstance":
+    def _target_path_resolves(self) -> DriftInstance:
         cv = self.regulation_clause.current_value
         tp = self.target_path
 
         # (v2 rule 6) target_path present ⇒ current_value present and resolves.
         if tp is not None:
             if cv is None:
-                raise ValueError(
-                    "target_path requires regulation_clause.current_value"
-                )
+                raise ValueError("target_path requires regulation_clause.current_value")
             try:
                 resolve_path(cv, tp)
             except KeyError as exc:
@@ -273,12 +270,9 @@ class DriftInstance(BaseModel):
         ):
             if tp is None:
                 raise ValueError(
-                    f"{self.drift_type} against a composite clause requires "
-                    "target_path"
+                    f"{self.drift_type} against a composite clause requires target_path"
                 )
             node = resolve_path(cv, tp)  # already known to resolve
             if node.kind == "composite":
-                raise ValueError(
-                    "target_path must land on a non-composite (leaf) node"
-                )
+                raise ValueError("target_path must land on a non-composite (leaf) node")
         return self

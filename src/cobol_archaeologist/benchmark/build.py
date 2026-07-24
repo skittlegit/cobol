@@ -22,19 +22,18 @@ from cobol_archaeologist.benchmark.mutate import (
     MutationResult,
     ProgramSource,
     load_clause_records,
-    regulated_literals,
     mutate,
+    regulated_literals,
 )
 from cobol_archaeologist.benchmark.surface import (
-    per_feature_auc,
     ProbeRow,
     diversify_with_edits,
+    per_feature_auc,
     surface_features,
     surface_probe_report,
 )
 from cobol_archaeologist.model.cobc import compiler_manifest
 from cobol_archaeologist.schemas import DriftInstance
-
 
 DiversifyMode = Literal["deterministic", "llm"]
 
@@ -137,7 +136,7 @@ def _note_segments(note: str) -> list[str]:
 def _canonical_cobol_fragment(fragment: str) -> str:
     """Normalize COBOL surface form without changing quoted literal contents."""
 
-    parts = re.split(r'''('(?:[^']|'')*'|"(?:[^"]|"")*")''', fragment)
+    parts = re.split(r"""('(?:[^']|'')*'|"(?:[^"]|"")*")""", fragment)
     return "".join(
         part if index % 2 else re.sub(r"\s+", " ", part.upper())
         for index, part in enumerate(parts)
@@ -162,7 +161,9 @@ def _semantic_mutation_key(instance: DriftInstance) -> tuple[object, ...]:
             f"mutation provenance lacks parseable old/new fields: {segments[:4]}"
         ) from exc
     if not isinstance(old, str) or not isinstance(new, str):
-        raise BuildConfigurationError("mutation provenance old/new fields must be strings")
+        raise BuildConfigurationError(
+            "mutation provenance old/new fields must be strings"
+        )
     base_program = instance.provenance.base_program
     if not base_program:
         raise BuildConfigurationError("mutation provenance lacks base_program")
@@ -1215,9 +1216,7 @@ def build_benchmark(
                 "passed": artifact_only_passed,
                 "definition": "bootstrap 95% AUC CI includes 0.5 chance",
             },
-            "aggregate_role": (
-                "mandatory_t5.3_attacker_with_bases_baseline_floor"
-            ),
+            "aggregate_role": ("mandatory_t5.3_attacker_with_bases_baseline_floor"),
         },
     }
 

@@ -31,7 +31,7 @@ ANCHOR_FILE = "cc-dc-directions-2025.pdf"
 
 TOP_CLAUSE_RE = re.compile(r"^(\d+)\.\s+(.*)")
 SUBCLAUSE_RE = re.compile(r"^\(([A-Za-z]+|[ivxlcdmIVXLCDM]+|\d+)\)\s+(.*)")
-CHAPTER_RE = re.compile(r"^(Chapter\s+[IVXLC]+)\s+[\u2013-]\s+(.+)$", re.I)
+CHAPTER_RE = re.compile(r"^(Chapter\s+[IVXLC]+)\s+[\u2013-]\s+(.+)$", re.IGNORECASE)
 LETTER_HEADING_RE = re.compile(r"^([A-Z])\.\s+(.+)$")
 TOC_DOT_RE = re.compile(r"\.{4,}\s*\d+\s*$")
 WORD_RE = re.compile(r"[a-z0-9]+")

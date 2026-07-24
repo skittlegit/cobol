@@ -20,6 +20,7 @@ represents (program+line only). `copybooks.expand` is gated independently
 paragraph extraction is left for whichever later task needs copybook-sourced
 procedure statements (would need a CONTRACT discussion first).
 """
+
 from __future__ import annotations
 
 import re
@@ -31,8 +32,17 @@ from cobol_archaeologist import tool_types
 from cobol_archaeologist.ingest.cleaner import preprocess
 
 STATEMENT_KINDS = (
-    "IF", "ELSE", "EVALUATE", "WHEN", "PERFORM_CALL", "PERFORM_LOOP",
-    "GOTO", "CALL", "MOVE", "COMPUTE", "OTHER",
+    "IF",
+    "ELSE",
+    "EVALUATE",
+    "WHEN",
+    "PERFORM_CALL",
+    "PERFORM_LOOP",
+    "GOTO",
+    "CALL",
+    "MOVE",
+    "COMPUTE",
+    "OTHER",
 )
 
 # CALL 'literal' program-name node types (vs. dynamic CALL identifier).
@@ -48,18 +58,20 @@ _LITERAL_TARGET_TYPES = ("string", "h_string", "n_string")
 PREAMBLE_NAME = "<preamble>"
 
 _BOUNDARY_TYPES = ("paragraph_header", "section_header")
-_PROGRAM_ID_RE = re.compile(r"PROGRAM-ID\.\s+([A-Za-z0-9][A-Za-z0-9_-]*)", re.I)
-_PARA_HEADER_RE = re.compile(r"^([A-Z0-9][A-Z0-9-]*)\s*\.\s*$", re.I)
-_PROCEDURE_DIVISION_RE = re.compile(r"^\s*PROCEDURE\s+DIVISION\b", re.I)
-_SECTION_RE = re.compile(r"^([A-Z0-9][A-Z0-9-]*)\s+SECTION\s*\.\s*$", re.I)
-_SCOPE_TERMINATOR_RE = re.compile(r"^END-[A-Z-]+$", re.I)
+_PROGRAM_ID_RE = re.compile(
+    r"PROGRAM-ID\.\s+([A-Za-z0-9][A-Za-z0-9_-]*)", re.IGNORECASE
+)
+_PARA_HEADER_RE = re.compile(r"^([A-Z0-9][A-Z0-9-]*)\s*\.\s*$", re.IGNORECASE)
+_PROCEDURE_DIVISION_RE = re.compile(r"^\s*PROCEDURE\s+DIVISION\b", re.IGNORECASE)
+_SECTION_RE = re.compile(r"^([A-Z0-9][A-Z0-9-]*)\s+SECTION\s*\.\s*$", re.IGNORECASE)
+_SCOPE_TERMINATOR_RE = re.compile(r"^END-[A-Z-]+$", re.IGNORECASE)
 _NON_PARAGRAPH_LABELS = {"END", "EXIT", "GOBACK", "STOP", "CONTINUE"}
 
 
 class Statement(BaseModel):
     kind: str
     ref: tool_types.SourceRef
-    children: list["Statement"] = []
+    children: list[Statement] = []
     target: str | None = None
     thru_target: str | None = None
     dynamic: bool = False  # CALL identifier (target resolved at runtime) -> True
@@ -101,7 +113,9 @@ def _extract_perform_targets(node) -> tuple[str | None, str | None]:
     if not labels:
         return None, None
     target = labels[0].text.decode(errors="replace").strip()
-    thru_target = labels[1].text.decode(errors="replace").strip() if len(labels) > 1 else None
+    thru_target = (
+        labels[1].text.decode(errors="replace").strip() if len(labels) > 1 else None
+    )
     return target, thru_target
 
 
@@ -156,7 +170,10 @@ _IF_CHAIN_STOP = frozenset({"else_header", "else_if_header", "END_IF"})
 
 
 def _parse_if_chain(
-    nodes: list, i: int, program_id: str, paragraph: str,
+    nodes: list,
+    i: int,
+    program_id: str,
+    paragraph: str,
 ) -> tuple[list[Statement], int]:
     """Consume one IF/ELSE-IF/ELSE/END-IF construct starting at ``nodes[i]``.
 
@@ -171,25 +188,33 @@ def _parse_if_chain(
     n = len(nodes)
     body, i = _build_statements(nodes, i + 1, _IF_CHAIN_STOP, program_id, paragraph)
     ref = tool_types.SourceRef(
-        program=program_id, paragraph=paragraph,
-        line_start=_line_start(header), line_end=_block_end_line(header, body),
+        program=program_id,
+        paragraph=paragraph,
+        line_start=_line_start(header),
+        line_end=_block_end_line(header, body),
     )
     result = [Statement(kind="IF", ref=ref, children=body)]
 
     if i < n and nodes[i].type == "else_header":
         else_node = nodes[i]
-        ebody, i = _build_statements(nodes, i + 1, frozenset({"END_IF"}), program_id, paragraph)
+        ebody, i = _build_statements(
+            nodes, i + 1, frozenset({"END_IF"}), program_id, paragraph
+        )
         eref = tool_types.SourceRef(
-            program=program_id, paragraph=paragraph,
-            line_start=_line_start(else_node), line_end=_block_end_line(else_node, ebody),
+            program=program_id,
+            paragraph=paragraph,
+            line_start=_line_start(else_node),
+            line_end=_block_end_line(else_node, ebody),
         )
         result.append(Statement(kind="ELSE", ref=eref, children=ebody))
     elif i < n and nodes[i].type == "else_if_header":
         else_if_node = nodes[i]
         nested, i = _parse_if_chain(nodes, i, program_id, paragraph)
         eref = tool_types.SourceRef(
-            program=program_id, paragraph=paragraph,
-            line_start=_line_start(else_if_node), line_end=nested[-1].ref.line_end,
+            program=program_id,
+            paragraph=paragraph,
+            line_start=_line_start(else_if_node),
+            line_end=nested[-1].ref.line_end,
         )
         result.append(Statement(kind="ELSE", ref=eref, children=nested))
 
@@ -203,7 +228,11 @@ def _parse_if_chain(
 
 
 def _build_statements(
-    nodes: list, start: int, stop_types: frozenset[str], program_id: str, paragraph: str,
+    nodes: list,
+    start: int,
+    stop_types: frozenset[str],
+    program_id: str,
+    paragraph: str,
 ) -> tuple[list[Statement], int]:
     stmts: list[Statement] = []
     i = start
@@ -227,11 +256,17 @@ def _build_statements(
                 if nodes[j].type in ("when", "when_other"):
                     wnode = nodes[j]
                     wbody, j = _build_statements(
-                        nodes, j + 1, frozenset({"when", "when_other", "END_EVALUATE"}), program_id, paragraph,
+                        nodes,
+                        j + 1,
+                        frozenset({"when", "when_other", "END_EVALUATE"}),
+                        program_id,
+                        paragraph,
                     )
                     wref = tool_types.SourceRef(
-                        program=program_id, paragraph=paragraph,
-                        line_start=_line_start(wnode), line_end=_block_end_line(wnode, wbody),
+                        program=program_id,
+                        paragraph=paragraph,
+                        line_start=_line_start(wnode),
+                        line_end=_block_end_line(wnode, wbody),
                     )
                     when_stmts.append(Statement(kind="WHEN", ref=wref, children=wbody))
                 else:
@@ -241,22 +276,28 @@ def _build_statements(
                 end_line = _line_end(nodes[j])
                 j += 1
             ref = tool_types.SourceRef(
-                program=program_id, paragraph=paragraph,
-                line_start=_line_start(node), line_end=end_line,
+                program=program_id,
+                paragraph=paragraph,
+                line_start=_line_start(node),
+                line_end=end_line,
             )
             stmts.append(Statement(kind="EVALUATE", ref=ref, children=when_stmts))
             i = j
             continue
 
         if t == "perform_statement_loop":
-            body, j = _build_statements(nodes, i + 1, frozenset({"END_PERFORM"}), program_id, paragraph)
+            body, j = _build_statements(
+                nodes, i + 1, frozenset({"END_PERFORM"}), program_id, paragraph
+            )
             end_line = _block_end_line(node, body)
             if j < n and nodes[j].type == "END_PERFORM":
                 end_line = _line_end(nodes[j])
                 j += 1
             ref = tool_types.SourceRef(
-                program=program_id, paragraph=paragraph,
-                line_start=_line_start(node), line_end=end_line,
+                program=program_id,
+                paragraph=paragraph,
+                line_start=_line_start(node),
+                line_end=end_line,
             )
             stmts.append(Statement(kind="PERFORM_LOOP", ref=ref, children=body))
             i = j
@@ -265,36 +306,52 @@ def _build_statements(
         if t == "perform_statement_call_proc":
             target, thru_target = _extract_perform_targets(node)
             ref = tool_types.SourceRef(
-                program=program_id, paragraph=paragraph,
-                line_start=_line_start(node), line_end=_line_end(node),
+                program=program_id,
+                paragraph=paragraph,
+                line_start=_line_start(node),
+                line_end=_line_end(node),
             )
-            stmts.append(Statement(kind="PERFORM_CALL", ref=ref, target=target, thru_target=thru_target))
+            stmts.append(
+                Statement(
+                    kind="PERFORM_CALL", ref=ref, target=target, thru_target=thru_target
+                )
+            )
             i += 1
             continue
 
         if t == "goto_statement":
             ref = tool_types.SourceRef(
-                program=program_id, paragraph=paragraph,
-                line_start=_line_start(node), line_end=_line_end(node),
+                program=program_id,
+                paragraph=paragraph,
+                line_start=_line_start(node),
+                line_end=_line_end(node),
             )
-            stmts.append(Statement(kind="GOTO", ref=ref, target=_extract_goto_target(node)))
+            stmts.append(
+                Statement(kind="GOTO", ref=ref, target=_extract_goto_target(node))
+            )
             i += 1
             continue
 
         if t == "call_statement":
             target, dynamic = _extract_call_target(node)
             ref = tool_types.SourceRef(
-                program=program_id, paragraph=paragraph,
-                line_start=_line_start(node), line_end=_line_end(node),
+                program=program_id,
+                paragraph=paragraph,
+                line_start=_line_start(node),
+                line_end=_line_end(node),
             )
-            stmts.append(Statement(kind="CALL", ref=ref, target=target, dynamic=dynamic))
+            stmts.append(
+                Statement(kind="CALL", ref=ref, target=target, dynamic=dynamic)
+            )
             i += 1
             continue
 
         if t.endswith("_statement"):
             ref = tool_types.SourceRef(
-                program=program_id, paragraph=paragraph,
-                line_start=_line_start(node), line_end=_line_end(node),
+                program=program_id,
+                paragraph=paragraph,
+                line_start=_line_start(node),
+                line_end=_line_end(node),
             )
             stmts.append(Statement(kind=_classify(t), ref=ref))
             i += 1
@@ -315,9 +372,12 @@ def _find_procedure_division(root):
     return None
 
 
-def _parse_ast(path: Path, program_id: str, include_preamble: bool = False) -> list[Paragraph]:
-    from cobol_archaeologist.parser._grammar import get_language
+def _parse_ast(
+    path: Path, program_id: str, include_preamble: bool = False
+) -> list[Paragraph]:
     from tree_sitter import Parser
+
+    from cobol_archaeologist.parser._grammar import get_language
 
     source = path.read_text(encoding="utf-8", errors="replace")
     pre = preprocess(source)
@@ -333,14 +393,20 @@ def _parse_ast(path: Path, program_id: str, include_preamble: bool = False) -> l
     boundaries = [
         (idx, node) for idx, node in enumerate(children) if node.type in _BOUNDARY_TYPES
     ]
-    para_boundaries = [(idx, node) for idx, node in boundaries if node.type == "paragraph_header"]
+    para_boundaries = [
+        (idx, node) for idx, node in boundaries if node.type == "paragraph_header"
+    ]
 
     paragraphs: list[Paragraph] = []
 
     if include_preamble:
         first_boundary_idx = boundaries[0][0] if boundaries else len(children)
         preamble_stmts, _ = _build_statements(
-            children, 0, frozenset(), program_id, PREAMBLE_NAME,
+            children,
+            0,
+            frozenset(),
+            program_id,
+            PREAMBLE_NAME,
         )
         if preamble_stmts:
             start_line = preamble_stmts[0].ref.line_start
@@ -349,25 +415,41 @@ def _parse_ast(path: Path, program_id: str, include_preamble: bool = False) -> l
                 if first_boundary_idx < len(children)
                 else _line_end(division)
             )
-            paragraphs.append(Paragraph(
-                span=tool_types.ParagraphSpan(
-                    name=PREAMBLE_NAME, line_start=start_line, line_end=end_line,
-                ),
-                statements=preamble_stmts,
-            ))
+            paragraphs.append(
+                Paragraph(
+                    span=tool_types.ParagraphSpan(
+                        name=PREAMBLE_NAME,
+                        line_start=start_line,
+                        line_end=end_line,
+                    ),
+                    statements=preamble_stmts,
+                )
+            )
 
     for k, (idx, node) in enumerate(para_boundaries):
         name = _clean_label(node)
         start_line = _line_start(node)
         next_idx = next((bidx for bidx, _ in boundaries if bidx > idx), None)
-        end_line = _line_start(children[next_idx]) - 1 if next_idx is not None else _line_end(division)
-        statements, _ = _build_statements(
-            children, idx + 1, frozenset(), program_id, name,
+        end_line = (
+            _line_start(children[next_idx]) - 1
+            if next_idx is not None
+            else _line_end(division)
         )
-        paragraphs.append(Paragraph(
-            span=tool_types.ParagraphSpan(name=name, line_start=start_line, line_end=end_line),
-            statements=statements,
-        ))
+        statements, _ = _build_statements(
+            children,
+            idx + 1,
+            frozenset(),
+            program_id,
+            name,
+        )
+        paragraphs.append(
+            Paragraph(
+                span=tool_types.ParagraphSpan(
+                    name=name, line_start=start_line, line_end=end_line
+                ),
+                statements=statements,
+            )
+        )
     return paragraphs
 
 
@@ -410,15 +492,21 @@ def _parse_regex(path: Path) -> list[Paragraph]:
     paragraphs: list[Paragraph] = []
     for k, (name, start_line) in enumerate(hits):
         end_line = hits[k + 1][1] - 1 if k + 1 < len(hits) else last_content_line
-        paragraphs.append(Paragraph(
-            span=tool_types.ParagraphSpan(name=name, line_start=start_line, line_end=end_line),
-            statements=[],
-        ))
+        paragraphs.append(
+            Paragraph(
+                span=tool_types.ParagraphSpan(
+                    name=name, line_start=start_line, line_end=end_line
+                ),
+                statements=[],
+            )
+        )
     return paragraphs
 
 
 def parse_program(
-    path: str | Path, backend: str = "ast", include_preamble: bool = False,
+    path: str | Path,
+    backend: str = "ast",
+    include_preamble: bool = False,
 ) -> Program:
     path = Path(path)
     source = path.read_text(encoding="utf-8", errors="replace")

@@ -18,6 +18,7 @@ rather than resolved — CLAUDE.md's stop condition for deeper nesting is a
 path (verified against the T1.1 corpus), so it degrades safely instead of
 raising.
 """
+
 from __future__ import annotations
 
 import re
@@ -28,10 +29,12 @@ from pydantic import BaseModel
 from cobol_archaeologist import tool_types
 
 _MAX_DEPTH = 2  # program (depth 0) -> copybook (depth 1) -> nested copybook (depth 2)
-_COPY_START_RE = re.compile(r"^\s*COPY\s", re.I)
-_COPY_NAME_RE = re.compile(r"COPY\s+(?:'([^']+)'|\"([^\"]+)\"|(\S+))", re.I)
-_REPLACING_RE = re.compile(r"\bREPLACING\b(.*)$", re.I | re.S)
-_REPLACING_PAIR_RE = re.compile(r"(==.*?==|\S+)\s+BY\s+(==.*?==|\S+)", re.I | re.S)
+_COPY_START_RE = re.compile(r"^\s*COPY\s", re.IGNORECASE)
+_COPY_NAME_RE = re.compile(r"COPY\s+(?:'([^']+)'|\"([^\"]+)\"|(\S+))", re.IGNORECASE)
+_REPLACING_RE = re.compile(r"\bREPLACING\b(.*)$", re.IGNORECASE | re.DOTALL)
+_REPLACING_PAIR_RE = re.compile(
+    r"(==.*?==|\S+)\s+BY\s+(==.*?==|\S+)", re.IGNORECASE | re.DOTALL
+)
 _COPYBOOK_EXTS = (".cpy", ".cbl")
 
 
@@ -54,7 +57,11 @@ def _resolve_copybook(name: str, search_paths: list[Path]) -> Path | None:
         if not base.is_dir():
             continue
         for entry in base.iterdir():
-            if entry.is_file() and entry.stem.upper() == target and entry.suffix.lower() in _COPYBOOK_EXTS:
+            if (
+                entry.is_file()
+                and entry.stem.upper() == target
+                and entry.suffix.lower() in _COPYBOOK_EXTS
+            ):
                 return entry
     return None
 
@@ -76,7 +83,9 @@ def _parse_replacing_pairs(text: str) -> list[tuple[str, str]]:
     ]
 
 
-def _scan_copy_statement(lines: list[str], i: int) -> tuple[str, list[tuple[str, str]], int] | None:
+def _scan_copy_statement(
+    lines: list[str], i: int
+) -> tuple[str, list[tuple[str, str]], int] | None:
     """From a COPY-starting line, gather through its terminating period.
 
     Returns (copybook_name, replacing_pairs, end_index_exclusive) or None if
@@ -111,7 +120,9 @@ def _apply_replacing(text: str, pairs: list[tuple[str, str]]) -> str:
 Emitted = tuple[str, str, int]  # (line_text, source_file, source_line)
 
 
-def _expand_lines(lines: list[str], source_file: str, search_paths: list[Path], depth: int) -> list[Emitted]:
+def _expand_lines(
+    lines: list[str], source_file: str, search_paths: list[Path], depth: int
+) -> list[Emitted]:
     emitted: list[Emitted] = []
     i = 0
     n = len(lines)
@@ -134,7 +145,9 @@ def _expand_lines(lines: list[str], source_file: str, search_paths: list[Path], 
         if pairs:
             copy_text = _apply_replacing(copy_text, pairs)
         copy_lines = copy_text.splitlines()
-        emitted.extend(_expand_lines(copy_lines, str(resolved), search_paths, depth + 1))
+        emitted.extend(
+            _expand_lines(copy_lines, str(resolved), search_paths, depth + 1)
+        )
         i = end
     return emitted
 
@@ -149,12 +162,14 @@ def _build_line_map(emitted: list[Emitted]) -> list[tool_types.LineMapEntry]:
             or emitted[idx][2] != emitted[idx - 1][2] + 1
         )
         if end_of_run:
-            entries.append(tool_types.LineMapEntry(
-                expanded_start=run_start + 1,
-                expanded_end=idx,
-                source_file=emitted[run_start][1],
-                source_line_start=emitted[run_start][2],
-            ))
+            entries.append(
+                tool_types.LineMapEntry(
+                    expanded_start=run_start + 1,
+                    expanded_end=idx,
+                    source_file=emitted[run_start][1],
+                    source_line_start=emitted[run_start][2],
+                )
+            )
             run_start = idx
     return entries
 

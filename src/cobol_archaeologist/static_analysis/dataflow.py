@@ -33,9 +33,11 @@ Documented limitations (out of scope, candidate follow-ups):
 Copybook search paths are derived from each program's path using the CardDemo
 layout (``app/cbl/X.cbl`` -> ``app/cpy``, ``app/cpy-bms``).
 """
+
 from __future__ import annotations
 
-from dataclasses import dataclass, field as dc_field
+from dataclasses import dataclass
+from dataclasses import field as dc_field
 from functools import lru_cache
 from pathlib import Path
 
@@ -45,7 +47,12 @@ from cobol_archaeologist.ingest.cleaner import preprocess
 from cobol_archaeologist.parser._grammar import get_language
 from cobol_archaeologist.parser.copybooks import expand
 from cobol_archaeologist.parser.paragraphs import Program
-from cobol_archaeologist.tool_types import DefUseSite, LineMapEntry, SourceRef, VariableTrace
+from cobol_archaeologist.tool_types import (
+    DefUseSite,
+    LineMapEntry,
+    SourceRef,
+    VariableTrace,
+)
 
 _COPYBOOK_EXTS = (".cpy", ".cbl")
 
@@ -57,18 +64,19 @@ _CONDITION_HOSTS = ("if_header", "else_if_header", "when", "evaluate_subject")
 # Symbol table
 # --------------------------------------------------------------------------
 
+
 @dataclass
 class Field:
     name: str
     level: int
-    is_condition: bool          # 88-level condition name
+    is_condition: bool  # 88-level condition name
     ancestors: tuple[str, ...]  # immediate parent first, up to the 01/77 record
     record: str
-    parent: "Field | None"      # for 88: the field it qualifies; else structural parent
-    decl_ref: SourceRef         # original-source declaration site
-    decl_path: Path             # file the declaration lives in (for excerpt reading)
+    parent: Field | None  # for 88: the field it qualifies; else structural parent
+    decl_ref: SourceRef  # original-source declaration site
+    decl_path: Path  # file the declaration lives in (for excerpt reading)
     has_value: bool
-    redefines: str | None       # name of the field this one REDEFINES
+    redefines: str | None  # name of the field this one REDEFINES
     redefined_by: list[str] = dc_field(default_factory=list)
 
 
@@ -98,11 +106,15 @@ def _search_paths(program_path: Path) -> list[Path]:
     return [app / "cpy", app / "cpy-bms"]
 
 
-def _map_expanded_line(line_map: list[LineMapEntry], expanded_line: int) -> tuple[str, int]:
+def _map_expanded_line(
+    line_map: list[LineMapEntry], expanded_line: int
+) -> tuple[str, int]:
     """(source_file, original_line) for an expanded-text line via the LineMap."""
     for entry in line_map:
         if entry.expanded_start <= expanded_line <= entry.expanded_end:
-            return entry.source_file, entry.source_line_start + (expanded_line - entry.expanded_start)
+            return entry.source_file, entry.source_line_start + (
+                expanded_line - entry.expanded_start
+            )
     return "", expanded_line
 
 
@@ -136,6 +148,7 @@ def build_symbols(program: Program, search_paths: list[Path]) -> ProgramSymbols:
             descriptions.append(n)
         for c in n.children:
             walk(c)
+
     walk(tree.root_node)
 
     fields: list[Field] = []
@@ -160,7 +173,9 @@ def build_symbols(program: Program, search_paths: list[Path]) -> ProgramSymbols:
         # the program id. This keeps every ref genuinely original-source and
         # lets the gate assert copybook provenance (LineMap round-trip).
         file_label = source_file.rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
-        stem = Path(file_label).stem.upper() if file_label else program.program_id.upper()
+        stem = (
+            Path(file_label).stem.upper() if file_label else program.program_id.upper()
+        )
         decl_path = file_paths.get(stem, program_path)
         ref_program = stem if file_label else program.program_id
 
@@ -181,9 +196,15 @@ def build_symbols(program: Program, search_paths: list[Path]) -> ProgramSymbols:
         record = ancestors[-1] if ancestors else name
 
         fld = Field(
-            name=name, level=level, is_condition=is_88,
-            ancestors=ancestors, record=record, parent=parent,
-            decl_ref=SourceRef(program=ref_program, line_start=original_line, line_end=end_line),
+            name=name,
+            level=level,
+            is_condition=is_88,
+            ancestors=ancestors,
+            record=record,
+            parent=parent,
+            decl_ref=SourceRef(
+                program=ref_program, line_start=original_line, line_end=end_line
+            ),
             decl_path=decl_path,
             has_value=_child(node, "value_clause") is not None,
             redefines=redefines,
@@ -199,15 +220,22 @@ def build_symbols(program: Program, search_paths: list[Path]) -> ProgramSymbols:
             for target in by_name.get(fld.redefines.upper(), []):
                 target.redefined_by.append(fld.name)
 
-    return ProgramSymbols(program_id=program.program_id, program_path=program_path, fields=fields)
+    return ProgramSymbols(
+        program_id=program.program_id, program_path=program_path, fields=fields
+    )
 
 
 # --------------------------------------------------------------------------
 # Reference extraction
 # --------------------------------------------------------------------------
 
+
 def _words(qualified_word: Node) -> list[str]:
-    return [c.text.decode(errors="replace") for c in qualified_word.children if c.type == "WORD"]
+    return [
+        c.text.decode(errors="replace")
+        for c in qualified_word.children
+        if c.type == "WORD"
+    ]
 
 
 def _first_qualified_word(node: Node) -> Node | None:
@@ -264,17 +292,23 @@ def _refs_in(node: Node) -> list[Ref]:
             return
         for c in n.children:
             walk(c)
+
     walk(node)
     return out
 
 
 def _field_refs(node: Node, field_name: str) -> list[Ref]:
-    return [r for r in map(_ref_of, node.children_by_field_name(field_name)) if r is not None]
+    return [
+        r
+        for r in map(_ref_of, node.children_by_field_name(field_name))
+        if r is not None
+    ]
 
 
 # --------------------------------------------------------------------------
 # Statement classification (normative table)
 # --------------------------------------------------------------------------
+
 
 def _classify(node: Node) -> tuple[str, list[Ref], list[Ref]] | None:
     """(statement_kind, uses, defs) for a procedure statement, or None."""
@@ -283,7 +317,10 @@ def _classify(node: Node) -> tuple[str, list[Ref], list[Ref]] | None:
         return "MOVE", _field_refs(node, "src"), _field_refs(node, "dst")
     if t == "compute_statement":
         right = node.child_by_field_name("right")
-        defs = [_ref_of(_first_qualified_word(c)) for c in node.children_by_field_name("left")]
+        defs = [
+            _ref_of(_first_qualified_word(c))
+            for c in node.children_by_field_name("left")
+        ]
         uses = _refs_in(right) if right is not None else []
         return "COMPUTE", uses, [d for d in defs if d is not None]
     # DECISION: arithmetic with GIVING -> the giving/remainder targets are the
@@ -291,16 +328,32 @@ def _classify(node: Node) -> tuple[str, list[Ref], list[Ref]] | None:
     # (to/from/val2/into) is BOTH a use and a def (`ADD a TO b` reads and writes
     # b), so it is emitted as two sites — matching the normative table.
     if t == "add_statement":
-        frm, to, giv = _field_refs(node, "from"), _field_refs(node, "to"), _field_refs(node, "giving")
+        frm, to, giv = (
+            _field_refs(node, "from"),
+            _field_refs(node, "to"),
+            _field_refs(node, "giving"),
+        )
         return ("ADD", frm + to, giv) if giv else ("ADD", frm + to, to)
     if t == "subtract_statement":
-        x, frm, giv = _field_refs(node, "x"), _field_refs(node, "from"), _field_refs(node, "giving")
+        x, frm, giv = (
+            _field_refs(node, "x"),
+            _field_refs(node, "from"),
+            _field_refs(node, "giving"),
+        )
         return ("SUBTRACT", x + frm, giv) if giv else ("SUBTRACT", x + frm, frm)
     if t == "multiply_statement":
-        v1, v2, giv = _field_refs(node, "val1"), _field_refs(node, "val2"), _field_refs(node, "giving")
+        v1, v2, giv = (
+            _field_refs(node, "val1"),
+            _field_refs(node, "val2"),
+            _field_refs(node, "giving"),
+        )
         return ("MULTIPLY", v1 + v2, giv) if giv else ("MULTIPLY", v1 + v2, v2)
     if t == "divide_statement":
-        x, by, into = _field_refs(node, "x"), _field_refs(node, "by"), _field_refs(node, "into")
+        x, by, into = (
+            _field_refs(node, "x"),
+            _field_refs(node, "by"),
+            _field_refs(node, "into"),
+        )
         giv, rem = _field_refs(node, "giving"), _field_refs(node, "remainder")
         if giv:
             return "DIVIDE", x + by + into, giv + rem
@@ -313,7 +366,11 @@ def _classify(node: Node) -> tuple[str, list[Ref], list[Ref]] | None:
         uses, defs = [], []
         for sub in node.children:
             if sub.type in ("set_to", "set_up_down"):
-                defs += _field_refs(sub, "from") if sub.type == "set_to" else _field_refs(sub, "x")
+                defs += (
+                    _field_refs(sub, "from")
+                    if sub.type == "set_to"
+                    else _field_refs(sub, "x")
+                )
                 uses += _field_refs(sub, "to")
                 if sub.type == "set_up_down":
                     uses += _field_refs(sub, "by") + _field_refs(sub, "x")
@@ -356,6 +413,7 @@ def _condition_uses(node: Node) -> list[Ref]:
 # Resolution + tracing
 # --------------------------------------------------------------------------
 
+
 @lru_cache(maxsize=64)
 def _read_lines(path_str: str) -> list[str]:
     return Path(path_str).read_text(encoding="utf-8", errors="replace").splitlines()
@@ -363,7 +421,7 @@ def _read_lines(path_str: str) -> list[str]:
 
 def _excerpt(path: Path, line_start: int, line_end: int) -> str:
     lines = _read_lines(str(path))
-    chunk = lines[line_start - 1:line_end]
+    chunk = lines[line_start - 1 : line_end]
     return "\n".join(s.rstrip() for s in chunk).strip()
 
 
@@ -382,7 +440,11 @@ def _resolve_targets(spec: str, symbols: ProgramSymbols) -> list[Field]:
     quals = [q.strip() for q in parts[1:]]
     cands = [f for f in symbols.fields if f.name.upper() == primary]
     if quals:
-        cands = [f for f in cands if all(q in {a.upper() for a in f.ancestors} for q in quals)]
+        cands = [
+            f
+            for f in cands
+            if all(q in {a.upper() for a in f.ancestors} for q in quals)
+        ]
     resolved: list[Field] = []
     for f in cands:
         target = f.parent if f.is_condition and f.parent is not None else f
@@ -392,7 +454,11 @@ def _resolve_targets(spec: str, symbols: ProgramSymbols) -> list[Field]:
 
 
 def _ref_targets(ref: Ref, symbols: ProgramSymbols) -> list[Field]:
-    spec = ref.name if not ref.qualifiers else ref.name + " OF " + " OF ".join(ref.qualifiers)
+    spec = (
+        ref.name
+        if not ref.qualifiers
+        else ref.name + " OF " + " OF ".join(ref.qualifiers)
+    )
     return _resolve_targets(spec, symbols)
 
 
@@ -413,7 +479,9 @@ def _paragraph_of(program: Program, line: int) -> str | None:
     return None
 
 
-def _analyze_program(spec: str, program: Program, search_paths: list[Path]) -> list[DefUseSite]:
+def _analyze_program(
+    spec: str, program: Program, search_paths: list[Path]
+) -> list[DefUseSite]:
     symbols = build_symbols(program, search_paths)
     targets = _resolve_targets(spec, symbols)
     if not targets:
@@ -427,13 +495,29 @@ def _analyze_program(spec: str, program: Program, search_paths: list[Path]) -> l
     # Declaration-side sites: VALUE-clause defs and REDEFINES-alias markers.
     for t in targets:
         if t.has_value and not t.is_condition:
-            sites.append(DefUseSite(
-                kind="def", ref=t.decl_ref, statement_kind=_amb("VALUE-clause", ambiguous),
-                excerpt=_excerpt(t.decl_path, t.decl_ref.line_start, t.decl_ref.line_end)))
+            sites.append(
+                DefUseSite(
+                    kind="def",
+                    ref=t.decl_ref,
+                    statement_kind=_amb("VALUE-clause", ambiguous),
+                    excerpt=_excerpt(
+                        t.decl_path, t.decl_ref.line_start, t.decl_ref.line_end
+                    ),
+                )
+            )
         for alias in _redefines_aliases(t, symbols):
-            sites.append(DefUseSite(
-                kind="def", ref=alias.decl_ref, statement_kind="REDEFINES-alias",
-                excerpt=_excerpt(alias.decl_path, alias.decl_ref.line_start, alias.decl_ref.line_end)))
+            sites.append(
+                DefUseSite(
+                    kind="def",
+                    ref=alias.decl_ref,
+                    statement_kind="REDEFINES-alias",
+                    excerpt=_excerpt(
+                        alias.decl_path,
+                        alias.decl_ref.line_start,
+                        alias.decl_ref.line_end,
+                    ),
+                )
+            )
 
     # Procedure-side def/use.
     source = program_path.read_text(encoding="utf-8", errors="replace")
@@ -444,17 +528,58 @@ def _analyze_program(spec: str, program: Program, search_paths: list[Path]) -> l
             classified = _classify(node)
             if classified is not None:
                 kind, uses, defs = classified
-                _emit(sites, uses, "use", kind, node, program, program_path, symbols, target_set, ambiguous)
-                _emit(sites, defs, "def", kind, node, program, program_path, symbols, target_set, ambiguous)
+                _emit(
+                    sites,
+                    uses,
+                    "use",
+                    kind,
+                    node,
+                    program,
+                    program_path,
+                    symbols,
+                    target_set,
+                    ambiguous,
+                )
+                _emit(
+                    sites,
+                    defs,
+                    "def",
+                    kind,
+                    node,
+                    program,
+                    program_path,
+                    symbols,
+                    target_set,
+                    ambiguous,
+                )
             cond_uses = _condition_uses(node)
             if cond_uses:
-                ckind = "PERFORM-UNTIL" if node.type == "perform_statement_loop" else node.type.replace("_header", "").replace("_subject", "").upper()
-                _emit(sites, cond_uses, "use", ckind, node, program, program_path, symbols, target_set, ambiguous)
+                ckind = (
+                    "PERFORM-UNTIL"
+                    if node.type == "perform_statement_loop"
+                    else node.type.replace("_header", "")
+                    .replace("_subject", "")
+                    .upper()
+                )
+                _emit(
+                    sites,
+                    cond_uses,
+                    "use",
+                    ckind,
+                    node,
+                    program,
+                    program_path,
+                    symbols,
+                    target_set,
+                    ambiguous,
+                )
 
     return sites
 
 
-def _emit(sites, refs, kind, stmt_kind, node, program, program_path, symbols, target_set, amb) -> None:
+def _emit(
+    sites, refs, kind, stmt_kind, node, program, program_path, symbols, target_set, amb
+) -> None:
     for ref in refs:
         rtargets = _ref_targets(ref, symbols)
         if not any(id(t) in target_set for t in rtargets):
@@ -462,12 +587,19 @@ def _emit(sites, refs, kind, stmt_kind, node, program, program_path, symbols, ta
         line = node.start_point[0] + 1
         end = node.end_point[0] + 1
         ref_ambiguous = amb or len({(t.name, t.record) for t in rtargets}) > 1
-        sites.append(DefUseSite(
-            kind=kind,
-            ref=SourceRef(program=program.program_id, paragraph=_paragraph_of(program, line),
-                          line_start=line, line_end=end),
-            statement_kind=_amb(stmt_kind, ref_ambiguous),
-            excerpt=_excerpt(program_path, line, end)))
+        sites.append(
+            DefUseSite(
+                kind=kind,
+                ref=SourceRef(
+                    program=program.program_id,
+                    paragraph=_paragraph_of(program, line),
+                    line_start=line,
+                    line_end=end,
+                ),
+                statement_kind=_amb(stmt_kind, ref_ambiguous),
+                excerpt=_excerpt(program_path, line, end),
+            )
+        )
 
 
 def _amb(kind: str, ambiguous: bool) -> str:
@@ -518,5 +650,13 @@ def trace_variable(
             continue
         sites.extend(_analyze_program(var, prog, _search_paths(Path(prog.path))))
 
-    sites.sort(key=lambda s: (s.ref.program, s.ref.line_start, s.ref.line_end, s.kind, s.statement_kind))
+    sites.sort(
+        key=lambda s: (
+            s.ref.program,
+            s.ref.line_start,
+            s.ref.line_end,
+            s.kind,
+            s.statement_kind,
+        )
+    )
     return VariableTrace(variable=var, scoped_program=program, sites=sites)
