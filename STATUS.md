@@ -127,7 +127,7 @@ three tracks; a task's numeric prefix does not identify its phase.
   `4b333851b97629083bfb753cbed28a0c47a5cbe5376d270731b7eb47ab982763` /
   `31842be32741d00c970e4d1f50d9a38e22774e3455cb9300922bc642a1b0ffef` /
   `5e8fb3676aab8ff2f886d72c6faab2c1a4b60f2595a3374eaa400e35f3d31d58`.
-  All T2.5/T2.6/T2.7 gates pass; 39 seed bases and eight materialized
+  All T2.5/T2.6/T2.7 gates pass; 41 seed bases and eight materialized
   replacements compile under **GnuCOBOL 3.2.0**.
 - **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
   pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary

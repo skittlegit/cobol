@@ -46,7 +46,7 @@ The real seed is **51 rows / 20 intact verdict-flipping T6 pairs** and all
 `630861→984807`, `710779→723630`, `722152→755522`, `810413→389498`
 (all IDs carry the `drift_` prefix). `CLOSPEN5` was restored as the conformant
 MO-6 base and real dead-code row `drift_000013` moved to pinned `CLOSPN5D`.
-GnuCOBOL banner: `cobc (GnuCOBOL) 3.2.0`; 39 seed programs and all eight
+GnuCOBOL banner: `cobc (GnuCOBOL) 3.2.0`; 41 seed programs and all eight
 materialized replacements compile. Gates:
 `pytest tests/test_seed_instances.py tests/test_splits.py
 tests/test_phase2_inputs.py -q`, full `pytest tests/ -x -q`, and

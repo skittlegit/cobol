@@ -33,6 +33,16 @@ SUPERSEDED_IDS = {
 }
 PLAUSIBILITY_EVIDENCE = BENCHMARK / "t2_7_plausibility.jsonl"
 STALE_SOURCE_FRAGMENTS = ("WS-SYNC-STATUS", "2000-SET-SYNC-STATUS")
+PINNED_CARDDEMO_SOURCES = {
+    "CBTRN02C.cbl": "ca73e806cbce4d07da7fa307ad32cf60d9f03aa50ff05c48dc522f6bbf8c1bb2",
+    "CBACT04C.cbl": "0ff681b12950033d649146becd794f2e9d7bf336918c6acb5413f0ad5fce3c44",
+    "CVACT01Y.cpy": "b14ac0cf22440a6f6091e578dcece62be93446c525eb6f2ab2d6d9405098a631",
+    "CVACT03Y.cpy": "0c084476c3cfe603c5e81e1c3ecaab1bd128d30c3882c239cea36b96f16f445c",
+    "CVTRA01Y.cpy": "270947433c1c269d23422de2e330a448d11a4bb1c155ee42d32b67e7fdb73e71",
+    "CVTRA02Y.cpy": "a52d963690250e8c367031dbfe3a676c136c774340c98175dfba13ccede65c07",
+    "CVTRA05Y.cpy": "9e568ff691ee3b63c216cab406f03acaff6a7c79ec23608525664d34769c8cdb",
+    "CVTRA06Y.cpy": "03f47e9c644960076fc97de0fc216faffdee95fed1823974956dbcbf2ecda231",
+}
 
 
 def _load(path: Path) -> list[dict]:
@@ -91,6 +101,13 @@ def _normalized_program(path: Path) -> str:
             continue
         retained.append(line)
     return re.sub(r"\s+", " ", "\n".join(retained)).strip().upper()
+
+
+def test_pinned_carddemo_seed_closure_is_self_contained_and_byte_exact():
+    for filename, expected_hash in PINNED_CARDDEMO_SOURCES.items():
+        path = PROGRAMS / filename
+        assert path.is_file()
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == expected_hash
 
 
 def test_every_refrozen_test_row_materializes_exactly():
