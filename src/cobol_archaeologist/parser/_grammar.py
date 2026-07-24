@@ -11,6 +11,7 @@ import tempfile
 import warnings
 from pathlib import Path
 
+from distutils.errors import CCompilerError, DistutilsError
 from tree_sitter import Language
 
 from cobol_archaeologist._resources import asset_directory
@@ -87,7 +88,13 @@ def get_language() -> Language:
             warnings.simplefilter("ignore", FutureWarning)
             try:
                 Language.build_library(str(_LIB_PATH), [str(_VENDOR_DIR)])
-            except Exception:
+            except (
+                CCompilerError,
+                DistutilsError,
+                OSError,
+                RuntimeError,
+                ValueError,
+            ):
                 _LIB_PATH.unlink(missing_ok=True)
                 _build_with_cc(_LIB_PATH)
     with warnings.catch_warnings():

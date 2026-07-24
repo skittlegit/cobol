@@ -20,7 +20,6 @@ from cobol_archaeologist.benchmark.build import build_benchmark, manifest_path_f
 from cobol_archaeologist.benchmark.mutate import ProgramSource
 from cobol_archaeologist.schemas import DriftInstance, DriftType
 
-
 Verdict = Literal["plausible", "implausible", "unsure"]
 Transport = Callable[["JudgeConfig", str], str]
 SYSTEM_FAMILY = "anthropic"
@@ -163,9 +162,7 @@ def load_judge_overrides(path: str | Path) -> list[JudgeOverride]:
     ]
 
 
-def write_judge_overrides(
-    path: str | Path, overrides: list[JudgeOverride]
-) -> None:
+def write_judge_overrides(path: str | Path, overrides: list[JudgeOverride]) -> None:
     by_id = {item.instance_id: item for item in overrides}
     if len(by_id) != len(overrides):
         raise ValueError("judge overrides contain duplicate instance IDs")
@@ -380,7 +377,12 @@ def _endpoint_transport(config: JudgeConfig, prompt: str) -> str:
             last_error = RuntimeError(f"HTTP {exc.code}: {detail}")
             if attempt < 2:
                 time.sleep(2**attempt)
-        except (urllib.error.URLError, KeyError, ValueError, json.JSONDecodeError) as exc:
+        except (
+            urllib.error.URLError,
+            KeyError,
+            ValueError,
+            json.JSONDecodeError,
+        ) as exc:
             last_error = exc
             if attempt < 2:
                 time.sleep(2**attempt)
@@ -458,8 +460,7 @@ def _load_checkpoint(
         matches = (
             judgement.instance_id == instance.instance_id
             and judgement.drift_type == instance.drift_type
-            and judgement.is_interprocedural
-            == instance.code_locus.is_interprocedural
+            and judgement.is_interprocedural == instance.code_locus.is_interprocedural
             and judgement.model == config.model
             and judgement.model_family == family
         )
@@ -499,8 +500,7 @@ def _load_reuse_cache(
             continue
         matches = (
             judgement.drift_type == instance.drift_type
-            and judgement.is_interprocedural
-            == instance.code_locus.is_interprocedural
+            and judgement.is_interprocedural == instance.code_locus.is_interprocedural
             and judgement.model == config.model
             and judgement.model_family == family
         )
@@ -540,13 +540,10 @@ def judge_benchmark(
     reuse_cache = _load_reuse_cache(reuse_path, selected, config)
     reused_count = 0
     needs_endpoint = any(
-        instance.instance_id not in reuse_cache
-        for instance in selected[resumed_count:]
+        instance.instance_id not in reuse_cache for instance in selected[resumed_count:]
     )
     sources = (
-        source_index or reconstruct_sources(instances_path)
-        if needs_endpoint
-        else {}
+        source_index or reconstruct_sources(instances_path) if needs_endpoint else {}
     )
     if resumed_count == 0:
         output_path.write_text("", encoding="utf-8")
@@ -571,9 +568,7 @@ def judge_benchmark(
             checkpoint.write(judgement.model_dump_json() + "\n")
             checkpoint.flush()
 
-    raw_plausible_rate = sum(
-        item.verdict == "plausible" for item in judgements
-    ) / len(
+    raw_plausible_rate = sum(item.verdict == "plausible" for item in judgements) / len(
         judgements
     )
     try:
@@ -655,9 +650,7 @@ def apply_drop_policy(
             raise ValueError(
                 f"override {instance_id} does not change the raw judge verdict"
             )
-    adjudication_by_id = {
-        item.instance_id: item for item in adjudications or []
-    }
+    adjudication_by_id = {item.instance_id: item for item in adjudications or []}
     if adjudications is not None:
         if len(adjudication_by_id) != len(adjudications):
             raise ValueError("unsure adjudications contain duplicate instance IDs")

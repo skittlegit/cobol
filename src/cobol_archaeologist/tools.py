@@ -16,6 +16,7 @@ The sentinels and edge semantics a consumer must know are enumerated in
 ``docs/tasks/T1.6-work-order.md`` — read its consumer-semantics register before
 wiring an agent to this.
 """
+
 from __future__ import annotations
 
 import re
@@ -53,9 +54,13 @@ GREP_CAP_MATCHES = 200
 
 _PROGRAM_EXTS = (".cbl", ".cob")
 _COPYBOOK_EXTS = (".cpy", ".cbl")
-_PROGRAM_ID_RE = re.compile(r"PROGRAM-ID\.\s+([A-Za-z0-9][A-Za-z0-9_-]*)", re.I)
-_ID_DIVISION_RE = re.compile(r"^\s*(IDENTIFICATION|ID)\s+DIVISION", re.I | re.M)
-_PIC_PREFIX_RE = re.compile(r"^(PICTURE|PIC)\s+(IS\s+)?", re.I)
+_PROGRAM_ID_RE = re.compile(
+    r"PROGRAM-ID\.\s+([A-Za-z0-9][A-Za-z0-9_-]*)", re.IGNORECASE
+)
+_ID_DIVISION_RE = re.compile(
+    r"^\s*(IDENTIFICATION|ID)\s+DIVISION", re.IGNORECASE | re.MULTILINE
+)
+_PIC_PREFIX_RE = re.compile(r"^(PICTURE|PIC)\s+(IS\s+)?", re.IGNORECASE)
 
 # Levels that terminate a record: another 01 (or lower), or a standalone 77.
 _STANDALONE_LEVEL = 77
@@ -83,18 +88,27 @@ class ToolLookupError(KeyError):
 # Data-division model (backs get_data_layout)
 # --------------------------------------------------------------------------
 
+
 class _Decl:
     """One data_description, resolved to original-source coordinates."""
 
-    __slots__ = ("level", "name", "pic", "redefines", "program", "line_start", "line_end")
+    __slots__ = (
+        "level",
+        "name",
+        "pic",
+        "redefines",
+        "program",
+        "line_start",
+        "line_end",
+    )
 
     def __init__(self, level, name, pic, redefines, program, line_start, line_end):
         self.level = level
         self.name = name
         self.pic = pic
         self.redefines = redefines
-        self.program = program          # original file's stem (program id or copybook)
-        self.line_start = line_start    # ORIGINAL source line
+        self.program = program  # original file's stem (program id or copybook)
+        self.line_start = line_start  # ORIGINAL source line
         self.line_end = line_end
 
 
@@ -109,7 +123,9 @@ def _clean_pic(text: str | None) -> str | None:
 def _resolve_line(line_map: list[LineMapEntry], expanded_line: int) -> tuple[str, int]:
     for entry in line_map:
         if entry.expanded_start <= expanded_line <= entry.expanded_end:
-            return entry.source_file, entry.source_line_start + (expanded_line - entry.expanded_start)
+            return entry.source_file, entry.source_line_start + (
+                expanded_line - entry.expanded_start
+            )
     return "", expanded_line
 
 
@@ -159,7 +175,9 @@ class RealToolLayer:
         for path in sorted(self.corpus_root.iterdir()):
             if not path.is_file() or path.suffix.lower() not in _PROGRAM_EXTS:
                 continue
-            match = _PROGRAM_ID_RE.search(path.read_text(encoding="utf-8", errors="replace"))
+            match = _PROGRAM_ID_RE.search(
+                path.read_text(encoding="utf-8", errors="replace")
+            )
             if match:
                 found.setdefault(match.group(1).upper(), path)
         return found
@@ -192,8 +210,11 @@ class RealToolLayer:
         if self._graph_cache is None:
             programs = self._all_programs()
             pres: dict[str, PreprocessResult] = {
-                p.program_id: preprocess(self._path(p.program_id).read_text(
-                    encoding="utf-8", errors="replace"))
+                p.program_id: preprocess(
+                    self._path(p.program_id).read_text(
+                        encoding="utf-8", errors="replace"
+                    )
+                )
                 for p in programs
             }
             self._graph_cache = build_call_graph(programs, pres)
@@ -219,7 +240,9 @@ class RealToolLayer:
             return self._decls[pid]
 
         path = self._path(pid)
-        exp = expand(path.read_text(encoding="utf-8", errors="replace"), self.copybook_paths)
+        exp = expand(
+            path.read_text(encoding="utf-8", errors="replace"), self.copybook_paths
+        )
         pre = preprocess(exp.text)
         parser = Parser()
         parser.set_language(get_language())
@@ -246,22 +269,26 @@ class RealToolLayer:
             except ValueError:
                 continue
 
-            source_file, line_start = _resolve_line(exp.line_map, node.start_point[0] + 1)
+            source_file, line_start = _resolve_line(
+                exp.line_map, node.start_point[0] + 1
+            )
             span = node.end_point[0] - node.start_point[0]
             # DECISION: a declaration physically in a copybook records its
             # ORIGINAL file's stem as `program` (e.g. "CVACT01Y"), matching the
             # convention T1.3 already established for decl SourceRefs — the
             # contract's SourceRef has a program field, not a file field.
             stem = Path(source_file).stem.upper() if source_file else pid
-            decls.append(_Decl(
-                level=level,
-                name=name_node.text.decode(errors="replace").strip(),
-                pic=_clean_pic(_text(_child(node, "picture_clause"))),
-                redefines=_redefines_name(node),
-                program=stem,
-                line_start=line_start,
-                line_end=line_start + span,
-            ))
+            decls.append(
+                _Decl(
+                    level=level,
+                    name=name_node.text.decode(errors="replace").strip(),
+                    pic=_clean_pic(_text(_child(node, "picture_clause"))),
+                    redefines=_redefines_name(node),
+                    program=stem,
+                    line_start=line_start,
+                    line_end=line_start + span,
+                )
+            )
 
         self._decls[pid] = decls
         return decls
@@ -276,7 +303,7 @@ class RealToolLayer:
             raise ToolLookupError(f"unknown paragraph {name!r} in program {program!r}")
 
         span = para.span
-        lines = self._source_lines(prog.program_id)[span.line_start - 1:span.line_end]
+        lines = self._source_lines(prog.program_id)[span.line_start - 1 : span.line_end]
         truncated = len(lines) > CODE_CAP_LINES
         code = "\n".join(ln.rstrip() for ln in lines[:CODE_CAP_LINES])
 
@@ -286,8 +313,10 @@ class RealToolLayer:
             # ref spans the WHOLE paragraph even when code is capped — it is the
             # pointer the consumer refetches from.
             ref=SourceRef(
-                program=prog.program_id, paragraph=span.name,
-                line_start=span.line_start, line_end=span.line_end,
+                program=prog.program_id,
+                paragraph=span.name,
+                line_start=span.line_start,
+                line_end=span.line_end,
             ),
             name=span.name,
             code=code,
@@ -303,7 +332,9 @@ class RealToolLayer:
             path=str(self._path(prog.program_id)),
             paragraphs=[
                 ParagraphSpan(
-                    name=p.span.name, line_start=p.span.line_start, line_end=p.span.line_end,
+                    name=p.span.name,
+                    line_start=p.span.line_start,
+                    line_end=p.span.line_end,
                 )
                 for p in prog.paragraphs
             ],
@@ -326,16 +357,22 @@ class RealToolLayer:
         pid = program.upper()
         if pid not in self._paths:
             graph = self._graph()
-            known = {e.target.program for e in graph.edges} | set(graph.nodes_by_program)
+            known = {e.target.program for e in graph.edges} | set(
+                graph.nodes_by_program
+            )
             if pid not in known:
-                raise ToolLookupError(f"unknown program {program!r} (not in corpus, not a call target)")
+                raise ToolLookupError(
+                    f"unknown program {program!r} (not in corpus, not a call target)"
+                )
         return NodeRef(program=pid, paragraph=para)
 
     # -- ToolLayer: dataflow / slicing --------------------------------------
 
     def trace_variable(self, var: str, program: str | None = None) -> VariableTrace:
         scope = self._scope(program)
-        return _dataflow.trace_variable(var, self._all_programs(), self._graph(), program=scope)
+        return _dataflow.trace_variable(
+            var, self._all_programs(), self._graph(), program=scope
+        )
 
     def slice_on(self, var: str, program: str | None = None) -> Slice:
         scope = self._scope(program)
@@ -353,7 +390,9 @@ class RealToolLayer:
 
     def resolve_copybook(self, name: str) -> CopybookExpansion:
         path = self._copybook_path(name)
-        exp = expand(path.read_text(encoding="utf-8", errors="replace"), self.copybook_paths)
+        exp = expand(
+            path.read_text(encoding="utf-8", errors="replace"), self.copybook_paths
+        )
         lines = exp.text.splitlines()
         truncated = len(lines) > CODE_CAP_LINES
 
@@ -389,7 +428,9 @@ class RealToolLayer:
                     and entry.suffix.lower() in _COPYBOOK_EXTS
                 ):
                     return entry
-        raise ToolLookupError(f"unknown copybook {name!r} (search: {self.copybook_paths})")
+        raise ToolLookupError(
+            f"unknown copybook {name!r} (search: {self.copybook_paths})"
+        )
 
     def get_data_layout(self, record: str) -> DataLayout:
         """The field tree of ``record`` (name, level, PIC, REDEFINES, children).
@@ -419,22 +460,29 @@ class RealToolLayer:
         wanted = record.upper()
         for pid in sorted(self._paths):
             decls = self._declarations(pid)
-            index = next((i for i, d in enumerate(decls) if d.name.upper() == wanted), None)
+            index = next(
+                (i for i, d in enumerate(decls) if d.name.upper() == wanted), None
+            )
             if index is None:
                 continue
             return self._build_layout(decls, index)
-        raise ToolLookupError(f"unknown record {record!r} (no program in the corpus declares it)")
+        raise ToolLookupError(
+            f"unknown record {record!r} (no program in the corpus declares it)"
+        )
 
     def _build_layout(self, decls: list[_Decl], index: int) -> DataLayout:
         head = decls[index]
         root = FieldLayout(
-            name=head.name, level=head.level, pic=head.pic, redefines=head.redefines,
+            name=head.name,
+            level=head.level,
+            pic=head.pic,
+            redefines=head.redefines,
         )
 
         stack: list[tuple[int, FieldLayout]] = [(head.level, root)]
         line_end = head.line_end
 
-        for decl in decls[index + 1:]:
+        for decl in decls[index + 1 :]:
             # A following 01 (or lower level), or a standalone 77, ends the record.
             if decl.level <= head.level or decl.level == _STANDALONE_LEVEL:
                 break
@@ -444,7 +492,10 @@ class RealToolLayer:
                 break
 
             field = FieldLayout(
-                name=decl.name, level=decl.level, pic=decl.pic, redefines=decl.redefines,
+                name=decl.name,
+                level=decl.level,
+                pic=decl.pic,
+                redefines=decl.redefines,
             )
             if decl.level == _CONDITION_LEVEL:
                 # An 88 condition-name qualifies the field above it and can have
@@ -461,7 +512,9 @@ class RealToolLayer:
             record=head.name,
             root=root,
             source=SourceRef(
-                program=head.program, line_start=head.line_start, line_end=line_end,
+                program=head.program,
+                line_start=head.line_start,
+                line_end=line_end,
             ),
         )
 
@@ -476,7 +529,7 @@ class RealToolLayer:
         benchmark is about. A copybook hit reports its stem as ``program``, the
         same convention declaration SourceRefs already use (T1.3).
         """
-        regex = re.compile(pattern, re.I)
+        regex = re.compile(pattern, re.IGNORECASE)
         matches: list[GrepMatch] = []
         truncated = False
 
@@ -488,7 +541,9 @@ class RealToolLayer:
                     if len(matches) >= GREP_CAP_MATCHES:
                         truncated = True
                         break
-                    matches.append(GrepMatch(program=label, line=lineno, text=text.rstrip()))
+                    matches.append(
+                        GrepMatch(program=label, line=lineno, text=text.rstrip())
+                    )
             if truncated:
                 break
 
@@ -496,7 +551,9 @@ class RealToolLayer:
 
     def _searchable_files(self) -> list[tuple[str, Path]]:
         """(label, path) over programs then copybooks, in a stable order."""
-        files: list[tuple[str, Path]] = [(pid, self._paths[pid]) for pid in sorted(self._paths)]
+        files: list[tuple[str, Path]] = [
+            (pid, self._paths[pid]) for pid in sorted(self._paths)
+        ]
         seen = {p.resolve() for _, p in files}
         for base in self.copybook_paths:
             if not base.is_dir():
@@ -546,6 +603,7 @@ class RealToolLayer:
 # --------------------------------------------------------------------------
 # helpers
 # --------------------------------------------------------------------------
+
 
 def _child(node, type_: str):
     return next((c for c in node.children if c.type == type_), None)

@@ -26,10 +26,12 @@ Semantics (normative, per the T1.4 work order):
 Out of scope (inherits T1.3): forward slicing, LINKAGE/COMMAREA value flow,
 minimality proofs, CBSA.
 """
+
 from __future__ import annotations
 
 from collections import deque
-from dataclasses import dataclass, field as dc_field
+from dataclasses import dataclass
+from dataclasses import field as dc_field
 from pathlib import Path
 
 from cobol_archaeologist.parser.paragraphs import Program, Statement
@@ -50,6 +52,7 @@ class SliceBlowupError(RuntimeError):
 @dataclass
 class _Unit:
     """One statement in one program, joined across the AST/Statement views."""
+
     program: str
     paragraph: str
     line_start: int
@@ -58,10 +61,10 @@ class _Unit:
     def_ids: frozenset[int]
     use_ids: frozenset[int]
     cond_use_ids: frozenset[int]
-    guards: tuple[int, ...]          # line_starts of guarding container units
+    guards: tuple[int, ...]  # line_starts of guarding container units
     text: str
     is_container: bool
-    target: str | None = None        # PERFORM_CALL / GOTO target paragraph
+    target: str | None = None  # PERFORM_CALL / GOTO target paragraph
 
 
 @dataclass
@@ -79,6 +82,7 @@ class _ProgramModel:
 # --------------------------------------------------------------------------
 # Building the per-program unit model
 # --------------------------------------------------------------------------
+
 
 def _resolve_ids(refs, symbols) -> frozenset[int]:
     ids: set[int] = set()
@@ -128,11 +132,18 @@ def _build_model(program: Program, search_paths: list[Path]) -> _ProgramModel:
         cond_ids = ast_cond.get(line, frozenset())
         para = stmt.ref.paragraph or _df._paragraph_of(program, line) or ""
         unit = _Unit(
-            program=program.program_id, paragraph=para,
-            line_start=line, line_end=stmt.ref.line_end, kind=stmt.kind,
-            def_ids=defs, use_ids=uses, cond_use_ids=cond_ids, guards=guards,
+            program=program.program_id,
+            paragraph=para,
+            line_start=line,
+            line_end=stmt.ref.line_end,
+            kind=stmt.kind,
+            def_ids=defs,
+            use_ids=uses,
+            cond_use_ids=cond_ids,
+            guards=guards,
             text=_df._excerpt(program_path, line, stmt.ref.line_end),
-            is_container=stmt.kind in _CONTAINER_KINDS, target=stmt.target,
+            is_container=stmt.kind in _CONTAINER_KINDS,
+            target=stmt.target,
         )
         units.append(unit)
         return unit
@@ -168,6 +179,7 @@ def _build_model(program: Program, search_paths: list[Path]) -> _ProgramModel:
 # The slice fixpoint (data + control dependence)
 # --------------------------------------------------------------------------
 
+
 def _slice_program(var: str, model: _ProgramModel) -> tuple[list[_Unit], set[int]]:
     targets = _df._resolve_targets(var, model.symbols)
     if not targets:
@@ -183,7 +195,8 @@ def _slice_program(var: str, model: _ProgramModel) -> tuple[list[_Unit], set[int
         if len(included) > _MAX_SLICE_STATEMENTS:
             raise SliceBlowupError(
                 f"slice of {var!r} in {model.program.program_id} exceeded "
-                f"{_MAX_SLICE_STATEMENTS} statements — likely ambiguity blow-up")
+                f"{_MAX_SLICE_STATEMENTS} statements — likely ambiguity blow-up"
+            )
         for gline in unit.guards:
             guard = model.by_line.get(gline)
             if guard is not None:
@@ -207,18 +220,24 @@ def _slice_program(var: str, model: _ProgramModel) -> tuple[list[_Unit], set[int
 # Interprocedural glue
 # --------------------------------------------------------------------------
 
+
 def _flow_adjacency(call_graph, program_id: str) -> dict[str, list[str]]:
     adj: dict[str, list[str]] = {}
     if call_graph is None:
         return adj
     for edge in call_graph.edges:
-        if (edge.source.program == program_id and edge.target.program == program_id
-                and edge.edge_kind in _FLOW_EDGE_KINDS):
+        if (
+            edge.source.program == program_id
+            and edge.target.program == program_id
+            and edge.edge_kind in _FLOW_EDGE_KINDS
+        ):
             adj.setdefault(edge.source.paragraph, []).append(edge.target.paragraph)
     return adj
 
 
-def _glue_units(model: _ProgramModel, included_paras: set[str], call_graph) -> list[_Unit]:
+def _glue_units(
+    model: _ProgramModel, included_paras: set[str], call_graph
+) -> list[_Unit]:
     """PERFORM_CALL/GOTO units connecting an entry point to each included
     paragraph, so the slice reads as one top-down flow.
 
@@ -242,7 +261,8 @@ def _glue_units(model: _ProgramModel, included_paras: set[str], call_graph) -> l
     flow_targets = {t for targets in adj.values() for t in targets}
     entries = (
         [para_order[0]] + [p for p in para_order[1:] if p not in flow_targets]
-        if para_order else []
+        if para_order
+        else []
     )
 
     # Call units indexed by (source_paragraph, target_paragraph).
@@ -263,7 +283,9 @@ def _glue_units(model: _ProgramModel, included_paras: set[str], call_graph) -> l
     return list(glue.values())
 
 
-def _shortest_path(adj: dict[str, list[str]], starts: list[str], goal: str) -> list[str] | None:
+def _shortest_path(
+    adj: dict[str, list[str]], starts: list[str], goal: str
+) -> list[str] | None:
     if goal in starts:
         return [goal]
     seen = set(starts)
@@ -283,13 +305,21 @@ def _shortest_path(adj: dict[str, list[str]], starts: list[str], goal: str) -> l
 # Public API
 # --------------------------------------------------------------------------
 
-def _value_decl_statements(sliced_vars: set[int], model: _ProgramModel) -> list[SliceStatement]:
+
+def _value_decl_statements(
+    sliced_vars: set[int], model: _ProgramModel
+) -> list[SliceStatement]:
     out: list[SliceStatement] = []
     for fld in model.symbols.fields:
         if id(fld) in sliced_vars and fld.has_value and not fld.is_condition:
-            out.append(SliceStatement(
-                ref=fld.decl_ref,
-                text=_df._excerpt(fld.decl_path, fld.decl_ref.line_start, fld.decl_ref.line_end)))
+            out.append(
+                SliceStatement(
+                    ref=fld.decl_ref,
+                    text=_df._excerpt(
+                        fld.decl_path, fld.decl_ref.line_start, fld.decl_ref.line_end
+                    ),
+                )
+            )
     return out
 
 
@@ -319,10 +349,17 @@ def slice_on(
             all_units.setdefault(gu.line_start, gu)
 
         for u in all_units.values():
-            statements.append(SliceStatement(
-                ref=SourceRef(program=u.program, paragraph=u.paragraph,
-                              line_start=u.line_start, line_end=u.line_end),
-                text=u.text))
+            statements.append(
+                SliceStatement(
+                    ref=SourceRef(
+                        program=u.program,
+                        paragraph=u.paragraph,
+                        line_start=u.line_start,
+                        line_end=u.line_end,
+                    ),
+                    text=u.text,
+                )
+            )
 
         statements.extend(_value_decl_statements(sliced_vars, model))
 
@@ -332,7 +369,9 @@ def slice_on(
     unique: dict[tuple[str, int, int], SliceStatement] = {}
     for st in statements:
         unique[(st.ref.program, st.ref.line_start, st.ref.line_end)] = st
-    ordered = sorted(unique.values(), key=lambda s: (s.ref.program, s.ref.line_start, s.ref.line_end))
+    ordered = sorted(
+        unique.values(), key=lambda s: (s.ref.program, s.ref.line_start, s.ref.line_end)
+    )
 
     paragraphs: list[NodeRef] = []
     seen_para: set[tuple[str, str]] = set()
@@ -342,11 +381,16 @@ def slice_on(
         key = (st.ref.program, st.ref.paragraph)
         if key not in seen_para:
             seen_para.add(key)
-            paragraphs.append(NodeRef(program=st.ref.program, paragraph=st.ref.paragraph))
+            paragraphs.append(
+                NodeRef(program=st.ref.program, paragraph=st.ref.paragraph)
+            )
 
     is_interprocedural = len(seen_para) > 1
 
     return Slice(
-        variable=var, scoped_program=program, statements=ordered,
-        paragraphs=paragraphs, is_interprocedural=is_interprocedural,
+        variable=var,
+        scoped_program=program,
+        statements=ordered,
+        paragraphs=paragraphs,
+        is_interprocedural=is_interprocedural,
     )

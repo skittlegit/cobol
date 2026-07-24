@@ -8,9 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from cobol_archaeologist.benchmark.splits import CLASS_ORDER, build_splits
 import cobol_archaeologist.benchmark.splits as splits_module
-
+from cobol_archaeologist.benchmark.splits import CLASS_ORDER, build_splits
 
 ROOT = Path(__file__).resolve().parents[1]
 SYNTHETIC = ROOT / "data" / "benchmark" / "drift_instances.plausible.jsonl"
@@ -37,12 +36,9 @@ def _base_group(row: dict) -> str:
 @pytest.fixture(scope="module")
 def built(tmp_path_factory):
     output = tmp_path_factory.mktemp("t26")
-    report = build_splits(
-        SYNTHETIC, REAL, output, seed=2600, roster_path=ROSTER
-    )
+    report = build_splits(SYNTHETIC, REAL, output, seed=2600, roster_path=ROSTER)
     rows = {
-        split: _load(output / f"{split}.jsonl")
-        for split in ("train", "dev", "test")
+        split: _load(output / f"{split}.jsonl") for split in ("train", "dev", "test")
     }
     return output, report, rows
 
@@ -62,9 +58,7 @@ def test_gate_zero_base_program_overlap_and_no_missing_instances(built):
     assert {item["instance_id"] for item in all_rows} == {
         item["instance_id"] for item in expected
     }
-    assert dict(report.counts) == {
-        split: len(items) for split, items in rows.items()
-    }
+    assert dict(report.counts) == {split: len(items) for split, items in rows.items()}
     assert all(count > 0 for _split, count in report.group_counts)
 
 
@@ -73,9 +67,7 @@ def test_gate_all_real_curated_instances_are_test_only(built):
     real_ids = {item["instance_id"] for item in _load(REAL)}
     assert real_ids <= {item["instance_id"] for item in rows["test"]}
     assert not real_ids & {
-        item["instance_id"]
-        for split in ("train", "dev")
-        for item in rows[split]
+        item["instance_id"] for split in ("train", "dev") for item in rows[split]
     }
     assert all(
         item["provenance"]["source"] == "synthetic"
@@ -87,9 +79,7 @@ def test_gate_all_real_curated_instances_are_test_only(built):
 def test_gate_structural_t6_pairs_and_cross_variants_are_atomic(built):
     _output, _report, rows = built
     split_by_id = {
-        item["instance_id"]: split
-        for split, items in rows.items()
-        for item in items
+        item["instance_id"]: split for split, items in rows.items() for item in items
     }
     by_locus: dict[str, list[str]] = defaultdict(list)
     for item in _load(SYNTHETIC) + _load(REAL):
@@ -114,9 +104,7 @@ def test_gate_structural_t6_pairs_and_cross_variants_are_atomic(built):
 def test_gate_base_roster_reservations_are_honored(built):
     _output, _report, rows = built
     split_by_group = {
-        _base_group(item): split
-        for split, items in rows.items()
-        for item in items
+        _base_group(item): split for split, items in rows.items() for item in items
     }
     roster = json.loads(ROSTER.read_text(encoding="utf-8"))
     for base_path, allowed_splits in roster["reservations"].items():
@@ -129,9 +117,7 @@ def test_gate_purpose_level_split_minima(built):
     output, _report, rows = built
     synthetic_total = len(_load(SYNTHETIC))
     synthetic_counts = {
-        split: sum(
-            item["provenance"]["source"] == "synthetic" for item in items
-        )
+        split: sum(item["provenance"]["source"] == "synthetic" for item in items)
         for split, items in rows.items()
     }
     assert synthetic_counts["dev"] >= 0.12 * synthetic_total
@@ -142,15 +128,13 @@ def test_gate_purpose_level_split_minima(built):
         assert len(classes) >= 5
 
     test_local = [
-        item for item in rows["test"]
-        if not item["code_locus"]["is_interprocedural"]
+        item for item in rows["test"] if not item["code_locus"]["is_interprocedural"]
     ]
     local_counts = Counter(item["drift_type"] for item in test_local)
     assert all(local_counts[drift_type] >= 10 for drift_type in CLASS_ORDER)
 
     test_interprocedural = [
-        item for item in rows["test"]
-        if item["code_locus"]["is_interprocedural"]
+        item for item in rows["test"] if item["code_locus"]["is_interprocedural"]
     ]
     assert len(test_interprocedural) >= 30
     operator_counts = Counter(
@@ -158,8 +142,7 @@ def test_gate_purpose_level_split_minima(built):
         for item in test_interprocedural
     )
     assert all(
-        operator_counts[operator] >= 8
-        for operator in ("MO-1×", "MO-3×", "MO-6×")
+        operator_counts[operator] >= 8 for operator in ("MO-1×", "MO-3×", "MO-6×")
     )
 
     distribution = (output / "distribution.md").read_text(encoding="utf-8")
@@ -195,9 +178,7 @@ def test_gate_regeneration_is_byte_deterministic(tmp_path):
     right = tmp_path / "right"
     assert build_splits(
         SYNTHETIC, REAL, left, seed=2600, roster_path=ROSTER
-    ) == build_splits(
-        SYNTHETIC, REAL, right, seed=2600, roster_path=ROSTER
-    )
+    ) == build_splits(SYNTHETIC, REAL, right, seed=2600, roster_path=ROSTER)
     for filename in FILENAMES:
         assert (left / filename).read_bytes() == (right / filename).read_bytes()
 
@@ -213,9 +194,11 @@ def test_quantitative_repair_allows_a_deficit_reducing_first_move(monkeypatch):
     }
 
     def errors(_groups, candidate):
-        return [] if all(split == "test" for split in candidate.values()) else [
-            "test-local D4 has fewer than 10 instances"
-        ]
+        return (
+            []
+            if all(split == "test" for split in candidate.values())
+            else ["test-local D4 has fewer than 10 instances"]
+        )
 
     def deficit(_groups, candidate):
         return float(sum(split != "test" for split in candidate.values()))

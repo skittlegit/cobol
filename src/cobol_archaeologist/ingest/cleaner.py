@@ -5,16 +5,17 @@ unparseable by every tree-sitter COBOL grammar without this pass (CLAUDE.md
 locked decision #2). Ported from ``docs/reference/spike_parser.py``
 (T0.5-validated preprocessing rules).
 """
+
 from __future__ import annotations
 
 import re
 
 from pydantic import BaseModel, Field
 
-_EXEC_KIND = re.compile(r"\bEXEC\s+(CICS|SQL|DLI)\b", re.I)
-_COPY_REPLACING = re.compile(r"\bCOPY\s+\S+\s+REPLACING\b", re.I)
-_NOT_GLUED = re.compile(r"\bNOT=", re.I)
-_VALUE_OPEN_QUOTE = re.compile(r"VALUE\s+(['\"])", re.I)
+_EXEC_KIND = re.compile(r"\bEXEC\s+(CICS|SQL|DLI)\b", re.IGNORECASE)
+_COPY_REPLACING = re.compile(r"\bCOPY\s+\S+\s+REPLACING\b", re.IGNORECASE)
+_NOT_GLUED = re.compile(r"\bNOT=", re.IGNORECASE)
+_VALUE_OPEN_QUOTE = re.compile(r"VALUE\s+(['\"])", re.IGNORECASE)
 
 _KIND_BY_LANGUAGE = {"CICS": "exec_cics", "SQL": "exec_sql", "DLI": "exec_dli"}
 
@@ -108,10 +109,14 @@ def preprocess(source: str) -> PreprocessResult:
                 in_exec = False
                 terminal = upper.rstrip().endswith(".")
                 out.append(_CONTINUE + "." if terminal else "")
-                masked_spans.append(MaskedSpan(
-                    kind=span_kind, start_line=span_start, end_line=idx,
-                    original_text="\n".join(span_lines),
-                ))
+                masked_spans.append(
+                    MaskedSpan(
+                        kind=span_kind,
+                        start_line=span_start,
+                        end_line=idx,
+                        original_text="\n".join(span_lines),
+                    )
+                )
             else:
                 out.append("")
             i += 1
@@ -122,10 +127,14 @@ def preprocess(source: str) -> PreprocessResult:
             if body.rstrip().endswith("."):
                 in_copy = False
                 out.append(_CONTINUE + ".")
-                masked_spans.append(MaskedSpan(
-                    kind="copy_replacing", start_line=span_start, end_line=idx,
-                    original_text="\n".join(span_lines),
-                ))
+                masked_spans.append(
+                    MaskedSpan(
+                        kind="copy_replacing",
+                        start_line=span_start,
+                        end_line=idx,
+                        original_text="\n".join(span_lines),
+                    )
+                )
             else:
                 out.append("")
             i += 1
@@ -162,9 +171,14 @@ def preprocess(source: str) -> PreprocessResult:
                 if "END-EXEC" in upper:
                     terminal = upper.rstrip().endswith(".")
                     out.append(_CONTINUE + "." if terminal else _CONTINUE)
-                    masked_spans.append(MaskedSpan(
-                        kind=kind, start_line=idx, end_line=idx, original_text=line,
-                    ))
+                    masked_spans.append(
+                        MaskedSpan(
+                            kind=kind,
+                            start_line=idx,
+                            end_line=idx,
+                            original_text=line,
+                        )
+                    )
                 else:
                     in_exec = True
                     span_kind = kind
@@ -177,9 +191,14 @@ def preprocess(source: str) -> PreprocessResult:
             if _COPY_REPLACING.search(body):
                 if body.rstrip().endswith("."):
                     out.append(_CONTINUE + ".")
-                    masked_spans.append(MaskedSpan(
-                        kind="copy_replacing", start_line=idx, end_line=idx, original_text=line,
-                    ))
+                    masked_spans.append(
+                        MaskedSpan(
+                            kind="copy_replacing",
+                            start_line=idx,
+                            end_line=idx,
+                            original_text=line,
+                        )
+                    )
                 else:
                     in_copy = True
                     span_start = idx

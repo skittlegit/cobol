@@ -20,6 +20,7 @@ conversational edges via ``RETURN TRANSID`` / ``START TRANSID`` are not modeled
 — they are control transfers through the CICS transaction table, not lexical
 call sites, and need the transaction→program map to resolve.
 """
+
 from __future__ import annotations
 
 import re
@@ -32,9 +33,13 @@ from cobol_archaeologist.parser.paragraphs import Program, Statement
 from cobol_archaeologist.tool_types import NodeRef, SourceRef
 
 # LINK/XCTL side-channel patterns over verbatim EXEC text.
-_LINK_XCTL_RE = re.compile(r"\bEXEC\s+CICS\b.*?\b(LINK|XCTL)\b", re.I | re.S)
-_PROGRAM_LITERAL_RE = re.compile(r"\bPROGRAM\s*\(\s*['\"]([A-Z0-9][A-Z0-9$#@_-]*)['\"]", re.I)
-_PROGRAM_ANY_RE = re.compile(r"\bPROGRAM\s*\(", re.I)
+_LINK_XCTL_RE = re.compile(
+    r"\bEXEC\s+CICS\b.*?\b(LINK|XCTL)\b", re.IGNORECASE | re.DOTALL
+)
+_PROGRAM_LITERAL_RE = re.compile(
+    r"\bPROGRAM\s*\(\s*['\"]([A-Z0-9][A-Z0-9$#@_-]*)['\"]", re.IGNORECASE
+)
+_PROGRAM_ANY_RE = re.compile(r"\bPROGRAM\s*\(", re.IGNORECASE)
 
 # Intra-program control-flow edges that carry reachability alongside fallthrough.
 _FLOW_KINDS = frozenset({"perform", "goto"})
@@ -43,9 +48,9 @@ _FLOW_KINDS = frozenset({"perform", "goto"})
 # paragraph's fall-through. GO TO is handled separately (it surfaces as a GOTO
 # Statement kind); GOBACK/STOP RUN/EXIT PROGRAM classify as OTHER, so they are
 # recognised by text. (DECISION in _last_stmt_is_transfer below.)
-_GOBACK_RE = re.compile(r"\bGOBACK\b", re.I)
-_STOP_RUN_RE = re.compile(r"\bSTOP\s+RUN\b", re.I)
-_EXIT_PROGRAM_RE = re.compile(r"\bEXIT\s+PROGRAM\b", re.I)
+_GOBACK_RE = re.compile(r"\bGOBACK\b", re.IGNORECASE)
+_STOP_RUN_RE = re.compile(r"\bSTOP\s+RUN\b", re.IGNORECASE)
+_EXIT_PROGRAM_RE = re.compile(r"\bEXIT\s+PROGRAM\b", re.IGNORECASE)
 
 
 class _HNodeRef(NodeRef):
@@ -97,16 +102,23 @@ class CallGraph(BaseModel):
     _out: dict[tuple[str, str], list[CallEdge]] = PrivateAttr(default_factory=dict)
     # Reachability adjacency: intra-program PERFORM/GO TO targets + fall-through
     # successors. Consumed by reachable_from only.
-    _reach_out: dict[tuple[str, str], list[tuple[str, str]]] = PrivateAttr(default_factory=dict)
+    _reach_out: dict[tuple[str, str], list[tuple[str, str]]] = PrivateAttr(
+        default_factory=dict
+    )
     # Every paragraph that is the target of ANY edge (perform/goto/call/link/
     # xctl/fallthrough). A forest root is a node absent from this set.
     _incoming_any: set[tuple[str, str]] = PrivateAttr(default_factory=set)
 
     def model_post_init(self, __context) -> None:
         for edge in self.edges:
-            self._out.setdefault((edge.source.program, edge.source.paragraph), []).append(edge)
+            self._out.setdefault(
+                (edge.source.program, edge.source.paragraph), []
+            ).append(edge)
             self._incoming_any.add((edge.target.program, edge.target.paragraph))
-            if edge.edge_kind in _FLOW_KINDS and edge.source.program == edge.target.program:
+            if (
+                edge.edge_kind in _FLOW_KINDS
+                and edge.source.program == edge.target.program
+            ):
                 self._reach_out.setdefault(
                     (edge.source.program, edge.source.paragraph), []
                 ).append((edge.target.program, edge.target.paragraph))
@@ -131,7 +143,10 @@ class CallGraph(BaseModel):
     def callers(self, node: NodeRef) -> list[NodeRef]:
         seen: set[tuple[str, str]] = set()
         for edge in self.edges:
-            if (edge.target.program, edge.target.paragraph) == (node.program, node.paragraph):
+            if (edge.target.program, edge.target.paragraph) == (
+                node.program,
+                node.paragraph,
+            ):
                 seen.add((edge.source.program, edge.source.paragraph))
         return [NodeRef(program=p, paragraph=q) for p, q in sorted(seen)]
 
@@ -203,7 +218,9 @@ def _flatten(statements: list[Statement]):
         yield from _flatten(stmt.children)
 
 
-def _first_paragraph(program_id: str, nodes_by_program: dict[str, list[NodeRef]]) -> str:
+def _first_paragraph(
+    program_id: str, nodes_by_program: dict[str, list[NodeRef]]
+) -> str:
     # DECISION: a cross-program CALL/LINK/XCTL to a program outside the analyzed
     # set still yields a real edge, with paragraph="" meaning "program entry,
     # first paragraph unknown (program not parsed)". The edge is never dropped —
@@ -252,7 +269,9 @@ def _last_stmt_is_transfer(stmt: Statement, source_lines: list[str] | None) -> b
         return False
     text = _stmt_text(stmt, source_lines)
     return bool(
-        _GOBACK_RE.search(text) or _STOP_RUN_RE.search(text) or _EXIT_PROGRAM_RE.search(text)
+        _GOBACK_RE.search(text)
+        or _STOP_RUN_RE.search(text)
+        or _EXIT_PROGRAM_RE.search(text)
     )
 
 
@@ -269,11 +288,14 @@ def _fallthrough_edges(program: Program) -> list[CallEdge]:
         last = cur.statements[-1] if cur.statements else None
         if last is not None and _last_stmt_is_transfer(last, source_lines):
             continue
-        edges.append(CallEdge(
-            source=NodeRef(program=pid, paragraph=cur.span.name),
-            target=NodeRef(program=pid, paragraph=nxt.span.name),
-            edge_kind="fallthrough", ref_line=cur.span.line_end,
-        ))
+        edges.append(
+            CallEdge(
+                source=NodeRef(program=pid, paragraph=cur.span.name),
+                target=NodeRef(program=pid, paragraph=nxt.span.name),
+                edge_kind="fallthrough",
+                ref_line=cur.span.line_end,
+            )
+        )
     return edges
 
 
@@ -283,7 +305,8 @@ def build_call_graph(
 ) -> CallGraph:
     nodes_by_program: dict[str, list[NodeRef]] = {
         prog.program_id: [
-            NodeRef(program=prog.program_id, paragraph=p.span.name) for p in prog.paragraphs
+            NodeRef(program=prog.program_id, paragraph=p.span.name)
+            for p in prog.paragraphs
         ]
         for prog in programs
     }
@@ -291,7 +314,9 @@ def build_call_graph(
     para_order: dict[str, list[str]] = {
         pid: [n.paragraph for n in nodes] for pid, nodes in nodes_by_program.items()
     }
-    para_set: dict[str, set[str]] = {pid: set(names) for pid, names in para_order.items()}
+    para_set: dict[str, set[str]] = {
+        pid: set(names) for pid, names in para_order.items()
+    }
 
     edges: list[CallEdge] = []
     fallthrough_edges: list[CallEdge] = []
@@ -312,69 +337,106 @@ def build_call_graph(
                 elif stmt.kind == "CALL":
                     _handle_call(stmt, src, nodes_by_program, edges, unresolved)
 
-        _handle_link_xctl(program, preprocess_results.get(pid), nodes_by_program, edges, unresolved)
+        _handle_link_xctl(
+            program, preprocess_results.get(pid), nodes_by_program, edges, unresolved
+        )
         fallthrough_edges.extend(_fallthrough_edges(program))
 
     return CallGraph(
-        edges=edges, fallthrough_edges=fallthrough_edges,
-        unresolved=unresolved, nodes_by_program=nodes_by_program,
+        edges=edges,
+        fallthrough_edges=fallthrough_edges,
+        unresolved=unresolved,
+        nodes_by_program=nodes_by_program,
     )
 
 
 def _handle_perform(stmt, src, pid, names, order, edges, unresolved) -> None:
     target = stmt.target
     if target is None:
-        unresolved.append(UnresolvedCall(ref=stmt.ref, reason="PERFORM with no resolvable target"))
+        unresolved.append(
+            UnresolvedCall(ref=stmt.ref, reason="PERFORM with no resolvable target")
+        )
         return
     if stmt.thru_target is None:
         if target in names:
-            edges.append(CallEdge(
-                source=src, target=NodeRef(program=pid, paragraph=target),
-                edge_kind="perform", ref_line=stmt.ref.line_start,
-            ))
+            edges.append(
+                CallEdge(
+                    source=src,
+                    target=NodeRef(program=pid, paragraph=target),
+                    edge_kind="perform",
+                    ref_line=stmt.ref.line_start,
+                )
+            )
         else:
-            unresolved.append(UnresolvedCall(
-                ref=stmt.ref, reason=f"PERFORM to unknown paragraph {target!r}"))
+            unresolved.append(
+                UnresolvedCall(
+                    ref=stmt.ref, reason=f"PERFORM to unknown paragraph {target!r}"
+                )
+            )
         return
     # THRU: expand over paragraph order (THRU is positional).
     thru = stmt.thru_target
     if target not in names or thru not in names:
-        unresolved.append(UnresolvedCall(
-            ref=stmt.ref, reason=f"PERFORM {target!r} THRU {thru!r} with unknown endpoint"))
+        unresolved.append(
+            UnresolvedCall(
+                ref=stmt.ref,
+                reason=f"PERFORM {target!r} THRU {thru!r} with unknown endpoint",
+            )
+        )
         return
     lo, hi = order.index(target), order.index(thru)
     if lo > hi:
-        unresolved.append(UnresolvedCall(
-            ref=stmt.ref, reason=f"PERFORM {target!r} THRU {thru!r} spans backwards"))
+        unresolved.append(
+            UnresolvedCall(
+                ref=stmt.ref, reason=f"PERFORM {target!r} THRU {thru!r} spans backwards"
+            )
+        )
         return
-    for name in order[lo:hi + 1]:
-        edges.append(CallEdge(
-            source=src, target=NodeRef(program=pid, paragraph=name),
-            edge_kind="perform", ref_line=stmt.ref.line_start,
-        ))
+    for name in order[lo : hi + 1]:
+        edges.append(
+            CallEdge(
+                source=src,
+                target=NodeRef(program=pid, paragraph=name),
+                edge_kind="perform",
+                ref_line=stmt.ref.line_start,
+            )
+        )
 
 
 def _handle_goto(stmt, src, pid, names, edges, unresolved) -> None:
     target = stmt.target
     if target and target in names:
-        edges.append(CallEdge(
-            source=src, target=NodeRef(program=pid, paragraph=target),
-            edge_kind="goto", ref_line=stmt.ref.line_start,
-        ))
+        edges.append(
+            CallEdge(
+                source=src,
+                target=NodeRef(program=pid, paragraph=target),
+                edge_kind="goto",
+                ref_line=stmt.ref.line_start,
+            )
+        )
     else:
-        unresolved.append(UnresolvedCall(
-            ref=stmt.ref, reason=f"GO TO unknown paragraph {target!r}"))
+        unresolved.append(
+            UnresolvedCall(ref=stmt.ref, reason=f"GO TO unknown paragraph {target!r}")
+        )
 
 
 def _handle_call(stmt, src, nodes_by_program, edges, unresolved) -> None:
     if stmt.dynamic or stmt.target is None:
-        unresolved.append(UnresolvedCall(ref=stmt.ref, reason="dynamic CALL (identifier target)"))
+        unresolved.append(
+            UnresolvedCall(ref=stmt.ref, reason="dynamic CALL (identifier target)")
+        )
         return
-    edges.append(CallEdge(
-        source=src,
-        target=NodeRef(program=stmt.target, paragraph=_first_paragraph(stmt.target, nodes_by_program)),
-        edge_kind="call", ref_line=stmt.ref.line_start,
-    ))
+    edges.append(
+        CallEdge(
+            source=src,
+            target=NodeRef(
+                program=stmt.target,
+                paragraph=_first_paragraph(stmt.target, nodes_by_program),
+            ),
+            edge_kind="call",
+            ref_line=stmt.ref.line_start,
+        )
+    )
 
 
 def _handle_link_xctl(program, pre, nodes_by_program, edges, unresolved) -> None:
@@ -390,28 +452,46 @@ def _handle_link_xctl(program, pre, nodes_by_program, edges, unresolved) -> None
         if para is None:
             # Span outside any named paragraph (and no preamble node covering
             # it) — record rather than silently misattribute.
-            unresolved.append(UnresolvedCall(
-                ref=SourceRef(program=pid, line_start=span.start_line, line_end=span.start_line),
-                reason=f"{kind.upper()} outside any paragraph"))
+            unresolved.append(
+                UnresolvedCall(
+                    ref=SourceRef(
+                        program=pid,
+                        line_start=span.start_line,
+                        line_end=span.start_line,
+                    ),
+                    reason=f"{kind.upper()} outside any paragraph",
+                )
+            )
             continue
         src = NodeRef(program=pid, paragraph=para)
         lit = _PROGRAM_LITERAL_RE.search(span.original_text)
         if lit:
             target_prog = lit.group(1).upper()
-            edges.append(CallEdge(
-                source=src,
-                target=NodeRef(
-                    program=target_prog,
-                    paragraph=_first_paragraph(target_prog, nodes_by_program),
-                ),
-                edge_kind=kind, ref_line=span.start_line,
-            ))
+            edges.append(
+                CallEdge(
+                    source=src,
+                    target=NodeRef(
+                        program=target_prog,
+                        paragraph=_first_paragraph(target_prog, nodes_by_program),
+                    ),
+                    edge_kind=kind,
+                    ref_line=span.start_line,
+                )
+            )
         elif _PROGRAM_ANY_RE.search(span.original_text):
-            unresolved.append(UnresolvedCall(
-                ref=SourceRef(program=pid, paragraph=para,
-                              line_start=span.start_line, line_end=span.start_line),
-                reason=f"{kind.upper()} PROGRAM(identifier) — dynamic target"))
+            unresolved.append(
+                UnresolvedCall(
+                    ref=SourceRef(
+                        program=pid,
+                        paragraph=para,
+                        line_start=span.start_line,
+                        line_end=span.start_line,
+                    ),
+                    reason=f"{kind.upper()} PROGRAM(identifier) — dynamic target",
+                )
+            )
         else:
             raise LinkXctlShapeError(
                 f"{pid}:{span.start_line} {kind.upper()} span has no PROGRAM(...): "
-                f"{span.original_text!r}")
+                f"{span.original_text!r}"
+            )

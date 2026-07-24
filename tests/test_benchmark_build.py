@@ -21,7 +21,6 @@ from cobol_archaeologist.benchmark.surface import (
 from cobol_archaeologist.cli import main
 from cobol_archaeologist.schemas import DriftInstance
 
-
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACT = ROOT / "data" / "benchmark" / "drift_instances.jsonl"
 
@@ -99,20 +98,20 @@ def test_distinct_mutation_key_ignores_cobol_surface_form_but_not_literals():
 
     upper = with_mutation(
         "MO-2; locus=SYNC:2000-CHECK:20-22; "
-        'old="IF WS-DAYS > 7 MOVE \'OK\' TO WS-STATUS"; '
-        'new="IF WS-DAYS <= 7 MOVE \'OK\' TO WS-STATUS"; '
+        "old=\"IF WS-DAYS > 7 MOVE 'OK' TO WS-STATUS\"; "
+        "new=\"IF WS-DAYS <= 7 MOVE 'OK' TO WS-STATUS\"; "
         "validation=compiled; diversify=deterministic"
     )
     restyled = with_mutation(
         "mo-2;  locus=sync:2000-check:20-22; "
-        'old="if ws-days  >  7   move \'OK\' to ws-status"; '
-        'new="if ws-days <= 7 move \'OK\' to ws-status"; '
+        "old=\"if ws-days  >  7   move 'OK' to ws-status\"; "
+        "new=\"if ws-days <= 7 move 'OK' to ws-status\"; "
         "validation=ast; diversify=llm"
     )
     changed_literal = with_mutation(
         "MO-2; locus=SYNC:2000-CHECK:20-22; "
-        'old="IF WS-DAYS > 7 MOVE \'ok\' TO WS-STATUS"; '
-        'new="IF WS-DAYS <= 7 MOVE \'ok\' TO WS-STATUS"'
+        "old=\"IF WS-DAYS > 7 MOVE 'ok' TO WS-STATUS\"; "
+        "new=\"IF WS-DAYS <= 7 MOVE 'ok' TO WS-STATUS\""
     )
 
     assert _semantic_mutation_key(upper) == _semantic_mutation_key(restyled)
@@ -144,8 +143,7 @@ def test_distinct_mutation_key_parses_semicolons_and_double_quoted_cobol_literal
         "old='display   \"OK;READY\"'; new='continue'; diversify=llm"
     )
     changed_literal = with_mutation(
-        "MO-2; locus=SYNC:2000-CHECK:20-20; "
-        "old='DISPLAY \"ok;ready\"'; new='CONTINUE'"
+        "MO-2; locus=SYNC:2000-CHECK:20-20; old='DISPLAY \"ok;ready\"'; new='CONTINUE'"
     )
 
     assert _semantic_mutation_key(upper) == _semantic_mutation_key(restyled)
@@ -194,13 +192,16 @@ def test_gate_c_manifest_accounts_for_floors_rejects_and_validation(built_pair):
     manifest = json.loads(manifest_path_for(output).read_text(encoding="utf-8"))
     assert manifest == first.manifest
     assert manifest["seed"] == 2601
-    assert manifest["git_sha"] == subprocess.run(
-        ["git", "rev-parse", "HEAD"],
-        cwd=ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
+    assert (
+        manifest["git_sha"]
+        == subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+    )
     assert manifest["diversify"] == "deterministic"
     assert manifest["schema_version"] == 2
     assert manifest["compiler"]["supported_range"] == ">=3.1.2,<4"
@@ -294,14 +295,14 @@ def test_purpose_authored_loci_are_rostered_and_emitted(built_pair):
         "CICROLL2.cbl",
     }
     roster = json.loads(
-        (
-            ROOT / "data" / "benchmark" / "seed" / "base_roster.json"
-        ).read_text(encoding="utf-8")
+        (ROOT / "data" / "benchmark" / "seed" / "base_roster.json").read_text(
+            encoding="utf-8"
+        )
     )
 
-    assert {
-        f"train-bases/{name}" for name in purpose_bases
-    } <= roster["reservations"].keys()
+    assert {f"train-bases/{name}" for name in purpose_bases} <= roster[
+        "reservations"
+    ].keys()
     assert purpose_bases <= first.manifest["base_counts"].keys()
     assert all(first.manifest["base_counts"][name] > 0 for name in purpose_bases)
 

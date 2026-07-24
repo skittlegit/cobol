@@ -123,7 +123,7 @@ class BM25:
         self._avg: float = 0.0
         self._idf: dict[str, float] = {}
 
-    def fit(self, corpus: Sequence[str]) -> "BM25":
+    def fit(self, corpus: Sequence[str]) -> BM25:
         self._docs = [Counter(tokenize(t)) for t in corpus]
         self._len = [sum(d.values()) for d in self._docs]
         n = len(self._docs)
@@ -191,7 +191,7 @@ class RegulationIndex:
         embedder=None,
         reranker=None,
         **kwargs,
-    ) -> "RegulationIndex":
+    ) -> RegulationIndex:
         chunks = list(chunks)
         bm25 = BM25().fit([c.text for c in chunks])
         vectors = None
@@ -385,11 +385,11 @@ def build_relevance_report(
     Network: loads the pinned models. Determines pass/fail on the done-when bar.
     """
     from cobol_archaeologist.rag.embed import (
-        DenseEmbedder,
         EMBEDDER_MODEL,
         EMBEDDER_REVISION,
         RERANKER_MODEL,
         RERANKER_REVISION,
+        DenseEmbedder,
         Reranker,
     )
 

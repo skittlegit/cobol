@@ -13,7 +13,6 @@ import subprocess
 from dataclasses import dataclass
 from functools import lru_cache
 
-
 MIN_SUPPORTED = (3, 1, 2)
 MAX_MAJOR_EXCLUSIVE = 4
 VERSION_OF_RECORD = "3.2.0"
@@ -87,7 +86,9 @@ def inspect_cobc(binary: str) -> CobcInfo:
             timeout=10,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
-        raise CobcVersionError(f"could not inspect GnuCOBOL at {binary!r}: {exc}") from exc
+        raise CobcVersionError(
+            f"could not inspect GnuCOBOL at {binary!r}: {exc}"
+        ) from exc
 
     output = (completed.stdout or "") + (completed.stderr or "")
     banner = next((line.strip() for line in output.splitlines() if line.strip()), "")

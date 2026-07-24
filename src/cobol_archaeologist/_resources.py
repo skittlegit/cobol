@@ -7,7 +7,6 @@ from contextlib import ExitStack
 from importlib.resources import as_file, files
 from pathlib import Path, PurePosixPath
 
-
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _RESOURCE_STACK = ExitStack()
 atexit.register(_RESOURCE_STACK.close)

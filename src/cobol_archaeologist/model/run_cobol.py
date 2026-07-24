@@ -176,6 +176,7 @@ def compile_check(source: str) -> CompileResult:
             capture_output=True,
             text=True,
             timeout=_RUN_TIMEOUT_S * 4,
+            check=False,
         )
         output = _normalize((proc.stderr or "") + (proc.stdout or ""), tmpdir)
         return CompileResult(ok=proc.returncode == 0, messages=_parse_messages(output))
@@ -322,6 +323,7 @@ def _run_in_dir(source: str, inputs: RunInputs, tmpdir: Path) -> RunResult:
         capture_output=True,
         text=True,
         timeout=_RUN_TIMEOUT_S * 4,
+        check=False,
     )
     exe = _executable(tmpdir)
     if compile_proc.returncode != 0 or exe is None:

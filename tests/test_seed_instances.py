@@ -12,7 +12,6 @@ import pytest
 
 from cobol_archaeologist.schemas import DriftInstance
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SEED_DIR = REPO_ROOT / "data" / "benchmark" / "seed"
 INSTANCES_PATH = SEED_DIR / "real_curated.jsonl"

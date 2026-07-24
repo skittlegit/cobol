@@ -7,6 +7,7 @@ rest of this file pins the semantics Track C will consume, against CardDemo.
 Skips without the corpus (and, for run_cobol, without cobc), same pattern as
 the T1.1-T1.5 gates.
 """
+
 import json
 import os
 import shutil
@@ -27,10 +28,13 @@ CPY_DIRS = [CARDDEMO / "app" / "cpy", CARDDEMO / "app" / "cpy-bms"]
 SMOKE_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "smoke" / "acct_curr_bal.json"
 
 _HAVE_COBC = bool(os.environ.get("COBC") or shutil.which("cobc"))
-needs_cobc = pytest.mark.skipif(not _HAVE_COBC, reason="cobc not found (run scripts/setup_cobc.sh)")
+needs_cobc = pytest.mark.skipif(
+    not _HAVE_COBC, reason="cobc not found (run scripts/setup_cobc.sh)"
+)
 
 pytestmark = pytest.mark.skipif(
-    not CARDDEMO.is_dir(), reason="corpora not fetched (run scripts/fetch_corpora.sh)",
+    not CARDDEMO.is_dir(),
+    reason="corpora not fetched (run scripts/fetch_corpora.sh)",
 )
 
 # A 451-line paragraph (COACTUPC.cbl:2986-3436) — the cap fixture.
@@ -43,6 +47,7 @@ def layer():
 
 
 # -- Gate 1: structural conformance -----------------------------------------
+
 
 def test_is_a_toollayer(layer):
     """The stub-parity clause: Track C's Week-7 seam test is a constructor swap
@@ -59,6 +64,7 @@ def test_empty_corpus_root_is_loud(tmp_path):
 
 # -- Gate 2: read_paragraph / read_program ----------------------------------
 
+
 def test_read_paragraph_returns_code_span_and_edges(layer):
     view = layer.read_paragraph("CBTRN02C", "2800-UPDATE-ACCOUNT-REC")
 
@@ -68,12 +74,19 @@ def test_read_paragraph_returns_code_span_and_edges(layer):
     assert view.ref.paragraph == "2800-UPDATE-ACCOUNT-REC"
     assert view.truncated is False
     # Code is the ORIGINAL source text of that span (CLAUDE.md rule 4).
-    original = (CBL_DIR / "CBTRN02C.cbl").read_text(encoding="utf-8", errors="replace").splitlines()
+    original = (
+        (CBL_DIR / "CBTRN02C.cbl")
+        .read_text(encoding="utf-8", errors="replace")
+        .splitlines()
+    )
     assert view.code.splitlines() == [
-        ln.rstrip() for ln in original[view.ref.line_start - 1:view.ref.line_end]
+        ln.rstrip() for ln in original[view.ref.line_start - 1 : view.ref.line_end]
     ]
     assert "ACCT-CURR-BAL" in view.code
-    assert tool_types.NodeRef(program="CBTRN02C", paragraph="2000-POST-TRANSACTION") in view.callers
+    assert (
+        tool_types.NodeRef(program="CBTRN02C", paragraph="2000-POST-TRANSACTION")
+        in view.callers
+    )
 
 
 def test_read_paragraph_caps_long_code(layer):
@@ -123,12 +136,18 @@ def test_unknown_lookups_raise(layer):
 
 # -- Gate 2: find_callers / find_callees ------------------------------------
 
+
 def test_find_callers_and_callees(layer):
     callers = layer.find_callers("CBTRN02C", "2800-UPDATE-ACCOUNT-REC")
-    assert callers == [tool_types.NodeRef(program="CBTRN02C", paragraph="2000-POST-TRANSACTION")]
+    assert callers == [
+        tool_types.NodeRef(program="CBTRN02C", paragraph="2000-POST-TRANSACTION")
+    ]
 
     callees = layer.find_callees("CBTRN02C", "2000-POST-TRANSACTION")
-    assert tool_types.NodeRef(program="CBTRN02C", paragraph="2800-UPDATE-ACCOUNT-REC") in callees
+    assert (
+        tool_types.NodeRef(program="CBTRN02C", paragraph="2800-UPDATE-ACCOUNT-REC")
+        in callees
+    )
 
 
 def test_cross_program_edge_carries_empty_paragraph(layer):
@@ -141,6 +160,7 @@ def test_cross_program_edge_carries_empty_paragraph(layer):
 
 
 # -- Gate 2: trace_variable / slice_on --------------------------------------
+
 
 def test_trace_variable_corpus_wide_and_scoped(layer):
     corpus = layer.trace_variable("ACCT-CURR-BAL")
@@ -168,6 +188,7 @@ def test_slice_on_is_interprocedural(layer):
 
 # -- Gate 2: resolve_copybook ------------------------------------------------
 
+
 def test_resolve_copybook_text_and_linemap(layer):
     exp = layer.resolve_copybook("CVACT01Y")
 
@@ -184,6 +205,7 @@ def test_resolve_copybook_text_and_linemap(layer):
 
 
 # -- Gate 4: get_data_layout -------------------------------------------------
+
 
 def test_get_data_layout_account_record(layer):
     """ACCOUNT-RECORD is declared in copybook CVACT01Y, not in any program: the
@@ -219,8 +241,14 @@ def test_get_data_layout_value_text_is_read_from_original(layer):
     layout = layer.get_data_layout("HTML-LINES")
     assert layout.source.program == "CBSTM03A"
 
-    original = (CBL_DIR / "CBSTM03A.CBL").read_text(encoding="utf-8", errors="replace").splitlines()
-    declared = "\n".join(original[layout.source.line_start - 1:layout.source.line_end])
+    original = (
+        (CBL_DIR / "CBSTM03A.CBL")
+        .read_text(encoding="utf-8", errors="replace")
+        .splitlines()
+    )
+    declared = "\n".join(
+        original[layout.source.line_start - 1 : layout.source.line_end]
+    )
 
     # The multi-line VALUE reads correctly from the original source...
     assert 'frame="box"' in declared
@@ -242,6 +270,7 @@ def test_get_data_layout_value_text_is_read_from_original(layer):
 
 # -- Gate 2: grep ------------------------------------------------------------
 
+
 def test_grep_returns_pointers_and_caps(layer):
     result = layer.grep(r"ACCT-CURR-BAL")
 
@@ -251,7 +280,11 @@ def test_grep_returns_pointers_and_caps(layer):
     assert {m.program for m in result.matches} >= {"CBACT04C", "CBTRN02C"}
     # Line numbers are original-source and the text is that line.
     hit = next(m for m in result.matches if m.program == "CBACT04C")
-    original = (CBL_DIR / "CBACT04C.cbl").read_text(encoding="utf-8", errors="replace").splitlines()
+    original = (
+        (CBL_DIR / "CBACT04C.cbl")
+        .read_text(encoding="utf-8", errors="replace")
+        .splitlines()
+    )
     assert "ACCT-CURR-BAL" in original[hit.line - 1]
     assert hit.text.strip() == original[hit.line - 1].strip()
 
@@ -271,6 +304,7 @@ def test_grep_searches_copybooks_too(layer):
 
 
 # -- Gate 2: run_cobol -------------------------------------------------------
+
 
 @needs_cobc
 def test_run_cobol_wraps_a_bare_snippet(layer):
@@ -327,6 +361,7 @@ def test_run_cobol_accepts_stdin(layer):
 
 # -- Gate 2: search_regulations (typed stub, Track C owns) -------------------
 
+
 def test_search_regulations_is_a_typed_stub(layer):
     with pytest.raises(NotImplementedError, match="Track C"):
         layer.search_regulations("credit card interest")
@@ -334,15 +369,21 @@ def test_search_regulations_is_a_typed_stub(layer):
 
 # -- Gate 3: the smoke script answers a real question via ToolLayer only -----
 
+
 def test_smoke_script_matches_fixture():
     """scripts/smoke_tools.py answers 'which paragraphs write ACCT-CURR-BAL and
     who calls them?' using ONLY ToolLayer calls. Its output is this fixture."""
     proc = subprocess.run(
         [sys.executable, str(REPO_ROOT / "scripts" / "smoke_tools.py")],
-        capture_output=True, text=True, cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        cwd=str(REPO_ROOT),
+        check=False,
     )
     assert proc.returncode == 0, proc.stderr
-    assert json.loads(proc.stdout) == json.loads(SMOKE_FIXTURE.read_text(encoding="utf-8"))
+    assert json.loads(proc.stdout) == json.loads(
+        SMOKE_FIXTURE.read_text(encoding="utf-8")
+    )
 
 
 if __name__ == "__main__":  # convenience: `python tests/test_tools.py`

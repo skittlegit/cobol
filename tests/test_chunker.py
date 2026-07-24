@@ -3,10 +3,10 @@ from pathlib import Path
 
 from cobol_archaeologist.rag.chunker import (
     BOUNDARY_REPORT,
+    _content_overlap,
     build_all_chunks,
     load_clause_records,
     main,
-    _content_overlap,
 )
 
 
@@ -20,7 +20,9 @@ def test_gate_a_clause_records_reconcile_to_exactly_one_chunk():
             if chunk.doc == clause["doc"] and chunk.clause_id == clause["clause_id"]
         ]
         assert len(matches) == 1, record["record_id"]
-        assert _content_overlap(clause["text"], matches[0].text) >= 0.8, record["record_id"]
+        assert _content_overlap(clause["text"], matches[0].text) >= 0.8, record[
+            "record_id"
+        ]
 
 
 def test_bl13_nested_definition_groups_do_not_reuse_curated_clause_ids():
