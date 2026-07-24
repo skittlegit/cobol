@@ -26,8 +26,8 @@ compatibility but is a no-op in this build — it lands in T3.3b (Part 2).
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from cobol_archaeologist.rag.index import (
     CLAUSES,

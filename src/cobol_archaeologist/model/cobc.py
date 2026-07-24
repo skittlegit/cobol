@@ -11,7 +11,7 @@ import re
 import shutil
 import subprocess
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cache
 
 MIN_SUPPORTED = (3, 1, 2)
 MAX_MAJOR_EXCLUSIVE = 4
@@ -73,7 +73,7 @@ def require_supported_cobc(
     return version
 
 
-@lru_cache(maxsize=None)
+@cache
 def inspect_cobc(binary: str) -> CobcInfo:
     """Run and validate ``cobc --version`` once for each compiler path."""
 

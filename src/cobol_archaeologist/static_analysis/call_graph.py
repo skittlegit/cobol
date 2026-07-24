@@ -109,7 +109,7 @@ class CallGraph(BaseModel):
     # xctl/fallthrough). A forest root is a node absent from this set.
     _incoming_any: set[tuple[str, str]] = PrivateAttr(default_factory=set)
 
-    def model_post_init(self, __context) -> None:
+    def model_post_init(self, __context, /) -> None:
         for edge in self.edges:
             self._out.setdefault(
                 (edge.source.program, edge.source.paragraph), []

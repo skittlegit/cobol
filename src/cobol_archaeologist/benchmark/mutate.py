@@ -604,9 +604,12 @@ def _stale_value(
                 # Non-numeric priors (an absent deadline, a day-basis change)
                 # are real history but not D1 material -- they are D2/D5 shapes,
                 # so they must never reach a stale-threshold substitution.
-                if isinstance(value, (int, float)) and not isinstance(value, bool):
-                    if float(value) != current:
-                        candidates.append(float(value))
+                if (
+                    isinstance(value, (int, float))
+                    and not isinstance(value, bool)
+                    and float(value) != current
+                ):
+                    candidates.append(float(value))
     if candidates:
         return candidates[rng.randrange(len(candidates))], "prior_verified"
 
@@ -2127,7 +2130,7 @@ def _apply_mo6x(base: ProgramSource) -> _EditPlan:
             )
             if guard_index is None:
                 continue
-            old_line = lines[index]
+            old_line = line
             lines[index] = re.sub(
                 r"\bMOVE\s+'Y'\s+TO\b",
                 "MOVE 'N' TO",

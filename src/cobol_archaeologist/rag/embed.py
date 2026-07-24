@@ -11,8 +11,8 @@ locally before push; the review chat re-runs only the offline gates.
 from __future__ import annotations
 
 import os
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 ROOT = Path(__file__).resolve().parents[3]
 CACHE_DIR = Path(os.environ.get("COBOL_MODEL_CACHE", ROOT / ".model_cache"))
