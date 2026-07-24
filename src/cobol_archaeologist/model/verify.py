@@ -194,9 +194,55 @@ class Entailer(Protocol):
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 _STOP = frozenset(
-    "a an and any are as at be by for from has have if in into is it its may must "
-    "no not of on or shall so than that the their them then there these this to was "
-    "were which who will with within without per".split()
+    [
+        "a",
+        "an",
+        "and",
+        "any",
+        "are",
+        "as",
+        "at",
+        "be",
+        "by",
+        "for",
+        "from",
+        "has",
+        "have",
+        "if",
+        "in",
+        "into",
+        "is",
+        "it",
+        "its",
+        "may",
+        "must",
+        "no",
+        "not",
+        "of",
+        "on",
+        "or",
+        "shall",
+        "so",
+        "than",
+        "that",
+        "the",
+        "their",
+        "them",
+        "then",
+        "there",
+        "these",
+        "this",
+        "to",
+        "was",
+        "were",
+        "which",
+        "who",
+        "will",
+        "with",
+        "within",
+        "without",
+        "per",
+    ]
 )
 
 
@@ -264,7 +310,7 @@ class NeuralEntailer:
 
 
 def _cache_key(premise: str, hypothesis: str) -> str:
-    return hashlib.sha1(f"{premise}␟{hypothesis}".encode("utf-8")).hexdigest()
+    return hashlib.sha1(f"{premise}␟{hypothesis}".encode()).hexdigest()
 
 
 class CachedEntailer:
@@ -325,7 +371,7 @@ def _program_source(program: str, tools) -> str | None:
     """Original source text of ``program`` via the ToolLayer's path pointer."""
     try:
         view = tools.read_program(program)
-    except Exception:
+    except KeyError:
         return None
     path = Path(view.path)
     if not path.is_file():
@@ -449,7 +495,7 @@ def _tier2_static(finding: Finding, tools) -> TierAttempt:
         )
     try:
         code = tools.read_paragraph(locus.program, locus.paragraph).code
-    except Exception as exc:  # unknown program/paragraph
+    except KeyError as exc:  # unknown program/paragraph
         return TierAttempt(
             tier=T, outcome=TierOutcome.UNAVAILABLE,
             detail=f"locus {locus.program}:{locus.paragraph} not readable ({exc})",

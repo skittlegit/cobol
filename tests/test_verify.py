@@ -24,10 +24,10 @@ import pytest
 
 from cobol_archaeologist.model import verify as V
 from cobol_archaeologist.model.verify import (
+    NLI_CACHE,
     CachedEntailer,
     Finding,
     LexicalEntailer,
-    NLI_CACHE,
     VerificationResult,
     VerificationTier,
     verify,
