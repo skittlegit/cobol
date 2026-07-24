@@ -13,6 +13,7 @@ from cobol_archaeologist.rag.hyde import (
     HYDE_PROMPT_VERSION,
     CachedHyDEGenerator,
     HeuristicHyDEGenerator,
+    _source_sha256,
     compare_raw_and_hyde,
     load_hyde_cache,
 )
@@ -54,6 +55,15 @@ def test_cache_covers_fixed_queries_without_gold_fields():
     assert "record_id" not in serialized
     assert "gold_doc" not in serialized
     assert "gold_clause" not in serialized
+
+
+def test_query_provenance_hash_is_checkout_line_ending_independent(tmp_path):
+    lf = tmp_path / "queries-lf.jsonl"
+    crlf = tmp_path / "queries-crlf.jsonl"
+    lf.write_bytes(b'{"query_id":"q01"}\n{"query_id":"q02"}\n')
+    crlf.write_bytes(b'{"query_id":"q01"}\r\n{"query_id":"q02"}\r\n')
+
+    assert _source_sha256(lf) == _source_sha256(crlf)
 
 
 def test_cached_generation_is_offline_deterministic_and_q23_is_specific():

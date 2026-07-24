@@ -64,8 +64,13 @@ class HyDEGenerator(Protocol):
     def describe(self, query: str) -> str: ...
 
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def _source_sha256(path: Path) -> str:
+    """Hash fixture text canonically across Git checkout line endings."""
+
+    # DECISION: provenance covers query content, not a platform's CRLF/LF
+    # checkout policy. Universal-newline decoding makes that contract explicit.
+    canonical = path.read_text(encoding="utf-8").encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
 
 
 def load_hyde_cache(path: Path = DEFAULT_CACHE) -> HyDECache:
@@ -78,7 +83,7 @@ def load_hyde_cache(path: Path = DEFAULT_CACHE) -> HyDECache:
     if cache.provenance.prompt_version != HYDE_PROMPT_VERSION:
         raise ValueError("HyDE cache prompt version does not match runtime")
     if Path(path).resolve() == DEFAULT_CACHE.resolve():
-        actual = _sha256(QUERIES)
+        actual = _source_sha256(QUERIES)
         if cache.provenance.source_queries_sha256 != actual:
             raise ValueError("HyDE cache does not match the fixed query set")
     return cache
