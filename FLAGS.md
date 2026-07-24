@@ -35,7 +35,7 @@ _No open flags._
 ## Track C inbox
 
 → Track C | from B | 2026-07-24 | T2.7 | M4 inputs are ready on `track-b`
-at commit `b742622fcad2b7d040b5e498e8a78bd1d49e6af5`. Frozen
+at commit `3acd8b0edb9d0aec26ba931e92f369fe9d612a3d`. Frozen
 train/dev/test = **307/102/204**;
 SHA-256 = `4b333851b97629083bfb753cbed28a0c47a5cbe5376d270731b7eb47ab982763` /
 `31842be32741d00c970e4d1f50d9a38e22774e3455cb9300922bc642a1b0ffef` /
