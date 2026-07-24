@@ -1,0 +1,8 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. FALLTHRU.
+       PROCEDURE DIVISION.
+       MAIN-PARA.
+           DISPLAY 'MAIN'.
+       NEXT-PARA.
+           DISPLAY 'LIVE BY FALLTHROUGH'.
+           GOBACK.

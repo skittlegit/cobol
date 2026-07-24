@@ -14,7 +14,7 @@ from typing import Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from cobol_archaeologist.model.verify import ExecProbe, StaticClaim
-from cobol_archaeologist.schemas import DriftInstance
+from cobol_archaeologist.schemas import DriftInstance, RegulationClause
 
 MODEL_ID = "claude-3-5-sonnet-20241022"
 MODEL_TEMPERATURE = 0.0
@@ -41,6 +41,56 @@ observations bounded. A proposed finding must be DriftInstance-shaped and
 include concrete execution/static evidence hooks when available. The runtime
 will verify every proposed finding; if evidence is insufficient, abstain.
 """
+
+HUNT_PROMPTS: dict[str, str] = {
+    "D1_stale_threshold": (
+        "Hunt D1 stale thresholds: compare the literal at each typed locus "
+        "with the clause's current value; resolve composite target_path."
+    ),
+    "D2_missing_rule": (
+        "Hunt D2 missing rules: establish absence across the scoped grep, "
+        "call graph, and data slice; report typed insertion points."
+    ),
+    "D3_contradictory": (
+        "Hunt D3 contradictions: obtain at least two typed loci that produce "
+        "conflicting outcomes for the same regulated condition."
+    ),
+    "D4_stale_reference_data": (
+        "Hunt D4 stale reference data: compare the hardcoded enumeration "
+        "with the clause enum_set and name missing or extra entries."
+    ),
+    "D5_boundary_error": (
+        "Hunt D5 boundary errors: compare the source comparator with the "
+        "typed comparator at the resolved current-value leaf."
+    ),
+    "D6_dead_code": (
+        "Hunt D6 dead compliance code: propose a dead_paragraph static claim "
+        "for the existing verifier; do not infer deadness from caller absence."
+    ),
+    "D7_conformant": (
+        "Hunt D7 conformance: require positive code evidence that the check "
+        "exists and matches; absence is never a conformant default."
+    ),
+}
+
+
+def build_hunt_prompt(
+    drift_type: str,
+    clause: RegulationClause,
+    program_scope: str | None = None,
+) -> str:
+    """Build one deterministic per-class investigation question."""
+    try:
+        policy = HUNT_PROMPTS[drift_type]
+    except KeyError:
+        raise KeyError(f"no prompt template registered for {drift_type!r}") from None
+    scope = program_scope or "the available corpus"
+    return (
+        f"{policy}\nScope: {scope}.\n"
+        f"Clause: {clause.doc} {clause.clause_id} "
+        f"(version {clause.version}, effective {clause.effective_date}): "
+        f"{clause.text}"
+    )
 
 
 class AgentResponse(BaseModel):
@@ -112,6 +162,7 @@ class CachedDecisionModel:
         self,
         cache_path: Path,
         *,
+        cache_key: str | None = None,
         model_id: str = MODEL_ID,
         temperature: float = MODEL_TEMPERATURE,
         seed: int | None = MODEL_SEED,
@@ -123,6 +174,12 @@ class CachedDecisionModel:
         self.temperature = temperature
         self.seed = seed
         raw = json.loads(self.cache_path.read_text(encoding="utf-8"))
+        if cache_key is not None:
+            if not isinstance(raw, dict) or cache_key not in raw:
+                raise KeyError(
+                    f"cached response key {cache_key!r} missing from {self.cache_path}"
+                )
+            raw = raw[cache_key]
         if not isinstance(raw, list):
             raise TypeError("cached model responses must be a JSON list")
         self._responses = [AgentResponse.model_validate(row) for row in raw]

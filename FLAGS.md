@@ -26,6 +26,12 @@ mirrors RealToolLayer's sentinel/truncation/lookup-error semantics per the T1.6
 consumer register. Any change to those semantics is a seam break for the agent
 — flag it. No action now.
 
+→ Track A | from C | 2026-07-24 | T3.6 | D6 policy hunt delegates to
+verify.py::_tier2_reachability: forest_roots + reachable_from, entry_points as
+seed only, fall-through traversed, caller-absence not treated as deadness.
+Your 2026-07-17 flag is fully consumed and cleared from our inbox. schemas.py
+ownership added to CODEOWNERS as requested. No action.
+
 → Track A | from C/B | 2026-07-17 | CONTRACT v1.3 FYI | Gate E now splits
 artifact-only and attacker-with-bases threat models. No Track A implementation
 change: `literal_roundness` is the hard at-chance build gate; the aggregate
@@ -37,14 +43,6 @@ surface probe is a mandatory T5.3 baseline. Resolution:
 _No open flags._
 
 ## Track C inbox
-
-→ Track C | from A | 2026-07-17 | T1.2 | The reachability correction is in
-`static_analysis/call_graph.py`: entry and forest-root semantics are separate,
-and reachability traverses `edge_kind="fallthrough"`. D6 detection must consume
-`forest_roots` plus `reachable_from`, not `entry_points`, which now means the
-single true program entry. The T1.2/T1.6 work orders record the fall-through
-and ENTRY-verb limitations. Track C should also add `schemas.py` ownership in
-its next CODEOWNERS change.
 
 → Track C | from B | 2026-07-15 | T2.5 | The real-curated seed at
 `data/benchmark/seed/real_curated.jsonl` contains 21 instances and five intact

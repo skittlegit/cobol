@@ -137,8 +137,11 @@ three tracks; a task's numeric prefix does not identify its phase.
   `tests/test_verify.py` + `tests/fixtures/verify/`. Reviewed 2026-07-24;
   16 gates green. Verifier accuracy: 50 pairs generated, human labels pending
   in Track C chat (xfail).
-- **T3.5** | ready-for-review | C | `src/cobol_archaeologist/agent/{loop,
-  stub_tools,trajectory}.py` + tests + golden late-fee trajectory. Gates 1-6
-  green; stub parity + budget enforcement + no-unverified-emission asserted.
-- **T3.6** | todo | C | `docs/tasks/T3.6-work-order.md` — D1–D7 policy hunts.
+- **T3.5** | done | C | `src/cobol_archaeologist/agent/{loop,stub_tools,
+  trajectory}.py` + tests + golden late-fee trajectory. Reviewed 2026-07-24;
+  17 gates green, seam purity + no-unverified-emission confirmed.
+- **T3.6** | ready-for-review | C | `src/cobol_archaeologist/agent/{policy.py,
+  hunts/}` + `tests/test_policy_hunts.py`. Gates 1-8 green; D1-D7 registered,
+  D6 delegates to verify.py reachability, anti-shortcut rule enforced.
+  **M3 (Agent Grounded) closes on review.**
 - **T4.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
