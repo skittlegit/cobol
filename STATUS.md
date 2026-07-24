@@ -128,13 +128,15 @@ three tracks; a task's numeric prefix does not identify its phase.
   `dense` 0.588, ≥ on hit@1/hit@3). Findings vs the 7-doc run are in the work
   order's refresh section — note that the reranker is no longer a near-wash
   over `hybrid`; it is what absorbs the added distractors.
-- **T3.3a** | ready-for-review | C | `src/cobol_archaeologist/rag/search.py`
-  + `tools.py` (search_regulations live; NotImplementedError removed) +
-  `tests/test_search_regulations.py`. Part 1 of T3.3; wiring gates green.
-  HyDE (Part 2) deferred to T3.3b. T3.5 unblocked.
+- **T3.3a** | done | C | `src/cobol_archaeologist/rag/search.py` + `tools.py`
+  (search_regulations live) + `tests/test_search_regulations.py`. Reviewed
+  2026-07-24; merged PR #61.
 - **T3.3b** | todo | C | `docs/tasks/T3.3-work-order.md` — HyDE query generation
   + 24-query eval (Part 2; q23 named target).
-- **T3.4** | todo | C | `docs/tasks/T3.4-work-order.md` — tiered verification.
+- **T3.4** | ready-for-review | C | `src/cobol_archaeologist/model/verify.py` +
+  `tests/test_verify.py` + `tests/fixtures/verify/`. Gates 1-6 green; tier
+  ladder + citation rejection + D6 forest_roots semantics enforced. Verifier
+  accuracy pairs generated, human labels pending review (xfail).
 - **T3.5** | todo | C | `docs/tasks/T3.5-work-order.md` — bounded ReAct loop and
   real/stub ToolLayer seam.
 - **T3.6** | todo | C | `docs/tasks/T3.6-work-order.md` — D1–D7 policy hunts.
