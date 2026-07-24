@@ -94,12 +94,12 @@ class _Decl:
 
     __slots__ = (
         "level",
+        "line_end",
+        "line_start",
         "name",
         "pic",
-        "redefines",
         "program",
-        "line_start",
-        "line_end",
+        "redefines",
     )
 
     def __init__(self, level, name, pic, redefines, program, line_start, line_end):

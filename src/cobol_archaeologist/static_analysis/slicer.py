@@ -32,6 +32,7 @@ from __future__ import annotations
 from collections import deque
 from dataclasses import dataclass
 from dataclasses import field as dc_field
+from itertools import pairwise
 from pathlib import Path
 
 from cobol_archaeologist.parser.paragraphs import Program, Statement
@@ -276,7 +277,7 @@ def _glue_units(
         path = _shortest_path(adj, entries, target)
         if path is None:
             continue
-        for src, dst in zip(path, path[1:]):
+        for src, dst in pairwise(path):
             unit = call_units.get((src, dst))
             if unit is not None:
                 glue[unit.line_start] = unit

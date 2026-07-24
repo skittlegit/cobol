@@ -241,7 +241,7 @@ def test_missing_cobc_raises(monkeypatch):
 
 def test_module_importable_without_cobc():
     """The module and its types import cleanly even where cobc is absent."""
-    import cobol_archaeologist.model.run_cobol as mod  # noqa: F401
+    import cobol_archaeologist.model.run_cobol as mod
 
     assert "run_cobol" in dir(mod) and "compile_check" in dir(mod)
 

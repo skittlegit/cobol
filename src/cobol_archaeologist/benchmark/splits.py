@@ -415,8 +415,10 @@ def _distribution(
         "# Benchmark v1-pre Distribution",
         "",
         f"Deterministic seed: `{seed}`. Target ratios: train 70%, dev 15%, test 15%.",
-        "Base-program grouping, roster reservations, and real-curated test "
-        "reservation are hard constraints;",
+        (
+            "Base-program grouping, roster reservations, and real-curated test "
+            "reservation are hard constraints;"
+        ),
         "`CI-fragile` marks every split × class × stratum cell with n < 10.",
         "",
         "## Split summary",
@@ -458,10 +460,14 @@ def _distribution(
             "",
             "| gate | required | observed | status |",
             "|---|---:|---:|---|",
-            f"| train synthetic share | >= 40% | "
-            f"{synthetic_counts['train'] / synthetic_total:.1%} | pass |",
-            f"| dev synthetic share | >= 12% | "
-            f"{synthetic_counts['dev'] / synthetic_total:.1%} | pass |",
+            (
+                f"| train synthetic share | >= 40% | "
+                f"{synthetic_counts['train'] / synthetic_total:.1%} | pass |"
+            ),
+            (
+                f"| dev synthetic share | >= 12% | "
+                f"{synthetic_counts['dev'] / synthetic_total:.1%} | pass |"
+            ),
             f"| test interprocedural | >= 30 | {len(test_interprocedural)} | pass |",
             f"| train classes | >= 5 | {len(train_classes)} | pass |",
             f"| dev classes | >= 5 | {len(dev_classes)} | pass |",
@@ -479,8 +485,10 @@ def _distribution(
             "",
             "### Test interprocedural class shortfalls",
             "",
-            "A zero is an explicit purpose-gate shortfall: no accepted "
-            "interprocedural mutation currently emits that class.",
+            (
+                "A zero is an explicit purpose-gate shortfall: no accepted "
+                "interprocedural mutation currently emits that class."
+            ),
             "",
             "| class | n | coverage |",
             "|---|---:|---|",

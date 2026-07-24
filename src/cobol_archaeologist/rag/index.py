@@ -20,9 +20,9 @@ import json
 import math
 import re
 from collections import Counter
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
 
 from cobol_archaeologist.rag.schemas import RegulationChunk
 
@@ -38,9 +38,7 @@ MODES = ("bm25", "dense", "hybrid", "hybrid_rerank")
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 _STOPWORDS = frozenset(
-    "a an and any are as at be been by for from has have if in into is it its may "
-    "must no not of on or shall so than that the their them then there these this "
-    "to was were which who will with within without".split()
+    ["a", "an", "and", "any", "are", "as", "at", "be", "been", "by", "for", "from", "has", "have", "if", "in", "into", "is", "it", "its", "may", "must", "no", "not", "of", "on", "or", "shall", "so", "than", "that", "the", "their", "them", "then", "there", "these", "this", "to", "was", "were", "which", "who", "will", "with", "within", "without"]
 )
 
 
@@ -410,15 +408,20 @@ def build_relevance_report(
     lines = [
         "## Relevance evidence",
         "",
-        f"- Corpus: {len(chunks)} chunks over {len({c.doc for c in chunks})} documents "
-        f"(`{corpus_path.relative_to(ROOT).as_posix()}`).",
+        (
+            f"- Corpus: {len(chunks)} chunks over "
+            f"{len({c.doc for c in chunks})} documents "
+            f"(`{corpus_path.relative_to(ROOT).as_posix()}`)."
+        ),
         f"- Queries: {len(queries)} (fixed set; {len(_PROBE_IDS)} confusion probes).",
         f"- Embedder: `{EMBEDDER_MODEL}` @ `{EMBEDDER_REVISION}`.",
         f"- Reranker: `{RERANKER_MODEL}` @ `{RERANKER_REVISION}`.",
         f"- Metric: gold = returned chunk with matching (doc, clause_id); k={k}.",
         "",
-        f"**Done-when bar:** `hybrid_rerank` beats `dense` on mrr@5, ≥ on hit@1/hit@3 — "
-        f"**{'MET' if bar_met else 'NOT MET'}**.",
+        (
+            "**Done-when bar:** `hybrid_rerank` beats `dense` on mrr@5, "
+            f"≥ on hit@1/hit@3 — **{'MET' if bar_met else 'NOT MET'}**."
+        ),
         "",
         "## Mode comparison",
         "",
