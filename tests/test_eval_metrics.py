@@ -101,11 +101,11 @@ def test_t6_pairs_use_byte_equivalent_locus_and_exact_interval():
     records = [_record(row) for row in _rows(SEED)]
     result = versioned_judgment(records)
 
-    assert result["pairs"] == 5
-    assert result["successes"] == 5
+    assert result["pairs"] == 20
+    assert result["successes"] == 20
     assert result["paired_accuracy"] == 1
-    assert result["reporting_bar_evaluable"] is False
-    assert result["exact_95_ci"][0] == pytest.approx(0.478, abs=0.002)
+    assert result["reporting_bar_evaluable"] is True
+    assert result["exact_95_ci"][0] == pytest.approx(0.832, abs=0.002)
     assert result["exact_95_ci"][1] == 1
 
 

@@ -499,18 +499,13 @@ def _candidate_catalog(root: Path) -> dict[str, list[_Candidate]]:
         touched_variables=("WS-PEN-ENABLED", "WS-PENALTY-AMT"),
         target_path="penalty_per_day",
     )
-    if "WS-PEN-ENABLED        PIC X(1) VALUE 'N'." not in d6_base.text:
+    # DECISION (T2.7): the checked-in host is the provenance authority and must
+    # contain MO-6's conformant pre-mutation value. Constructing VALUE 'Y' only
+    # in memory made the emitted VALUE 'Y' -> 'N' rows unreconstructable.
+    if "WS-PEN-ENABLED        PIC X(1) VALUE 'Y'." not in d6_base.text:
         raise BuildConfigurationError(
-            "CLOSPEN5 D6 base no longer matches its pilot flag"
+            "CLOSPEN5 D6 base no longer matches its conformant pre-mutation flag"
         )
-    d6_base = replace(
-        d6_base,
-        text=d6_base.text.replace(
-            "WS-PEN-ENABLED        PIC X(1) VALUE 'N'.",
-            "WS-PEN-ENABLED        PIC X(1) VALUE 'Y'.",
-            1,
-        ),
-    )
 
     # DECISION (T2.4b / BL-6): D4 is anchored to two authentic KYC reference-
     # list hosts, each COPYing a real on-disk copybook (auto-discovered by

@@ -183,6 +183,57 @@ def _load_instances(path: str | Path) -> list[DriftInstance]:
     ]
 
 
+def _apply_t2_7_source_replacements(
+    sources: dict[str, ProgramSource],
+    instances: list[DriftInstance],
+    manifest: dict,
+    root: Path,
+) -> dict[str, ProgramSource]:
+    revalidation = manifest.get("judging", {}).get("t2_7_revalidation")
+    if not isinstance(revalidation, dict):
+        return sources
+
+    evidence_path = root / str(revalidation["evidence_file"])
+    evidence = [
+        json.loads(line)
+        for line in evidence_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    replacement_by_id = {row["instance_id"]: row for row in evidence}
+    instance_by_id = {item.instance_id: item for item in instances}
+    if set(replacement_by_id) - set(instance_by_id):
+        raise JudgeConfigurationError(
+            "T2.7 plausibility evidence references absent replacement rows"
+        )
+
+    # DECISION (T2.7): the original deterministic builder diversified one
+    # in-memory KYCSYNC2 host into eight IDs but retained only one on-disk base.
+    # The corrective freeze stores one immutable checked-in base per replacement
+    # and reconstructs it through Track C's fail-closed public materializer.
+    from cobol_archaeologist.eval.materialize import materialize
+
+    corrected = dict(sources)
+    programs_root = root / "data" / "benchmark" / "seed" / "programs"
+    for replacement_id, proof in replacement_by_id.items():
+        corrected.pop(str(proof["supersedes"]), None)
+        instance = instance_by_id[replacement_id]
+        materialized = materialize(instance, programs_root=programs_root)
+        main_text = materialized.files[materialized.main_file]
+        corrected[replacement_id] = ProgramSource(
+            program=Path(materialized.main_file).stem.upper(),
+            filename=materialized.main_file,
+            text=main_text,
+            files={
+                name: text
+                for name, text in materialized.files.items()
+                if name != materialized.main_file
+            },
+            touched_variables=tuple(instance.code_locus.slice_vars),
+            target_path=instance.target_path,
+        )
+    return corrected
+
+
 def reconstruct_sources(
     instances_path: str | Path,
     *,
@@ -206,14 +257,26 @@ def reconstruct_sources(
             diversify_mode="deterministic",
             repository_root=repository_root,
         )
-    expected = {item.instance_id for item in _load_instances(instances_path)}
-    if set(rebuilt.sources) != expected:
-        missing = sorted(expected - set(rebuilt.sources))
-        extra = sorted(set(rebuilt.sources) - expected)
+    instances = _load_instances(instances_path)
+    root = (
+        Path(repository_root)
+        if repository_root is not None
+        else Path(__file__).resolve().parents[3]
+    )
+    sources = _apply_t2_7_source_replacements(
+        rebuilt.sources,
+        instances,
+        manifest,
+        root,
+    )
+    expected = {item.instance_id for item in instances}
+    if set(sources) != expected:
+        missing = sorted(expected - set(sources))
+        extra = sorted(set(sources) - expected)
         raise JudgeConfigurationError(
             f"rebuilt source identity mismatch; missing={missing[:3]}, extra={extra[:3]}"
         )
-    return rebuilt.sources
+    return sources
 
 
 def _locus_source(source: ProgramSource, file: str | None) -> str:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -171,6 +172,33 @@ def test_gate_distribution_lists_and_flags_every_class_stratum_cell(built):
         assert status == ("CI-fragile" if count < 10 else "ok")
         fragile += count < 10
     assert report.fragile_cells == fragile
+
+
+def test_distribution_records_t6_count_and_jsonl_hashes(built):
+    output, _report, rows = built
+    distribution = (output / "distribution.md").read_text(encoding="utf-8")
+    for split in ("train", "dev", "test"):
+        digest = hashlib.sha256((output / f"{split}.jsonl").read_bytes()).hexdigest()
+        assert f"| {split}.jsonl | `{digest}` |" in distribution
+
+    by_locus: dict[str, list[dict]] = defaultdict(list)
+    for row in rows["test"]:
+        key = json.dumps(row["code_locus"], sort_keys=True, separators=(",", ":"))
+        by_locus[key].append(row)
+    t6_count = sum(
+        len(
+            {
+                (
+                    item["regulation_clause"]["version"],
+                    item["regulation_clause"]["effective_date"],
+                )
+                for item in group
+            }
+        )
+        > 1
+        for group in by_locus.values()
+    )
+    assert f"T6 verdict-flipping pairs: **{t6_count}**." in distribution
 
 
 def test_gate_regeneration_is_byte_deterministic(tmp_path):

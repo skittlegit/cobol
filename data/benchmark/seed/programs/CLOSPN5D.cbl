@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. CLOSPEN5.
+       PROGRAM-ID. CLOSPN5D.
       *----------------------------------------------------------------
       * CLOSURE PROCESSOR WITH PENALTY MODULE (PILOT - DISABLED)
       *----------------------------------------------------------------
@@ -7,7 +7,7 @@
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  WS-FLAGS.
-           05  WS-PEN-ENABLED        PIC X(1) VALUE 'Y'.
+           05  WS-PEN-ENABLED        PIC X(1) VALUE 'N'.
                88  PENALTY-ON        VALUE 'Y'.
        01  WS-INPUTS.
            05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.

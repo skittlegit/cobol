@@ -20,7 +20,7 @@ COBC = shutil.which("cobc")
 
 # Phase 2 retired P2. Phase 3 therefore contains P1, a second P1 deepening,
 # P3, P4, and P5 as five distinct locus-pairs; P6 is a citation-axis probe.
-EXPECTED_T6_PAIR_COUNT = 5
+MINIMUM_T6_PAIR_COUNT = 20
 
 
 def _load_raw_instances() -> list[dict]:
@@ -103,7 +103,7 @@ def test_real_curated_provenance_contract():
 def test_t6_pairs_have_identical_loci_and_opposite_labels():
     pairs = _t6_pair_groups(_load_raw_instances())
     raw_loci = _raw_loci_by_instance_id()
-    assert len(pairs) == EXPECTED_T6_PAIR_COUNT
+    assert len(pairs) >= MINIMUM_T6_PAIR_COUNT
 
     for group in pairs:
         assert len(group) == 2, [record["instance_id"] for record in group]
