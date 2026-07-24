@@ -147,4 +147,22 @@ three tracks; a task's numeric prefix does not identify its phase.
   hunts/}` + `tests/test_policy_hunts.py`. Gates 1-8 green; D1-D7 registered,
   D6 delegates to verify.py reachability, anti-shortcut rule enforced.
   **M3 (Agent Grounded) closes on review.**
-- **T4.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
+- **T4.1** | blocked-live-run | C |
+  `src/cobol_archaeologist/eval/{schemas,materialize,run}.py` +
+  `model/provider.py`. Week-7 mutation→real-tool→eval seam green; 165/180 test
+  rows materialize, 15 fail closed on Track B base/provenance mismatch; live
+  provider credentials absent.
+- **T4.2** | ready-for-live-run | C |
+  `src/cobol_archaeologist/eval/{metrics,statistics}.py`; frozen T1–T6 metrics
+  and paired statistics implemented. Current T6 capacity is 5 pairs versus 20.
+- **T4.3** | ready-for-live-run | C |
+  `src/cobol_archaeologist/eval/trajectory.py`; replay/evidence/budget/shortcut
+  assessment gates green.
+- **T4.4** | ready-for-live-run | C |
+  `src/cobol_archaeologist/eval/calibration.py`; coverage, abstention,
+  attempted-unavailable tiers, calibration, and per-tier faithfulness green.
+- **T4.5** | blocked-on-live-artifacts | C |
+  `src/cobol_archaeologist/eval/{baselines,report}.py`; fail-closed M4 report
+  implemented. Needs three paired live artifacts, 50 human verifier labels,
+  and at least 20 T6 pairs.
+- **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
