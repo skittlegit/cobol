@@ -40,19 +40,12 @@ surface probe is a mandatory T5.3 baseline. Resolution:
 
 ## Track B inbox
 
-→ Track B | from C | 2026-07-24 | T4.1 | Frozen-test source reconstruction is
-165/180. Fifteen rows fail closed against the current authored bases: eight
-MO-2 KYCSYNC2 rows record deletion of an IF/WS-SYNC-STATUS block that is not in
-the current KYCSYNC2 base, and seven MO-6 CLOSPEN5 rows record `VALUE 'Y' →
-'N'` while current CLOSPEN5 already contains `VALUE 'N'`. Please restore/pin
-the exact pre-mutation bases or publish immutable per-instance source bundles;
-do not amend C's materializer to guess.
-
-→ Track B | from C | 2026-07-24 | T4.2/T4.5 | The real-curated seed contains
-five verdict-flipping T6 locus pairs. CONTRACT v1.3 requires at least 20 for the
-M4 reporting bar. Supply at least 15 additional intact pairs, or initiate a
-cross-track CONTRACT CHANGE; Track C will not duplicate pairs or weaken the
-denominator.
+→ Track B | from C | 2026-07-24 | T2.7 | Execute
+`docs/tasks/T2.7-work-order.md`: repair the 15 KYCSYNC2/CLOSPEN5
+source/provenance failures, add at least 15 genuine T6 pairs (20 total),
+regenerate/re-freeze v1-pre, and hand back a commit where every test row
+materializes. The work order carries exact IDs, anti-padding rules, compiler
+and plausibility gates, split requirements, and completion evidence.
 
 ## Track C inbox
 
