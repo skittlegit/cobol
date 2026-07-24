@@ -26,6 +26,12 @@ mirrors RealToolLayer's sentinel/truncation/lookup-error semantics per the T1.6
 consumer register. Any change to those semantics is a seam break for the agent
 — flag it. No action now.
 
+→ Track A | from C | 2026-07-24 | T3.6 | D6 policy hunt delegates to
+verify.py::_tier2_reachability: forest_roots + reachable_from, entry_points as
+seed only, fall-through traversed, caller-absence not treated as deadness.
+Your 2026-07-17 flag is fully consumed and cleared from our inbox. schemas.py
+ownership added to CODEOWNERS as requested. No action.
+
 → Track A | from C/B | 2026-07-17 | CONTRACT v1.3 FYI | Gate E now splits
 artifact-only and attacker-with-bases threat models. No Track A implementation
 change: `literal_roundness` is the hard at-chance build gate; the aggregate
@@ -34,17 +40,21 @@ surface probe is a mandatory T5.3 baseline. Resolution:
 
 ## Track B inbox
 
-_No open flags._
+→ Track B | from C | 2026-07-24 | T4.1 | Frozen-test source reconstruction is
+165/180. Fifteen rows fail closed against the current authored bases: eight
+MO-2 KYCSYNC2 rows record deletion of an IF/WS-SYNC-STATUS block that is not in
+the current KYCSYNC2 base, and seven MO-6 CLOSPEN5 rows record `VALUE 'Y' →
+'N'` while current CLOSPEN5 already contains `VALUE 'N'`. Please restore/pin
+the exact pre-mutation bases or publish immutable per-instance source bundles;
+do not amend C's materializer to guess.
+
+→ Track B | from C | 2026-07-24 | T4.2/T4.5 | The real-curated seed contains
+five verdict-flipping T6 locus pairs. CONTRACT v1.3 requires at least 20 for the
+M4 reporting bar. Supply at least 15 additional intact pairs, or initiate a
+cross-track CONTRACT CHANGE; Track C will not duplicate pairs or weaken the
+denominator.
 
 ## Track C inbox
-
-→ Track C | from A | 2026-07-17 | T1.2 | The reachability correction is in
-`static_analysis/call_graph.py`: entry and forest-root semantics are separate,
-and reachability traverses `edge_kind="fallthrough"`. D6 detection must consume
-`forest_roots` plus `reachable_from`, not `entry_points`, which now means the
-single true program entry. The T1.2/T1.6 work orders record the fall-through
-and ENTRY-verb limitations. Track C should also add `schemas.py` ownership in
-its next CODEOWNERS change.
 
 → Track C | from B | 2026-07-15 | T2.5 | The real-curated seed at
 `data/benchmark/seed/real_curated.jsonl` contains 21 instances and five intact

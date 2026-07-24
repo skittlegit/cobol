@@ -1,0 +1,576 @@
+{
+  "d1": [
+    {
+      "kind": "tool",
+      "thought": "Read the shared day-basis constant at its copybook source.",
+      "tool": "resolve_copybook",
+      "arguments": {"name": "WSDAYBAS"},
+      "token_count": 16
+    },
+    {
+      "kind": "tool",
+      "thought": "Inspect how the configured working-day basis controls accrual.",
+      "tool": "read_paragraph",
+      "arguments": {"program": "CLOSPEN2", "name": "2000-CALC"},
+      "token_count": 18
+    },
+    {
+      "kind": "finding",
+      "thought": "The copybook selects working-day accrual while the current clause requires calendar-day accrual.",
+      "prediction": {
+        "instance_id": "drift_910001",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "19",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+          "current_value": {
+            "kind": "composite",
+            "value": {
+              "closure_window": {"kind": "duration_working_days", "value": 7, "comparator": "at_most"},
+              "penalty_per_day": {"kind": "amount_inr", "value": 500, "comparator": "at_least"},
+              "day_basis": {"kind": "enum_set", "value": ["calendar_day"]}
+            }
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {"program": "CLOSPEN2", "paragraph": "2000-CALC", "file": null, "line_span": [21, 32]},
+            {"program": "CLOSPEN2", "paragraph": null, "file": "WSDAYBAS.cpy", "line_span": [3, 6]}
+          ],
+          "slice_vars": ["WS-DAY-BASIS", "WS-CHARGE-DAYS", "WS-PENALTY-AMT"],
+          "is_interprocedural": true
+        },
+        "drift_type": "D1_stale_threshold",
+        "target_path": "day_basis",
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {"program": "CLOSPEN2", "line": 22, "file": null},
+            {"program": "CLOSPEN2", "line": 3, "file": "WSDAYBAS.cpy"}
+          ]
+        },
+        "gold_rationale": "The copybook fixes the day_basis to working days, but current paragraph 19 requires calendar_day accrual.",
+        "provenance": {
+          "source": "real_curated",
+          "base_program": "CLOSPEN2.cbl",
+          "annotator_notes": "T2.5 P1 new side; copybook locus retained."
+        }
+      },
+      "claim": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+      "static_claim": {"literal": "BASIS-WORKING"},
+      "final_answer": "CLOSPEN2 uses working-day penalty accrual through WSDAYBAS, stale against the current calendar-day requirement.",
+      "token_count": 48
+    }
+  ],
+  "d2": [
+    {
+      "kind": "tool",
+      "thought": "Search the entire fixture scope for any CKYCR deadline check.",
+      "tool": "grep",
+      "arguments": {"pattern": "CKYCR-DEADLINE|WS-DAYS-SINCE-UPD"},
+      "token_count": 13
+    },
+    {
+      "kind": "tool",
+      "thought": "Confirm there is no call-graph node implementing the absent SLA check.",
+      "tool": "find_callers",
+      "arguments": {"program": "KYCSYNC1", "para": "CKYCR-SLA-CHECK"},
+      "token_count": 12
+    },
+    {
+      "kind": "tool",
+      "thought": "Confirm the absent SLA node has no outgoing implementation edges.",
+      "tool": "find_callees",
+      "arguments": {"program": "KYCSYNC1", "para": "CKYCR-SLA-CHECK"},
+      "token_count": 12
+    },
+    {
+      "kind": "tool",
+      "thought": "Confirm no data slice exists for a CKYCR deadline variable.",
+      "tool": "slice_on",
+      "arguments": {"var": "WS-CKYCR-DEADLINE", "program": "KYCSYNC1"},
+      "token_count": 13
+    },
+    {
+      "kind": "finding",
+      "thought": "The scoped grep, graph queries, and slice are all negative; the queue action is the insertion point.",
+      "prediction": {
+        "instance_id": "drift_910002",
+        "regulation_clause": {
+          "doc": "RBI-KYC-Directions-2025",
+          "clause_id": "65(8)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+          "current_value": {"kind": "duration_days", "value": 7, "comparator": "at_most"}
+        },
+        "code_locus": {
+          "loci": [
+            {"program": "KYCSYNC1", "paragraph": "2000-QUEUE-UPLOAD", "file": null, "line_span": [19, 25]}
+          ],
+          "slice_vars": ["WS-UPD-RECEIVED", "WS-QUEUE-STATUS"],
+          "is_interprocedural": false
+        },
+        "drift_type": "D2_missing_rule",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [{"program": "KYCSYNC1", "line": 20, "file": null}]
+        },
+        "gold_rationale": "No receipt-date or seven-day SLA check exists; line 20 is the insertion point before the queue action.",
+        "provenance": {
+          "source": "real_curated",
+          "base_program": "KYCSYNC1.cbl",
+          "annotator_notes": "T2.5 P5 new side."
+        }
+      },
+      "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "final_answer": "KYCSYNC1 queues updated KYC records without tracking or enforcing the seven-day CKYCR deadline.",
+      "token_count": 51
+    }
+  ],
+  "d3": [
+    {
+      "kind": "tool",
+      "thought": "Inspect the implementation that subtracts weekends before penalty accrual.",
+      "tool": "read_paragraph",
+      "arguments": {"program": "CLOSPEN1", "name": "2000-COMPUTE-PENALTY"},
+      "token_count": 17
+    },
+    {
+      "kind": "tool",
+      "thought": "Inspect the sibling implementation that accrues by calendar days.",
+      "tool": "read_paragraph",
+      "arguments": {"program": "CLOSPEN3", "name": "2000-PEN"},
+      "token_count": 17
+    },
+    {
+      "kind": "finding",
+      "thought": "Two programs produce conflicting day-basis outcomes for the same paragraph 19 condition.",
+      "prediction": {
+        "instance_id": "drift_910003",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "19",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+          "current_value": {
+            "kind": "composite",
+            "value": {
+              "closure_window": {"kind": "duration_working_days", "value": 7, "comparator": "at_most"},
+              "penalty_per_day": {"kind": "amount_inr", "value": 500, "comparator": "at_least"},
+              "day_basis": {"kind": "enum_set", "value": ["calendar_day"]}
+            }
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {"program": "CLOSPEN1", "paragraph": "2000-COMPUTE-PENALTY", "file": null, "line_span": [25, 34]},
+            {"program": "CLOSPEN3", "paragraph": "2000-PEN", "file": null, "line_span": [21, 30]}
+          ],
+          "slice_vars": ["WS-WEEKEND-DAYS", "WS-DELAY-CAL-DAYS", "WS-PENALTY-AMT"],
+          "is_interprocedural": true
+        },
+        "drift_type": "D3_contradictory",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {"program": "CLOSPEN1", "line": 27, "file": null},
+            {"program": "CLOSPEN3", "line": 25, "file": null}
+          ]
+        },
+        "gold_rationale": "CLOSPEN1 subtracts weekends while CLOSPEN3 accrues calendar days, producing conflicting outcomes for the same regulated closure penalty.",
+        "provenance": {
+          "source": "real_curated",
+          "base_program": "CLOSPEN1.cbl",
+          "annotator_notes": "Cross-program contradiction derived from T2.5 P1 implementations."
+        }
+      },
+      "claim": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+      "static_claim": {"literal": "WS-WEEKEND-DAYS"},
+      "final_answer": "CLOSPEN1 and CLOSPEN3 disagree on working-day versus calendar-day accrual for the same closure penalty.",
+      "token_count": 55
+    }
+  ],
+  "d4": [
+    {
+      "kind": "tool",
+      "thought": "Read the OVD registry copybook and compare its enumerated codes to the clause set.",
+      "tool": "resolve_copybook",
+      "arguments": {"name": "OVDREG2"},
+      "token_count": 19
+    },
+    {
+      "kind": "finding",
+      "thought": "The copybook omits NPR, so the mandated npr-letter entry is missing.",
+      "prediction": {
+        "instance_id": "drift_910004",
+        "regulation_clause": {
+          "doc": "RBI-KYC-Directions-2025",
+          "clause_id": "5(xiv)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Officially Valid Documents include passport, driving licence, Aadhaar possession proof, voter ID, NREGA job card, and the NPR letter.",
+          "current_value": {
+            "kind": "enum_set",
+            "value": ["passport", "driving-licence", "aadhaar-possession-proof", "voter-id-ECI", "nrega-job-card", "npr-letter"]
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {"program": "OVDROUT2", "paragraph": null, "file": "OVDREG2.cpy", "line_span": [3, 3]}
+          ],
+          "slice_vars": ["WS-OVD-CODE", "VALID-OVD2"],
+          "is_interprocedural": false
+        },
+        "drift_type": "D4_stale_reference_data",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [{"program": "OVDROUT2", "line": 3, "file": "OVDREG2.cpy"}]
+        },
+        "gold_rationale": "OVDREG2 omits the mandated npr-letter (NPR) entry; no extra entry replaces it.",
+        "provenance": {
+          "source": "synthetic",
+          "base_program": "OVDROUT2.cbl",
+          "mutation": "MO-4; removed NPR from OVDREG2.cpy",
+          "annotator_notes": "Derived from Track B drift_128444."
+        }
+      },
+      "claim": "Officially Valid Documents include passport, driving licence, Aadhaar possession proof, voter ID, NREGA job card, and the NPR letter.",
+      "final_answer": "OVDREG2 is stale because it omits the NPR-letter document code.",
+      "token_count": 45
+    }
+  ],
+  "d5": [
+    {
+      "kind": "tool",
+      "thought": "Read the boundary comparison at the closure-window locus.",
+      "tool": "read_paragraph",
+      "arguments": {"program": "CLOSPEN6", "name": "2000-ONE-REQ"},
+      "token_count": 17
+    },
+    {
+      "kind": "finding",
+      "thought": "The code uses greater-than-or-equal at seven days, but the closure_window allows up to seven days.",
+      "prediction": {
+        "instance_id": "drift_910005",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "19",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+          "current_value": {
+            "kind": "composite",
+            "value": {
+              "closure_window": {"kind": "duration_working_days", "value": 7, "comparator": "at_most"},
+              "penalty_per_day": {"kind": "amount_inr", "value": 500, "comparator": "at_least"},
+              "day_basis": {"kind": "enum_set", "value": ["calendar_day"]}
+            }
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {"program": "CLOSPEN6", "paragraph": "2000-ONE-REQ", "file": null, "line_span": [22, 26]}
+          ],
+          "slice_vars": ["WS-REQ-DAYS", "WS-IDX"],
+          "is_interprocedural": false
+        },
+        "drift_type": "D5_boundary_error",
+        "target_path": "closure_window",
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [{"program": "CLOSPEN6", "line": 23, "file": null}]
+        },
+        "gold_rationale": "The >= comparator penalizes exactly day seven, while the at_most closure_window permits seven working days.",
+        "provenance": {
+          "source": "synthetic",
+          "base_program": "CLOSPEN6.cbl",
+          "mutation": "MO-5; comparator > changed to >=",
+          "annotator_notes": "Derived from Track B drift_019406."
+        }
+      },
+      "claim": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+      "static_claim": {"comparator": ">="},
+      "final_answer": "CLOSPEN6 penalizes on day seven because its >= boundary contradicts the permitted seven-day window.",
+      "token_count": 47
+    }
+  ],
+  "d6": [
+    {
+      "kind": "tool",
+      "thought": "Read the alleged compliance paragraph before asking the verifier for reachability.",
+      "tool": "read_paragraph",
+      "arguments": {"program": "DEADISO", "name": "ISO-PARA"},
+      "token_count": 18
+    },
+    {
+      "kind": "finding",
+      "thought": "ISO-PARA contains the compliance action and must be checked by the delegated reachability verifier.",
+      "prediction": {
+        "instance_id": "drift_910006",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "19",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+          "current_value": {
+            "kind": "composite",
+            "value": {
+              "closure_window": {"kind": "duration_working_days", "value": 7, "comparator": "at_most"},
+              "penalty_per_day": {"kind": "amount_inr", "value": 500, "comparator": "at_least"},
+              "day_basis": {"kind": "enum_set", "value": ["calendar_day"]}
+            }
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {"program": "DEADISO", "paragraph": "ISO-PARA", "file": null, "line_span": [8, 10]}
+          ],
+          "slice_vars": [],
+          "is_interprocedural": false
+        },
+        "drift_type": "D6_dead_code",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [{"program": "DEADISO", "line": 8, "file": null}]
+        },
+        "gold_rationale": "ISO-PARA is a forest root unreachable from the true entry, so its compliance action is dead.",
+        "provenance": {
+          "source": "synthetic",
+          "base_program": "DEADISO.cbl",
+          "mutation": "Reachability fixture: isolated compliance paragraph",
+          "annotator_notes": "Track A corrected graph semantics fixture."
+        }
+      },
+      "claim": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+      "static_claim": {"dead_paragraph": "ISO-PARA"},
+      "final_answer": "The compliance paragraph ISO-PARA is unreachable from the program entry.",
+      "token_count": 43
+    }
+  ],
+  "d6_fallthrough": [
+    {
+      "kind": "tool",
+      "thought": "Read NEXT-PARA; caller absence alone is not a reachability result.",
+      "tool": "read_paragraph",
+      "arguments": {"program": "FALLTHRU", "name": "NEXT-PARA"},
+      "token_count": 17
+    },
+    {
+      "kind": "finding",
+      "thought": "Ask the delegated verifier whether the caller-less paragraph is actually unreachable.",
+      "prediction": {
+        "instance_id": "drift_910016",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "19",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+          "current_value": null
+        },
+        "code_locus": {
+          "loci": [
+            {"program": "FALLTHRU", "paragraph": "NEXT-PARA", "file": null, "line_span": [6, 8]}
+          ],
+          "slice_vars": [],
+          "is_interprocedural": false
+        },
+        "drift_type": "D6_dead_code",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [{"program": "FALLTHRU", "line": 6, "file": null}]
+        },
+        "gold_rationale": "This planted claim must be rejected because NEXT-PARA is live by fall-through.",
+        "provenance": {
+          "source": "synthetic",
+          "base_program": "FALLTHRU.cbl",
+          "mutation": "Negative D6 reachability fixture",
+          "annotator_notes": "Caller absence is not deadness."
+        }
+      },
+      "claim": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+      "static_claim": {"dead_paragraph": "NEXT-PARA"},
+      "final_answer": "This proposed finding must be withheld.",
+      "token_count": 40
+    }
+  ],
+  "d7": [
+    {
+      "kind": "tool",
+      "thought": "Inspect the actual notice-window check rather than the MO-0 formatting edit.",
+      "tool": "read_paragraph",
+      "arguments": {"program": "NOTICE1", "name": "2000-CHK"},
+      "token_count": 18
+    },
+    {
+      "kind": "finding",
+      "thought": "The check positively enforces at least thirty days; the display/comment edit is irrelevant.",
+      "prediction": {
+        "instance_id": "drift_910007",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "23(7)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Changes in charges take prospective effect only, with prior notice of at least one month.",
+          "current_value": {"kind": "duration_months", "value": 1, "comparator": "at_least"}
+        },
+        "code_locus": {
+          "loci": [
+            {"program": "NOTICE1", "paragraph": "2000-CHK", "file": null, "line_span": [15, 18]},
+            {"program": "NOTICE1", "paragraph": "1000-MAIN", "file": null, "line_span": [13, 13]}
+          ],
+          "slice_vars": ["WS-NOTICE-DAYS", "WS-OK"],
+          "is_interprocedural": true
+        },
+        "drift_type": "D7_conformant",
+        "target_path": null,
+        "labels": {
+          "program_level": "conformant",
+          "paragraph_level": "conformant",
+          "line_level": []
+        },
+        "gold_rationale": "NOTICE1 positively enforces a >= 30-day notice window; the MO-0 display/comment edits do not alter behavior.",
+        "provenance": {
+          "source": "synthetic",
+          "base_program": "NOTICE1.cbl",
+          "mutation": "MO-0; display punctuation and comment style only",
+          "annotator_notes": "Anti-shortcut D7 fixture."
+        }
+      },
+      "claim": "Changes in charges take prospective effect only, with prior notice of at least one month.",
+      "static_claim": {"comparator": ">="},
+      "final_answer": "NOTICE1 positively confirms the required notice window and is conformant.",
+      "token_count": 44
+    }
+  ],
+  "d7_empty": [
+    {
+      "kind": "abstain",
+      "thought": "No relevant implementation was found, so conformant cannot be asserted.",
+      "abstention_reason": "no positive implementation evidence; D7 is not a default verdict",
+      "final_answer": "Abstained: no positive evidence of conformance.",
+      "token_count": 21
+    }
+  ],
+  "temporal_old": [
+    {
+      "kind": "tool",
+      "thought": "Read the shared day-basis constant for the historical clause.",
+      "tool": "resolve_copybook",
+      "arguments": {"name": "WSDAYBAS"},
+      "token_count": 16
+    },
+    {
+      "kind": "tool",
+      "thought": "Inspect how the configured working-day basis controls accrual.",
+      "tool": "read_paragraph",
+      "arguments": {"program": "CLOSPEN2", "name": "2000-CALC"},
+      "token_count": 18
+    },
+    {
+      "kind": "finding",
+      "thought": "Working-day accrual is defensible under the historical per-day wording.",
+      "prediction": {
+        "instance_id": "drift_910017",
+        "regulation_clause": {
+          "doc": "RBI-CC-Debit-Card-Directions-2022",
+          "clause_id": "8(a)",
+          "version": "2022-04-21",
+          "effective_date": "2022-07-01",
+          "text": "Failure to complete closure within seven working days results in a penalty of Rs 500 per day of delay when no amount is outstanding.",
+          "current_value": null
+        },
+        "code_locus": {
+          "loci": [
+            {"program": "CLOSPEN2", "paragraph": "2000-CALC", "file": null, "line_span": [21, 32]},
+            {"program": "CLOSPEN2", "paragraph": null, "file": "WSDAYBAS.cpy", "line_span": [3, 6]}
+          ],
+          "slice_vars": ["WS-DAY-BASIS", "WS-CHARGE-DAYS", "WS-PENALTY-AMT"],
+          "is_interprocedural": true
+        },
+        "drift_type": "D7_conformant",
+        "target_path": null,
+        "labels": {
+          "program_level": "conformant",
+          "paragraph_level": "conformant",
+          "line_level": []
+        },
+        "gold_rationale": "The historical clause said per day without fixing calendar-day accrual, so the working-day basis is defensible.",
+        "provenance": {
+          "source": "real_curated",
+          "base_program": "CLOSPEN2.cbl",
+          "annotator_notes": "T2.5 P1 old side."
+        }
+      },
+      "claim": "Failure to complete closure within seven working days results in a penalty of Rs 500 per day of delay when no amount is outstanding.",
+      "static_claim": {"literal": "BASIS-WORKING"},
+      "final_answer": "CLOSPEN2 is conformant under the historical clause's unqualified per-day wording.",
+      "token_count": 45
+    }
+  ],
+  "insufficient_d1": [
+    {
+      "kind": "finding",
+      "thought": "This planted proposal skips the required code and copybook evidence.",
+      "prediction": {
+        "instance_id": "drift_910011",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "19",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+          "current_value": {
+            "kind": "composite",
+            "value": {
+              "day_basis": {"kind": "enum_set", "value": ["calendar_day"]}
+            }
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {"program": "CLOSPEN2", "paragraph": "2000-CALC", "file": null, "line_span": [21, 32]}
+          ],
+          "slice_vars": ["WS-DAY-BASIS"],
+          "is_interprocedural": false
+        },
+        "drift_type": "D1_stale_threshold",
+        "target_path": "day_basis",
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [{"program": "CLOSPEN2", "line": 22, "file": null}]
+        },
+        "gold_rationale": "This proposal has no acquired evidence and must be withheld.",
+        "provenance": {
+          "source": "synthetic",
+          "base_program": "CLOSPEN2.cbl",
+          "mutation": "Insufficient-evidence negative fixture",
+          "annotator_notes": null
+        }
+      },
+      "claim": "Closure requests must be honoured within 7 working days; failure incurs a penalty of Rs 500 per calendar day of delay when no amount is outstanding.",
+      "static_claim": {"literal": "BASIS-WORKING"},
+      "final_answer": "This proposed finding must be withheld.",
+      "token_count": 38
+    }
+  ]
+}

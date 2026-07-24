@@ -20,8 +20,8 @@ The mapping (see :func:`map_hits_to_clause_hits`) is not a pass-through:
 - **Deduplicate** to one hit per clause: a multi-chunk clause is collapsed,
   keeping the best (max) score, at the rank of its first (best) appearance.
 
-HyDE query transformation (``use_hyde``) is accepted here for forward
-compatibility but is a no-op in this build — it lands in T3.3b (Part 2).
+HyDE query transformation (``use_hyde``) is an offline-capable T3.3b stage in
+front of the index. It never changes clause anchoring or result shaping.
 """
 
 from __future__ import annotations
@@ -97,8 +97,8 @@ class RegulationSearch:
     ``hybrid_rerank`` needs the T3.2 models, so when it (or another dense mode)
     is requested and no ``embedder``/``reranker`` is injected, the pinned models
     are built lazily. Tests drive the offline mapping gates with ``mode="bm25"``,
-    which needs no model. ``use_hyde`` is accepted but ignored in this build
-    (HyDE is T3.3b).
+    which needs no model. ``use_hyde`` applies the committed T3.3b transform
+    before retrieval.
     """
 
     def __init__(
@@ -107,11 +107,20 @@ class RegulationSearch:
         clauses_path: Path = CLAUSES,
         mode: str = "hybrid_rerank",
         use_hyde: bool = False,
+        hyde_generator=None,
         embedder=None,
         reranker=None,
     ) -> None:
         self.mode = mode
-        self.use_hyde = use_hyde  # accepted for T3.3b; a no-op here
+        self.use_hyde = use_hyde
+        if use_hyde:
+            if hyde_generator is None:
+                from cobol_archaeologist.rag.hyde import CachedHyDEGenerator
+
+                hyde_generator = CachedHyDEGenerator()
+            self._hyde_generator = hyde_generator
+        else:
+            self._hyde_generator = None
         if mode != "bm25" and embedder is None and reranker is None:
             from cobol_archaeologist.rag.embed import DenseEmbedder, Reranker
 
@@ -124,5 +133,14 @@ class RegulationSearch:
     def search(self, query: str, k: int = 5) -> list[RegSearchHit]:
         # Over-fetch: None-dropping and dedup shrink the pool, so retrieve enough
         # chunks to still return up to k distinct anchored clauses.
-        pool = self._index.search(query, k=max(k * 4, _POOL_FLOOR), mode=self.mode)
+        retrieval_query = (
+            self._hyde_generator.describe(query)
+            if self._hyde_generator is not None
+            else query
+        )
+        pool = self._index.search(
+            retrieval_query,
+            k=max(k * 4, _POOL_FLOOR),
+            mode=self.mode,
+        )
         return map_hits_to_clause_hits(pool, self._clauses, k)

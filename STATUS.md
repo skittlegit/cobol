@@ -131,14 +131,38 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T3.3a** | done | C | `src/cobol_archaeologist/rag/search.py` + `tools.py`
   (search_regulations live) + `tests/test_search_regulations.py`. Reviewed
   2026-07-24; merged PR #61.
-- **T3.3b** | todo | C | `docs/tasks/T3.3-work-order.md` — HyDE query generation
-  + 24-query eval (Part 2; q23 named target).
+- **T3.3b** | ready-for-review | C |
+  `src/cobol_archaeologist/rag/hyde.py` +
+  `tests/fixtures/retrieval/hyde_cache.json` + `tests/test_hyde.py`. Pinned-model
+  24-query gate: dense mrr@5 0.588→0.722, hybrid-rerank 0.744→0.793; q23
+  improves from absent in all modes to ranks 1/1/1/2.
 - **T3.4** | done | C | `src/cobol_archaeologist/model/verify.py` +
   `tests/test_verify.py` + `tests/fixtures/verify/`. Reviewed 2026-07-24;
   16 gates green. Verifier accuracy: 50 pairs generated, human labels pending
   in Track C chat (xfail).
-- **T3.5** | ready-for-review | C | `src/cobol_archaeologist/agent/{loop,
-  stub_tools,trajectory}.py` + tests + golden late-fee trajectory. Gates 1-6
-  green; stub parity + budget enforcement + no-unverified-emission asserted.
-- **T3.6** | todo | C | `docs/tasks/T3.6-work-order.md` — D1–D7 policy hunts.
-- **T4.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
+- **T3.5** | done | C | `src/cobol_archaeologist/agent/{loop,stub_tools,
+  trajectory}.py` + tests + golden late-fee trajectory. Reviewed 2026-07-24;
+  17 gates green, seam purity + no-unverified-emission confirmed.
+- **T3.6** | ready-for-review | C | `src/cobol_archaeologist/agent/{policy.py,
+  hunts/}` + `tests/test_policy_hunts.py`. Gates 1-8 green; D1-D7 registered,
+  D6 delegates to verify.py reachability, anti-shortcut rule enforced.
+  **M3 (Agent Grounded) closes on review.**
+- **T4.1** | blocked-live-run | C |
+  `src/cobol_archaeologist/eval/{schemas,materialize,run}.py` +
+  `model/provider.py`. Week-7 mutation→real-tool→eval seam green; 165/180 test
+  rows materialize, 15 fail closed on Track B base/provenance mismatch; live
+  provider credentials absent.
+- **T4.2** | ready-for-live-run | C |
+  `src/cobol_archaeologist/eval/{metrics,statistics}.py`; frozen T1–T6 metrics
+  and paired statistics implemented. Current T6 capacity is 5 pairs versus 20.
+- **T4.3** | ready-for-live-run | C |
+  `src/cobol_archaeologist/eval/trajectory.py`; replay/evidence/budget/shortcut
+  assessment gates green.
+- **T4.4** | ready-for-live-run | C |
+  `src/cobol_archaeologist/eval/calibration.py`; coverage, abstention,
+  attempted-unavailable tiers, calibration, and per-tier faithfulness green.
+- **T4.5** | blocked-on-live-artifacts | C |
+  `src/cobol_archaeologist/eval/{baselines,report}.py`; fail-closed M4 report
+  implemented. Needs three paired live artifacts, 50 human verifier labels,
+  and at least 20 T6 pairs.
+- **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
