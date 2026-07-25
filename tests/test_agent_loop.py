@@ -169,6 +169,9 @@ def test_live_prompt_has_exact_tool_signatures_and_one_object_rule():
     assert "find_callers(program, para)" in prompt
     assert "Return exactly one JSON object and stop" in prompt
     assert "never append an abstention" in prompt
+    assert "read_program returns a paragraph index" in prompt
+    assert "Follow it with read_paragraph" in prompt
+    assert "relevant available evidence paths have been attempted" in prompt
 
 
 class QueueModel:

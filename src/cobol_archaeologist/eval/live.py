@@ -64,7 +64,7 @@ from cobol_archaeologist.tools import RealToolLayer
 ROOT = Path(__file__).resolve().parents[3]
 SPLIT = ROOT / "data" / "benchmark" / "v1-pre" / "test.jsonl"
 OUTPUT_DIR = ROOT / "data" / "eval" / "m4-v3"
-PROMPT_VERSION = "m4-live-openai-v6"
+PROMPT_VERSION = "m4-live-openai-v7"
 TOOL_VERSION = "real-tool-layer-t1.6"
 INPUT_REVISION = "3acd8b0edb9d0aec26ba931e92f369fe9d612a3d"
 SCHEMA_VERSION = "3"

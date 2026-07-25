@@ -50,6 +50,11 @@ finding, alternative, or corrected object after it. A proposed finding must
 include a complete DriftPrediction and a separate claim, plus concrete
 execution/static evidence hooks when available. The runtime will verify every
 proposed finding; if evidence is insufficient, abstain.
+read_program returns a paragraph index, not statement text. Follow it with
+read_paragraph for a relevant paragraph before concluding that source evidence
+is unavailable. If an observation is insufficient and another listed bounded
+tool can obtain the needed evidence, call that tool; abstain only after the
+relevant available evidence paths have been attempted.
 """
 
 HYDE_SYSTEM_PROMPT = """\
