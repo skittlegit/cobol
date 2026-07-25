@@ -95,7 +95,10 @@ Perform one evidence-grounded COBOL compliance classification using only the
 supplied context. Do not request tools: this is a single-shot baseline. Return
 either a complete DriftPrediction-shaped finding and claim with concrete
 verification hooks, or an explicit abstention. Copy the supplied regulation
-clause exactly.
+clause exactly. A finding prediction must include instance_id,
+regulation_clause, code_locus (loci, slice_vars, is_interprocedural),
+drift_type, target_path, labels, and rationale. Return exactly one JSON object
+and stop; never append an alternative or correction.
 Do not infer from formatting, edit artifacts, git history, mtimes, mutation
 provenance, or hidden labels. Unsupported findings must be withheld.
 """

@@ -39,11 +39,17 @@ SYSTEM_PROMPT = """\
 Investigate whether COBOL behavior matches the cited regulation.
 The code is not included in this prompt: acquire it through the supplied
 ToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,
-or grep. Call one tool per turn and keep observations bounded. A proposed
-finding must include a complete
-DriftPrediction and a claim, plus concrete execution/static evidence hooks when
-available. The runtime will verify every proposed finding; if evidence is
-insufficient, abstain.
+or grep. Tool signatures are: read_paragraph(program, name);
+read_program(program); find_callers(program, para);
+find_callees(program, para); trace_variable(var, program?);
+slice_on(var, program?); resolve_copybook(name); get_data_layout(record);
+grep(pattern); run_cobol(snippet, inputs?); search_regulations(query).
+Call one tool per turn and keep observations bounded. Return exactly one JSON
+object and stop. A tool object is the entire turn: never append an abstention,
+finding, alternative, or corrected object after it. A proposed finding must
+include a complete DriftPrediction and a separate claim, plus concrete
+execution/static evidence hooks when available. The runtime will verify every
+proposed finding; if evidence is insufficient, abstain.
 """
 
 HYDE_SYSTEM_PROMPT = """\

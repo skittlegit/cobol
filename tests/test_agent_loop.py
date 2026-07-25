@@ -6,7 +6,11 @@ from pathlib import Path
 from cobol_archaeologist.agent.loop import InvestigationLoop
 from cobol_archaeologist.agent.stub_tools import StubToolLayer
 from cobol_archaeologist.agent.trajectory import BudgetSpec, Trajectory
-from cobol_archaeologist.model.prompt import AgentResponse, CachedDecisionModel
+from cobol_archaeologist.model.prompt import (
+    SYSTEM_PROMPT,
+    AgentResponse,
+    CachedDecisionModel,
+)
 from cobol_archaeologist.model.provider import _agent_response
 from cobol_archaeologist.model.verify import LexicalEntailer, VerificationTier
 from cobol_archaeologist.tools import RealToolLayer
@@ -157,6 +161,14 @@ def test_real_stub_seam_is_constructor_only_and_loop_never_imports_tools():
     real = RealToolLayer(corpus_root=FIX / "corpus", copybook_paths=[FIX / "corpus"])
     assert InvestigationLoop(stub, model=cached()).tools is stub
     assert InvestigationLoop(real, model=cached()).tools is real
+
+
+def test_live_prompt_has_exact_tool_signatures_and_one_object_rule():
+    prompt = " ".join(SYSTEM_PROMPT.split())
+    assert "read_paragraph(program, name)" in prompt
+    assert "find_callers(program, para)" in prompt
+    assert "Return exactly one JSON object and stop" in prompt
+    assert "never append an abstention" in prompt
 
 
 class QueueModel:

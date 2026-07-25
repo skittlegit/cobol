@@ -212,6 +212,11 @@ def test_openai_provider_uses_responses_json_contract_without_persisting(
     assert payload["text"]["format"]["name"] == "agent_response"
     assert payload["text"]["format"]["strict"] is False
     assert payload["text"]["format"]["schema"]["title"] == "AgentResponse"
+    provider_instruction = json.loads(payload["input"])["instruction"]
+    assert "Return exactly one JSON object and stop" in provider_instruction
+    assert "code_locus (loci, slice_vars, is_interprocedural)" in (
+        provider_instruction
+    )
     prediction_id = payload["text"]["format"]["schema"]["$defs"]["DriftPrediction"][
         "properties"
     ]["instance_id"]

@@ -196,7 +196,9 @@ class AnthropicDecisionModel:
             "instruction": (
                 "Return exactly one JSON object satisfying response_contract. "
                 "Choose one tool call, a finding, or an explicit abstention. "
-                "A finding requires both a complete prediction and a claim."
+                "Stop after that object; never append a second object or an "
+                "alternative. A finding requires both a complete prediction "
+                "and a claim."
             ),
         }
         payload = {
@@ -274,8 +276,13 @@ class OpenAIDecisionModel:
             "question": question,
             "tool_transcript": transcript,
             "instruction": (
-                "Choose one tool call, a finding, or an explicit abstention. "
-                "For a finding, include a complete prediction and claim. The "
+                "Return exactly one JSON object and stop. Never append a second "
+                "object, alternative, correction, or final decision after a "
+                "tool object. Choose one tool call, a finding, or an explicit "
+                "abstention. For a finding, include a complete prediction with "
+                "instance_id, regulation_clause, code_locus (loci, slice_vars, "
+                "is_interprocedural), drift_type, target_path, labels, and "
+                "rationale, plus a separate claim. The "
                 "claim must restate an obligation entailed by the "
                 "supplied clause; put code facts in exec_probe/static_claim. "
                 "D7_conformant requires conformant program/paragraph labels and "
