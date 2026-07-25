@@ -279,6 +279,7 @@ def prepare_support_runtime(
             f"{support_root}/.venv/bin/python",
             "-e",
             support_root,
+            "setuptools>=68",
         ],
         distro=distro,
         timeout=600,
