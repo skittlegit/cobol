@@ -14,7 +14,7 @@ from cobol_archaeologist.eval.statistics import (
     paired_bootstrap_delta,
     paired_randomization_p,
 )
-from cobol_archaeologist.schemas import DriftInstance
+from cobol_archaeologist.schemas import DriftInstance, DriftPrediction
 
 ROOT = Path(__file__).resolve().parents[1]
 SPLIT = ROOT / "data" / "benchmark" / "v1-pre" / "test.jsonl"
@@ -33,7 +33,7 @@ def _rows(path: Path) -> list[DriftInstance]:
 def _record(
     gold: DriftInstance,
     *,
-    prediction: DriftInstance | None = None,
+    prediction: DriftInstance | DriftPrediction | None = None,
     abstained: bool = False,
 ) -> EvaluationRecord:
     golden = Trajectory.model_validate_json(GOLDEN.read_text(encoding="utf-8"))
@@ -48,7 +48,11 @@ def _record(
             source_sha256="0" * 64,
             run_key=f"fixture:{gold.instance_id}",
         )
-    prediction = prediction or gold
+    prediction = (
+        prediction
+        if isinstance(prediction, DriftPrediction)
+        else DriftPrediction.from_gold(prediction or gold)
+    )
     trajectory = golden.model_copy(
         update={
             "finding": prediction,

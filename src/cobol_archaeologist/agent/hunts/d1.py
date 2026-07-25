@@ -40,7 +40,7 @@ class D1Hunt(BasePolicyHunt):
             leaf = current
         if leaf is not None:
             values = leaf.value if isinstance(leaf.value, list) else [leaf.value]
-            rationale = prediction.gold_rationale.lower()
+            rationale = prediction.rationale.lower()
             if not any(str(value).lower() in rationale for value in values):
                 errors.append(
                     "D1 rationale must compare against the current target value"

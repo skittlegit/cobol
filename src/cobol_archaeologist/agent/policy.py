@@ -28,7 +28,7 @@ from cobol_archaeologist.model.verify import (
     VerificationResult,
     VerificationTier,
 )
-from cobol_archaeologist.schemas import DriftInstance, DriftType, RegulationClause
+from cobol_archaeologist.schemas import DriftPrediction, DriftType, RegulationClause
 from cobol_archaeologist.tool_types import ToolLayer
 
 _TIER_CONFIDENCE = {
@@ -45,14 +45,14 @@ def confidence_for_tier(tier: VerificationTier) -> float:
 
 
 # DECISION (frozen schema): confidence and verifier provenance wrap the
-# DriftInstance instead of widening schemas.py, which remains contract-frozen.
+# DriftPrediction instead of widening the gold-only DriftInstance contract.
 class HuntOutcome(BaseModel):
     """Typed policy output consumed by T4 evaluation."""
 
     model_config = ConfigDict(extra="forbid")
 
     hunt: DriftType
-    finding: DriftInstance | None
+    finding: DriftPrediction | None
     confidence: float | None = Field(default=None, ge=0, le=1)
     verification: VerificationResult | None
     verification_tier: VerificationTier | None
@@ -78,6 +78,33 @@ class HuntOutcome(BaseModel):
                 raise ValueError("a hunt finding requires its verified tier result")
             if self.confidence is None:
                 raise ValueError("a hunt finding requires confidence")
+        return self
+
+
+class HuntBatchOutcome(BaseModel):
+    """All seven hunt trajectories plus the deterministic selected outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    outcomes: list[HuntOutcome] = Field(min_length=7, max_length=7)
+    selected: HuntOutcome
+
+    @model_validator(mode="after")
+    def _complete_unique_ladder(self) -> HuntBatchOutcome:
+        expected = {
+            "D1_stale_threshold",
+            "D2_missing_rule",
+            "D3_contradictory",
+            "D4_stale_reference_data",
+            "D5_boundary_error",
+            "D6_dead_code",
+            "D7_conformant",
+        }
+        hunts = [outcome.hunt for outcome in self.outcomes]
+        if set(hunts) != expected or len(set(hunts)) != 7:
+            raise ValueError("a hunt batch must contain each D1-D7 hunt exactly once")
+        if not any(outcome == self.selected for outcome in self.outcomes):
+            raise ValueError("selected outcome must be one of the seven hunts")
         return self
 
 
@@ -139,6 +166,7 @@ class _EvidenceGuardModel:
             abstention_reason=reason,
             final_answer=f"Abstained: {reason}",
             token_count=response.token_count,
+            raw_provider_text=response.raw_provider_text,
         )
 
 

@@ -7,12 +7,20 @@ import json
 import subprocess
 from collections.abc import Callable, Iterable
 from pathlib import Path
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from cobol_archaeologist.agent.policy import HUNT_REGISTRY, HuntOutcome
+from cobol_archaeologist.agent.policy import (
+    HUNT_REGISTRY,
+    HuntBatchOutcome,
+)
 from cobol_archaeologist.agent.trajectory import BudgetSpec
-from cobol_archaeologist.eval.schemas import EvaluationRecord
+from cobol_archaeologist.eval.schemas import (
+    AgentHuntTrace,
+    EvaluationRecord,
+    RunValidity,
+)
 from cobol_archaeologist.model.prompt import DecisionModel
 from cobol_archaeologist.model.verify import Entailer
 from cobol_archaeologist.schemas import DriftInstance, RegulationClause
@@ -43,9 +51,24 @@ class RunManifest(BaseModel):
     prompt_version: str
     split_path: str
     split_sha256: str = ""
+    schema_version: str = "2"
+    run_mode: Literal["smoke", "full", "pilot"] = "full"
+    smoke_rows: int | None = Field(default=None, ge=1)
     total: int
     completed_run_keys: list[str] = Field(default_factory=list)
     infrastructure_failures: dict[str, str] = Field(default_factory=dict)
+    validity: RunValidity | None = None
+
+    @model_validator(mode="after")
+    def _run_mode_shape(self) -> RunManifest:
+        if self.run_mode == "smoke":
+            if self.smoke_rows is None or self.smoke_rows != self.total:
+                raise ValueError("a smoke manifest requires smoke_rows == total")
+        elif self.smoke_rows is not None:
+            raise ValueError("smoke_rows is valid only for a smoke manifest")
+        if self.validity is not None and self.validity.completed_rows > self.total:
+            raise ValueError("validity cannot report more rows than the manifest total")
+        return self
 
 
 def build_system_context(gold: DriftInstance) -> SystemContext:
@@ -80,6 +103,7 @@ def run_key(
     prompt_version: str,
     tool_version: str,
     commit: str,
+    schema_version: str = "3",
 ) -> str:
     payload = json.dumps(
         {
@@ -91,6 +115,7 @@ def run_key(
             "prompt_version": prompt_version,
             "tool_version": tool_version,
             "commit": commit,
+            "schema_version": schema_version,
         },
         sort_keys=True,
         separators=(",", ":"),
@@ -105,7 +130,7 @@ def investigate_all_hunts(
     model_factory: Callable[[], DecisionModel],
     budget: BudgetSpec | None = None,
     entailer: Entailer | None = None,
-) -> HuntOutcome:
+) -> HuntBatchOutcome:
     """Run every registered class hunt without revealing which class is gold."""
 
     outcomes = []
@@ -126,7 +151,7 @@ def investigate_all_hunts(
         outcomes.append(outcome)
     findings = [outcome for outcome in outcomes if not outcome.abstained]
     if findings:
-        return max(
+        selected = max(
             findings,
             key=lambda outcome: (
                 outcome.confidence or 0.0,
@@ -134,29 +159,142 @@ def investigate_all_hunts(
                 outcome.hunt,
             ),
         )
-    return outcomes[0]
+    else:
+        selected = outcomes[0]
+    return HuntBatchOutcome(outcomes=outcomes, selected=selected)
 
 
 def record_outcome(
     gold: DriftInstance,
-    outcome: HuntOutcome,
+    outcome: HuntBatchOutcome,
     *,
     system_id: str,
     source_sha256: str,
     key: str,
 ) -> EvaluationRecord:
+    selected = outcome.selected
     return EvaluationRecord(
         instance_id=gold.instance_id,
         gold=gold,
-        prediction=outcome.finding,
-        confidence=outcome.confidence,
-        verification=outcome.verification,
-        trajectory=outcome.trajectory,
-        abstained=outcome.abstained,
-        abstention_reason=outcome.abstention_reason,
+        prediction=selected.finding,
+        confidence=selected.confidence,
+        verification=selected.verification,
+        trajectory=selected.trajectory,
+        agent_hunts=[
+            AgentHuntTrace(
+                hunt=item.hunt,
+                selected=item == selected,
+                finding=item.finding,
+                confidence=item.confidence,
+                verification=item.verification,
+                verification_tier=item.verification_tier,
+                trajectory=item.trajectory,
+                abstained=item.abstained,
+                abstention_reason=item.abstention_reason,
+            )
+            for item in outcome.outcomes
+        ],
+        abstained=selected.abstained,
+        abstention_reason=selected.abstention_reason,
         system_id=system_id,
         source_sha256=source_sha256,
         run_key=key,
+    )
+
+
+def assess_run_validity(
+    records: Iterable[EvaluationRecord],
+    *,
+    system_id: str,
+) -> RunValidity:
+    """Compute frozen schema-v3 validity gates from persisted evidence."""
+
+    completed = list(records)
+    available = [record for record in completed if not record.infrastructure_error]
+    infrastructure_failures = len(completed) - len(available)
+    trajectories = []
+    for record in available:
+        if system_id == "agent" and record.agent_hunts:
+            trajectories.extend(trace.trajectory for trace in record.agent_hunts)
+        elif record.trajectory is not None:
+            trajectories.append(record.trajectory)
+
+    responses = [
+        response
+        for trajectory in trajectories
+        for response in trajectory.model_responses
+    ]
+    provider_turns = len(responses)
+    contract_rejections = sum(
+        response.contract_error is not None for response in responses
+    )
+    contract_rate = (
+        contract_rejections / provider_turns if provider_turns else 0.0
+    )
+    predictions = sum(record.prediction is not None for record in available)
+    prediction_rate = predictions / len(available) if available else 0.0
+
+    successful_tools: int | None = None
+    mean_successful_tools: float | None = None
+    if system_id == "agent":
+        successful_tools = sum(
+            call.error is None and bool(call.observation_summary)
+            for trajectory in trajectories
+            for call in trajectory.steps
+        )
+        mean_successful_tools = (
+            successful_tools / len(available) if available else 0.0
+        )
+
+    failed_gates: list[str] = []
+    if infrastructure_failures:
+        failed_gates.append(
+            f"{infrastructure_failures} infrastructure failure(s); zero required"
+        )
+    if provider_turns >= 5 and contract_rate > 0.10:
+        failed_gates.append(
+            "contract rejection rate exceeds 0.10 after at least five "
+            "provider responses"
+        )
+    if (
+        system_id == "agent"
+        and mean_successful_tools is not None
+        and mean_successful_tools < 1.0
+    ):
+        failed_gates.append(
+            "agent mean successful tool observations per available row is below 1.0"
+        )
+    if prediction_rate == 0.0:
+        failed_gates.append("final non-null verified prediction rate is 0.0")
+
+    if provider_turns >= 5 and contract_rate > 0.10:
+        status = "HALTED_CONTRACT_REJECTIONS"
+    elif infrastructure_failures:
+        status = "NOT_EVALUABLE"
+    elif (
+        system_id == "agent"
+        and mean_successful_tools is not None
+        and mean_successful_tools < 1.0
+    ):
+        status = "INVALID_AGENT_RUN"
+    elif prediction_rate == 0.0:
+        status = "NOT_EVALUABLE"
+    else:
+        status = "VALID"
+
+    return RunValidity(
+        completed_rows=len(completed),
+        available_rows=len(available),
+        infrastructure_failures=infrastructure_failures,
+        provider_turns=provider_turns,
+        contract_rejections=contract_rejections,
+        contract_rejection_rate=contract_rate,
+        non_null_predictions=predictions,
+        non_null_prediction_rate=prediction_rate,
+        successful_tool_observations=successful_tools,
+        mean_successful_tool_observations=mean_successful_tools,
+        status=status,
+        failed_gates=failed_gates,
     )
 
 
@@ -212,11 +350,18 @@ class EvaluationRunner:
             raise ValueError("manifest total does not match requested rows")
         existing = self._existing()
         self.records_path.parent.mkdir(parents=True, exist_ok=True)
-        completed = list(existing.values())
+        completed: list[EvaluationRecord] = []
         with self.records_path.open("a", encoding="utf-8", newline="\n") as stream:
             for gold in rows:
                 key = key_factory(gold)
                 if key in existing:
+                    completed.append(existing[key])
+                    validity = assess_run_validity(
+                        completed,
+                        system_id=manifest.system_id,
+                    )
+                    if validity.status == "HALTED_CONTRACT_REJECTIONS":
+                        break
                     continue
                 record = executor(gold, build_system_context(gold), key)
                 if record.run_key != key:
@@ -225,12 +370,22 @@ class EvaluationRunner:
                 stream.flush()
                 existing[key] = record
                 completed.append(record)
-        manifest.completed_run_keys = sorted(existing)
+                validity = assess_run_validity(
+                    completed,
+                    system_id=manifest.system_id,
+                )
+                if validity.status == "HALTED_CONTRACT_REJECTIONS":
+                    break
+        manifest.completed_run_keys = sorted(record.run_key for record in completed)
         manifest.infrastructure_failures = {
             record.instance_id: record.infrastructure_error
             for record in completed
             if record.infrastructure_error
         }
+        manifest.validity = assess_run_validity(
+            completed,
+            system_id=manifest.system_id,
+        )
         self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
         self.manifest_path.write_text(
             manifest.model_dump_json(indent=2),

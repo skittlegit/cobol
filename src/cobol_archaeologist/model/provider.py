@@ -28,7 +28,11 @@ class ProviderUnavailable(RuntimeError):
     pass
 
 
-def _contract_abstention(detail: str, total_tokens: int) -> AgentResponse:
+def _contract_abstention(
+    detail: str,
+    total_tokens: int,
+    raw_provider_text: str,
+) -> AgentResponse:
     """Fail closed on model output that cannot satisfy the response contract."""
 
     return AgentResponse(
@@ -37,6 +41,8 @@ def _contract_abstention(detail: str, total_tokens: int) -> AgentResponse:
         abstention_reason=detail,
         final_answer=f"Abstained: {detail}",
         token_count=total_tokens,
+        raw_provider_text=raw_provider_text,
+        contract_error=detail,
     )
 
 
@@ -75,6 +81,7 @@ def _agent_response(
         return _contract_abstention(
             "response contract rejected provider output: no JSON object",
             total_tokens,
+            text,
         )
     try:
         data = json.loads(match.group())
@@ -82,7 +89,11 @@ def _agent_response(
         return _contract_abstention(
             "response contract rejected provider output: invalid JSON",
             total_tokens,
+            text,
         )
+    # These fields are adapter-owned telemetry, not model-authored content.
+    data.pop("raw_provider_text", None)
+    data.pop("contract_error", None)
     # A model is not the authority for evaluation-record identity.  Live M4
     # calls use a constant, label-free placeholder here; the orchestrator maps
     # it to the current record only after the provider call returns.
@@ -102,7 +113,8 @@ def _agent_response(
         data["final_answer"] = data["claim"]
     data["token_count"] = total_tokens
     try:
-        return AgentResponse.model_validate(data)
+        response = AgentResponse.model_validate(data)
+        return response.model_copy(update={"raw_provider_text": text})
     except ValidationError as exc:
         details = "; ".join(
             f"{'.'.join(str(part) for part in error['loc']) or 'response'}: "
@@ -113,15 +125,36 @@ def _agent_response(
         # A syntactically valid provider response that proposes a malformed
         # finding is model behavior, not an API outage. Fail closed as an
         # explicit abstention so no invalid prediction reaches verification.
-        return _contract_abstention(reason, total_tokens)
+        return _contract_abstention(reason, total_tokens, text)
 
 
 def _agent_response_schema(
     prediction_instance_id: str | None = None,
 ) -> dict[str, Any]:
     schema = AgentResponse.model_json_schema()
+    properties = schema.get("properties", {})
+    properties.pop("raw_provider_text", None)
+    properties.pop("contract_error", None)
+    required = schema.get("required")
+    if isinstance(required, list):
+        schema["required"] = [
+            name
+            for name in required
+            if name not in {"raw_provider_text", "contract_error"}
+        ]
+    schema.setdefault("allOf", []).append(
+        {
+            "if": {
+                "properties": {"kind": {"const": "finding"}},
+                "required": ["kind"],
+            },
+            "then": {"required": ["prediction", "claim"]},
+        }
+    )
     if prediction_instance_id is not None:
-        instance_schema = schema["$defs"]["DriftInstance"]["properties"]["instance_id"]
+        instance_schema = schema["$defs"]["DriftPrediction"]["properties"][
+            "instance_id"
+        ]
         instance_schema["enum"] = [prediction_instance_id]
     return schema
 
@@ -151,14 +184,15 @@ class AnthropicDecisionModel:
         question: str,
         transcript: list[dict[str, Any]],
     ) -> AgentResponse:
-        schema = AgentResponse.model_json_schema()
+        schema = _agent_response_schema()
         user = {
             "question": question,
             "tool_transcript": transcript,
             "response_contract": schema,
             "instruction": (
                 "Return exactly one JSON object satisfying response_contract. "
-                "Choose one tool call, a finding, or an explicit abstention."
+                "Choose one tool call, a finding, or an explicit abstention. "
+                "A finding requires both a complete prediction and a claim."
             ),
         }
         payload = {
@@ -237,7 +271,8 @@ class OpenAIDecisionModel:
             "tool_transcript": transcript,
             "instruction": (
                 "Choose one tool call, a finding, or an explicit abstention. "
-                "For a finding, claim must restate an obligation entailed by the "
+                "For a finding, include a complete prediction and claim. The "
+                "claim must restate an obligation entailed by the "
                 "supplied clause; put code facts in exec_probe/static_claim. "
                 "D7_conformant requires conformant program/paragraph labels and "
                 "an empty line_level. D1-D6 require drift labels. target_path must "

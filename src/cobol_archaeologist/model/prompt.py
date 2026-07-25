@@ -8,13 +8,14 @@ SDK.  Production adapters can implement that protocol; offline gates use
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from cobol_archaeologist.model.verify import ExecProbe, StaticClaim
-from cobol_archaeologist.schemas import DriftInstance, RegulationClause
+from cobol_archaeologist.schemas import DriftPrediction, RegulationClause
 
 MODEL_ID = "claude-3-5-sonnet-20241022"
 MODEL_TEMPERATURE = 0.0
@@ -36,10 +37,13 @@ ToolName = Literal[
 
 SYSTEM_PROMPT = """\
 Investigate whether COBOL behavior matches the cited regulation.
-Use only the supplied ToolLayer tools. Call one tool per turn and keep
-observations bounded. A proposed finding must be DriftInstance-shaped and
-include concrete execution/static evidence hooks when available. The runtime
-will verify every proposed finding; if evidence is insufficient, abstain.
+The code is not included in this prompt: acquire it through the supplied
+ToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,
+or grep. Call one tool per turn and keep observations bounded. A proposed
+finding must include a complete
+DriftPrediction and a claim, plus concrete execution/static evidence hooks when
+available. The runtime will verify every proposed finding; if evidence is
+insufficient, abstain.
 """
 
 HYDE_SYSTEM_PROMPT = """\
@@ -126,16 +130,23 @@ class AgentResponse(BaseModel):
     thought: str = Field(min_length=1)
     tool: ToolName | None = None
     arguments: dict[str, Any] = {}
-    prediction: DriftInstance | None = None
+    prediction: DriftPrediction | None = None
     claim: str | None = None
     exec_probe: ExecProbe | None = None
     static_claim: StaticClaim | None = None
     abstention_reason: str | None = None
     final_answer: str | None = None
     token_count: int = Field(ge=0)
+    # Provider adapters populate these after parsing. They are deliberately
+    # excluded from the provider-facing JSON schema so the model cannot spoof
+    # contract telemetry.
+    raw_provider_text: str | None = None
+    contract_error: str | None = None
 
     @model_validator(mode="after")
     def _kind_shape(self) -> AgentResponse:
+        if self.contract_error is not None and self.kind != "abstain":
+            raise ValueError("a contract_error must fail closed as abstention")
         if self.kind == "tool":
             if self.tool is None:
                 raise ValueError("a tool response requires tool")
@@ -154,6 +165,52 @@ class AgentResponse(BaseModel):
             if self.tool is not None or self.prediction is not None:
                 raise ValueError("an abstain response cannot carry a tool/finding")
         return self
+
+
+def respond_with_contract_repair(
+    model: DecisionModel,
+    *,
+    system_prompt: str,
+    question: str,
+    transcript: list[dict[str, Any]],
+    max_repairs: int = 1,
+    repair_allowed: Callable[[AgentResponse], bool] | None = None,
+) -> tuple[AgentResponse, list[AgentResponse]]:
+    """Call a provider and allow one provider-neutral contract repair.
+
+    Every attempt is returned for trajectory and rejection-rate accounting.
+    Semantic abstentions are final responses, not repair triggers.
+    """
+
+    response = model.respond(
+        system_prompt=system_prompt,
+        question=question,
+        transcript=transcript,
+    )
+    attempts = [response]
+    if (
+        response.contract_error is None
+        or max_repairs <= 0
+        or (repair_allowed is not None and not repair_allowed(response))
+    ):
+        return response, attempts
+
+    repair_question = (
+        f"{question}\n\n"
+        "CONTRACT REPAIR (one attempt only): your previous response did not "
+        "satisfy the response contract. Return a complete replacement JSON "
+        "object. Do not discuss the error.\n"
+        f"Typed contract error: {response.contract_error}\n"
+        "Previous raw response:\n"
+        f"{response.raw_provider_text or '<empty>'}"
+    )
+    repaired = model.respond(
+        system_prompt=system_prompt,
+        question=repair_question,
+        transcript=transcript,
+    )
+    attempts.append(repaired)
+    return repaired, attempts
 
 
 class DecisionModel(Protocol):
@@ -201,7 +258,10 @@ class CachedDecisionModel:
             raw = raw[cache_key]
         if not isinstance(raw, list):
             raise TypeError("cached model responses must be a JSON list")
-        self._responses = [AgentResponse.model_validate(row) for row in raw]
+        self._responses = [
+            AgentResponse.model_validate(_migrate_cached_prediction(row))
+            for row in raw
+        ]
         self._cursor = 0
 
     def respond(
@@ -220,3 +280,19 @@ class CachedDecisionModel:
         self._cursor += 1
         # Return a copy so a caller cannot mutate the committed replay sequence.
         return response.model_copy(deep=True)
+
+
+def _migrate_cached_prediction(row: Any) -> Any:
+    """Read legacy v2 response fixtures without widening the live contract."""
+
+    if not isinstance(row, dict):
+        return row
+    migrated = dict(row)
+    prediction = migrated.get("prediction")
+    if isinstance(prediction, dict):
+        prediction = dict(prediction)
+        prediction.pop("provenance", None)
+        if "rationale" not in prediction and "gold_rationale" in prediction:
+            prediction["rationale"] = prediction.pop("gold_rationale")
+        migrated["prediction"] = prediction
+    return migrated

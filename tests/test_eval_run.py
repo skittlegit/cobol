@@ -10,6 +10,8 @@ from pathlib import Path
 import pytest
 
 from cobol_archaeologist.agent.loop import InvestigationLoop
+from cobol_archaeologist.agent.stub_tools import StubToolLayer
+from cobol_archaeologist.agent.trajectory import BudgetSpec, Trajectory
 from cobol_archaeologist.benchmark.mutate import (
     ProgramSource,
     load_clause_records,
@@ -23,20 +25,24 @@ from cobol_archaeologist.eval.metrics import evaluate
 from cobol_archaeologist.eval.run import (
     EvaluationRunner,
     RunManifest,
+    SystemContext,
+    assess_run_validity,
     build_system_context,
     infrastructure_failure,
     investigate_all_hunts,
+    record_outcome,
     run_key,
 )
 from cobol_archaeologist.eval.schemas import EvaluationRecord
 from cobol_archaeologist.model import provider as provider_module
-from cobol_archaeologist.model.prompt import CachedDecisionModel
+from cobol_archaeologist.model.prompt import AgentResponse, CachedDecisionModel
 from cobol_archaeologist.model.provider import (
     AnthropicDecisionModel,
     OpenAIDecisionModel,
     ProviderUnavailable,
 )
-from cobol_archaeologist.schemas import DriftInstance
+from cobol_archaeologist.model.verify import LexicalEntailer
+from cobol_archaeologist.schemas import DriftInstance, DriftPrediction
 from cobol_archaeologist.tools import RealToolLayer
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -206,14 +212,24 @@ def test_openai_provider_uses_responses_json_contract_without_persisting(
     assert payload["text"]["format"]["name"] == "agent_response"
     assert payload["text"]["format"]["strict"] is False
     assert payload["text"]["format"]["schema"]["title"] == "AgentResponse"
-    prediction_id = payload["text"]["format"]["schema"]["$defs"]["DriftInstance"][
+    prediction_id = payload["text"]["format"]["schema"]["$defs"]["DriftPrediction"][
         "properties"
     ]["instance_id"]
+    assert "provenance" not in payload["text"]["format"]["schema"]["$defs"][
+        "DriftPrediction"
+    ]["properties"]
+    assert "raw_provider_text" not in payload["text"]["format"]["schema"]["properties"]
+    assert "contract_error" not in payload["text"]["format"]["schema"]["properties"]
+    assert payload["text"]["format"]["schema"]["allOf"][-1]["then"]["required"] == [
+        "prediction",
+        "claim",
+    ]
     assert prediction_id["enum"] == ["drift_000000"]
     assert payload["store"] is False
     assert "test-only-key" not in json.dumps(payload)
     assert result.kind == "abstain"
     assert result.token_count == 18
+    assert result.raw_provider_text == response_text
 
 
 def test_openai_provider_owns_placeholder_identity_not_model_output():
@@ -278,6 +294,16 @@ def test_openai_provider_turns_malformed_finding_into_typed_abstention():
     )
     assert "matches no locus span" in result.abstention_reason
     assert result.token_count == 23
+    assert result.contract_error == result.abstention_reason
+    assert result.raw_provider_text
+
+    reparsed = json.loads(result.raw_provider_text)
+    reparsed["prediction"]["labels"]["line_level"][0]["line"] = reparsed[
+        "prediction"
+    ]["code_locus"]["loci"][0]["line_span"][0]
+    repaired = provider_module._agent_response(json.dumps(reparsed), 11)
+    assert repaired.kind == "finding"
+    assert repaired.contract_error is None
 
 
 @pytest.mark.parametrize("provider_text", ["not JSON", '{"kind": "abstain"} trailing {}'])
@@ -437,3 +463,183 @@ def test_benchmark_runner_promotes_provider_failure_to_infrastructure():
             tools=tools,
             model_factory=BrokenProvider,
         )
+
+
+def _abstained_record(
+    *,
+    system_id: str,
+    responses: list[AgentResponse],
+    contract_repairs: int = 0,
+) -> EvaluationRecord:
+    gold = _by_operator("MO-1")
+    trajectory = Trajectory(
+        question="offline validity fixture",
+        steps=[],
+        model_responses=responses,
+        verification=None,
+        finding=None,
+        abstained=True,
+        abstention_reason="fixture abstention",
+        budget=BudgetSpec(max_steps=8, max_tokens=1000),
+        budget_exhausted=False,
+        tokens_used=sum(response.token_count for response in responses),
+        contract_repairs=contract_repairs,
+        final_answer="Abstained: fixture abstention",
+        model_id="offline",
+        seed=0,
+    )
+    return EvaluationRecord(
+        instance_id=gold.instance_id,
+        gold=gold,
+        trajectory=trajectory,
+        abstained=True,
+        abstention_reason="fixture abstention",
+        system_id=system_id,
+        source_sha256="0" * 64,
+        run_key=f"{system_id}:fixture",
+    )
+
+
+def _semantic_abstention() -> AgentResponse:
+    return AgentResponse(
+        kind="abstain",
+        thought="No supported finding.",
+        abstention_reason="no supported finding",
+        token_count=1,
+    )
+
+
+def test_run_validity_reports_all_failed_gates_with_frozen_precedence():
+    rejected = AgentResponse(
+        kind="abstain",
+        thought="Contract failure.",
+        abstention_reason="contract failure",
+        token_count=1,
+        raw_provider_text="bad",
+        contract_error="bad JSON",
+    )
+    contract_record = _abstained_record(
+        system_id="dense_rag",
+        responses=[rejected, *[_semantic_abstention() for _ in range(4)]],
+        contract_repairs=1,
+    )
+    contract = assess_run_validity([contract_record], system_id="dense_rag")
+    assert contract.status == "HALTED_CONTRACT_REJECTIONS"
+    assert contract.contract_rejection_rate == 0.2
+    assert len(contract.failed_gates) == 2
+
+    agent = assess_run_validity(
+        [_abstained_record(system_id="agent", responses=[_semantic_abstention()])],
+        system_id="agent",
+    )
+    assert agent.status == "INVALID_AGENT_RUN"
+    assert len(agent.failed_gates) == 2
+
+    not_evaluable = assess_run_validity(
+        [
+            _abstained_record(
+                system_id="oracle_slice",
+                responses=[_semantic_abstention()],
+            )
+        ],
+        system_id="oracle_slice",
+    )
+    assert not_evaluable.status == "NOT_EVALUABLE"
+
+
+def test_run_validity_accepts_a_verified_non_null_prediction():
+    gold = _by_operator("MO-1")
+    prediction = DriftPrediction.from_gold(gold)
+    verified = Trajectory.model_validate_json(
+        (
+            ROOT
+            / "tests"
+            / "fixtures"
+            / "agent"
+            / "golden_late_fee_trajectory.json"
+        ).read_text(encoding="utf-8")
+    ).verification
+    response = AgentResponse(
+        kind="finding",
+        thought="A verified fixture finding.",
+        prediction=prediction,
+        claim=prediction.rationale,
+        final_answer=prediction.rationale,
+        token_count=1,
+    )
+    trajectory = Trajectory(
+        question="offline validity fixture",
+        steps=[],
+        model_responses=[response],
+        verification=verified,
+        finding=prediction,
+        abstained=False,
+        abstention_reason=None,
+        budget=BudgetSpec(max_steps=1, max_tokens=100),
+        budget_exhausted=False,
+        tokens_used=1,
+        final_answer=prediction.rationale,
+        model_id="offline",
+        seed=0,
+    )
+    record = EvaluationRecord(
+        instance_id=gold.instance_id,
+        gold=gold,
+        prediction=prediction,
+        confidence=0.85,
+        verification=verified,
+        trajectory=trajectory,
+        abstained=False,
+        system_id="dense_rag",
+        source_sha256="0" * 64,
+        run_key="valid:fixture",
+    )
+
+    assert assess_run_validity([record], system_id="dense_rag").status == "VALID"
+
+
+def test_agent_record_persists_all_seven_hunts_and_validity_counts_them():
+    hunt_cache = ROOT / "tests" / "fixtures" / "hunts" / "cached_decisions.json"
+    corpus = ROOT / "tests" / "fixtures" / "hunts" / "corpus"
+    raw = json.loads(hunt_cache.read_text(encoding="utf-8"))
+    clause = raw["d1"][-1]["prediction"]["regulation_clause"]
+    cache_keys = iter(
+        ["d1", "d2", "d3", "d4", "d5", "d6", "d7"]
+    )
+    batch = investigate_all_hunts(
+        SystemContext(
+            clause=clause,
+            program_scope="CLOSPEN1",
+            question="offline seven-hunt fixture",
+        ),
+        tools=StubToolLayer(corpus),
+        model_factory=lambda: CachedDecisionModel(
+            hunt_cache,
+            cache_key=next(cache_keys),
+        ),
+        entailer=LexicalEntailer(),
+    )
+    prediction = batch.selected.finding
+    assert prediction is not None
+    gold_payload = prediction.model_dump(mode="json")
+    gold_payload["gold_rationale"] = gold_payload.pop("rationale")
+    gold_payload["provenance"] = {
+        "source": "real_curated",
+        "base_program": "CLOSPEN1.cbl",
+    }
+    gold = DriftInstance.model_validate(gold_payload)
+    record = record_outcome(
+        gold,
+        batch,
+        system_id="agent",
+        source_sha256="0" * 64,
+        key="seven-hunts",
+    )
+
+    assert len(record.agent_hunts) == 7
+    assert sum(trace.selected for trace in record.agent_hunts) == 1
+    validity = assess_run_validity([record], system_id="agent")
+    assert validity.provider_turns == sum(
+        len(trace.trajectory.model_responses) for trace in record.agent_hunts
+    )
+    assert validity.provider_turns > len(record.trajectory.model_responses)

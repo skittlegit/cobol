@@ -19,7 +19,12 @@ from cobol_archaeologist.agent.stub_tools import StubToolLayer
 from cobol_archaeologist.model import verify as verify_module
 from cobol_archaeologist.model.prompt import HUNT_PROMPTS, CachedDecisionModel
 from cobol_archaeologist.model.verify import LexicalEntailer, VerificationTier
-from cobol_archaeologist.schemas import DriftInstance, RegulationClause, resolve_path
+from cobol_archaeologist.schemas import (
+    DriftInstance,
+    DriftPrediction,
+    RegulationClause,
+    resolve_path,
+)
 
 FIX = Path(__file__).resolve().parent / "fixtures" / "hunts"
 CACHE = FIX / "cached_decisions.json"
@@ -78,7 +83,7 @@ def test_each_hunt_emits_schema_valid_verified_finding(tools, drift_type, case):
     outcome = _run(tools, drift_type, case)
     assert isinstance(outcome, HuntOutcome)
     assert not outcome.abstained
-    assert isinstance(outcome.finding, DriftInstance)
+    assert isinstance(outcome.finding, DriftPrediction)
     assert outcome.finding.drift_type == drift_type
     assert outcome.verification is not None and outcome.verification.verified
     assert outcome.verification_tier == outcome.verification.tier
@@ -118,7 +123,8 @@ def test_insufficient_evidence_is_guarded_before_loop_emission(tools):
     assert outcome.abstained
     assert outcome.finding is None
     assert outcome.trajectory.finding is None
-    assert "required tool evidence missing" in outcome.abstention_reason
+    assert "cached decision model exhausted" in outcome.abstention_reason
+    assert len(outcome.trajectory.model_responses) == 1
 
 
 def test_d2_requires_all_negative_scope_evidence_and_insertion_point(tools):
@@ -186,7 +192,8 @@ def test_d7_empty_scope_abstains_instead_of_defaulting_conformant(tools):
     )
     assert outcome.abstained
     assert outcome.finding is None
-    assert "positive" in outcome.abstention_reason
+    assert "cached decision model exhausted" in outcome.abstention_reason
+    assert len(outcome.trajectory.model_responses) == 1
 
 
 def test_mo0_d7_uses_semantics_not_edit_artifacts(tools):

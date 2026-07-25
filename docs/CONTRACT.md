@@ -1,7 +1,8 @@
 # CONTRACT.md — Cross-track interface contract (T0.4)
 
-**Version:** 1.3 · **Status:** ACCEPTED
-Signed by all three tracks: 2026-07-07; amended 2026-07-12 and 2026-07-17
+**Version:** 1.4 · **Status:** ACCEPTED
+Signed by all three tracks: 2026-07-07; amended 2026-07-12, 2026-07-17, and
+2026-07-25
 (CONTRACT CHANGEs; see the amendment log)
 **Governs:** the tool I/O boundary (Track A implements, Track C consumes) and
 the evaluation metrics + targets (Track C implements, Tracks A/B build toward).
@@ -9,8 +10,8 @@ Changes from here on are **CONTRACT CHANGEs** and must be flagged to all three
 tracks before merge.
 
 Binding order: this document > canonical task work orders > CLAUDE.md, for the
-interfaces it covers. The `DriftInstance` schema itself is frozen separately (T0.3,
-`src/cobol_archaeologist/schemas.py`); this document binds against it.
+interfaces it covers. The schema-v3 gold/prediction family is frozen separately
+(T0.3, `src/cobol_archaeologist/schemas.py`); this document binds against it.
 
 ---
 
@@ -103,8 +104,13 @@ exact values:
   **required** for D1/D5 against a composite clause (resolving to a leaf), `None`
   otherwise. `resolve_path(current_value, path)` in `schemas.py` is the single
   canonical accessor for B's emitters and C's metrics.
-- System findings are emitted `DriftInstance`-shaped (T3.6) so predictions and
-  gold share one schema.
+- **Gold/prediction split (v3, 2026-07-25 CONTRACT CHANGE):** benchmark gold is
+  `DriftInstance`-shaped; system output is `DriftPrediction`-shaped. Both share
+  regulation-clause, code-locus, drift-type, target-path, and label vocabulary
+  and semantic validators. `provenance`, mutation metadata, and
+  `gold_rationale` are gold-only. A prediction instead carries
+  detector-authored `rationale`; verification-tier confidence remains solely on
+  `EvaluationRecord`, never inside either schema.
 
 ---
 
@@ -208,7 +214,7 @@ Decision rules (not bars):
   v1.3 accepted 2026-07-17**.
 - **Track C:** Owns Parts 3–4 implementation (T4.2), the stub parity clause, and
   document ownership. Status: **author / accepted 2026-07-07; v1.3 ratified
-  2026-07-17**.
+  2026-07-17; v1.4 ratified 2026-07-25**.
 
 ---
 
@@ -242,3 +248,9 @@ Decision rules (not bars):
   becomes a reported floor and mandatory seventh T5.3 baseline; headline runs
   must beat it by a predeclared margin with paired bootstrap CIs. Resolution:
   `docs/reviews/2026-07-17/contract-change-gate-e-RESOLVED.md`.
+- **v1.3 → v1.4 (2026-07-25, CONTRACT CHANGE, ratified by C, blast radius B/C;
+  A FYI):** schema v3 separates detector-observable `DriftPrediction` output
+  from gold `DriftInstance`. The shared semantic vocabulary and validators are
+  unchanged; provenance, mutation metadata, and `gold_rationale` remain
+  gold-only. Confidence remains the verifier-tier value on `EvaluationRecord`.
+  Ratified source: `docs/tasks/T0.3-work-order.md`, schema-v3 amendment.

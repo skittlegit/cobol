@@ -16,7 +16,7 @@ class D4Hunt(BasePolicyHunt):
         prediction = response.prediction
         if prediction is None:
             return errors
-        rationale = prediction.gold_rationale.lower()
+        rationale = prediction.rationale.lower()
         values = current.value if isinstance(current.value, list) else []
         if not any(str(value).lower() in rationale for value in values):
             errors.append("D4 rationale must name a missing or extra enum entry")

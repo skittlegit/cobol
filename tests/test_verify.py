@@ -32,6 +32,7 @@ from cobol_archaeologist.model.verify import (
     VerificationTier,
     verify,
 )
+from cobol_archaeologist.schemas import DriftInstance
 from cobol_archaeologist.tools import RealToolLayer
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -251,7 +252,14 @@ def test_verifier_accuracy_false_accept_rate(offline_entailer):
 def test_bare_drift_instance_is_coerced(tools):
     # A bare DriftInstance (claim defaults to gold_rationale) is accepted; use the
     # lexical entailer since that ad-hoc claim is not a committed cache pair.
-    di = load("supported_tier3").prediction
+    prediction = load("supported_tier3").prediction
+    payload = prediction.model_dump(mode="json")
+    payload["gold_rationale"] = payload.pop("rationale")
+    payload["provenance"] = {
+        "source": "real_curated",
+        "base_program": "LATEFEE1.cbl",
+    }
+    di = DriftInstance.model_validate(payload)
     r = verify(di, tools, entailer=LexicalEntailer())  # no Finding wrapper
     assert isinstance(r, VerificationResult)
     # no hooks -> Tiers 1&2 unavailable, entailment decides.

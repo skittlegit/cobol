@@ -111,7 +111,10 @@ def assess_trajectory(record: EvaluationRecord) -> TrajectoryAssessment:
         reasons.append("cited code fact is not grounded at a gold typed locus")
     budget_ok = (
         len(trajectory.steps) <= trajectory.budget.max_tool_calls
-        and len(trajectory.model_responses) <= trajectory.budget.max_steps
+        and len(trajectory.model_responses) - trajectory.contract_repairs
+        <= trajectory.budget.max_steps
+        and trajectory.contract_repairs
+        <= trajectory.budget.max_contract_repairs
         and sum(response.token_count for response in trajectory.model_responses)
         == trajectory.tokens_used
         and trajectory.tokens_used <= trajectory.budget.max_tokens
