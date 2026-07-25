@@ -332,19 +332,40 @@ def parse_codex_events(stdout: str) -> ParsedCodexEvents:
     )
 
 
-def _agent_response(
+def bind_submitted_response(
     submitted: SubmittedResponse,
     *,
     instance_id: str,
     clause: RegulationClause,
     token_count: int,
 ) -> AgentResponse:
+    """Attach trusted inputs, abstaining when model fields cannot bind to them."""
+
+    raw_provider_text = submitted.model_dump_json()
     prediction = submitted.prediction
     if prediction is not None:
-        prediction = prediction.attach_inputs(
-            instance_id=instance_id,
-            clause=clause,
-        )
+        try:
+            prediction = prediction.attach_inputs(
+                instance_id=instance_id,
+                clause=clause,
+            )
+        except ValueError as exc:
+            reason = (
+                "prediction failed host-input binding; refusing emission: "
+                f"{exc}"
+            )
+            return AgentResponse(
+                kind="abstain",
+                thought=submitted.thought,
+                prediction=None,
+                claim=None,
+                exec_probe=None,
+                static_claim=None,
+                abstention_reason=reason,
+                final_answer=f"Abstained: {reason}",
+                token_count=token_count,
+                raw_provider_text=raw_provider_text,
+            )
     return AgentResponse(
         kind=submitted.kind,
         thought=submitted.thought,
@@ -355,7 +376,7 @@ def _agent_response(
         abstention_reason=submitted.abstention_reason,
         final_answer=submitted.final_answer,
         token_count=token_count,
-        raw_provider_text=submitted.model_dump_json(),
+        raw_provider_text=raw_provider_text,
     )
 
 
@@ -457,7 +478,7 @@ def finalize_agent_hunt(
     question = build_hunt_prompt(hunt_name, clause, program_scope)
     steps = _tool_calls(logs, hunt_name)
     transcript = _transcript(steps)
-    response = _agent_response(
+    response = bind_submitted_response(
         submitted,
         instance_id=instance_id,
         clause=clause,

@@ -18,6 +18,7 @@ from cobol_archaeologist.eval.codex_batch import (
     SubmittedHunt,
     SubmittedResponse,
     allocate_tokens,
+    bind_submitted_response,
     finalize_agent_hunt,
     parse_codex_events,
     sanitized_codex_environment,
@@ -175,6 +176,39 @@ def test_submitted_response_cannot_mix_abstention_and_finding() -> None:
             abstention_reason="No evidence.",
             final_answer="Abstained.",
         )
+
+
+def test_host_input_binding_failure_abstains_without_infrastructure_error() -> None:
+    fixture = Path(__file__).parent / "fixtures" / "hunts"
+    final = json.loads(
+        (fixture / "cached_decisions.json").read_text(encoding="utf-8")
+    )["d1"][-1]
+    projected = _provider_projection(final)
+    projected["prediction"]["drift_type"] = "D5_boundary_error"
+    projected["prediction"]["target_path"] = None
+    submitted = SubmittedResponse.model_validate(
+        {
+            "exec_probe": None,
+            "abstention_reason": None,
+            **projected,
+        }
+    )
+    clause = RegulationClause.model_validate(
+        final["prediction"]["regulation_clause"]
+    )
+
+    response = bind_submitted_response(
+        submitted,
+        instance_id="drift_910001",
+        clause=clause,
+        token_count=100,
+    )
+
+    assert response.kind == "abstain"
+    assert response.prediction is None
+    assert response.contract_error is None
+    assert "host-input binding" in response.abstention_reason
+    assert response.raw_provider_text == submitted.model_dump_json()
 
 
 def test_codex_tool_uses_only_descriptor_alias_and_logs_bounded_result(
