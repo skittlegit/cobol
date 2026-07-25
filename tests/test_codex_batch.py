@@ -505,6 +505,8 @@ def test_agent_prompt_is_gold_hidden_and_pins_shared_real_tool_investigation() -
     assert "D7 is not a default verdict" in prompt
     assert all(instruction in prompt for instruction in HUNT_PROMPTS.values())
     assert "caller, callee, and slice observations" in prompt
+    assert "including scalar, list, or enum-valued leaves" in prompt
+    assert "emit only when all four negative observations are present" in prompt
     assert 'read_paragraph {"program":"...","name":"..."}' in prompt
     assert 'grep {"pattern":"..."}' in prompt
     assert "gpt-5.6-luna" not in prompt

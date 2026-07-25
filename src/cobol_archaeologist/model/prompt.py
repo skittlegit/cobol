@@ -78,20 +78,24 @@ def build_hyde_prompt(query: str) -> str:
 
 HUNT_PROMPTS: dict[str, str] = {
     "D1_stale_threshold": (
-        "Hunt D1 stale thresholds: compare the literal at each typed locus "
-        "with the clause's current value; resolve composite target_path."
+        "Hunt D1 stale values: compare the literal at each typed locus with "
+        "the clause's resolved current-value leaf, including scalar, list, "
+        "or enum-valued leaves; resolve composite target_path."
     ),
     "D2_missing_rule": (
         "Hunt D2 missing rules: establish absence across the scoped grep, "
-        "call graph, and data slice; report typed insertion points."
+        "caller graph, callee graph, and data slice; emit only when all four "
+        "negative observations are present, and report typed insertion points."
     ),
     "D3_contradictory": (
         "Hunt D3 contradictions: obtain at least two typed loci that produce "
         "conflicting outcomes for the same regulated condition."
     ),
     "D4_stale_reference_data": (
-        "Hunt D4 stale reference data: compare the hardcoded enumeration "
-        "with the clause enum_set and name missing or extra entries."
+        "Hunt D4 stale reference data only when the clause current value is "
+        "itself an enum_set reference collection: compare the hardcoded "
+        "enumeration and name missing or extra entries. A composite clause's "
+        "enum-valued business-rule leaf remains D1."
     ),
     "D5_boundary_error": (
         "Hunt D5 boundary errors: compare the source comparator with the "
