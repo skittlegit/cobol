@@ -86,9 +86,18 @@ DEFAULT_SUPPORT_BASE = (
 )
 DEFAULT_TASK_BASE = "/home/deepa/.cache/cobol-archaeologist/codex-tasks"
 AGENT_BATCH_SIZE = 2
-BASELINE_BATCH_SIZE = 5
+DENSE_RAG_BATCH_SIZE = 5
+ORACLE_SLICE_BATCH_SIZE = 2
 SystemID = Literal["agent", "dense_rag", "oracle_slice"]
 RunMode = Literal["smoke", "pilot", "full"]
+
+
+def batch_size_for(system_id: SystemID) -> int:
+    return {
+        "agent": AGENT_BATCH_SIZE,
+        "dense_rag": DENSE_RAG_BATCH_SIZE,
+        "oracle_slice": ORACLE_SLICE_BATCH_SIZE,
+    }[system_id]
 
 PILOT_IDS: tuple[str, ...] = (
     "drift_000001",
@@ -737,9 +746,7 @@ def _manifest(
             "seed": None,
             "authentication": "ChatGPT",
             "codex_cli_version": cli_version,
-            "batch_size": (
-                AGENT_BATCH_SIZE if system_id == "agent" else BASELINE_BATCH_SIZE
-            ),
+            "batch_size": batch_size_for(system_id),
             **(
                 {
                     "min_successful_observations_before_abstention": (
@@ -968,7 +975,7 @@ def run_codex_system(
         else:
             pending.append(row)
 
-    batch_size = AGENT_BATCH_SIZE if system_id == "agent" else BASELINE_BATCH_SIZE
+    batch_size = batch_size_for(system_id)
     entailer = entailer or default_entailer()
     records_path.parent.mkdir(parents=True, exist_ok=True)
     with records_path.open("a", encoding="utf-8", newline="\n") as stream:

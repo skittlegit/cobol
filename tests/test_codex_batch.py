@@ -26,6 +26,7 @@ from cobol_archaeologist.eval.codex_batch import (
     validate_agent_envelope,
 )
 from cobol_archaeologist.eval.codex_live import (
+    batch_size_for,
     build_agent_prompt,
     build_baseline_prompt,
     codex_exec_arguments,
@@ -667,6 +668,12 @@ def test_baseline_clause_selection_is_limited_to_visible_context() -> None:
         select_baseline_clause("dense_rag", -1, dense)
     with pytest.raises(ValueError, match="must be null"):
         select_baseline_clause("oracle_slice", 0, oracle)
+
+
+def test_oracle_batch_is_bounded_for_large_slice_payloads() -> None:
+    assert batch_size_for("agent") == 2
+    assert batch_size_for("dense_rag") == 5
+    assert batch_size_for("oracle_slice") == 2
 
 
 def test_codex_cli_arguments_pin_luna_high_and_chatgpt_safe_modes() -> None:
