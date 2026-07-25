@@ -149,7 +149,7 @@ def test_openai_provider_fails_closed_without_credentials(monkeypatch):
         OpenAIDecisionModel()
 
 
-def test_openai_provider_uses_responses_json_contract_without_persisting(
+def test_openai_provider_forces_one_response_function_without_persisting(
     monkeypatch,
 ):
     captured = {}
@@ -166,8 +166,9 @@ def test_openai_provider_uses_responses_json_contract_without_persisting(
         "status": "completed",
         "output": [
             {
-                "type": "message",
-                "content": [{"type": "output_text", "text": response_text}],
+                "type": "function_call",
+                "name": "submit_agent_response",
+                "arguments": response_text,
             }
         ],
         "usage": {"input_tokens": 11, "output_tokens": 7, "total_tokens": 18},
@@ -208,12 +209,21 @@ def test_openai_provider_uses_responses_json_contract_without_persisting(
     assert payload["model"] == "gpt-5.6-sol"
     assert payload["reasoning"] == {"effort": "none"}
     assert payload["temperature"] == 0.0
-    assert payload["text"]["format"] == {"type": "json_object"}
+    assert payload["tool_choice"] == {
+        "type": "function",
+        "name": "submit_agent_response",
+    }
+    assert payload["parallel_tool_calls"] is False
+    assert len(payload["tools"]) == 1
+    response_tool = payload["tools"][0]
+    assert response_tool["type"] == "function"
+    assert response_tool["name"] == "submit_agent_response"
+    assert response_tool["strict"] is False
     provider_input = json.loads(payload["input"])
     provider_instruction = provider_input["instruction"]
-    response_schema = provider_input["response_contract"]
+    response_schema = response_tool["parameters"]
     assert response_schema["title"] == "AgentResponse"
-    assert "Return exactly one JSON object and stop" in provider_instruction
+    assert "Call submit_agent_response exactly once and stop" in provider_instruction
     assert "code_locus (loci, slice_vars, is_interprocedural)" in (
         provider_instruction
     )
@@ -253,20 +263,16 @@ def test_openai_provider_omits_temperature_for_reasoning_effort(monkeypatch):
             "status": "completed",
             "output": [
                 {
-                    "type": "message",
-                    "content": [
+                    "type": "function_call",
+                    "name": "submit_agent_response",
+                    "arguments": json.dumps(
                         {
-                            "type": "output_text",
-                            "text": json.dumps(
-                                {
-                                    "kind": "abstain",
-                                    "thought": "No supported finding.",
-                                    "abstention_reason": "insufficient evidence",
-                                    "token_count": 0,
-                                }
-                            ),
+                            "kind": "abstain",
+                            "thought": "No supported finding.",
+                            "abstention_reason": "insufficient evidence",
+                            "token_count": 0,
                         }
-                    ],
+                    ),
                 }
             ],
             "usage": {"total_tokens": 9},
@@ -278,6 +284,48 @@ def test_openai_provider_omits_temperature_for_reasoning_effort(monkeypatch):
     assert captured["payload"]["reasoning"] == {"effort": "low"}
     assert "temperature" not in captured["payload"]
     assert captured["payload"]["store"] is False
+
+
+def test_openai_provider_rejects_multiple_response_function_calls(monkeypatch):
+    model = OpenAIDecisionModel(api_key="test-only-key")
+    response_text = json.dumps(
+        {
+            "kind": "abstain",
+            "thought": "No supported finding.",
+            "abstention_reason": "insufficient evidence",
+            "token_count": 0,
+        }
+    )
+
+    def fake_request(request):
+        return {
+            "status": "completed",
+            "output": [
+                {
+                    "type": "function_call",
+                    "name": "submit_agent_response",
+                    "arguments": response_text,
+                },
+                {
+                    "type": "function_call",
+                    "name": "submit_agent_response",
+                    "arguments": response_text,
+                },
+            ],
+            "usage": {"total_tokens": 12},
+        }
+
+    monkeypatch.setattr(model, "_request", fake_request)
+    result = model.respond(
+        system_prompt="system",
+        question="question",
+        transcript=[],
+    )
+
+    assert result.kind == "abstain"
+    assert result.contract_error is not None
+    assert "expected exactly one submit_agent_response call" in result.contract_error
+    assert result.token_count == 12
 
 
 def test_openai_provider_owns_placeholder_identity_not_model_output():

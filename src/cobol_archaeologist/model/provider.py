@@ -22,6 +22,7 @@ from cobol_archaeologist.model.prompt import (
 _JSON_OBJECT = re.compile(r"\{.*\}", re.DOTALL)
 OPENAI_MODEL_ID = "gpt-5.6-sol"
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
+OPENAI_RESPONSE_TOOL = "submit_agent_response"
 
 
 class ProviderUnavailable(RuntimeError):
@@ -275,12 +276,10 @@ class OpenAIDecisionModel:
         user = {
             "question": question,
             "tool_transcript": transcript,
-            "response_contract": schema,
             "instruction": (
-                "Return exactly one JSON object and stop. Never append a second "
-                "object, alternative, correction, or final decision after a "
-                "tool object. Choose one tool call, a finding, or an explicit "
-                "abstention. For a finding, include a complete prediction with "
+                "Call submit_agent_response exactly once and stop. Choose one "
+                "ToolLayer request, a finding, or an explicit abstention. For a "
+                "finding, include a complete prediction with "
                 "instance_id, regulation_clause, code_locus (loci, slice_vars, "
                 "is_interprocedural), drift_type, target_path, labels, and "
                 "rationale, plus a separate claim. The "
@@ -308,11 +307,23 @@ class OpenAIDecisionModel:
             "input": json.dumps(user, ensure_ascii=False),
             "max_output_tokens": 4096,
             "reasoning": {"effort": self.reasoning_effort},
-            "text": {
-                "format": {
-                    "type": "json_object",
+            "tools": [
+                {
+                    "type": "function",
+                    "name": OPENAI_RESPONSE_TOOL,
+                    "description": (
+                        "Submit exactly one complete agent turn. This is an "
+                        "output envelope; it does not execute a ToolLayer tool."
+                    ),
+                    "parameters": schema,
+                    "strict": False,
                 }
+            ],
+            "tool_choice": {
+                "type": "function",
+                "name": OPENAI_RESPONSE_TOOL,
             },
+            "parallel_tool_calls": False,
             "store": False,
         }
         # OpenAI reasoning models reject ``temperature`` whenever reasoning
@@ -336,13 +347,6 @@ class OpenAIDecisionModel:
                 "status"
             )
             raise ProviderUnavailable(f"OpenAI response did not complete: {detail}")
-        text = "\n".join(
-            part.get("text", "")
-            for item in raw.get("output", [])
-            if item.get("type") == "message"
-            for part in item.get("content", [])
-            if part.get("type") == "output_text"
-        )
         usage = raw.get("usage", {})
         total_tokens = int(
             usage.get(
@@ -350,6 +354,25 @@ class OpenAIDecisionModel:
                 usage.get("input_tokens", 0) + usage.get("output_tokens", 0),
             )
         )
+        function_calls = [
+            item
+            for item in raw.get("output", [])
+            if item.get("type") == "function_call"
+        ]
+        matching_calls = [
+            item
+            for item in function_calls
+            if item.get("name") == OPENAI_RESPONSE_TOOL
+        ]
+        if len(function_calls) != 1 or len(matching_calls) != 1:
+            output_text = json.dumps(raw.get("output", []), ensure_ascii=False)
+            return _contract_abstention(
+                "response contract rejected provider output: expected exactly "
+                f"one {OPENAI_RESPONSE_TOOL} call",
+                total_tokens,
+                output_text,
+            )
+        text = str(matching_calls[0].get("arguments", ""))
         return _agent_response(
             text,
             total_tokens,
