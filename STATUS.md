@@ -159,12 +159,17 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T3.5** | done | C | `src/cobol_archaeologist/agent/{loop,stub_tools,
   trajectory}.py` + tests + golden late-fee trajectory. Reviewed 2026-07-24;
   17 gates green, seam purity + no-unverified-emission confirmed.
-- **T3.6** | ready-for-review | C | Hunts require a successful tool
-  observation before abstention; gold paragraph/line labels remain hidden.
-- **T4.1** | blocked-rerun | C | Prior Luna artifacts are retained diagnostic
-  evidence, not M4 results: dense-RAG 17/204 and oracle-slice 5/204 verified;
-  agent 0/204 with persisted mean successful tool calls 0.064. Re-run requires
-  schema v3, a matching `--smoke 5`, and the ratified pilot plan.
+- **T3.6** | done | C | Approved with 17 gates green. Registered D1–D7 hunts
+  retain all trajectories, prohibit edit-artifact shortcuts, require positive
+  D7 evidence, and delegate D6 reachability to the T3.4 verifier. M3 closed.
+- **T4.1** | runner-ratified-smoke-pending | C | Prior API outputs remain
+  diagnostic only. The ChatGPT-authenticated Codex Luna-low batch runner is
+  predeclared in `docs/tasks/T4.1-rerun-plan.md`: API keys are stripped,
+  source/task workspaces are label-free, exact structured output is guarded by
+  the existing class policies and `verify()`, and raw Codex events are retained.
+  Deterministic dense-RAG/oracle contexts are reusable because all 204 current
+  materializations match their recorded source SHA-256; predictions and
+  manifests will be rerun. Five-row smoke is next.
 - **T4.2** | blocked-valid-inputs | C | Implemented; scoring waits for valid
   paired artifacts.
 - **T4.3** | blocked-valid-inputs | C | Implemented; full seven-hunt replay
