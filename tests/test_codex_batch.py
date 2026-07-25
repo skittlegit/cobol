@@ -561,12 +561,12 @@ def test_agent_prompt_is_gold_hidden_and_pins_shared_real_tool_investigation() -
     assert "gpt-5.6-luna" not in prompt
 
 
-def test_codex_cli_arguments_pin_luna_low_and_chatgpt_safe_modes() -> None:
+def test_codex_cli_arguments_pin_luna_medium_and_chatgpt_safe_modes() -> None:
     args = codex_exec_arguments(
         codex_binary="/home/user/.local/bin/codex",
         task_root="/home/user/tasks/task-1",
         model_id="gpt-5.6-luna",
-        reasoning_effort="low",
+        reasoning_effort="medium",
     )
 
     assert args[:5] == [
@@ -581,7 +581,7 @@ def test_codex_cli_arguments_pin_luna_low_and_chatgpt_safe_modes() -> None:
     assert "--sandbox" in args
     assert "workspace-write" in args
     assert args[args.index("-m") + 1] == "gpt-5.6-luna"
-    assert 'model_reasoning_effort="low"' in args
+    assert 'model_reasoning_effort="medium"' in args
 
 
 def test_codex_schema_requires_every_nullable_key_without_defaults() -> None:

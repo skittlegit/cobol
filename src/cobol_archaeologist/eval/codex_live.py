@@ -74,7 +74,7 @@ from cobol_archaeologist.rag.search import RegulationSearch
 from cobol_archaeologist.schemas import DriftInstance
 
 MODEL_ID = "gpt-5.6-luna"
-REASONING_EFFORT = "low"
+REASONING_EFFORT = "medium"
 PROVIDER_ID = "chatgpt-codex-plus"
 PROMPT_VERSION = "m4-live-codex-batch-v1"
 DEFAULT_WSL_DISTRO = "Ubuntu"
@@ -311,7 +311,7 @@ def codex_exec_arguments(
     model_id: str,
     reasoning_effort: str,
 ) -> list[str]:
-    """Return the auditable no-API-key, Luna-low Codex invocation."""
+    """Return the auditable no-API-key Codex invocation."""
 
     return [
         "env",
