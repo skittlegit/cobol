@@ -93,13 +93,13 @@ class SubmittedResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     kind: Literal["finding", "abstain"]
-    thought: str = Field(min_length=1)
+    thought: str
     prediction: SubmittedPrediction | None
     claim: str | None
     exec_probe: ExecProbe | None
     static_claim: StaticClaim | None
     abstention_reason: str | None
-    final_answer: str = Field(min_length=1)
+    final_answer: str
 
     @model_validator(mode="after")
     def _exclusive_shape(self) -> SubmittedResponse:
@@ -342,6 +342,16 @@ def bind_submitted_response(
     """Attach trusted inputs, abstaining when model fields cannot bind to them."""
 
     raw_provider_text = submitted.model_dump_json()
+    thought = submitted.thought.strip() or (
+        submitted.claim
+        or submitted.abstention_reason
+        or "Provider supplied no reasoning."
+    )
+    final_answer = submitted.final_answer.strip() or (
+        f"Finding: {submitted.claim}"
+        if submitted.kind == "finding"
+        else f"Abstained: {submitted.abstention_reason}"
+    )
     prediction = submitted.prediction
     if prediction is not None:
         try:
@@ -356,7 +366,7 @@ def bind_submitted_response(
             )
             return AgentResponse(
                 kind="abstain",
-                thought=submitted.thought,
+                thought=thought,
                 prediction=None,
                 claim=None,
                 exec_probe=None,
@@ -368,13 +378,13 @@ def bind_submitted_response(
             )
     return AgentResponse(
         kind=submitted.kind,
-        thought=submitted.thought,
+        thought=thought,
         prediction=prediction,
         claim=submitted.claim,
         exec_probe=submitted.exec_probe,
         static_claim=submitted.static_claim,
         abstention_reason=submitted.abstention_reason,
-        final_answer=submitted.final_answer,
+        final_answer=final_answer,
         token_count=token_count,
         raw_provider_text=raw_provider_text,
     )

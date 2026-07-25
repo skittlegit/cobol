@@ -211,6 +211,32 @@ def test_host_input_binding_failure_abstains_without_infrastructure_error() -> N
     assert response.raw_provider_text == submitted.model_dump_json()
 
 
+def test_empty_provider_narrative_uses_only_its_own_semantic_fields() -> None:
+    submitted = _abstention("No verified evidence.").model_copy(
+        update={"thought": "", "final_answer": ""}
+    )
+    clause = RegulationClause(
+        doc="RBI-Test",
+        clause_id="1",
+        version="2026-01-01",
+        effective_date="2026-01-01",
+        text="A test clause.",
+        current_value=None,
+    )
+
+    response = bind_submitted_response(
+        submitted,
+        instance_id="drift_910001",
+        clause=clause,
+        token_count=10,
+    )
+
+    assert response.thought == "No verified evidence."
+    assert response.final_answer == "Abstained: No verified evidence."
+    assert '"thought":""' in response.raw_provider_text
+    assert '"final_answer":""' in response.raw_provider_text
+
+
 def test_codex_tool_uses_only_descriptor_alias_and_logs_bounded_result(
     tmp_path: Path,
 ) -> None:
