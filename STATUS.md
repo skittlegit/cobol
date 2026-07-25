@@ -162,20 +162,19 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T3.6** | done | C | Approved with 17 gates green. Registered D1–D7 hunts
   retain all trajectories, prohibit edit-artifact shortcuts, require positive
   D7 evidence, and delegate D6 reachability to the T3.4 verifier. M3 closed.
-- **T4.1** | blocked-agent-smoke | C | The ChatGPT-authenticated Codex Luna-low
+- **T4.1** | blocked-agent-smoke | C | The ChatGPT-authenticated Codex Luna
   runner is implemented and pushed with API-key stripping, label-free isolated
   tasks, strict structured output, hard per-alias tool caps, raw event
   retention, and unchanged policy + `verify()` emission gates. Agent smoke at
-  `313afd7` completed 5/5 with 0 infrastructure failures, 0 contract
-  rejections, and 182 replayed successful observations (mean 36.4), but all 35
-  hunts abstained and produced 0 verified findings, so validity is
-  `NOT_EVALUABLE`. The parser correctly isolated two semantically invalid
-  submitted findings as hunt-level abstentions without correcting or emitting
-  them. Per the predeclared stop rule, no further semantic prompt tuning and no
-  pilot/full run occurred. The recoverable evidence is preserved at
-  `data/eval/m4-v3/chatgpt-luna/failed-smoke-313afd7`; dense-RAG and
-  oracle-slice were not spent under this run identity after the agent gate
-  failed.
+  medium effort at `49524b6` completed 5/5 with 0 infrastructure failures,
+  0 contract rejections, and 176 replayed successful observations (mean 35.2).
+  Luna proposed findings on three rows, but the unchanged policy/verifier
+  layers rejected every proposal; the final verified-prediction rate was 0.0,
+  so validity is `NOT_EVALUABLE`. Per the predeclared medium-effort stop rule,
+  dense-RAG, oracle-slice, pilot, and full were not run under this identity.
+  The recoverable evidence is preserved at
+  `data/eval/m4-v3/chatgpt-luna/failed-smoke-49524b6`. The preceding valid
+  Luna-low smoke remains at `failed-smoke-313afd7`.
 - **T4.2** | blocked-valid-inputs | C | Implemented; scoring waits for valid
   paired artifacts.
 - **T4.3** | blocked-valid-inputs | C | Implemented; full seven-hunt replay
