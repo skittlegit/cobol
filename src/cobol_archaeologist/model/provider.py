@@ -7,6 +7,7 @@ import os
 import re
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Any
 
@@ -23,10 +24,37 @@ _JSON_OBJECT = re.compile(r"\{.*\}", re.DOTALL)
 OPENAI_MODEL_ID = "gpt-5.6-sol"
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
 OPENAI_RESPONSE_TOOL = "submit_agent_response"
+OLLAMA_MODEL_ID = "qwen3:4b"
+OLLAMA_CHAT_URL = "http://127.0.0.1:11434/api/chat"
 
 
 class ProviderUnavailable(RuntimeError):
     pass
+
+
+def _provider_instruction() -> str:
+    return (
+        "Choose one ToolLayer request, a finding, or an explicit abstention. "
+        "For a finding, include a complete prediction with instance_id, "
+        "regulation_clause, code_locus (loci, slice_vars, "
+        "is_interprocedural), drift_type, target_path, labels, and rationale, "
+        "plus a separate claim. The claim, exec_probe, static_claim, "
+        "final_answer, and token_count are response fields alongside "
+        "prediction, never fields inside prediction. Use arguments={} "
+        "whenever no ToolLayer tool is requested. The claim must restate an "
+        "obligation entailed by the supplied clause; put code facts in "
+        "exec_probe/static_claim. D7_conformant requires conformant "
+        "program/paragraph labels and an empty line_level. D1-D6 require "
+        "drift labels. target_path must be null unless it names an exact "
+        "current_value child path. Set code_locus.is_interprocedural true "
+        "exactly when loci span more than one program. Always set "
+        "prediction.instance_id to the schema's single allowed placeholder; "
+        "record identity is assigned outside the model. target_path is "
+        "relative to a composite current_value's value mapping (for example "
+        "day_basis), and must be null for a leaf current_value. For a "
+        "finding, final_answer must concisely summarize claim. Set "
+        "token_count to 0; the adapter replaces it with provider usage."
+    )
 
 
 def _contract_abstention(
@@ -365,28 +393,8 @@ class OpenAIDecisionModel:
             "question": question,
             "tool_transcript": transcript,
             "instruction": (
-                "Call submit_agent_response exactly once and stop. Choose one "
-                "ToolLayer request, a finding, or an explicit abstention. For a "
-                "finding, include a complete prediction with "
-                "instance_id, regulation_clause, code_locus (loci, slice_vars, "
-                "is_interprocedural), drift_type, target_path, labels, and "
-                "rationale, plus a separate claim. The claim, exec_probe, "
-                "static_claim, final_answer, and token_count are response "
-                "fields alongside prediction, never fields inside prediction. "
-                "Use arguments={} whenever no ToolLayer tool is requested. The "
-                "claim must restate an obligation entailed by the "
-                "supplied clause; put code facts in exec_probe/static_claim. "
-                "D7_conformant requires conformant program/paragraph labels and "
-                "an empty line_level. D1-D6 require drift labels. target_path must "
-                "be null unless it names an exact current_value child path. Set "
-                "code_locus.is_interprocedural true exactly when loci span more "
-                "than one program. Always set prediction.instance_id to the "
-                "schema's single allowed placeholder; record identity is assigned "
-                "outside the model. target_path is relative to a composite "
-                "current_value's value mapping (for example day_basis), and must "
-                "be null for a leaf current_value. For a finding, final_answer "
-                "must concisely summarize claim. Set token_count to 0; the adapter "
-                "replaces it with provider usage."
+                "Call submit_agent_response exactly once and stop. "
+                + _provider_instruction()
             ),
         }
         # DECISION (OpenAI live seam): Responses is stateless and non-persisted
@@ -500,3 +508,101 @@ class OpenAIDecisionModel:
                 raise ProviderUnavailable("OpenAI response was not JSON") from exc
             time.sleep(min(delay, 30.0))
         raise AssertionError("unreachable retry loop")
+
+
+class OllamaDecisionModel:
+    """Local Ollama adapter with no credential or remote-provider fallback."""
+
+    def __init__(
+        self,
+        *,
+        model_id: str | None = None,
+        endpoint: str = OLLAMA_CHAT_URL,
+        timeout_s: float = 600.0,
+        prediction_instance_id: str = "drift_000000",
+        seed: int = 2601,
+    ) -> None:
+        parsed = urllib.parse.urlparse(endpoint)
+        if parsed.scheme != "http" or parsed.hostname not in {
+            "127.0.0.1",
+            "localhost",
+            "::1",
+        }:
+            raise ValueError("Ollama endpoint must be a local HTTP loopback URL")
+        if re.fullmatch(r"drift_\d{6}", prediction_instance_id) is None:
+            raise ValueError("prediction_instance_id must match drift_NNNNNN")
+        self.model_id = model_id or OLLAMA_MODEL_ID
+        self.endpoint = endpoint
+        self.timeout_s = timeout_s
+        self.prediction_instance_id = prediction_instance_id
+        self.temperature = 0.0
+        self.seed = seed
+
+    def respond(
+        self,
+        *,
+        system_prompt: str,
+        question: str,
+        transcript: list[dict[str, Any]],
+    ) -> AgentResponse:
+        schema = _agent_response_schema(self.prediction_instance_id)
+        user = {
+            "question": question,
+            "tool_transcript": transcript,
+            "response_contract": schema,
+            "instruction": (
+                "Return exactly one JSON object satisfying response_contract. "
+                + _provider_instruction()
+            ),
+        }
+        payload = {
+            "model": self.model_id,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {
+                    "role": "user",
+                    "content": json.dumps(user, ensure_ascii=False),
+                },
+            ],
+            "stream": False,
+            "think": False,
+            "format": schema,
+            "options": {
+                "temperature": self.temperature,
+                "seed": self.seed,
+            },
+        }
+        request = urllib.request.Request(
+            self.endpoint,
+            data=json.dumps(payload).encode(),
+            headers={"content-type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(
+                request,
+                timeout=self.timeout_s,
+            ) as response:
+                raw = json.loads(response.read())
+        except (
+            urllib.error.URLError,
+            TimeoutError,
+            json.JSONDecodeError,
+        ) as exc:
+            raise ProviderUnavailable(f"Ollama request failed: {exc}") from exc
+        if raw.get("done") is False:
+            raise ProviderUnavailable(
+                f"Ollama response did not complete: {raw.get('done_reason')}"
+            )
+        message = raw.get("message")
+        text = message.get("content") if isinstance(message, dict) else None
+        if not isinstance(text, str) or not text.strip():
+            raise ProviderUnavailable("Ollama response contained no message content")
+        total_tokens = int(raw.get("prompt_eval_count", 0)) + int(
+            raw.get("eval_count", 0)
+        )
+        return _agent_response(
+            text,
+            total_tokens,
+            prediction_instance_id=self.prediction_instance_id,
+        )

@@ -177,7 +177,8 @@ def test_smoke_artifacts_never_use_headline_paths(monkeypatch, tmp_path):
     run_live_system(
         "agent",
         rows=rows,
-        model_id="gpt-5.6-luna",
+        model_id="qwen3:4b",
+        provider="ollama",
         output_dir=tmp_path,
         regulation_search=object(),
         entailer=object(),
@@ -187,6 +188,11 @@ def test_smoke_artifacts_never_use_headline_paths(monkeypatch, tmp_path):
     assert captured["records"].parent == tmp_path / "smoke"
     assert captured["manifest"].parent == tmp_path / "smoke"
     assert not (tmp_path / "agent.jsonl").exists()
+    assert captured["run_manifest"].provider == "ollama"
+    assert captured["run_manifest"].model_id == "qwen3:4b"
+    assert captured["run_manifest"].decoding["temperature"] == 0.0
+    assert captured["run_manifest"].decoding["thinking"] is False
+    assert captured["run_manifest"].decoding["seed"] == 2601
     assert (
         captured["run_manifest"].decoding[
             "min_successful_observations_before_abstention"

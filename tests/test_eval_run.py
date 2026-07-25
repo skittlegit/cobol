@@ -38,6 +38,7 @@ from cobol_archaeologist.model import provider as provider_module
 from cobol_archaeologist.model.prompt import AgentResponse, CachedDecisionModel
 from cobol_archaeologist.model.provider import (
     AnthropicDecisionModel,
+    OllamaDecisionModel,
     OpenAIDecisionModel,
     ProviderUnavailable,
 )
@@ -147,6 +148,73 @@ def test_openai_provider_fails_closed_without_credentials(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     with pytest.raises(ProviderUnavailable, match="OPENAI_API_KEY"):
         OpenAIDecisionModel()
+
+
+def test_ollama_provider_is_local_structured_and_credential_free(monkeypatch):
+    captured = {}
+    response_text = json.dumps(
+        {
+            "kind": "abstain",
+            "thought": "Evidence is insufficient.",
+            "abstention_reason": "No supported code fact.",
+            "final_answer": "Abstained.",
+            "token_count": 0,
+        }
+    )
+    raw_response = {
+        "model": "qwen3:4b",
+        "done": True,
+        "message": {"role": "assistant", "content": response_text},
+        "prompt_eval_count": 11,
+        "eval_count": 7,
+    }
+
+    class FakeHTTPResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps(raw_response).encode()
+
+    def fake_urlopen(request, timeout):
+        captured["request"] = request
+        captured["timeout"] = timeout
+        return FakeHTTPResponse()
+
+    monkeypatch.setattr(provider_module.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setenv("OPENAI_API_KEY", "must-not-be-read")
+    model = OllamaDecisionModel(model_id="qwen3:4b", timeout_s=9)
+    result = model.respond(
+        system_prompt="system",
+        question="question",
+        transcript=[],
+    )
+
+    request = captured["request"]
+    payload = json.loads(request.data)
+    assert request.full_url == "http://127.0.0.1:11434/api/chat"
+    assert request.get_header("Authorization") is None
+    assert captured["timeout"] == 9
+    assert payload["model"] == "qwen3:4b"
+    assert payload["stream"] is False
+    assert payload["think"] is False
+    assert payload["options"] == {"temperature": 0.0, "seed": 2601}
+    assert payload["format"]["title"] == "AgentResponse"
+    assert payload["format"]["$defs"]["DriftPrediction"]["properties"][
+        "instance_id"
+    ]["enum"] == ["drift_000000"]
+    assert "must-not-be-read" not in json.dumps(payload)
+    assert result.kind == "abstain"
+    assert result.token_count == 18
+    assert result.raw_provider_text == response_text
+
+
+def test_ollama_provider_rejects_non_loopback_endpoint():
+    with pytest.raises(ValueError, match="local HTTP loopback"):
+        OllamaDecisionModel(endpoint="https://example.com/api/chat")
 
 
 def test_openai_provider_forces_one_response_function_without_persisting(
