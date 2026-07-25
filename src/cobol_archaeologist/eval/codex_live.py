@@ -74,7 +74,7 @@ from cobol_archaeologist.rag.search import RegulationSearch
 from cobol_archaeologist.schemas import DriftInstance
 
 MODEL_ID = "gpt-5.6-luna"
-REASONING_EFFORT = "medium"
+REASONING_EFFORT = "high"
 PROVIDER_ID = "chatgpt-codex-plus"
 PROMPT_VERSION = "m4-live-codex-batch-v1"
 DEFAULT_WSL_DISTRO = "Ubuntu"
