@@ -352,7 +352,14 @@ def _check_chatgpt_login(
 ) -> str:
     result = _wsl([codex_binary, "login", "status"], distro=distro)
     _require_ok(result, "check Codex login")
-    status = result.stdout.decode("utf-8", errors="replace").strip()
+    status = "\n".join(
+        text
+        for text in (
+            result.stdout.decode("utf-8", errors="replace").strip(),
+            result.stderr.decode("utf-8", errors="replace").strip(),
+        )
+        if text
+    )
     if "ChatGPT" not in status:
         raise RuntimeError(
             "Codex must be logged in through ChatGPT; API-key auth is refused"
