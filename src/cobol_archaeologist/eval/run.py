@@ -33,10 +33,16 @@ class RunManifest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     system_id: str
+    provider: str = ""
     model_id: str
+    decoding: dict = Field(default_factory=dict)
+    budgets: dict = Field(default_factory=dict)
     repository_commit: str
+    input_revision: str = ""
+    tool_version: str = ""
     prompt_version: str
     split_path: str
+    split_sha256: str = ""
     total: int
     completed_run_keys: list[str] = Field(default_factory=list)
     infrastructure_failures: dict[str, str] = Field(default_factory=dict)
@@ -69,8 +75,10 @@ def run_key(
     instance_id: str,
     source_sha256: str,
     system_id: str,
+    model_id: str,
     budgets: dict,
     prompt_version: str,
+    tool_version: str,
     commit: str,
 ) -> str:
     payload = json.dumps(
@@ -78,8 +86,10 @@ def run_key(
             "instance_id": instance_id,
             "source_sha256": source_sha256,
             "system_id": system_id,
+            "model_id": model_id,
             "budgets": budgets,
             "prompt_version": prompt_version,
+            "tool_version": tool_version,
             "commit": commit,
         },
         sort_keys=True,
@@ -98,8 +108,9 @@ def investigate_all_hunts(
 ) -> HuntOutcome:
     """Run every registered class hunt without revealing which class is gold."""
 
-    outcomes = [
-        hunt.run(
+    outcomes = []
+    for hunt in HUNT_REGISTRY.values():
+        outcome = hunt.run(
             clause=context.clause,
             tools=tools,
             model=model_factory(),
@@ -107,8 +118,12 @@ def investigate_all_hunts(
             budget=budget,
             entailer=entailer,
         )
-        for hunt in HUNT_REGISTRY.values()
-    ]
+        reason = outcome.abstention_reason or ""
+        if reason.startswith(
+            ("model response unavailable:", "verification unavailable;")
+        ):
+            raise RuntimeError(reason)
+        outcomes.append(outcome)
     findings = [outcome for outcome in outcomes if not outcome.abstained]
     if findings:
         return max(
