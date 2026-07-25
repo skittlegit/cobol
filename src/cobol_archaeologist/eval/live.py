@@ -485,7 +485,8 @@ def run_live_system(
         provider="openai",
         model_id=model_id,
         decoding={
-            "temperature": 0.0,
+            "temperature": None,
+            "temperature_parameter": "omitted",
             "reasoning_effort": REASONING_EFFORT,
             "seed": None,
         },

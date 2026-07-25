@@ -300,7 +300,6 @@ class OpenAIDecisionModel:
             "input": json.dumps(user, ensure_ascii=False),
             "max_output_tokens": 4096,
             "reasoning": {"effort": self.reasoning_effort},
-            "temperature": self.temperature,
             "text": {
                 "format": {
                     "type": "json_schema",
@@ -311,6 +310,12 @@ class OpenAIDecisionModel:
             },
             "store": False,
         }
+        # OpenAI reasoning models reject ``temperature`` whenever reasoning
+        # effort is enabled. Keep the legacy deterministic parameter only for
+        # the explicitly non-reasoning path; manifests record its omission for
+        # Luna/low.
+        if self.reasoning_effort == "none":
+            payload["temperature"] = self.temperature
         request = urllib.request.Request(
             OPENAI_RESPONSES_URL,
             data=json.dumps(payload).encode(),

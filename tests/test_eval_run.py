@@ -237,6 +237,47 @@ def test_openai_provider_uses_responses_json_contract_without_persisting(
     assert result.raw_provider_text == response_text
 
 
+def test_openai_provider_omits_temperature_for_reasoning_effort(monkeypatch):
+    captured = {}
+    model = OpenAIDecisionModel(
+        api_key="test-only-key",
+        model_id="gpt-5.6-luna",
+        reasoning_effort="low",
+    )
+
+    def fake_request(request):
+        captured["payload"] = json.loads(request.data)
+        return {
+            "status": "completed",
+            "output": [
+                {
+                    "type": "message",
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": json.dumps(
+                                {
+                                    "kind": "abstain",
+                                    "thought": "No supported finding.",
+                                    "abstention_reason": "insufficient evidence",
+                                    "token_count": 0,
+                                }
+                            ),
+                        }
+                    ],
+                }
+            ],
+            "usage": {"total_tokens": 9},
+        }
+
+    monkeypatch.setattr(model, "_request", fake_request)
+    model.respond(system_prompt="system", question="question", transcript=[])
+
+    assert captured["payload"]["reasoning"] == {"effort": "low"}
+    assert "temperature" not in captured["payload"]
+    assert captured["payload"]["store"] is False
+
+
 def test_openai_provider_owns_placeholder_identity_not_model_output():
     raw = json.loads(
         (ROOT / "tests" / "fixtures" / "agent" / "unverified_responses.json").read_text(
