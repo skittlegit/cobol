@@ -220,9 +220,14 @@ def test_openai_provider_uses_responses_json_contract_without_persisting(
     ]["properties"]
     assert "raw_provider_text" not in payload["text"]["format"]["schema"]["properties"]
     assert "contract_error" not in payload["text"]["format"]["schema"]["properties"]
-    assert payload["text"]["format"]["schema"]["allOf"][-1]["then"]["required"] == [
-        "prediction",
-        "claim",
+    response_schema = payload["text"]["format"]["schema"]
+    assert "allOf" not in response_schema
+    assert "requires both a complete prediction" in response_schema["description"]
+    assert "Required and complete" in response_schema["properties"]["prediction"][
+        "description"
+    ]
+    assert "Required and non-empty" in response_schema["properties"]["claim"][
+        "description"
     ]
     assert prediction_id["enum"] == ["drift_000000"]
     assert payload["store"] is False

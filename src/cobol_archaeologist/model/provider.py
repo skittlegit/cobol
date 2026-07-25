@@ -142,14 +142,18 @@ def _agent_response_schema(
             for name in required
             if name not in {"raw_provider_text", "contract_error"}
         ]
-    schema.setdefault("allOf", []).append(
-        {
-            "if": {
-                "properties": {"kind": {"const": "finding"}},
-                "required": ["kind"],
-            },
-            "then": {"required": ["prediction", "claim"]},
-        }
+    schema["description"] = (
+        "One agent turn. kind='finding' requires both a complete prediction "
+        "and a non-empty claim; the runtime rejects either field missing."
+    )
+    properties["kind"]["description"] = (
+        "Choose tool, finding, or abstain. A finding requires prediction and claim."
+    )
+    properties["prediction"]["description"] = (
+        "Required and complete when kind='finding'; otherwise null."
+    )
+    properties["claim"]["description"] = (
+        "Required and non-empty when kind='finding'; otherwise null."
     )
     if prediction_instance_id is not None:
         instance_schema = schema["$defs"]["DriftPrediction"]["properties"][
