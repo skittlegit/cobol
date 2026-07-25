@@ -313,6 +313,51 @@ def test_codex_tool_descriptor_cannot_escape_task_root(tmp_path: Path) -> None:
         execute_tool_request(request, task_root=tmp_path)
 
 
+def test_codex_tool_hard_caps_each_alias_at_eight_attempts(tmp_path: Path) -> None:
+    case_dir = tmp_path / "cases" / "drift_900000"
+    case_dir.mkdir(parents=True)
+    (tmp_path / "descriptor.json").write_text(
+        json.dumps(
+            {
+                "aliases": {
+                    "drift_900000": {
+                        "source_dir": "cases/drift_900000",
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    class Observation(BaseModel):
+        value: str
+
+    class FakeTools:
+        def grep(self, pattern: str) -> Observation:
+            return Observation(value=pattern)
+
+    request = ToolRequest(
+        alias="drift_900000",
+        hunt="shared",
+        tool="grep",
+        arguments={"pattern": "SEVEN"},
+    )
+    for _ in range(8):
+        execute_tool_request(
+            request,
+            task_root=tmp_path,
+            tool_factory=lambda source: FakeTools(),
+        )
+
+    with pytest.raises(RuntimeError, match="tool budget exhausted"):
+        execute_tool_request(
+            request,
+            task_root=tmp_path,
+            tool_factory=lambda source: FakeTools(),
+        )
+    assert len((tmp_path / "tool_log.jsonl").read_text().splitlines()) == 8
+
+
 def test_batched_finding_cannot_emit_around_policy_guard_or_verifier() -> None:
     fixture = Path(__file__).parent / "fixtures" / "hunts"
     cached = json.loads((fixture / "cached_decisions.json").read_text(encoding="utf-8"))
@@ -448,6 +493,8 @@ def test_agent_prompt_is_gold_hidden_and_pins_shared_real_tool_investigation() -
     assert "D7 is not a default verdict" in prompt
     assert all(instruction in prompt for instruction in HUNT_PROMPTS.values())
     assert "caller, callee, and slice observations" in prompt
+    assert 'read_paragraph {"program":"...","name":"..."}' in prompt
+    assert 'grep {"pattern":"..."}' in prompt
     assert "gpt-5.6-luna" not in prompt
 
 

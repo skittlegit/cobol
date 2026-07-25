@@ -35,6 +35,7 @@ HuntName = Literal[
 ]
 DESCRIPTOR_NAME = "descriptor.json"
 LOG_NAME = "tool_log.jsonl"
+MAX_TOOL_CALLS_PER_ALIAS = 8
 
 
 class ToolRequest(BaseModel):
@@ -103,6 +104,23 @@ def execute_tool_request(
 
     task_root = Path(task_root)
     source = _source_dir(task_root, request.alias)
+    log_path = task_root / LOG_NAME
+    prior_calls = (
+        [
+            ToolLogEntry.model_validate_json(line)
+            for line in log_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        if log_path.exists()
+        else []
+    )
+    if sum(entry.alias == request.alias for entry in prior_calls) >= (
+        MAX_TOOL_CALLS_PER_ALIAS
+    ):
+        raise RuntimeError(
+            f"tool budget exhausted for {request.alias}: "
+            f"maximum {MAX_TOOL_CALLS_PER_ALIAS} calls"
+        )
     tools = tool_factory(source)
     arguments = dict(request.arguments)
     if request.tool == "run_cobol" and isinstance(arguments.get("inputs"), dict):
@@ -121,7 +139,6 @@ def execute_tool_request(
     else:
         summary, truncated = error, False
 
-    log_path = task_root / LOG_NAME
     entry = ToolLogEntry(
         alias=request.alias,
         hunt=request.hunt,

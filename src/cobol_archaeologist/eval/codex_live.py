@@ -387,6 +387,13 @@ inferred.
 
 For source evidence, use only this bounded real-tool command:
   {tool_command} ALIAS HUNT TOOL --arguments 'JSON_OBJECT'
+Exact TOOL argument objects are: read_program {{"program":"..."}};
+read_paragraph {{"program":"...","name":"..."}}; find_callers and
+find_callees {{"program":"...","para":"..."}}; trace_variable and slice_on
+{{"var":"...","program":"..."}} (program optional); resolve_copybook
+{{"name":"..."}}; get_data_layout {{"record":"..."}}; grep {{"pattern":"..."}};
+run_cobol {{"snippet":"...","inputs":null}}; search_regulations
+{{"query":"..."}}.
 Use HUNT=shared when an observation supports multiple D1-D7 hunts. Do not read
 case files directly and do not inspect parent directories, git history, file
 timestamps, comments-as-edit-cues, formatting discontinuities, or identifier
