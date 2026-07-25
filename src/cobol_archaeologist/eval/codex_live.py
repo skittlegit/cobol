@@ -257,7 +257,15 @@ def prepare_support_runtime(
 
     uv = "/home/deepa/.local/bin/uv"
     venv = _wsl(
-        [uv, "venv", "--python", "3.12", f"{support_root}/.venv"],
+        [
+            uv,
+            "venv",
+            "--python",
+            "3.12",
+            "--allow-existing",
+            "--seed",
+            f"{support_root}/.venv",
+        ],
         distro=distro,
         timeout=300,
     )
