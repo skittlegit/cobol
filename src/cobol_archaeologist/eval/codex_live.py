@@ -71,7 +71,7 @@ from cobol_archaeologist.eval.schemas import EvaluationRecord
 from cobol_archaeologist.model.prompt import AgentResponse
 from cobol_archaeologist.model.verify import Entailer, default_entailer
 from cobol_archaeologist.rag.search import RegulationSearch
-from cobol_archaeologist.schemas import DriftInstance
+from cobol_archaeologist.schemas import DriftInstance, RegulationClause
 
 MODEL_ID = "gpt-5.6-luna"
 REASONING_EFFORT = "low"
@@ -393,9 +393,9 @@ read_paragraph calls, and only the slice/call-graph/copybook tools needed by
 the evidence.
 
 Return exactly one result for every alias and exactly one final response for
-each D1-D7 hunt. A finding must copy the supplied clause exactly, use the alias
-as prediction.instance_id, cite concrete original-source loci, and include
-verifier hooks. Abstain when the class-specific evidence is incomplete.
+each D1-D7 hunt. The host attaches the case identity and supplied clause to a
+finding; author the remaining prediction fields, cite concrete original-source
+loci, and include verifier hooks. Abstain when the class-specific evidence is incomplete.
 "Searched and found nothing" is D2 or abstention, never conformant.
 D7 is not a default verdict: it requires positive source evidence that the implemented
 literal/comparator matches the clause. D6 supplies dead_paragraph evidence and
@@ -419,8 +419,9 @@ Perform one evidence-grounded COBOL compliance classification for each opaque
 case using only its supplied {system_id} context. Tools and file access are not
 available. Return exactly one response per alias under the required JSON
 schema. A finding must use the alias as prediction.instance_id, copy the
-visible regulation clause exactly, cite concrete source loci from the context,
-and include verifier hooks. Abstain when evidence is insufficient. Do not use
+schema. The host attaches the case identity and visible regulation clause to a
+finding; author the remaining prediction fields, cite concrete source loci from
+the context, and include verifier hooks. Abstain when evidence is insufficient. Do not use
 or infer hidden labels, generation provenance, mutation metadata, git history,
 file timestamps, formatting, comment freshness, or identifier style.
 
@@ -538,13 +539,14 @@ def _submitted_agent_response(
     submitted: SubmittedResponse,
     *,
     instance_id: str,
+    clause: RegulationClause,
     token_count: int,
 ) -> AgentResponse:
     prediction = submitted.prediction
     if prediction is not None:
-        prediction = prediction.model_copy(
-            update={"instance_id": instance_id},
-            deep=True,
+        prediction = prediction.attach_inputs(
+            instance_id=instance_id,
+            clause=clause,
         )
     return AgentResponse(
         kind=submitted.kind,
@@ -1041,6 +1043,7 @@ def run_codex_system(
                         response = _submitted_agent_response(
                             by_alias[alias].response,
                             instance_id=row.instance_id,
+                            clause=row.regulation_clause,
                             token_count=token_count,
                         )
                         with tempfile.TemporaryDirectory(

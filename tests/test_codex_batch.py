@@ -50,6 +50,22 @@ def _abstention(reason: str = "insufficient evidence") -> SubmittedResponse:
     )
 
 
+def _provider_projection(response: dict) -> dict:
+    projected = {
+        key: value
+        for key, value in response.items()
+        if key not in {"token_count", "raw_provider_text", "contract_error"}
+    }
+    prediction = projected.get("prediction")
+    if prediction is not None:
+        projected["prediction"] = {
+            key: value
+            for key, value in prediction.items()
+            if key not in {"instance_id", "regulation_clause"}
+        }
+    return projected
+
+
 def test_codex_environment_never_forwards_api_keys() -> None:
     env = sanitized_codex_environment(
         {
@@ -244,11 +260,7 @@ def test_batched_finding_cannot_emit_around_policy_guard_or_verifier() -> None:
         {
             "exec_probe": None,
             "abstention_reason": None,
-            **{
-                key: value
-                for key, value in final.items()
-                if key not in {"token_count", "raw_provider_text", "contract_error"}
-            },
+            **_provider_projection(final),
         }
     )
     clause = RegulationClause.model_validate(
@@ -299,11 +311,7 @@ def test_batched_verified_finding_retains_whole_verification_result() -> None:
         {
             "exec_probe": None,
             "abstention_reason": None,
-            **{
-                key: value
-                for key, value in final.items()
-                if key != "token_count"
-            },
+            **_provider_projection(final),
         }
     )
     clause = RegulationClause.model_validate(
@@ -411,8 +419,21 @@ def test_codex_schema_requires_every_nullable_key_without_defaults() -> None:
             if "properties" in node:
                 assert set(node["required"]) == set(node["properties"])
                 assert node["additionalProperties"] is False
-            assert "default" not in node
-            assert "format" not in node
+            for keyword in (
+                "default",
+                "format",
+                "maxItems",
+                "maxLength",
+                "maximum",
+                "minItems",
+                "minLength",
+                "minimum",
+                "multipleOf",
+                "pattern",
+                "prefixItems",
+                "uniqueItems",
+            ):
+                assert keyword not in node
             for value in node.values():
                 walk(value)
         elif isinstance(node, list):

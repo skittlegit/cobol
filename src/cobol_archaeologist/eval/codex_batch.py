@@ -31,7 +31,12 @@ from cobol_archaeologist.model.verify import (
     StaticClaim,
     verify,
 )
-from cobol_archaeologist.schemas import DriftPrediction, DriftType
+from cobol_archaeologist.schemas import (
+    CodeLocus,
+    DriftPrediction,
+    DriftType,
+    Labels,
+)
 
 if TYPE_CHECKING:
     from cobol_archaeologist.eval.codex_tool import ToolLogEntry
@@ -58,6 +63,30 @@ _SECRET_ENV_NAMES = frozenset(
 )
 
 
+class SubmittedPrediction(BaseModel):
+    """Provider-authored prediction fields; trusted inputs are host-attached."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code_locus: CodeLocus
+    drift_type: DriftType
+    target_path: str | None
+    labels: Labels
+    rationale: str = Field(min_length=1)
+
+    def attach_inputs(
+        self,
+        *,
+        instance_id: str,
+        clause: RegulationClause,
+    ) -> DriftPrediction:
+        return DriftPrediction(
+            instance_id=instance_id,
+            regulation_clause=clause,
+            **self.model_dump(),
+        )
+
+
 class SubmittedResponse(BaseModel):
     """Provider-facing final answer without provider-owned telemetry."""
 
@@ -65,7 +94,7 @@ class SubmittedResponse(BaseModel):
 
     kind: Literal["finding", "abstain"]
     thought: str = Field(min_length=1)
-    prediction: DriftPrediction | None
+    prediction: SubmittedPrediction | None
     claim: str | None
     exec_probe: ExecProbe | None
     static_claim: StaticClaim | None
@@ -171,15 +200,34 @@ def strict_codex_schema(model: type[BaseModel]) -> dict[str, Any]:
     Structured output requires every property name in ``required``. Nullable
     fields remain nullable through their ``anyOf`` branch; requiring the key
     does not require a non-null value. Pydantic re-validates the returned JSON,
-    so provider-unsupported ``format`` annotations are unnecessary here.
+    so validation annotations outside the provider subset are unnecessary.
     """
 
     schema = model.model_json_schema()
 
     def normalize(node: Any) -> None:
         if isinstance(node, dict):
-            node.pop("default", None)
-            node.pop("format", None)
+            for keyword in (
+                "default",
+                "format",
+                "maxItems",
+                "maxLength",
+                "maximum",
+                "minItems",
+                "minLength",
+                "minimum",
+                "multipleOf",
+                "pattern",
+                "uniqueItems",
+            ):
+                node.pop(keyword, None)
+            prefix_items = node.pop("prefixItems", None)
+            if isinstance(prefix_items, list) and prefix_items:
+                node["items"] = (
+                    prefix_items[0]
+                    if all(item == prefix_items[0] for item in prefix_items)
+                    else {"anyOf": prefix_items}
+                )
             properties = node.get("properties")
             if isinstance(properties, dict):
                 node["required"] = list(properties)
@@ -288,13 +336,14 @@ def _agent_response(
     submitted: SubmittedResponse,
     *,
     instance_id: str,
+    clause: RegulationClause,
     token_count: int,
 ) -> AgentResponse:
     prediction = submitted.prediction
     if prediction is not None:
-        prediction = prediction.model_copy(
-            update={"instance_id": instance_id},
-            deep=True,
+        prediction = prediction.attach_inputs(
+            instance_id=instance_id,
+            clause=clause,
         )
     return AgentResponse(
         kind=submitted.kind,
@@ -411,6 +460,7 @@ def finalize_agent_hunt(
     response = _agent_response(
         submitted,
         instance_id=instance_id,
+        clause=clause,
         token_count=token_count,
     )
     successful = sum(
