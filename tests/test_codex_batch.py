@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from cobol_archaeologist.agent.stub_tools import StubToolLayer
 from cobol_archaeologist.agent.trajectory import BudgetSpec
@@ -15,7 +15,6 @@ from cobol_archaeologist.eval.codex_batch import (
     CodexBaselineEnvelope,
     CodexBatchEnvelope,
     CodexUsage,
-    SubmittedHunt,
     SubmittedResponse,
     allocate_tokens,
     bind_submitted_response,
@@ -85,24 +84,37 @@ def test_codex_environment_never_forwards_api_keys() -> None:
 
 
 def test_agent_batch_requires_exact_alias_and_hunt_parity() -> None:
+    responses = {
+        hunt: _abstention()
+        for hunt in AGENT_HUNTS
+    }
     envelope = CodexBatchEnvelope(
         results=[
             {
                 "alias": "drift_900000",
-                "hunts": [
-                    SubmittedHunt(hunt=hunt, response=_abstention())
-                    for hunt in AGENT_HUNTS
-                ],
+                **responses,
             }
         ]
     )
 
     validate_agent_envelope(envelope, ["drift_900000"])
+    assert [item.hunt for item in envelope.results[0].hunts] == list(
+        AGENT_HUNTS
+    )
 
-    duplicate = envelope.model_copy(deep=True)
-    duplicate.results[0].hunts[-1].hunt = AGENT_HUNTS[0]
-    with pytest.raises(ValueError, match="each D1-D7 hunt exactly once"):
-        validate_agent_envelope(duplicate, ["drift_900000"])
+    with pytest.raises(ValidationError):
+        CodexBatchEnvelope(
+            results=[
+                {
+                    "alias": "drift_900000",
+                    **{
+                        hunt: response
+                        for hunt, response in responses.items()
+                        if hunt != "D7_conformant"
+                    },
+                }
+            ]
+        )
 
     with pytest.raises(ValueError, match="aliases do not match"):
         validate_agent_envelope(envelope, ["drift_900001"])

@@ -129,7 +129,22 @@ class SubmittedAgentCase(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     alias: str = Field(pattern=r"^drift_9\d{5}$")
-    hunts: list[SubmittedHunt] = Field(min_length=7, max_length=7)
+    d1: SubmittedResponse = Field(alias="D1_stale_threshold")
+    d2: SubmittedResponse = Field(alias="D2_missing_rule")
+    d3: SubmittedResponse = Field(alias="D3_contradictory")
+    d4: SubmittedResponse = Field(alias="D4_stale_reference_data")
+    d5: SubmittedResponse = Field(alias="D5_boundary_error")
+    d6: SubmittedResponse = Field(alias="D6_dead_code")
+    d7: SubmittedResponse = Field(alias="D7_conformant")
+
+    @property
+    def hunts(self) -> list[SubmittedHunt]:
+        """Expose the fixed wire fields through the existing internal API."""
+
+        return [
+            SubmittedHunt(hunt=hunt, response=getattr(self, f"d{index}"))
+            for index, hunt in enumerate(AGENT_HUNTS, start=1)
+        ]
 
 
 class CodexBatchEnvelope(BaseModel):

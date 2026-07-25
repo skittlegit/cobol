@@ -402,8 +402,9 @@ bounded observations per alias. Prefer read_program, grep, relevant
 read_paragraph calls, and only the slice/call-graph/copybook tools needed by
 the evidence.
 
-Return exactly one result for every alias and exactly one final response for
-each D1-D7 hunt. The host attaches the case identity and supplied clause to a
+Return exactly one result for every alias. Each result has the seven required
+D1_stale_threshold through D7_conformant response keys shown by the schema.
+The host attaches the case identity and supplied clause to a
 finding; author the remaining prediction fields, cite concrete original-source
 loci, and include verifier hooks. Abstain when the class-specific evidence is incomplete.
 For D1 or D5 against a clause whose current_value is composite, target_path
