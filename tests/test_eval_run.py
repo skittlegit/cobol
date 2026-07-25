@@ -280,6 +280,19 @@ def test_openai_provider_turns_malformed_finding_into_typed_abstention():
     assert result.token_count == 23
 
 
+@pytest.mark.parametrize("provider_text", ["not JSON", '{"kind": "abstain"} trailing {}'])
+def test_openai_provider_turns_malformed_text_into_typed_abstention(provider_text):
+    result = provider_module._agent_response(provider_text, 29)
+
+    assert result.kind == "abstain"
+    assert result.prediction is None
+    assert result.abstention_reason is not None
+    assert result.abstention_reason.startswith(
+        "response contract rejected provider output:"
+    )
+    assert result.token_count == 29
+
+
 def test_week7_mutation_real_tool_agent_eval_seam(tmp_path):
     record = next(
         item

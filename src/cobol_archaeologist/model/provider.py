@@ -28,6 +28,18 @@ class ProviderUnavailable(RuntimeError):
     pass
 
 
+def _contract_abstention(detail: str, total_tokens: int) -> AgentResponse:
+    """Fail closed on model output that cannot satisfy the response contract."""
+
+    return AgentResponse(
+        kind="abstain",
+        thought="The provider output failed the frozen response contract.",
+        abstention_reason=detail,
+        final_answer=f"Abstained: {detail}",
+        token_count=total_tokens,
+    )
+
+
 def _normalize_target_path(prediction: dict[str, Any]) -> None:
     """Canonicalize model notation to the frozen relative-child path schema."""
 
@@ -60,11 +72,17 @@ def _agent_response(
 ) -> AgentResponse:
     match = _JSON_OBJECT.search(text)
     if match is None:
-        raise ProviderUnavailable("provider response contained no JSON object")
+        return _contract_abstention(
+            "response contract rejected provider output: no JSON object",
+            total_tokens,
+        )
     try:
         data = json.loads(match.group())
-    except json.JSONDecodeError as exc:
-        raise ProviderUnavailable("provider response contained invalid JSON") from exc
+    except json.JSONDecodeError:
+        return _contract_abstention(
+            "response contract rejected provider output: invalid JSON",
+            total_tokens,
+        )
     # A model is not the authority for evaluation-record identity.  Live M4
     # calls use a constant, label-free placeholder here; the orchestrator maps
     # it to the current record only after the provider call returns.
@@ -95,13 +113,7 @@ def _agent_response(
         # A syntactically valid provider response that proposes a malformed
         # finding is model behavior, not an API outage. Fail closed as an
         # explicit abstention so no invalid prediction reaches verification.
-        return AgentResponse(
-            kind="abstain",
-            thought="The proposed output failed the frozen response contract.",
-            abstention_reason=reason,
-            final_answer=f"Abstained: {reason}",
-            token_count=total_tokens,
-        )
+        return _contract_abstention(reason, total_tokens)
 
 
 def _agent_response_schema(
