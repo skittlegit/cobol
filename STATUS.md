@@ -153,8 +153,10 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T3.4** | done | C | `src/cobol_archaeologist/model/verify.py` +
   `tests/test_verify.py` + `tests/fixtures/verify/`. Reviewed 2026-07-24;
   16 gates green. The 55-row offline cache now uses the pinned DeBERTa neural
-  backend. Verifier accuracy: 50 pairs generated, human labels pending in Track
-  C chat (xfail until the complete label pass, then a hard gate).
+  backend. All 50 independently supplied labels are recorded: 49/50 correct
+  (98.0%), 21 TP, 28 TN, 1 FP (`acc_neg_04`), 0 FN; false-accept rate
+  1/29 = 3.45%, below the frozen 10% ceiling. The accuracy gate is now hard
+  green (`17 passed, 1 skipped`; GnuCOBOL unavailable locally).
 - **T3.5** | done | C | `src/cobol_archaeologist/agent/{loop,stub_tools,
   trajectory}.py` + tests + golden late-fee trajectory. Reviewed 2026-07-24;
   17 gates green, seam purity + no-unverified-emission confirmed.
@@ -162,22 +164,29 @@ three tracks; a task's numeric prefix does not identify its phase.
   hunts/}` + `tests/test_policy_hunts.py`. Gates 1-8 green; D1-D7 registered,
   D6 delegates to verify.py reachability, anti-shortcut rule enforced.
   Reviewed and merged in PR #67; **M3 (Agent Grounded) complete.**
-- **T4.1** | blocked-live-run | C |
+- **T4.1** | done | C |
   `src/cobol_archaeologist/eval/{schemas,materialize,run,live}.py` +
   `model/provider.py`. Week-7 mutation→real-tool→eval seam green; merged T2.7
   inputs materialize 204/204. Anthropic and OpenAI provider adapters plus the
-  resumable three-system runner are implemented; live artifacts are absent.
-- **T4.2** | ready-for-live-run | C |
+  resumable three-system runner are implemented. Paired OpenAI/Luna artifacts
+  are complete at commit `19451bf`: agent, dense-RAG, and oracle-slice each
+  contain 204/204 frozen rows with zero infrastructure failures and zero
+  unverified emissions.
+- **T4.2** | ready-for-scoring | C |
   `src/cobol_archaeologist/eval/{metrics,statistics}.py`; frozen T1–T6 metrics
-  and paired statistics implemented. The 20-pair M4 T6 capacity gate is met.
-- **T4.3** | ready-for-live-run | C |
+  and paired statistics implemented. The 20-pair M4 T6 capacity gate is met;
+  all three paired live inputs are present. Scoring is intentionally deferred
+  to item 4.
+- **T4.3** | ready-for-scoring | C |
   `src/cobol_archaeologist/eval/trajectory.py`; replay/evidence/budget/shortcut
-  assessment gates green.
-- **T4.4** | ready-for-live-run | C |
+  assessment gates green; paired live trajectories are present.
+- **T4.4** | ready-for-scoring | C |
   `src/cobol_archaeologist/eval/calibration.py`; coverage, abstention,
-  attempted-unavailable tiers, calibration, and per-tier faithfulness green.
-- **T4.5** | blocked-on-live-artifacts | C |
+  attempted-unavailable tiers, calibration, and per-tier faithfulness green;
+  paired live verification results are present.
+- **T4.5** | ready-for-report | C |
   `src/cobol_archaeologist/eval/{baselines,report}.py`; fail-closed M4 report
-  implemented. Needs three paired live artifacts and 50 human verifier labels;
-  the 20-pair T6 input gate is complete.
+  implemented. The three paired live artifacts, 50 human verifier labels, and
+  20-pair T6 input are complete. Item 4 (metrics, significance, faithfulness,
+  and GO/NO_GO report) is explicitly deferred, so **M4 remains open**.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
