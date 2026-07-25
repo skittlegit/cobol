@@ -121,6 +121,7 @@ class PolicyHunt(Protocol):
         budget: BudgetSpec | None = None,
         entailer: Entailer | None = None,
         clock: Callable[[], float] = time.monotonic,
+        min_successful_observations_before_abstention: int = 1,
     ) -> HuntOutcome: ...
 
 
@@ -185,6 +186,7 @@ class BasePolicyHunt:
         budget: BudgetSpec | None = None,
         entailer: Entailer | None = None,
         clock: Callable[[], float] = time.monotonic,
+        min_successful_observations_before_abstention: int = 1,
     ) -> HuntOutcome:
         guarded = _EvidenceGuardModel(model, self, clause)
         trajectory = InvestigationLoop(
@@ -193,6 +195,9 @@ class BasePolicyHunt:
             budget=budget,
             entailer=entailer,
             clock=clock,
+            min_successful_observations_before_abstention=(
+                min_successful_observations_before_abstention
+            ),
         ).run(build_hunt_prompt(self.drift_type, clause, program_scope))
 
         if trajectory.abstained:

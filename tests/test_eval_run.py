@@ -415,6 +415,37 @@ def test_openai_provider_reparents_unambiguous_prediction_siblings():
     assert result.token_count == 13
 
 
+def test_openai_provider_canonicalizes_unambiguous_locus_wire_shape():
+    raw = json.loads(
+        (ROOT / "tests" / "fixtures" / "agent" / "unverified_responses.json").read_text(
+            encoding="utf-8"
+        )
+    )[0]
+    prediction = raw["prediction"]
+    prediction["is_interprocedural"] = prediction["code_locus"][
+        "is_interprocedural"
+    ]
+    prediction["},"] = ":null"
+    ref = prediction["labels"]["line_level"][0]
+    line = ref.pop("line")
+    ref["program"] = "COPYBOOK_ALIAS"
+    ref["file"] = line
+
+    result = provider_module._agent_response(
+        json.dumps(raw),
+        13,
+        prediction_instance_id="drift_000000",
+    )
+
+    assert result.contract_error is None
+    assert result.prediction is not None
+    normalized_ref = result.prediction.labels.line_level[0]
+    assert normalized_ref.line == line
+    assert normalized_ref.file is None
+    assert normalized_ref.program == "LATEFEE1"
+    assert result.prediction.code_locus.is_interprocedural is False
+
+
 def test_openai_provider_rejects_conflicting_prediction_sibling():
     raw = json.loads(
         (ROOT / "tests" / "fixtures" / "agent" / "unverified_responses.json").read_text(

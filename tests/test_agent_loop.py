@@ -3,6 +3,8 @@
 import inspect
 from pathlib import Path
 
+import pytest
+
 from cobol_archaeologist.agent.loop import InvestigationLoop
 from cobol_archaeologist.agent.stub_tools import StubToolLayer
 from cobol_archaeologist.agent.trajectory import BudgetSpec, Trajectory
@@ -294,6 +296,46 @@ def test_pre_evidence_abstention_and_errored_tool_do_not_unlock_exit():
     assert trajectory.steps[0].error is not None
     assert trajectory.steps[1].error is None
     assert trajectory.abstention_reason == "searched and found no supported finding"
+
+
+def test_configured_evidence_floor_continues_before_semantic_abstention():
+    trajectory = InvestigationLoop(
+        StubToolLayer(FIX / "corpus"),
+        model=QueueModel(
+            [
+                tool({"pattern": "LATE-FEE-RATE"}),
+                abstain("need another source fact"),
+                tool({"pattern": "GRACE-DAYS"}),
+                abstain("need one more source fact"),
+                tool({"pattern": "ACCOUNT-STATUS"}),
+                abstain("three bounded searches found no supported finding"),
+            ]
+        ),
+        clock=lambda: 100.0,
+        budget=BudgetSpec(max_steps=6, max_tokens=100),
+        min_successful_observations_before_abstention=3,
+    ).run("Check only LATEFEE1.")
+
+    assert trajectory.abstained and not trajectory.budget_exhausted
+    assert len(trajectory.model_responses) == 6
+    assert len(trajectory.steps) == 3
+    assert all(step.error is None for step in trajectory.steps)
+    assert (
+        trajectory.abstention_reason
+        == "three bounded searches found no supported finding"
+    )
+
+
+def test_evidence_floor_must_be_positive():
+    with pytest.raises(
+        ValueError,
+        match="min_successful_observations_before_abstention must be >= 1",
+    ):
+        InvestigationLoop(
+            StubToolLayer(FIX / "corpus"),
+            model=QueueModel([]),
+            min_successful_observations_before_abstention=0,
+        )
 
 
 def test_repeated_pre_evidence_abstention_uses_normal_step_budget():

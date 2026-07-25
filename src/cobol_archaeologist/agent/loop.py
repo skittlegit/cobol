@@ -52,12 +52,20 @@ class InvestigationLoop:
         budget: BudgetSpec | None = None,
         entailer: Entailer | None = None,
         clock: Callable[[], float] = time.monotonic,
+        min_successful_observations_before_abstention: int = 1,
     ) -> None:
+        if min_successful_observations_before_abstention < 1:
+            raise ValueError(
+                "min_successful_observations_before_abstention must be >= 1"
+            )
         self.tools = tools
         self.model = model
         self.budget = budget or BudgetSpec()
         self.entailer = entailer
         self.clock = clock
+        self.min_successful_observations_before_abstention = (
+            min_successful_observations_before_abstention
+        )
 
     def run(self, question: str) -> Trajectory:
         started = self.clock()
@@ -164,18 +172,27 @@ class InvestigationLoop:
                         final_answer=response.final_answer
                         or f"Abstained: {reason}",
                     )
-                has_successful_observation = any(
+                successful_observations = sum(
                     call.error is None and bool(call.observation_summary)
                     for call in steps
                 )
-                if not has_successful_observation:
+                if (
+                    successful_observations
+                    < self.min_successful_observations_before_abstention
+                    and len(steps) < self.budget.max_tool_calls
+                    and semantic_turns < self.budget.max_steps
+                ):
                     available = ", ".join(sorted(_TOOLS))
                     model_question = (
                         f"{question}\n\n"
-                        "Your abstention cannot be accepted before at least one "
-                        "successful tool observation. Investigate only the stated "
-                        "program scope and clause; do not infer hidden benchmark "
-                        "labels, source line annotations, or mutation provenance. "
+                        "Your abstention cannot be accepted yet: this hunt has "
+                        f"{successful_observations} successful bounded tool "
+                        "observation(s) and requires at least "
+                        f"{self.min_successful_observations_before_abstention}. "
+                        "Obtain the specific missing evidence you identified. "
+                        "Investigate only the stated program scope and clause; "
+                        "do not infer hidden benchmark labels, source line "
+                        "annotations, or mutation provenance. "
                         f"Call one authorized tool: {available}."
                     )
                     continue

@@ -130,6 +130,7 @@ def investigate_all_hunts(
     model_factory: Callable[[], DecisionModel],
     budget: BudgetSpec | None = None,
     entailer: Entailer | None = None,
+    min_successful_observations_before_abstention: int = 1,
 ) -> HuntBatchOutcome:
     """Run every registered class hunt without revealing which class is gold."""
 
@@ -142,6 +143,9 @@ def investigate_all_hunts(
             program_scope=context.program_scope,
             budget=budget,
             entailer=entailer,
+            min_successful_observations_before_abstention=(
+                min_successful_observations_before_abstention
+            ),
         )
         reason = outcome.abstention_reason or ""
         if reason.startswith(

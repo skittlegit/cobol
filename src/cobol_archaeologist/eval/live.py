@@ -64,13 +64,14 @@ from cobol_archaeologist.tools import RealToolLayer
 ROOT = Path(__file__).resolve().parents[3]
 SPLIT = ROOT / "data" / "benchmark" / "v1-pre" / "test.jsonl"
 OUTPUT_DIR = ROOT / "data" / "eval" / "m4-v3"
-PROMPT_VERSION = "m4-live-openai-v7"
+PROMPT_VERSION = "m4-live-openai-v8"
 TOOL_VERSION = "real-tool-layer-t1.6"
 INPUT_REVISION = "3acd8b0edb9d0aec26ba931e92f369fe9d612a3d"
 SCHEMA_VERSION = "3"
 REASONING_EFFORT = "low"
 RERUN_MODEL_ID = "gpt-5.6-luna"
 REQUIRED_SMOKE_ROWS = 5
+MIN_AGENT_ABSTENTION_OBSERVATIONS = 3
 SystemID = Literal["agent", "dense_rag", "oracle_slice"]
 SYSTEM_IDS: tuple[SystemID, ...] = ("agent", "dense_rag", "oracle_slice")
 
@@ -492,6 +493,15 @@ def run_live_system(
             "temperature_parameter": "omitted",
             "reasoning_effort": REASONING_EFFORT,
             "seed": None,
+            **(
+                {
+                    "min_successful_observations_before_abstention": (
+                        MIN_AGENT_ABSTENTION_OBSERVATIONS
+                    )
+                }
+                if system_id == "agent"
+                else {}
+            ),
         },
         budgets=budget_payload,
         repository_commit=commit,
@@ -564,6 +574,9 @@ def run_live_system(
                         model_factory=model_factory,
                         budget=AGENT_BUDGET,
                         entailer=entailer,
+                        min_successful_observations_before_abstention=(
+                            MIN_AGENT_ABSTENTION_OBSERVATIONS
+                        ),
                     )
                 except Exception as exc:  # noqa: BLE001
                     return infrastructure_failure(

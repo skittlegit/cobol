@@ -164,6 +164,7 @@ def test_smoke_artifacts_never_use_headline_paths(monkeypatch, tmp_path):
     def fake_run(self, rows, **_kwargs):
         captured["records"] = self.records_path
         captured["manifest"] = self.manifest_path
+        captured["run_manifest"] = _kwargs["manifest"]
         return []
 
     monkeypatch.setattr(live_module.EvaluationRunner, "run", fake_run)
@@ -174,7 +175,7 @@ def test_smoke_artifacts_never_use_headline_paths(monkeypatch, tmp_path):
     )
     rows = [_row()] * 5
     run_live_system(
-        "dense_rag",
+        "agent",
         rows=rows,
         model_id="gpt-5.6-luna",
         output_dir=tmp_path,
@@ -185,4 +186,10 @@ def test_smoke_artifacts_never_use_headline_paths(monkeypatch, tmp_path):
 
     assert captured["records"].parent == tmp_path / "smoke"
     assert captured["manifest"].parent == tmp_path / "smoke"
-    assert not (tmp_path / "dense_rag.jsonl").exists()
+    assert not (tmp_path / "agent.jsonl").exists()
+    assert (
+        captured["run_manifest"].decoding[
+            "min_successful_observations_before_abstention"
+        ]
+        == 3
+    )

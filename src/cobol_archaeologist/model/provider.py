@@ -86,6 +86,13 @@ def _normalize_response_shape(data: dict[str, Any]) -> None:
     prediction = data.get("prediction")
     if not isinstance(prediction, dict):
         return
+    # Drop punctuation-only keys produced by malformed JSON-key continuation.
+    # Any meaningful unknown field remains for Pydantic to reject.
+    for key in list(prediction):
+        if isinstance(key, str) and not any(
+            character.isalnum() or character == "_" for character in key
+        ):
+            prediction.pop(key)
     for field in (
         "claim",
         "exec_probe",
@@ -103,6 +110,52 @@ def _normalize_response_shape(data: dict[str, Any]) -> None:
             data[field] = prediction.pop(field)
         elif data[field] == nested_value:
             prediction.pop(field)
+
+    code_locus = prediction.get("code_locus")
+    if not isinstance(code_locus, dict):
+        return
+    if "is_interprocedural" in prediction:
+        misplaced = prediction["is_interprocedural"]
+        if (
+            "is_interprocedural" not in code_locus
+            or code_locus["is_interprocedural"] is None
+        ):
+            code_locus["is_interprocedural"] = prediction.pop(
+                "is_interprocedural"
+            )
+        elif code_locus["is_interprocedural"] == misplaced:
+            prediction.pop("is_interprocedural")
+
+    loci = code_locus.get("loci")
+    labels = prediction.get("labels")
+    line_level = labels.get("line_level") if isinstance(labels, dict) else None
+    if not isinstance(loci, list) or not isinstance(line_level, list):
+        return
+    for ref in line_level:
+        if not isinstance(ref, dict):
+            continue
+        if "line" not in ref and isinstance(ref.get("file"), int):
+            ref["line"] = ref["file"]
+            ref["file"] = None
+        line = ref.get("line")
+        if not isinstance(line, int):
+            continue
+        candidates = []
+        for locus in loci:
+            if not isinstance(locus, dict) or locus.get("file") != ref.get("file"):
+                continue
+            span = locus.get("line_span")
+            if (
+                isinstance(span, list)
+                and len(span) == 2
+                and all(isinstance(bound, int) for bound in span)
+                and span[0] <= line <= span[1]
+            ):
+                candidates.append(locus)
+        if any(locus.get("program") == ref.get("program") for locus in candidates):
+            continue
+        if len(candidates) == 1 and isinstance(candidates[0].get("program"), str):
+            ref["program"] = candidates[0]["program"]
 
 
 def _agent_response(
