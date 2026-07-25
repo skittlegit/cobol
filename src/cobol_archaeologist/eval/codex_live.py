@@ -68,7 +68,7 @@ from cobol_archaeologist.eval.run import (
     run_key,
 )
 from cobol_archaeologist.eval.schemas import EvaluationRecord
-from cobol_archaeologist.model.prompt import AgentResponse
+from cobol_archaeologist.model.prompt import HUNT_PROMPTS, AgentResponse
 from cobol_archaeologist.model.verify import Entailer, default_entailer
 from cobol_archaeologist.rag.search import RegulationSearch
 from cobol_archaeologist.schemas import DriftInstance
@@ -376,6 +376,9 @@ def build_agent_prompt(
     """Build a label-free multi-hunt prompt over opaque case aliases."""
 
     visible = json.dumps(list(cases), ensure_ascii=False, separators=(",", ":"))
+    hunt_guide = "\n".join(
+        f"- {hunt}: {HUNT_PROMPTS[hunt]}" for hunt in AGENT_HUNTS
+    )
     return f"""\
 You are the M4 COBOL compliance agent under evaluation. Investigate every
 opaque case below against its supplied regulation clause. Hidden benchmark
@@ -403,6 +406,17 @@ D7 is not a default verdict: it requires positive source evidence that the imple
 literal/comparator matches the clause. D6 supplies dead_paragraph evidence and
 delegates reachability to the verifier. Do not emit explanations outside the
 required JSON schema.
+
+Frozen hunt instructions:
+{hunt_guide}
+
+Evidence-hook requirements: D1 supplies a source literal and compares it with
+the resolved current-value leaf; D2 supplies typed insertion lines and negative
+grep, caller, callee, and slice observations; D3 supplies two read_paragraph
+observations, two conflicting loci, and a static hook; D4 resolves a copybook
+and names a missing/extra enum value; D5 compares typed source and clause
+comparators; D6 supplies a read paragraph plus dead_paragraph; D7 uses
+conformant labels with no drift lines plus positive literal/comparator evidence.
 
 Detector-visible cases:
 {visible}

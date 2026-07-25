@@ -34,6 +34,7 @@ from cobol_archaeologist.eval.codex_tool import (
     ToolRequest,
     execute_tool_request,
 )
+from cobol_archaeologist.model.prompt import HUNT_PROMPTS
 from cobol_archaeologist.model.verify import LexicalEntailer
 from cobol_archaeologist.schemas import RegulationClause
 
@@ -445,6 +446,8 @@ def test_agent_prompt_is_gold_hidden_and_pins_shared_real_tool_investigation() -
     assert "mutation" not in prompt
     assert "at least 3 successful" in prompt
     assert "D7 is not a default verdict" in prompt
+    assert all(instruction in prompt for instruction in HUNT_PROMPTS.values())
+    assert "caller, callee, and slice observations" in prompt
     assert "gpt-5.6-luna" not in prompt
 
 
