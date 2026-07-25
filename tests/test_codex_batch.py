@@ -224,6 +224,55 @@ def test_host_input_binding_failure_abstains_without_infrastructure_error() -> N
     assert response.raw_provider_text == submitted.model_dump_json()
 
 
+def test_invalid_interprocedural_flag_abstains_only_submitted_hunt() -> None:
+    fixture = Path(__file__).parent / "fixtures" / "hunts"
+    final = json.loads(
+        (fixture / "cached_decisions.json").read_text(encoding="utf-8")
+    )["d1"][-1]
+    projected = _provider_projection(final)
+    projected["prediction"]["code_locus"] = {
+        "loci": [
+            {
+                "program": "PROGRAM-A",
+                "paragraph": "1000-MAIN",
+                "file": "PROGRAM-A.cbl",
+                "line_span": [10, 12],
+            },
+            {
+                "program": "PROGRAM-B",
+                "paragraph": "2000-CHECK",
+                "file": "PROGRAM-B.cbl",
+                "line_span": [20, 22],
+            },
+        ],
+        "slice_vars": ["WS-VALUE"],
+        "is_interprocedural": False,
+    }
+    submitted = SubmittedResponse.model_validate(
+        {
+            "exec_probe": None,
+            "abstention_reason": None,
+            **projected,
+        }
+    )
+    clause = RegulationClause.model_validate(
+        final["prediction"]["regulation_clause"]
+    )
+
+    response = bind_submitted_response(
+        submitted,
+        instance_id="drift_910002",
+        clause=clause,
+        token_count=100,
+    )
+
+    assert response.kind == "abstain"
+    assert response.prediction is None
+    assert "loci spanning >1 program" in (response.abstention_reason or "")
+    assert '"is_interprocedural":false' in (response.raw_provider_text or "")
+    assert response.contract_error is None
+
+
 def test_empty_provider_narrative_uses_only_its_own_semantic_fields() -> None:
     submitted = _abstention("No verified evidence.").model_copy(
         update={"thought": "", "final_answer": ""}

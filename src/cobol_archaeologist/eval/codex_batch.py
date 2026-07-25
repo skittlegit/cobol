@@ -32,10 +32,10 @@ from cobol_archaeologist.model.verify import (
     verify,
 )
 from cobol_archaeologist.schemas import (
-    CodeLocus,
     DriftPrediction,
     DriftType,
     Labels,
+    SourceLocus,
 )
 
 if TYPE_CHECKING:
@@ -63,12 +63,29 @@ _SECRET_ENV_NAMES = frozenset(
 )
 
 
+class SubmittedCodeLocus(BaseModel):
+    """Provider-authored locus before host-side semantic validation.
+
+    JSON-schema structured output cannot express the cross-field rule that
+    multi-program loci require ``is_interprocedural=True``. Keep the submitted
+    value intact here, then let ``DriftPrediction`` validate it during trusted
+    input binding. A violation therefore abstains only that hunt instead of
+    invalidating every row in the provider batch.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    loci: list[SourceLocus] = Field(min_length=1)
+    slice_vars: list[str]
+    is_interprocedural: bool
+
+
 class SubmittedPrediction(BaseModel):
     """Provider-authored prediction fields; trusted inputs are host-attached."""
 
     model_config = ConfigDict(extra="forbid")
 
-    code_locus: CodeLocus
+    code_locus: SubmittedCodeLocus
     drift_type: DriftType
     target_path: str | None
     labels: Labels
