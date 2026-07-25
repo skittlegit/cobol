@@ -24,6 +24,7 @@ from cobol_archaeologist.eval.codex_batch import (
     sanitized_codex_environment,
     strict_codex_schema,
     validate_agent_envelope,
+    validate_baseline_envelope,
 )
 from cobol_archaeologist.eval.codex_live import (
     batch_size_for,
@@ -38,7 +39,7 @@ from cobol_archaeologist.eval.codex_tool import (
     execute_tool_request,
 )
 from cobol_archaeologist.model.prompt import HUNT_PROMPTS
-from cobol_archaeologist.model.verify import LexicalEntailer
+from cobol_archaeologist.model.verify import LexicalEntailer, StaticClaim
 from cobol_archaeologist.schemas import RegulationClause
 
 
@@ -124,6 +125,25 @@ def test_agent_batch_requires_exact_alias_and_hunt_parity() -> None:
         validate_agent_envelope(envelope, ["drift_900001"])
 
 
+def test_baseline_batch_returns_omitted_aliases_for_conservative_retry() -> None:
+    envelope = CodexBaselineEnvelope(
+        results=[
+            {
+                "alias": "drift_900000",
+                "clause_index": None,
+                "response": _abstention(),
+            }
+        ]
+    )
+
+    assert validate_baseline_envelope(
+        envelope,
+        ["drift_900000", "drift_900001"],
+    ) == ["drift_900001"]
+    with pytest.raises(ValueError, match="unexpected"):
+        validate_baseline_envelope(envelope, ["drift_900001"])
+
+
 def test_token_allocation_is_exact_and_deterministic() -> None:
     assert allocate_tokens(10, 3) == [4, 3, 3]
     assert allocate_tokens(0, 2) == [0, 0]
@@ -181,18 +201,38 @@ def test_codex_jsonl_parser_preserves_raw_events_and_usage() -> None:
     assert len(parsed.events) == 3
 
 
-def test_submitted_response_cannot_mix_abstention_and_finding() -> None:
-    with pytest.raises(ValueError):
-        SubmittedResponse(
-            kind="abstain",
-            thought="No.",
-            prediction=None,
-            claim="A finding-shaped claim",
-            exec_probe=None,
-            static_claim=None,
-            abstention_reason="No evidence.",
-            final_answer="Abstained.",
-        )
+def test_submitted_abstention_discards_attached_finding_fields() -> None:
+    submitted = SubmittedResponse(
+        kind="abstain",
+        thought="No.",
+        prediction=None,
+        claim="A speculative finding-shaped claim",
+        exec_probe=None,
+        static_claim=StaticClaim(literal="SHOULD-NOT-EMIT"),
+        abstention_reason="No evidence.",
+        final_answer="Abstained.",
+    )
+    clause = RegulationClause(
+        doc="RBI-Test",
+        clause_id="1",
+        version="2026-01-01",
+        effective_date="2026-01-01",
+        text="A test clause.",
+        current_value=None,
+    )
+
+    response = bind_submitted_response(
+        submitted,
+        instance_id="drift_910001",
+        clause=clause,
+        token_count=10,
+    )
+
+    assert response.kind == "abstain"
+    assert response.prediction is None
+    assert response.claim is None
+    assert response.static_claim is None
+    assert "speculative finding-shaped claim" in (response.raw_provider_text or "")
 
 
 def test_host_input_binding_failure_abstains_without_infrastructure_error() -> None:

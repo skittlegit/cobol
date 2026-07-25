@@ -126,10 +126,6 @@ class SubmittedResponse(BaseModel):
             if self.abstention_reason is not None:
                 raise ValueError("a finding cannot carry an abstention reason")
         else:
-            if self.prediction is not None or self.claim is not None:
-                raise ValueError("an abstention cannot carry a finding")
-            if self.exec_probe is not None or self.static_claim is not None:
-                raise ValueError("an abstention cannot carry verifier hooks")
             if not self.abstention_reason:
                 raise ValueError("an abstention requires a reason")
         return self
@@ -318,12 +314,16 @@ def validate_agent_envelope(
 def validate_baseline_envelope(
     envelope: CodexBaselineEnvelope,
     aliases: Sequence[str],
-) -> None:
-    _exact_unique(
-        [result.alias for result in envelope.results],
-        aliases,
-        "response aliases",
-    )
+) -> list[str]:
+    """Reject duplicate/unknown aliases and return requested aliases omitted."""
+
+    actual = [result.alias for result in envelope.results]
+    if len(actual) != len(set(actual)):
+        raise ValueError("response aliases contain duplicates")
+    unexpected = sorted(set(actual) - set(aliases))
+    if unexpected:
+        raise ValueError(f"response aliases contain unexpected values: {unexpected}")
+    return [alias for alias in aliases if alias not in actual]
 
 
 def parse_codex_events(stdout: str) -> ParsedCodexEvents:
@@ -406,6 +406,20 @@ def bind_submitted_response(
 
     if submitted.kind == "finding" and prebinding_error is not None:
         return binding_abstention(prebinding_error)
+
+    if submitted.kind == "abstain":
+        return AgentResponse(
+            kind="abstain",
+            thought=thought,
+            prediction=None,
+            claim=None,
+            exec_probe=None,
+            static_claim=None,
+            abstention_reason=submitted.abstention_reason,
+            final_answer=final_answer,
+            token_count=token_count,
+            raw_provider_text=raw_provider_text,
+        )
 
     prediction = submitted.prediction
     if prediction is not None:

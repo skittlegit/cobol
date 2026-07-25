@@ -979,10 +979,14 @@ def run_codex_system(
     entailer = entailer or default_entailer()
     records_path.parent.mkdir(parents=True, exist_ok=True)
     with records_path.open("a", encoding="utf-8", newline="\n") as stream:
-        for batch_index, batch in enumerate(
-            _chunks(pending, batch_size),
-            start=1,
-        ):
+        work_queue = [
+            (batch, 0)
+            for batch in _chunks(pending, batch_size)
+        ]
+        batch_index = 0
+        while work_queue:
+            batch, repair_attempt = work_queue.pop(0)
+            batch_index += 1
             aliases = [
                 f"drift_{900000 + index:06d}"
                 for index in range(len(batch))
@@ -1104,18 +1108,25 @@ def run_codex_system(
                     envelope = CodexBaselineEnvelope.model_validate_json(
                         execution.final_message
                     )
-                    validate_baseline_envelope(envelope, aliases)
+                    missing_aliases = validate_baseline_envelope(
+                        envelope,
+                        aliases,
+                    )
                     by_alias = {result.alias: result for result in envelope.results}
                     allocations = allocate_tokens(
                         execution.parsed.usage.total_tokens,
-                        len(batch),
+                        len(by_alias),
                     )
                     batch_records = []
-                    for token_count, (alias, row) in zip(
+                    returned_aliases = [
+                        alias for alias in aliases if alias in by_alias
+                    ]
+                    for token_count, alias in zip(
                         allocations,
-                        alias_rows.items(),
+                        returned_aliases,
                         strict=True,
                     ):
+                        row = alias_rows[alias]
                         source = materialized[row.instance_id]
                         submitted = by_alias[alias]
                         context = (
@@ -1167,20 +1178,59 @@ def run_codex_system(
                                     entailer=entailer,
                                 )
                             )
+                    if missing_aliases:
+                        if (
+                            repair_attempt
+                            < BASELINE_BUDGET.max_contract_repairs
+                        ):
+                            work_queue = [
+                                ([alias_rows[alias]], repair_attempt + 1)
+                                for alias in missing_aliases
+                            ] + work_queue
+                        else:
+                            batch_records.extend(
+                                infrastructure_failure(
+                                    alias_rows[alias],
+                                    system_id=system_id,
+                                    source_sha256=materialized[
+                                        alias_rows[alias].instance_id
+                                    ].source_sha256,
+                                    key=keys[alias_rows[alias].instance_id],
+                                    reason=(
+                                        "Codex batch failed: response omitted "
+                                        f"required alias {alias}"
+                                    ),
+                                )
+                                for alias in missing_aliases
+                            )
             except Exception as exc:  # noqa: BLE001
-                batch_records = [
-                    infrastructure_failure(
-                        row,
-                        system_id=system_id,
-                        source_sha256=materialized[row.instance_id].source_sha256,
-                        key=keys[row.instance_id],
-                        reason=(
-                            "Codex batch failed: "
-                            f"{type(exc).__name__}: {exc}"
-                        ),
-                    )
-                    for row in batch
-                ]
+                budget = (
+                    AGENT_BUDGET
+                    if system_id == "agent"
+                    else BASELINE_BUDGET
+                )
+                if repair_attempt < budget.max_contract_repairs and len(batch) > 1:
+                    work_queue = [
+                        ([row], repair_attempt + 1)
+                        for row in batch
+                    ] + work_queue
+                    batch_records = []
+                else:
+                    batch_records = [
+                        infrastructure_failure(
+                            row,
+                            system_id=system_id,
+                            source_sha256=materialized[
+                                row.instance_id
+                            ].source_sha256,
+                            key=keys[row.instance_id],
+                            reason=(
+                                "Codex batch failed: "
+                                f"{type(exc).__name__}: {exc}"
+                            ),
+                        )
+                        for row in batch
+                    ]
 
             for record in batch_records:
                 stream.write(record.model_dump_json() + "\n")
