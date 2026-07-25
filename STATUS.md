@@ -162,14 +162,15 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T3.6** | done | C | Approved with 17 gates green. Registered D1–D7 hunts
   retain all trajectories, prohibit edit-artifact shortcuts, require positive
   D7 evidence, and delegate D6 reachability to the T3.4 verifier. M3 closed.
-- **T4.1** | runner-ratified-smoke-pending | C | Prior API outputs remain
-  diagnostic only. The ChatGPT-authenticated Codex Luna-low batch runner is
-  predeclared in `docs/tasks/T4.1-rerun-plan.md`: API keys are stripped,
-  source/task workspaces are label-free, exact structured output is guarded by
-  the existing class policies and `verify()`, and raw Codex events are retained.
-  Deterministic dense-RAG/oracle contexts are reusable because all 204 current
-  materializations match their recorded source SHA-256; predictions and
-  manifests will be rerun. Five-row smoke is next.
+- **T4.1** | blocked-agent-smoke | C | The ChatGPT-authenticated Codex Luna-low
+  runner is implemented and pushed with API-key stripping, label-free isolated
+  tasks, strict structured output, hard per-alias tool caps, raw event
+  retention, and unchanged policy + `verify()` emission gates. Agent smoke at
+  `862b20e` completed 5/5 with 0 infrastructure failures, 0 contract
+  rejections, and 163 replayed successful observations (mean 32.6), but
+  produced 0 verified findings, so validity is `NOT_EVALUABLE`. The preserved
+  smoke cannot promote to pilot/full; dense-RAG and oracle-slice were not spent
+  under this run identity after the agent gate failed.
 - **T4.2** | blocked-valid-inputs | C | Implemented; scoring waits for valid
   paired artifacts.
 - **T4.3** | blocked-valid-inputs | C | Implemented; full seven-hunt replay
