@@ -76,7 +76,7 @@ from cobol_archaeologist.schemas import DriftInstance
 MODEL_ID = "gpt-5.6-luna"
 REASONING_EFFORT = "high"
 PROVIDER_ID = "chatgpt-codex-plus"
-PROMPT_VERSION = "m4-live-codex-batch-v1"
+PROMPT_VERSION = "m4-live-codex-batch-v2"
 DEFAULT_WSL_DISTRO = "Ubuntu"
 DEFAULT_CODEX_BINARY = (
     "/home/deepa/.local/bin/codex-x86_64-unknown-linux-musl"
@@ -409,11 +409,15 @@ Return exactly one result for every alias. Each result has the seven required
 D1_stale_threshold through D7_conformant response keys shown by the schema.
 The host attaches the case identity and supplied clause to a
 finding; author the remaining prediction fields, cite concrete original-source
-loci, and include verifier hooks. Abstain when the class-specific evidence is incomplete.
+loci, and include verifier hooks. The separate claim is the citation
+hypothesis: write only a regulatory obligation entailed by the supplied clause,
+without COBOL identifiers or implementation facts. Put the code-versus-clause
+comparison in prediction.rationale and final_answer. Abstain when the
+class-specific evidence is incomplete.
 In a locus, program names the containing executable program and file names the
-physical copybook/source file. Set is_interprocedural=true whenever loci carry
-more than one distinct program name; cross-paragraph or copybook-spanning loci
-may also be interprocedural.
+physical copybook/source filename, never an absolute task path. Set
+is_interprocedural=true whenever loci carry more than one distinct program
+name; cross-paragraph or copybook-spanning loci may also be interprocedural.
 For D1 or D5 against a clause whose current_value is composite, target_path
 must name a non-composite leaf from that supplied value.
 "Searched and found nothing" is D2 or abstention, never conformant.

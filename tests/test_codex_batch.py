@@ -588,6 +588,10 @@ def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation()
     assert "Each D1-D7 HUNT has an independent transcript" in prompt
     assert "there is no shared hunt" in prompt
     assert "program names the containing executable program" in prompt
+    normalized_prompt = " ".join(prompt.split())
+    assert "claim is the citation hypothesis" in normalized_prompt
+    assert "without COBOL identifiers or implementation facts" in normalized_prompt
+    assert "never an absolute task path" in normalized_prompt
     assert 'read_paragraph {"program":"...","name":"..."}' in prompt
     assert 'grep {"pattern":"..."}' in prompt
     assert "gpt-5.6-luna" not in prompt

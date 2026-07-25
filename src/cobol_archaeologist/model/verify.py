@@ -487,46 +487,88 @@ def _tier2_static(finding: Finding, tools) -> TierAttempt:
             tier=T, outcome=TierOutcome.UNAVAILABLE,
             detail="no static claim; Tier-2 not applicable to this finding",
         )
-    locus = finding.prediction.code_locus.loci[0]
+    loci = finding.prediction.code_locus.loci
     if sc.dead_paragraph is not None:
+        locus = next(
+            (
+                candidate
+                for candidate in loci
+                if (candidate.paragraph or "").upper()
+                == sc.dead_paragraph.upper()
+            ),
+            loci[0],
+        )
         return _tier2_reachability(locus.program, sc.dead_paragraph, tools)
 
-    if locus.paragraph is None:
+    readable: list[tuple[str, str]] = []
+    unavailable: list[str] = []
+    for locus in loci:
+        if locus.paragraph is not None:
+            label = f"{locus.program}:{locus.paragraph}"
+            try:
+                readable.append(
+                    (label, tools.read_paragraph(locus.program, locus.paragraph).code)
+                )
+            except KeyError as exc:
+                unavailable.append(f"{label} ({exc})")
+            continue
+        if locus.file:
+            name = Path(locus.file).stem
+            label = f"{locus.program}:{Path(locus.file).name}"
+            try:
+                readable.append((label, tools.resolve_copybook(name).text))
+            except KeyError as exc:
+                unavailable.append(f"{label} ({exc})")
+            continue
+        unavailable.append(f"{locus.program}:<no paragraph or file>")
+
+    if not readable:
         return TierAttempt(
             tier=T, outcome=TierOutcome.UNAVAILABLE,
-            detail="locus has no paragraph; literal/comparator check needs one",
-        )
-    try:
-        code = tools.read_paragraph(locus.program, locus.paragraph).code
-    except KeyError as exc:  # unknown program/paragraph
-        return TierAttempt(
-            tier=T, outcome=TierOutcome.UNAVAILABLE,
-            detail=f"locus {locus.program}:{locus.paragraph} not readable ({exc})",
+            detail=(
+                "no cited paragraph/copybook locus is readable"
+                + (f" ({'; '.join(unavailable)})" if unavailable else "")
+            ),
         )
 
     checks: list[str] = []
     if sc.literal is not None:
-        if sc.literal not in code:
+        matches = [label for label, code in readable if sc.literal in code]
+        if not matches:
             return TierAttempt(
                 tier=T, outcome=TierOutcome.REFUTED,
-                detail=f"claimed literal {sc.literal!r} absent from {locus.program}:{locus.paragraph}",
+                detail=(
+                    f"claimed literal {sc.literal!r} absent from cited loci "
+                    f"{[label for label, _ in readable]}"
+                ),
             )
-        checks.append(f"literal {sc.literal!r} present")
+        if len(readable) == 1:
+            checks.append(f"literal {sc.literal!r} present")
+        else:
+            checks.append(f"literal {sc.literal!r} present in {matches}")
     if sc.comparator is not None:
-        if sc.comparator not in code:
+        matches = [label for label, code in readable if sc.comparator in code]
+        if not matches:
             return TierAttempt(
                 tier=T, outcome=TierOutcome.REFUTED,
-                detail=f"claimed comparator {sc.comparator!r} absent from {locus.program}:{locus.paragraph}",
+                detail=(
+                    f"claimed comparator {sc.comparator!r} absent from cited loci "
+                    f"{[label for label, _ in readable]}"
+                ),
             )
-        checks.append(f"comparator {sc.comparator!r} present")
+        if len(readable) == 1:
+            checks.append(f"comparator {sc.comparator!r} present")
+        else:
+            checks.append(f"comparator {sc.comparator!r} present in {matches}")
     if not checks:
         return TierAttempt(
             tier=T, outcome=TierOutcome.UNAVAILABLE,
             detail="static claim carried no checkable literal/comparator/dead_paragraph",
         )
+    prefix = f"{readable[0][0]} — " if len(readable) == 1 else ""
     return TierAttempt(
         tier=T, outcome=TierOutcome.VERIFIED,
-        detail=f"{locus.program}:{locus.paragraph} — " + "; ".join(checks),
+        detail=prefix + "; ".join(checks),
     )
 
 

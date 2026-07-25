@@ -32,7 +32,7 @@ from cobol_archaeologist.model.verify import (
     VerificationTier,
     verify,
 )
-from cobol_archaeologist.schemas import DriftInstance
+from cobol_archaeologist.schemas import DriftInstance, SourceLocus
 from cobol_archaeologist.tools import RealToolLayer
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -127,6 +127,74 @@ def test_tier2_verifiable_does_not_report_tier3(tools, offline_entailer):
     tiers_attempted = {a.tier for a in r.tier_attempts}
     assert VerificationTier.ENTAILMENT not in tiers_attempted  # stopped at Tier 2
     assert r.tier == VerificationTier.STATIC
+
+
+def test_tier2_static_searches_every_cited_paragraph(tools, offline_entailer):
+    finding = load("supported_tier2")
+    original = finding.prediction.code_locus
+    finding = finding.model_copy(
+        update={
+            "prediction": finding.prediction.model_copy(
+                update={
+                    "code_locus": original.model_copy(
+                        update={
+                            "loci": [
+                                SourceLocus(
+                                    program="CICSLIT",
+                                    paragraph="1000-MAIN",
+                                    file=None,
+                                    line_span=(18, 23),
+                                ),
+                                original.loci[0],
+                            ]
+                        }
+                    )
+                }
+            )
+        }
+    )
+
+    result = verify(finding, tools, entailer=offline_entailer)
+
+    assert result.verified
+    assert result.tier == VerificationTier.STATIC
+    assert "CICSLIT:2000-CHECK-WINDOW" in result.evidence
+
+
+def test_tier2_static_reads_copybook_only_locus(offline_entailer):
+    corpus = REPO_ROOT / "tests" / "fixtures" / "hunts" / "corpus"
+    tools = RealToolLayer(corpus_root=corpus, copybook_paths=[corpus])
+    finding = load("supported_tier2")
+    finding = finding.model_copy(
+        update={
+            "prediction": finding.prediction.model_copy(
+                update={
+                    "code_locus": finding.prediction.code_locus.model_copy(
+                        update={
+                            "loci": [
+                                SourceLocus(
+                                    program="CLOSPEN2",
+                                    paragraph=None,
+                                    file="WSDAYBAS.cpy",
+                                    line_span=(3, 6),
+                                )
+                            ]
+                        }
+                    )
+                }
+            ),
+            "exec_probe": None,
+            "static_claim": finding.static_claim.model_copy(
+                update={"literal": "BASIS-WORKING", "comparator": None}
+            ),
+        }
+    )
+
+    result = verify(finding, tools, entailer=offline_entailer)
+
+    assert result.verified
+    assert result.tier == VerificationTier.STATIC
+    assert "CLOSPEN2:WSDAYBAS.cpy" in result.evidence
 
 
 def test_tier1_unavailable_falls_through_to_tier2_not_tier3(tools, offline_entailer):
