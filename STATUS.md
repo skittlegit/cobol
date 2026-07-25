@@ -166,11 +166,16 @@ three tracks; a task's numeric prefix does not identify its phase.
   runner is implemented and pushed with API-key stripping, label-free isolated
   tasks, strict structured output, hard per-alias tool caps, raw event
   retention, and unchanged policy + `verify()` emission gates. Agent smoke at
-  `862b20e` completed 5/5 with 0 infrastructure failures, 0 contract
-  rejections, and 163 replayed successful observations (mean 32.6), but
-  produced 0 verified findings, so validity is `NOT_EVALUABLE`. The preserved
-  smoke cannot promote to pilot/full; dense-RAG and oracle-slice were not spent
-  under this run identity after the agent gate failed.
+  `313afd7` completed 5/5 with 0 infrastructure failures, 0 contract
+  rejections, and 182 replayed successful observations (mean 36.4), but all 35
+  hunts abstained and produced 0 verified findings, so validity is
+  `NOT_EVALUABLE`. The parser correctly isolated two semantically invalid
+  submitted findings as hunt-level abstentions without correcting or emitting
+  them. Per the predeclared stop rule, no further semantic prompt tuning and no
+  pilot/full run occurred. The recoverable evidence is preserved at
+  `data/eval/m4-v3/chatgpt-luna/failed-smoke-313afd7`; dense-RAG and
+  oracle-slice were not spent under this run identity after the agent gate
+  failed.
 - **T4.2** | blocked-valid-inputs | C | Implemented; scoring waits for valid
   paired artifacts.
 - **T4.3** | blocked-valid-inputs | C | Implemented; full seven-hunt replay
