@@ -10,6 +10,7 @@ from pydantic import BaseModel, ValidationError
 
 from cobol_archaeologist.agent.stub_tools import StubToolLayer
 from cobol_archaeologist.agent.trajectory import BudgetSpec
+from cobol_archaeologist.eval.baselines import DenseRAGContext, OracleSliceContext
 from cobol_archaeologist.eval.codex_batch import (
     AGENT_HUNTS,
     CodexBaselineEnvelope,
@@ -26,7 +27,9 @@ from cobol_archaeologist.eval.codex_batch import (
 )
 from cobol_archaeologist.eval.codex_live import (
     build_agent_prompt,
+    build_baseline_prompt,
     codex_exec_arguments,
+    select_baseline_clause,
 )
 from cobol_archaeologist.eval.codex_tool import (
     ToolLogEntry,
@@ -222,6 +225,17 @@ def test_host_input_binding_failure_abstains_without_infrastructure_error() -> N
     assert response.contract_error is None
     assert "host-input binding" in response.abstention_reason
     assert response.raw_provider_text == submitted.model_dump_json()
+
+    selection_failure = bind_submitted_response(
+        submitted,
+        instance_id="drift_910001",
+        clause=clause,
+        token_count=100,
+        prebinding_error="dense_rag finding requires clause_index",
+    )
+    assert selection_failure.kind == "abstain"
+    assert "requires clause_index" in (selection_failure.abstention_reason or "")
+    assert selection_failure.raw_provider_text == submitted.model_dump_json()
 
 
 def test_invalid_interprocedural_flag_abstains_only_submitted_hunt() -> None:
@@ -595,6 +609,64 @@ def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation()
     assert 'read_paragraph {"program":"...","name":"..."}' in prompt
     assert 'grep {"pattern":"..."}' in prompt
     assert "gpt-5.6-luna" not in prompt
+
+
+def test_baseline_prompt_requires_visible_clause_selection_and_clean_claim() -> None:
+    dense_prompt = " ".join(
+        build_baseline_prompt(
+            "dense_rag",
+            [{"alias": "drift_900000", "context": {"retrieved_clauses": []}}],
+        ).split()
+    )
+    oracle_prompt = " ".join(
+        build_baseline_prompt(
+            "oracle_slice",
+            [{"alias": "drift_900000", "context": {"clause": {}}}],
+        ).split()
+    )
+
+    assert "zero-based index" in dense_prompt
+    assert "context.retrieved_clauses" in dense_prompt
+    assert "Set clause_index to null" in oracle_prompt
+    assert "claim is the citation hypothesis" in dense_prompt
+    assert "without COBOL identifiers or implementation facts" in dense_prompt
+    assert "never a default verdict" in dense_prompt
+
+
+def test_baseline_clause_selection_is_limited_to_visible_context() -> None:
+    clause = RegulationClause(
+        doc="RBI-Test",
+        clause_id="1",
+        version="2026-01-01",
+        effective_date="2026-01-01",
+        text="The issuer must act within seven days.",
+        current_value=None,
+    )
+    dense = DenseRAGContext.model_validate(
+        {
+            "clause_query": "seven days",
+            "retrieved_clauses": [
+                {"clause": clause.model_dump(mode="json"), "score": 1.0}
+            ],
+            "program": "PROGRAM SOURCE",
+        }
+    )
+    oracle = OracleSliceContext(
+        clause=clause,
+        program="PROGRAM SOURCE",
+        slices=[],
+    )
+
+    assert select_baseline_clause("dense_rag", 0, dense) == clause
+    assert select_baseline_clause("oracle_slice", None, oracle) == clause
+    with pytest.raises(ValueError, match="requires clause_index"):
+        select_baseline_clause("dense_rag", None, dense)
+    with pytest.raises(ValueError, match="outside 1 visible retrievals"):
+        select_baseline_clause("dense_rag", 1, dense)
+    with pytest.raises(ValueError, match="must be non-negative"):
+        select_baseline_clause("dense_rag", -1, dense)
+    with pytest.raises(ValueError, match="must be null"):
+        select_baseline_clause("oracle_slice", 0, oracle)
 
 
 def test_codex_cli_arguments_pin_luna_high_and_chatgpt_safe_modes() -> None:

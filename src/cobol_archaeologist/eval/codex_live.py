@@ -71,12 +71,12 @@ from cobol_archaeologist.eval.schemas import EvaluationRecord
 from cobol_archaeologist.model.prompt import HUNT_PROMPTS, AgentResponse
 from cobol_archaeologist.model.verify import Entailer, default_entailer
 from cobol_archaeologist.rag.search import RegulationSearch
-from cobol_archaeologist.schemas import DriftInstance
+from cobol_archaeologist.schemas import DriftInstance, RegulationClause
 
 MODEL_ID = "gpt-5.6-luna"
 REASONING_EFFORT = "high"
 PROVIDER_ID = "chatgpt-codex-plus"
-PROMPT_VERSION = "m4-live-codex-batch-v2"
+PROMPT_VERSION = "m4-live-codex-batch-v3"
 DEFAULT_WSL_DISTRO = "Ubuntu"
 DEFAULT_CODEX_BINARY = (
     "/home/deepa/.local/bin/codex-x86_64-unknown-linux-musl"
@@ -448,23 +448,71 @@ def build_baseline_prompt(
 ) -> str:
     if system_id not in {"dense_rag", "oracle_slice"}:
         raise ValueError("baseline prompt requires dense_rag or oracle_slice")
+    clause_selection = (
+        "For a finding, set clause_index to the zero-based index of the "
+        "supporting clause in context.retrieved_clauses. The host validates "
+        "that selection and attaches that exact detector-visible clause."
+        if system_id == "dense_rag"
+        else (
+            "Set clause_index to null. The host attaches the single "
+            "detector-visible context.clause."
+        )
+    )
     visible = json.dumps(list(cases), ensure_ascii=False, separators=(",", ":"))
     return f"""\
 Perform one evidence-grounded COBOL compliance classification for each opaque
 case using only its supplied {system_id} context. Tools and file access are not
 available. Return exactly one response per alias under the required JSON
 schema. A finding must use the alias as prediction.instance_id, copy the
-schema. The host attaches the case identity and visible regulation clause to a
-finding; author the remaining prediction fields, cite concrete source loci from
-the context, and include verifier hooks. Abstain when evidence is insufficient. Do not use
-or infer hidden labels, generation provenance, mutation metadata, git history,
-file timestamps, formatting, comment freshness, or identifier style.
-For D1 or D5 against a clause whose current_value is composite, target_path
-must name a non-composite leaf from that visible value.
+schema. {clause_selection}
+The host also attaches the case identity; author the remaining prediction
+fields, cite concrete source loci from the context, and include verifier hooks.
+The separate claim is the citation hypothesis: write only a regulatory
+obligation entailed by the selected visible clause, without COBOL identifiers
+or implementation facts. Put the code-versus-clause comparison in
+prediction.rationale and final_answer. In a locus, program names the containing
+executable program and file names the physical copybook/source filename, never
+an absolute task path. Set target_path to null unless a D1 or D5 finding
+targets a composite current_value; in that case it must name a non-composite
+leaf from the selected visible clause. D7 requires positive source evidence of
+conformance and is never a default verdict. Abstain when evidence is
+insufficient. Do not use or infer hidden labels, generation provenance,
+mutation metadata, git history, file timestamps, formatting, comment
+freshness, or identifier style.
 
 Detector-visible cases:
 {visible}
 """
+
+
+def select_baseline_clause(
+    system_id: SystemID,
+    clause_index: int | None,
+    context: DenseRAGContext | OracleSliceContext,
+) -> RegulationClause:
+    """Bind a baseline finding only to a clause visible in its own context."""
+
+    if system_id == "dense_rag":
+        if not isinstance(context, DenseRAGContext):
+            raise TypeError("dense_rag requires DenseRAGContext")
+        if clause_index is None:
+            raise ValueError("dense_rag finding requires clause_index")
+        if clause_index < 0:
+            raise ValueError("dense_rag clause_index must be non-negative")
+        try:
+            return context.retrieved_clauses[clause_index].clause
+        except IndexError as exc:
+            raise ValueError(
+                f"dense_rag clause_index {clause_index} is outside "
+                f"{len(context.retrieved_clauses)} visible retrievals"
+            ) from exc
+    if system_id == "oracle_slice":
+        if not isinstance(context, OracleSliceContext):
+            raise TypeError("oracle_slice requires OracleSliceContext")
+        if clause_index is not None:
+            raise ValueError("oracle_slice clause_index must be null")
+        return context.clause
+    raise ValueError(f"unsupported baseline system {system_id}")
 
 
 def _stage_task(
@@ -1062,11 +1110,33 @@ def run_codex_system(
                         strict=True,
                     ):
                         source = materialized[row.instance_id]
+                        submitted = by_alias[alias]
+                        context = (
+                            DenseRAGContext.model_validate(
+                                contexts[row.instance_id]
+                            )
+                            if system_id == "dense_rag"
+                            else OracleSliceContext.model_validate(
+                                contexts[row.instance_id]
+                            )
+                        )
+                        clause = row.regulation_clause
+                        binding_error = None
+                        if submitted.response.kind == "finding":
+                            try:
+                                clause = select_baseline_clause(
+                                    system_id,
+                                    submitted.clause_index,
+                                    context,
+                                )
+                            except (TypeError, ValueError) as exc:
+                                binding_error = str(exc)
                         response = bind_submitted_response(
-                            by_alias[alias].response,
+                            submitted.response,
                             instance_id=row.instance_id,
-                            clause=row.regulation_clause,
+                            clause=clause,
                             token_count=token_count,
+                            prebinding_error=binding_error,
                         )
                         with tempfile.TemporaryDirectory(
                             prefix="m4-codex-verify-"
@@ -1075,15 +1145,6 @@ def run_codex_system(
                                 source,
                                 Path(temp),
                                 regulation_search,
-                            )
-                            context = (
-                                DenseRAGContext.model_validate(
-                                    contexts[row.instance_id]
-                                )
-                                if system_id == "dense_rag"
-                                else OracleSliceContext.model_validate(
-                                    contexts[row.instance_id]
-                                )
                             )
                             batch_records.append(
                                 single_shot_record(

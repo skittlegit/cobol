@@ -177,6 +177,9 @@ class SubmittedBaselineCase(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     alias: str = Field(pattern=r"^drift_9\d{5}$")
+    # Dense-RAG must identify which detector-visible retrieved clause supports
+    # its finding. Oracle-slice has one visible clause and therefore uses null.
+    clause_index: int | None
     response: SubmittedResponse
 
 
@@ -370,6 +373,7 @@ def bind_submitted_response(
     instance_id: str,
     clause: RegulationClause,
     token_count: int,
+    prebinding_error: str | None = None,
 ) -> AgentResponse:
     """Attach trusted inputs, abstaining when model fields cannot bind to them."""
 
@@ -384,6 +388,25 @@ def bind_submitted_response(
         if submitted.kind == "finding"
         else f"Abstained: {submitted.abstention_reason}"
     )
+
+    def binding_abstention(detail: str) -> AgentResponse:
+        reason = f"prediction failed host-input binding; refusing emission: {detail}"
+        return AgentResponse(
+            kind="abstain",
+            thought=thought,
+            prediction=None,
+            claim=None,
+            exec_probe=None,
+            static_claim=None,
+            abstention_reason=reason,
+            final_answer=f"Abstained: {reason}",
+            token_count=token_count,
+            raw_provider_text=raw_provider_text,
+        )
+
+    if submitted.kind == "finding" and prebinding_error is not None:
+        return binding_abstention(prebinding_error)
+
     prediction = submitted.prediction
     if prediction is not None:
         try:
@@ -392,22 +415,7 @@ def bind_submitted_response(
                 clause=clause,
             )
         except ValueError as exc:
-            reason = (
-                "prediction failed host-input binding; refusing emission: "
-                f"{exc}"
-            )
-            return AgentResponse(
-                kind="abstain",
-                thought=thought,
-                prediction=None,
-                claim=None,
-                exec_probe=None,
-                static_claim=None,
-                abstention_reason=reason,
-                final_answer=f"Abstained: {reason}",
-                token_count=token_count,
-                raw_provider_text=raw_provider_text,
-            )
+            return binding_abstention(str(exc))
     return AgentResponse(
         kind=submitted.kind,
         thought=thought,
