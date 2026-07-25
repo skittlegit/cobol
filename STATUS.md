@@ -165,16 +165,16 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T4.1** | blocked-agent-smoke | C | The ChatGPT-authenticated Codex Luna
   runner is implemented and pushed with API-key stripping, label-free isolated
   tasks, strict structured output, hard per-alias tool caps, raw event
-  retention, and unchanged policy + `verify()` emission gates. Agent smoke at
-  medium effort at `49524b6` completed 5/5 with 0 infrastructure failures,
-  0 contract rejections, and 176 replayed successful observations (mean 35.2).
-  Luna proposed findings on three rows, but the unchanged policy/verifier
-  layers rejected every proposal; the final verified-prediction rate was 0.0,
-  so validity is `NOT_EVALUABLE`. Per the predeclared medium-effort stop rule,
-  dense-RAG, oracle-slice, pilot, and full were not run under this identity.
-  The recoverable evidence is preserved at
-  `data/eval/m4-v3/chatgpt-luna/failed-smoke-49524b6`. The preceding valid
-  Luna-low smoke remains at `failed-smoke-313afd7`.
+  retention, and unchanged policy + `verify()` emission gates. The high-effort
+  agent smoke at `57be39f` completed 5/5 with 0 infrastructure failures,
+  0 contract rejections, and 273 replayed successful observations (mean 54.6).
+  Luna proposed findings on four rows, but the unchanged host-binding, policy,
+  and verifier layers rejected every proposal; the final verified-prediction
+  rate was 0.0, so validity is `NOT_EVALUABLE`. Per the predeclared high-effort
+  stop rule, dense-RAG, oracle-slice, pilot, and full were not run under this
+  identity. The recoverable evidence is preserved at
+  `data/eval/m4-v3/chatgpt-luna/failed-smoke-57be39f`; the medium and low
+  evidence remains at `failed-smoke-49524b6` and `failed-smoke-313afd7`.
 - **T4.2** | blocked-valid-inputs | C | Implemented; scoring waits for valid
   paired artifacts.
 - **T4.3** | blocked-valid-inputs | C | Implemented; full seven-hunt replay
