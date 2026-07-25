@@ -71,6 +71,40 @@ def _normalize_target_path(prediction: dict[str, Any]) -> None:
     prediction["target_path"] = target_path
 
 
+def _normalize_response_shape(data: dict[str, Any]) -> None:
+    """Canonicalize provider-only nulls and unambiguous sibling placement.
+
+    The raw provider text remains attached to the returned response. This
+    normalization never invents evidence: it only maps a non-applicable null
+    arguments value to the contract's empty mapping, or reparents an existing
+    response field that Luna placed one object too deep. Conflicting duplicate
+    fields are deliberately left in place so Pydantic rejects them.
+    """
+
+    if data.get("arguments") is None:
+        data["arguments"] = {}
+    prediction = data.get("prediction")
+    if not isinstance(prediction, dict):
+        return
+    for field in (
+        "claim",
+        "exec_probe",
+        "static_claim",
+        "final_answer",
+        "token_count",
+    ):
+        if field not in prediction:
+            continue
+        nested_value = prediction[field]
+        if field == "token_count":
+            # Provider token usage always owns this telemetry field.
+            prediction.pop(field)
+        elif field not in data or data[field] is None:
+            data[field] = prediction.pop(field)
+        elif data[field] == nested_value:
+            prediction.pop(field)
+
+
 def _agent_response(
     text: str,
     total_tokens: int,
@@ -95,6 +129,7 @@ def _agent_response(
     # These fields are adapter-owned telemetry, not model-authored content.
     data.pop("raw_provider_text", None)
     data.pop("contract_error", None)
+    _normalize_response_shape(data)
     # A model is not the authority for evaluation-record identity.  Live M4
     # calls use a constant, label-free placeholder here; the orchestrator maps
     # it to the current record only after the provider call returns.
@@ -282,7 +317,10 @@ class OpenAIDecisionModel:
                 "finding, include a complete prediction with "
                 "instance_id, regulation_clause, code_locus (loci, slice_vars, "
                 "is_interprocedural), drift_type, target_path, labels, and "
-                "rationale, plus a separate claim. The "
+                "rationale, plus a separate claim. The claim, exec_probe, "
+                "static_claim, final_answer, and token_count are response "
+                "fields alongside prediction, never fields inside prediction. "
+                "Use arguments={} whenever no ToolLayer tool is requested. The "
                 "claim must restate an obligation entailed by the "
                 "supplied clause; put code facts in exec_probe/static_claim. "
                 "D7_conformant requires conformant program/paragraph labels and "

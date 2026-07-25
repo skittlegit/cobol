@@ -372,6 +372,68 @@ def test_openai_provider_canonicalizes_only_target_path_notation():
     assert leaf.prediction.target_path is None
 
 
+def test_openai_provider_normalizes_non_applicable_arguments_null():
+    raw = {
+        "kind": "abstain",
+        "thought": "Evidence is insufficient.",
+        "tool": None,
+        "arguments": None,
+        "prediction": None,
+        "abstention_reason": "No supported code fact.",
+        "token_count": 0,
+    }
+
+    result = provider_module._agent_response(json.dumps(raw), 5)
+
+    assert result.contract_error is None
+    assert result.arguments == {}
+    assert result.token_count == 5
+    assert result.raw_provider_text == json.dumps(raw)
+
+
+def test_openai_provider_reparents_unambiguous_prediction_siblings():
+    raw = json.loads(
+        (ROOT / "tests" / "fixtures" / "agent" / "unverified_responses.json").read_text(
+            encoding="utf-8"
+        )
+    )[0]
+    for field in ("claim", "exec_probe", "static_claim", "final_answer"):
+        if field in raw:
+            raw["prediction"][field] = raw.pop(field)
+    raw["prediction"]["token_count"] = raw.pop("token_count", 0)
+
+    result = provider_module._agent_response(
+        json.dumps(raw),
+        13,
+        prediction_instance_id="drift_000000",
+    )
+
+    assert result.contract_error is None
+    assert result.kind == "finding"
+    assert result.prediction is not None
+    assert result.claim
+    assert result.token_count == 13
+
+
+def test_openai_provider_rejects_conflicting_prediction_sibling():
+    raw = json.loads(
+        (ROOT / "tests" / "fixtures" / "agent" / "unverified_responses.json").read_text(
+            encoding="utf-8"
+        )
+    )[0]
+    raw["prediction"]["claim"] = "A conflicting nested claim."
+
+    result = provider_module._agent_response(
+        json.dumps(raw),
+        13,
+        prediction_instance_id="drift_000000",
+    )
+
+    assert result.kind == "abstain"
+    assert result.contract_error is not None
+    assert "prediction.claim: Extra inputs are not permitted" in result.contract_error
+
+
 def test_openai_provider_turns_malformed_finding_into_typed_abstention():
     raw = json.loads(
         (ROOT / "tests" / "fixtures" / "agent" / "unverified_responses.json").read_text(
