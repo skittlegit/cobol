@@ -596,26 +596,41 @@ def _mode_rows(
 
 
 def _assert_clean_runtime_source() -> None:
-    result = subprocess.run(
+    scope = ("src/cobol_archaeologist", "pyproject.toml")
+    dirty: list[str] = []
+    for cached in (False, True):
+        command = ["git", "diff", "--name-only", "--ignore-cr-at-eol"]
+        if cached:
+            command.append("--cached")
+        command.extend(("--", *scope))
+        result = subprocess.run(
+            command,
+            cwd=ROOT,
+            capture_output=True,
+            check=True,
+            text=True,
+        )
+        dirty.extend(line for line in result.stdout.splitlines() if line)
+    untracked = subprocess.run(
         [
             "git",
-            "status",
-            "--porcelain",
-            "--untracked-files=all",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
             "--",
-            "src/cobol_archaeologist",
-            "pyproject.toml",
+            *scope,
         ],
         cwd=ROOT,
         capture_output=True,
         check=True,
         text=True,
     )
-    if result.stdout.strip():
+    dirty.extend(line for line in untracked.stdout.splitlines() if line)
+    if dirty:
         raise RuntimeError(
             "Codex M4 execution requires committed runtime source; "
             "commit or remove the listed changes first:\n"
-            f"{result.stdout.strip()}"
+            + "\n".join(sorted(set(dirty)))
         )
 
 
