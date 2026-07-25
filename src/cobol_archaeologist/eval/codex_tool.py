@@ -13,29 +13,21 @@ import json
 import time
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from cobol_archaeologist.agent.loop import _summarize
 from cobol_archaeologist.eval.codex_batch import AGENT_HUNTS
 from cobol_archaeologist.model.prompt import ToolName
+from cobol_archaeologist.schemas import DriftType
 from cobol_archaeologist.tool_types import RunInputs, ToolLayer
 from cobol_archaeologist.tools import RealToolLayer
 
-HuntName = Literal[
-    "shared",
-    "D1_stale_threshold",
-    "D2_missing_rule",
-    "D3_contradictory",
-    "D4_stale_reference_data",
-    "D5_boundary_error",
-    "D6_dead_code",
-    "D7_conformant",
-]
+HuntName = DriftType
 DESCRIPTOR_NAME = "descriptor.json"
 LOG_NAME = "tool_log.jsonl"
-MAX_TOOL_CALLS_PER_ALIAS = 8
+MAX_TOOL_CALLS_PER_HUNT = 8
 
 
 class ToolRequest(BaseModel):
@@ -114,12 +106,15 @@ def execute_tool_request(
         if log_path.exists()
         else []
     )
-    if sum(entry.alias == request.alias for entry in prior_calls) >= (
-        MAX_TOOL_CALLS_PER_ALIAS
+    if sum(
+        entry.alias == request.alias and entry.hunt == request.hunt
+        for entry in prior_calls
+    ) >= (
+        MAX_TOOL_CALLS_PER_HUNT
     ):
         raise RuntimeError(
-            f"tool budget exhausted for {request.alias}: "
-            f"maximum {MAX_TOOL_CALLS_PER_ALIAS} calls"
+            f"tool budget exhausted for {request.alias}/{request.hunt}: "
+            f"maximum {MAX_TOOL_CALLS_PER_HUNT} calls"
         )
     tools = tool_factory(source)
     arguments = dict(request.arguments)
@@ -158,7 +153,7 @@ def execute_tool_request(
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("alias")
-    parser.add_argument("hunt", choices=("shared", *AGENT_HUNTS))
+    parser.add_argument("hunt", choices=AGENT_HUNTS)
     parser.add_argument("tool")
     parser.add_argument("--arguments", required=True)
     return parser.parse_args()

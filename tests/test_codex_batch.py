@@ -326,7 +326,7 @@ def test_codex_tool_uses_only_descriptor_alias_and_logs_bounded_result(
 
     request = ToolRequest(
         alias="drift_900000",
-        hunt="shared",
+        hunt="D1_stale_threshold",
         tool="grep",
         arguments={"pattern": "SEVEN"},
     )
@@ -374,7 +374,9 @@ def test_codex_tool_descriptor_cannot_escape_task_root(tmp_path: Path) -> None:
         execute_tool_request(request, task_root=tmp_path)
 
 
-def test_codex_tool_hard_caps_each_alias_at_eight_attempts(tmp_path: Path) -> None:
+def test_codex_tool_gives_each_hunt_an_independent_eight_call_cap(
+    tmp_path: Path,
+) -> None:
     case_dir = tmp_path / "cases" / "drift_900000"
     case_dir.mkdir(parents=True)
     (tmp_path / "descriptor.json").write_text(
@@ -399,7 +401,7 @@ def test_codex_tool_hard_caps_each_alias_at_eight_attempts(tmp_path: Path) -> No
 
     request = ToolRequest(
         alias="drift_900000",
-        hunt="shared",
+        hunt="D1_stale_threshold",
         tool="grep",
         arguments={"pattern": "SEVEN"},
     )
@@ -410,13 +412,23 @@ def test_codex_tool_hard_caps_each_alias_at_eight_attempts(tmp_path: Path) -> No
             tool_factory=lambda source: FakeTools(),
         )
 
-    with pytest.raises(RuntimeError, match="tool budget exhausted"):
+    other_hunt = execute_tool_request(
+        request.model_copy(update={"hunt": "D2_missing_rule"}),
+        task_root=tmp_path,
+        tool_factory=lambda source: FakeTools(),
+    )
+    assert other_hunt.sequence == 9
+
+    with pytest.raises(
+        RuntimeError,
+        match="drift_900000/D1_stale_threshold",
+    ):
         execute_tool_request(
             request,
             task_root=tmp_path,
             tool_factory=lambda source: FakeTools(),
         )
-    assert len((tmp_path / "tool_log.jsonl").read_text().splitlines()) == 8
+    assert len((tmp_path / "tool_log.jsonl").read_text().splitlines()) == 9
 
 
 def test_batched_finding_cannot_emit_around_policy_guard_or_verifier() -> None:
@@ -438,7 +450,7 @@ def test_batched_finding_cannot_emit_around_policy_guard_or_verifier() -> None:
     logs = [
         ToolLogEntry(
             alias="drift_900000",
-            hunt="shared",
+            hunt="D1_stale_threshold",
             sequence=1,
             tool="read_program",
             arguments={"program": "CLOSPEN2"},
@@ -491,7 +503,7 @@ def test_batched_verified_finding_retains_whole_verification_result() -> None:
     logs = [
         ToolLogEntry(
             alias="drift_900000",
-            hunt="shared",
+            hunt="D1_stale_threshold",
             sequence=index,
             tool=row["tool"],
             arguments=row["arguments"],
@@ -505,6 +517,19 @@ def test_batched_verified_finding_retains_whole_verification_result() -> None:
             start=1,
         )
     ]
+    logs.append(
+        ToolLogEntry(
+            alias="drift_900000",
+            hunt="D2_missing_rule",
+            sequence=3,
+            tool="grep",
+            arguments={"pattern": "UNRELATED"},
+            observation_summary='{"matches":[],"pattern":"UNRELATED"}',
+            observation_truncated=False,
+            error=None,
+            latency_ms=1,
+        )
+    )
     outcome = finalize_agent_hunt(
         hunt_name="D1_stale_threshold",
         submitted=submitted,
@@ -524,9 +549,13 @@ def test_batched_verified_finding_retains_whole_verification_result() -> None:
     assert outcome.verification is not None
     assert outcome.trajectory.verification == outcome.verification
     assert len(outcome.verification.tier_attempts) >= 2
+    assert [step.tool for step in outcome.trajectory.steps] == [
+        "resolve_copybook",
+        "read_paragraph",
+    ]
 
 
-def test_agent_prompt_is_gold_hidden_and_pins_shared_real_tool_investigation() -> None:
+def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation() -> None:
     fixture = Path(__file__).parent / "fixtures" / "hunts"
     final = json.loads(
         (fixture / "cached_decisions.json").read_text(encoding="utf-8")
@@ -556,6 +585,9 @@ def test_agent_prompt_is_gold_hidden_and_pins_shared_real_tool_investigation() -
     assert "caller, callee, and slice observations" in prompt
     assert "including scalar, list, or enum-valued leaves" in prompt
     assert "emit only when all four negative observations are present" in prompt
+    assert "Each D1-D7 HUNT has an independent transcript" in prompt
+    assert "there is no shared hunt" in prompt
+    assert "program names the containing executable program" in prompt
     assert 'read_paragraph {"program":"...","name":"..."}' in prompt
     assert 'grep {"pattern":"..."}' in prompt
     assert "gpt-5.6-luna" not in prompt

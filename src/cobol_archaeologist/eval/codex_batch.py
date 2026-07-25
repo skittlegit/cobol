@@ -427,7 +427,7 @@ def _tool_calls(
     hunt_name: DriftType,
 ) -> list[ToolCall]:
     relevant = sorted(
-        (entry for entry in logs if entry.hunt in {"shared", hunt_name}),
+        (entry for entry in logs if entry.hunt == hunt_name),
         key=lambda entry: entry.sequence,
     )
     return [

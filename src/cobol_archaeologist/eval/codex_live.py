@@ -394,19 +394,26 @@ find_callees {{"program":"...","para":"..."}}; trace_variable and slice_on
 {{"name":"..."}}; get_data_layout {{"record":"..."}}; grep {{"pattern":"..."}};
 run_cobol {{"snippet":"...","inputs":null}}; search_regulations
 {{"query":"..."}}.
-Use HUNT=shared when an observation supports multiple D1-D7 hunts. Do not read
-case files directly and do not inspect parent directories, git history, file
-timestamps, comments-as-edit-cues, formatting discontinuities, or identifier
-style. Make at most 8 tool calls per alias and obtain at least 3 successful
-bounded observations per alias. Prefer read_program, grep, relevant
-read_paragraph calls, and only the slice/call-graph/copybook tools needed by
-the evidence.
+Each D1-D7 HUNT has an independent transcript and an independent maximum of 8
+tool calls. Use the exact class name as HUNT; there is no shared hunt. Obtain
+at least 3 successful bounded observations for each hunt before emitting a
+finding. Do not read case files directly and do not inspect parent directories,
+git history, file timestamps, comments-as-edit-cues, formatting
+discontinuities, or identifier style. Prefer read_program, grep, relevant
+read_paragraph calls, and only the slice/call-graph/copybook tools required by
+that hunt's evidence contract. For D2, reserve calls for grep, find_callers,
+find_callees, and slice_on, and emit only when all four observations are
+negative.
 
 Return exactly one result for every alias. Each result has the seven required
 D1_stale_threshold through D7_conformant response keys shown by the schema.
 The host attaches the case identity and supplied clause to a
 finding; author the remaining prediction fields, cite concrete original-source
 loci, and include verifier hooks. Abstain when the class-specific evidence is incomplete.
+In a locus, program names the containing executable program and file names the
+physical copybook/source file. Set is_interprocedural=true whenever loci carry
+more than one distinct program name; cross-paragraph or copybook-spanning loci
+may also be interprocedural.
 For D1 or D5 against a clause whose current_value is composite, target_path
 must name a non-composite leaf from that supplied value.
 "Searched and found nothing" is D2 or abstention, never conformant.
