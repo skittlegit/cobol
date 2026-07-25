@@ -12,6 +12,7 @@ from cobol_archaeologist.agent.stub_tools import StubToolLayer
 from cobol_archaeologist.agent.trajectory import BudgetSpec
 from cobol_archaeologist.eval.codex_batch import (
     AGENT_HUNTS,
+    CodexBaselineEnvelope,
     CodexBatchEnvelope,
     CodexUsage,
     SubmittedHunt,
@@ -20,6 +21,7 @@ from cobol_archaeologist.eval.codex_batch import (
     finalize_agent_hunt,
     parse_codex_events,
     sanitized_codex_environment,
+    strict_codex_schema,
     validate_agent_envelope,
 )
 from cobol_archaeologist.eval.codex_live import (
@@ -399,3 +401,22 @@ def test_codex_cli_arguments_pin_luna_low_and_chatgpt_safe_modes() -> None:
     assert "workspace-write" in args
     assert args[args.index("-m") + 1] == "gpt-5.6-luna"
     assert 'model_reasoning_effort="low"' in args
+
+
+def test_codex_schema_requires_every_nullable_key_without_defaults() -> None:
+    schema = strict_codex_schema(CodexBaselineEnvelope)
+
+    def walk(node):
+        if isinstance(node, dict):
+            if "properties" in node:
+                assert set(node["required"]) == set(node["properties"])
+                assert node["additionalProperties"] is False
+            assert "default" not in node
+            assert "format" not in node
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+
+    walk(schema)

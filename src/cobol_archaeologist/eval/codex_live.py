@@ -38,6 +38,7 @@ from cobol_archaeologist.eval.codex_batch import (
     finalize_agent_case,
     parse_codex_events,
     sanitized_codex_environment,
+    strict_codex_schema,
     validate_agent_envelope,
     validate_baseline_envelope,
 )
@@ -500,8 +501,11 @@ def execute_codex_task(
     )
     stderr = result.stderr.decode("utf-8", errors="replace")
     if result.returncode:
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        detail = "\n".join(part for part in (stderr, stdout) if part).strip()
         raise RuntimeError(
-            f"Codex task failed ({result.returncode}) at {task_root}: {stderr}"
+            f"Codex task failed ({result.returncode}) at {task_root}: "
+            f"{detail[-4000:]}"
         )
     stdout = result.stdout.decode("utf-8", errors="replace")
     parsed = parse_codex_events(stdout)
@@ -939,7 +943,7 @@ def run_codex_system(
                     )
                     execution = execute_codex_task(
                         prompt=prompt,
-                        schema=CodexBatchEnvelope.model_json_schema(),
+                        schema=strict_codex_schema(CodexBatchEnvelope),
                         sources={
                             alias: materialized[row.instance_id]
                             for alias, row in alias_rows.items()
@@ -1012,7 +1016,7 @@ def run_codex_system(
                     prompt = build_baseline_prompt(system_id, visible)
                     execution = execute_codex_task(
                         prompt=prompt,
-                        schema=CodexBaselineEnvelope.model_json_schema(),
+                        schema=strict_codex_schema(CodexBaselineEnvelope),
                         sources={},
                         support_root=support_root,
                         distro=distro,

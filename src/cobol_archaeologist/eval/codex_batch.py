@@ -165,6 +165,35 @@ def sanitized_codex_environment(
     }
 
 
+def strict_codex_schema(model: type[BaseModel]) -> dict[str, Any]:
+    """Convert a Pydantic schema to the Codex structured-output subset.
+
+    Structured output requires every property name in ``required``. Nullable
+    fields remain nullable through their ``anyOf`` branch; requiring the key
+    does not require a non-null value. Pydantic re-validates the returned JSON,
+    so provider-unsupported ``format`` annotations are unnecessary here.
+    """
+
+    schema = model.model_json_schema()
+
+    def normalize(node: Any) -> None:
+        if isinstance(node, dict):
+            node.pop("default", None)
+            node.pop("format", None)
+            properties = node.get("properties")
+            if isinstance(properties, dict):
+                node["required"] = list(properties)
+                node["additionalProperties"] = False
+            for value in node.values():
+                normalize(value)
+        elif isinstance(node, list):
+            for value in node:
+                normalize(value)
+
+    normalize(schema)
+    return schema
+
+
 def allocate_tokens(total: int, slots: int) -> list[int]:
     """Allocate one batched provider turn exactly across persisted responses."""
 
