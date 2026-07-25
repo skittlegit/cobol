@@ -275,6 +275,7 @@ class OpenAIDecisionModel:
         user = {
             "question": question,
             "tool_transcript": transcript,
+            "response_contract": schema,
             "instruction": (
                 "Return exactly one JSON object and stop. Never append a second "
                 "object, alternative, correction, or final decision after a "
@@ -309,10 +310,7 @@ class OpenAIDecisionModel:
             "reasoning": {"effort": self.reasoning_effort},
             "text": {
                 "format": {
-                    "type": "json_schema",
-                    "name": "agent_response",
-                    "schema": schema,
-                    "strict": False,
+                    "type": "json_object",
                 }
             },
             "store": False,

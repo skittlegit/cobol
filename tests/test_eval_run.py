@@ -208,24 +208,21 @@ def test_openai_provider_uses_responses_json_contract_without_persisting(
     assert payload["model"] == "gpt-5.6-sol"
     assert payload["reasoning"] == {"effort": "none"}
     assert payload["temperature"] == 0.0
-    assert payload["text"]["format"]["type"] == "json_schema"
-    assert payload["text"]["format"]["name"] == "agent_response"
-    assert payload["text"]["format"]["strict"] is False
-    assert payload["text"]["format"]["schema"]["title"] == "AgentResponse"
-    provider_instruction = json.loads(payload["input"])["instruction"]
+    assert payload["text"]["format"] == {"type": "json_object"}
+    provider_input = json.loads(payload["input"])
+    provider_instruction = provider_input["instruction"]
+    response_schema = provider_input["response_contract"]
+    assert response_schema["title"] == "AgentResponse"
     assert "Return exactly one JSON object and stop" in provider_instruction
     assert "code_locus (loci, slice_vars, is_interprocedural)" in (
         provider_instruction
     )
-    prediction_id = payload["text"]["format"]["schema"]["$defs"]["DriftPrediction"][
-        "properties"
-    ]["instance_id"]
-    assert "provenance" not in payload["text"]["format"]["schema"]["$defs"][
-        "DriftPrediction"
-    ]["properties"]
-    assert "raw_provider_text" not in payload["text"]["format"]["schema"]["properties"]
-    assert "contract_error" not in payload["text"]["format"]["schema"]["properties"]
-    response_schema = payload["text"]["format"]["schema"]
+    prediction_id = response_schema["$defs"]["DriftPrediction"]["properties"][
+        "instance_id"
+    ]
+    assert "provenance" not in response_schema["$defs"]["DriftPrediction"]["properties"]
+    assert "raw_provider_text" not in response_schema["properties"]
+    assert "contract_error" not in response_schema["properties"]
     assert "allOf" not in response_schema
     assert "requires both a complete prediction" in response_schema["description"]
     assert "Required and complete" in response_schema["properties"]["prediction"][
