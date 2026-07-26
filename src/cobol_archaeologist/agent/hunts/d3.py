@@ -21,7 +21,7 @@ class D3Hunt(BasePolicyHunt):
             and not prediction.code_locus.is_interprocedural
         ):
             errors.append("multi-program D3 must be interprocedural")
-        rationale = prediction.gold_rationale.lower()
+        rationale = prediction.rationale.lower()
         if not any(word in rationale for word in ("conflict", "contradict", "disagree")):
             errors.append("D3 rationale must name the conflicting outcomes")
         if response.static_claim is None:

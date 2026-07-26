@@ -11,7 +11,7 @@ from cobol_archaeologist.eval.schemas import EvaluationRecord
 from cobol_archaeologist.eval.trajectory import assess_trajectory
 from cobol_archaeologist.model.prompt import CachedDecisionModel
 from cobol_archaeologist.model.verify import LexicalEntailer
-from cobol_archaeologist.schemas import RegulationClause
+from cobol_archaeologist.schemas import DriftInstance, RegulationClause
 
 ROOT = Path(__file__).resolve().parents[1]
 FIX = ROOT / "tests" / "fixtures" / "hunts"
@@ -39,9 +39,16 @@ def _d3_record() -> EvaluationRecord:
         entailer=LexicalEntailer(),
         clock=lambda: 100.0,
     )
+    prediction = outcome.finding
+    gold_payload = prediction.model_dump(mode="json")
+    gold_payload["gold_rationale"] = gold_payload.pop("rationale")
+    gold_payload["provenance"] = {
+        "source": "real_curated",
+        "base_program": "CLOSPEN1.cbl",
+    }
     return EvaluationRecord(
         instance_id=outcome.finding.instance_id,
-        gold=outcome.finding,
+        gold=DriftInstance.model_validate(gold_payload),
         prediction=outcome.finding,
         confidence=outcome.confidence,
         verification=outcome.verification,

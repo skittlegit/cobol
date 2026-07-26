@@ -5,6 +5,10 @@ resolved and superseded progress messages do not remain as history here.
 
 ## Track A inbox
 
+→ Track A | from C | 2026-07-25 | CONTRACT v1.4 / T0.3 | Prediction/gold
+schema and evaluation-side change only. `tool_types.py` and `tools.py` are
+untouched; no action.
+
 → Track A | from C | 2026-07-24 | T3.4 | D6 verification seeds reachability
 from the single true `entry_points` node, then uses `forest_roots` +
 `reachable_from` as the deadness oracle per your 2026-07-17 flag. It does not
@@ -30,7 +34,10 @@ surface probe is a mandatory T5.3 baseline. Resolution:
 
 ## Track B inbox
 
-_No open flags._
+→ Track B | from C | 2026-07-25 | CONTRACT v1.4 / T0.3 | Predictions are now
+`DriftPrediction`-shaped and omit provenance/`gold_rationale`. Gold remains
+`DriftInstance`-shaped with `provenance.mutation` required for synthetic
+non-D7. Your emitters produce gold and are unaffected.
 
 ## Track C inbox
 

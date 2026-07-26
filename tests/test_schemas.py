@@ -13,7 +13,12 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from cobol_archaeologist.schemas import CurrentValue, DriftInstance, resolve_path
+from cobol_archaeologist.schemas import (
+    CurrentValue,
+    DriftInstance,
+    DriftPrediction,
+    resolve_path,
+)
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 FIXTURE = FIXTURES / "drift_instance_d1_kyc.json"
@@ -49,6 +54,13 @@ def composite_d1_data() -> dict:
     data["regulation_clause"]["current_value"] = copy.deepcopy(COMPOSITE_CC08A)
     data["target_path"] = "penalty_per_day"
     return data
+
+
+def prediction_data(data: dict | None = None) -> dict:
+    payload = copy.deepcopy(data or load_fixture())
+    payload["rationale"] = payload.pop("gold_rationale")
+    payload.pop("provenance")
+    return payload
 
 
 # --- v1 gates (preserved, retargeted to v2) ------------------------------------
@@ -278,3 +290,86 @@ def test_interproc_fixture_round_trips():
     assert first.code_locus.is_interprocedural is True
     assert len({loc.program for loc in first.code_locus.loci}) == 2
     assert any(loc.file == "CVACT03Y" for loc in first.code_locus.loci)
+
+
+# --- Schema v3: detector output is not benchmark gold -------------------------
+
+
+def test_gold_shape_is_unchanged_and_prediction_omits_gold_only_fields():
+    gold = DriftInstance.model_validate(load_fixture())
+    prediction = DriftPrediction.from_gold(gold)
+
+    assert set(DriftInstance.model_fields) == {
+        "instance_id",
+        "regulation_clause",
+        "code_locus",
+        "drift_type",
+        "target_path",
+        "labels",
+        "gold_rationale",
+        "provenance",
+    }
+    assert "provenance" not in DriftPrediction.model_fields
+    assert "gold_rationale" not in DriftPrediction.model_fields
+    assert "confidence" not in DriftPrediction.model_fields
+    assert prediction.rationale == gold.gold_rationale
+
+
+def test_committed_m4_payload_projects_to_prediction_not_gold():
+    artifact = (
+        Path(__file__).resolve().parents[1]
+        / "data"
+        / "eval"
+        / "m4"
+        / "dense_rag.jsonl"
+    )
+    row = next(
+        json.loads(line)
+        for line in artifact.read_text(encoding="utf-8").splitlines()
+        if '"prediction":{' in line
+    )
+    payload = row["prediction"]
+    assert "gold_rationale" not in payload
+    assert "provenance" not in payload
+
+    prediction = DriftPrediction.model_validate(payload)
+
+    assert prediction.instance_id == row["instance_id"]
+    with pytest.raises(ValidationError):
+        DriftInstance.model_validate(payload)
+
+
+def test_prediction_and_gold_share_label_locus_and_target_path_rules():
+    composite = composite_d1_data()
+    DriftInstance.model_validate(composite)
+    DriftPrediction.model_validate(prediction_data(composite))
+
+    invalid = prediction_data(composite)
+    invalid["target_path"] = None
+    with pytest.raises(ValidationError):
+        DriftPrediction.model_validate(invalid)
+
+    invalid = prediction_data()
+    invalid["labels"]["line_level"][0]["line"] = 999
+    with pytest.raises(ValidationError):
+        DriftPrediction.model_validate(invalid)
+
+
+def test_prediction_d7_and_non_d7_label_rules_match_gold():
+    conformant = prediction_data()
+    conformant["drift_type"] = "D7_conformant"
+    conformant["labels"] = {
+        "program_level": "conformant",
+        "paragraph_level": "conformant",
+        "line_level": [],
+    }
+    DriftPrediction.model_validate(conformant)
+
+    conformant["labels"]["program_level"] = "drift"
+    with pytest.raises(ValidationError):
+        DriftPrediction.model_validate(conformant)
+
+    non_d7 = prediction_data()
+    non_d7["labels"]["program_level"] = "conformant"
+    with pytest.raises(ValidationError):
+        DriftPrediction.model_validate(non_d7)

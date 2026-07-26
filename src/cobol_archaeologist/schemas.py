@@ -1,6 +1,8 @@
-"""Inter-module Pydantic models: the DriftInstance family (Track C).
+"""Inter-module Pydantic models: gold instances and detector predictions.
 
-SCHEMA v2 — RE-FROZEN 2026-07-12 per
+SCHEMA v3 — RATIFIED 2026-07-25 in the canonical T0.3 work order.
+
+Schema v2 was re-frozen 2026-07-12 per
 ``docs/reviews/2026-07-12/contract-change-track-c-RESOLVED.md`` (T0.3a). Any
 change to these models after this commit is a new CONTRACT CHANGE affecting
 Tracks A/B/C and must be flagged in chat, never edited in place.
@@ -9,6 +11,11 @@ v2 over v1: interprocedural line-to-program binding (``loci`` /
 ``SourceLocus`` / ``SourceLineRef`` replacing the flat ``CodeLocus``),
 recursive+typed ``CurrentValue`` with a ``Comparator`` field on every node, and
 ``DriftInstance.target_path`` for composite-clause D1/D5 targeting.
+
+v3 leaves the gold ``DriftInstance`` shape intact and adds
+``DriftPrediction``. Predictions share the semantic clause/locus/label
+vocabulary but cannot carry gold-only mutation provenance or
+``gold_rationale``.
 """
 
 from __future__ import annotations
@@ -273,6 +280,104 @@ class DriftInstance(BaseModel):
                     f"{self.drift_type} against a composite clause requires target_path"
                 )
             node = resolve_path(cv, tp)  # already known to resolve
+            if node.kind == "composite":
+                raise ValueError("target_path must land on a non-composite (leaf) node")
+        return self
+
+
+class DriftPrediction(BaseModel):
+    """Detector-observable drift output, distinct from benchmark gold.
+
+    A detector can cite a clause and code locus and explain its judgment. It
+    cannot observe how Track B generated a synthetic benchmark row, so this
+    model deliberately has no ``provenance`` or ``gold_rationale``.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    instance_id: str = Field(pattern=r"^drift_\d{6}$")
+    regulation_clause: RegulationClause
+    code_locus: CodeLocus
+    drift_type: DriftType
+    target_path: str | None = None
+    labels: Labels
+    rationale: str = Field(min_length=1)
+
+    @classmethod
+    def from_gold(cls, instance: DriftInstance) -> DriftPrediction:
+        """Construct the detector-visible projection of a gold fixture.
+
+        This compatibility path supports existing offline verifier fixtures;
+        production model responses validate directly as ``DriftPrediction``.
+        """
+
+        return cls(
+            instance_id=instance.instance_id,
+            regulation_clause=instance.regulation_clause,
+            code_locus=instance.code_locus,
+            drift_type=instance.drift_type,
+            target_path=instance.target_path,
+            labels=instance.labels,
+            rationale=instance.gold_rationale,
+        )
+
+    @model_validator(mode="after")
+    def _labels_consistent_with_drift_type(self) -> DriftPrediction:
+        if self.drift_type == "D7_conformant":
+            if (
+                self.labels.program_level != "conformant"
+                or self.labels.paragraph_level != "conformant"
+                or self.labels.line_level != []
+            ):
+                raise ValueError(
+                    "D7_conformant requires conformant program/paragraph labels "
+                    "and an empty line_level"
+                )
+        elif self.labels.program_level != "drift":
+            raise ValueError(
+                f"{self.drift_type} requires labels.program_level == 'drift'"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _line_level_within_loci(self) -> DriftPrediction:
+        for ref in self.labels.line_level:
+            matched = any(
+                locus.program == ref.program
+                and locus.file == ref.file
+                and locus.line_span[0] <= ref.line <= locus.line_span[1]
+                for locus in self.code_locus.loci
+            )
+            if not matched:
+                raise ValueError(
+                    f"line_level ref (program={ref.program!r}, file={ref.file!r}, "
+                    f"line={ref.line}) matches no locus span"
+                )
+        return self
+
+    @model_validator(mode="after")
+    def _target_path_resolves(self) -> DriftPrediction:
+        cv = self.regulation_clause.current_value
+        tp = self.target_path
+        if tp is not None:
+            if cv is None:
+                raise ValueError("target_path requires regulation_clause.current_value")
+            try:
+                resolve_path(cv, tp)
+            except KeyError as exc:
+                raise ValueError(
+                    f"target_path {tp!r} does not resolve into current_value"
+                ) from exc
+        if (
+            cv is not None
+            and cv.kind == "composite"
+            and self.drift_type in {"D1_stale_threshold", "D5_boundary_error"}
+        ):
+            if tp is None:
+                raise ValueError(
+                    f"{self.drift_type} against a composite clause requires target_path"
+                )
+            node = resolve_path(cv, tp)
             if node.kind == "composite":
                 raise ValueError("target_path must land on a non-composite (leaf) node")
         return self

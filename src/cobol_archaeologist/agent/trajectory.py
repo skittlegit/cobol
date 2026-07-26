@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from cobol_archaeologist.model.prompt import AgentResponse
 from cobol_archaeologist.model.verify import VerificationResult
-from cobol_archaeologist.schemas import DriftInstance
+from cobol_archaeologist.schemas import DriftPrediction
 
 
 class BudgetSpec(BaseModel):
@@ -20,6 +20,7 @@ class BudgetSpec(BaseModel):
     max_tool_calls: int = Field(default=8, ge=0)
     max_tokens: int = Field(default=4096, ge=1)
     wall_clock_timeout_s: float = Field(default=30.0, gt=0)
+    max_contract_repairs: int = Field(default=1, ge=0)
 
 
 class ToolCall(BaseModel):
@@ -45,18 +46,23 @@ class Trajectory(BaseModel):
     # choices, so retain complete turns alongside the work-order's steps shape.
     model_responses: list[AgentResponse]
     verification: VerificationResult | None
-    finding: DriftInstance | None
+    finding: DriftPrediction | None
     abstained: bool
     abstention_reason: str | None
     budget: BudgetSpec
     budget_exhausted: bool
     tokens_used: int = Field(ge=0)
+    contract_repairs: int = Field(default=0, ge=0)
     final_answer: str
     model_id: str
     seed: int | None
 
     @model_validator(mode="after")
     def _emission_invariants(self) -> Trajectory:
+        if self.contract_repairs > self.budget.max_contract_repairs:
+            raise ValueError("contract repairs exceed the frozen repair budget")
+        if len(self.model_responses) - self.contract_repairs > self.budget.max_steps:
+            raise ValueError("semantic model turns exceed the step budget")
         if self.abstained:
             if self.finding is not None:
                 raise ValueError("an abstained trajectory cannot emit a finding")

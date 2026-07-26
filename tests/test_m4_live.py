@@ -2,12 +2,19 @@
 
 from pathlib import Path
 
+import pytest
+
+from cobol_archaeologist.eval import live as live_module
 from cobol_archaeologist.eval.baselines import DenseRAGContext
 from cobol_archaeologist.eval.live import (
+    _assert_matching_smoke,
     baseline_question,
     bounded_code_context,
+    run_live_system,
 )
 from cobol_archaeologist.eval.materialize import MaterializedSource
+from cobol_archaeologist.eval.run import RunManifest
+from cobol_archaeologist.eval.schemas import RunValidity
 from cobol_archaeologist.schemas import DriftInstance
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,3 +74,128 @@ def test_bounded_code_context_is_query_driven_and_line_bounded():
     ]
     assert len(numbered_code_lines) <= 40
     assert "mutation" not in context.lower()
+
+
+def _manifest(*, run_mode="full", total=204, effort="low") -> RunManifest:
+    return RunManifest(
+        system_id="dense_rag",
+        provider="openai",
+        model_id="gpt-5.6-luna",
+        decoding={
+            "temperature": 0.0,
+            "reasoning_effort": effort,
+            "seed": None,
+        },
+        budgets={"max_steps": 1},
+        repository_commit="a" * 40,
+        input_revision="input-v1",
+        tool_version="tools@abc",
+        prompt_version="prompt-v3",
+        split_path="data/test.jsonl",
+        split_sha256="b" * 64,
+        schema_version="3",
+        run_mode=run_mode,
+        smoke_rows=5 if run_mode == "smoke" else None,
+        total=total,
+    )
+
+
+def test_full_run_refuses_before_materialization_without_matching_smoke(
+    monkeypatch,
+    tmp_path,
+):
+    touched = False
+
+    def forbidden(_rows):
+        nonlocal touched
+        touched = True
+        raise AssertionError("materialization must be downstream of smoke gate")
+
+    monkeypatch.setattr(live_module, "_materialize_all", forbidden)
+    monkeypatch.setattr(
+        live_module,
+        "OpenAIDecisionModel",
+        lambda **_kwargs: (_ for _ in ()).throw(
+            AssertionError("offline gate must not construct a credential reader")
+        ),
+    )
+    with pytest.raises(RuntimeError, match="requires a successful matching"):
+        run_live_system(
+            "dense_rag",
+            rows=[_row()],
+            model_id="gpt-5.6-luna",
+            output_dir=tmp_path,
+        )
+    assert not touched
+
+
+def test_matching_smoke_is_exact_and_must_be_valid(tmp_path):
+    expected = _manifest()
+    smoke = _manifest(run_mode="smoke", total=5)
+    smoke.completed_run_keys = [f"key-{index}" for index in range(5)]
+    smoke.validity = RunValidity(
+        completed_rows=5,
+        available_rows=5,
+        infrastructure_failures=0,
+        provider_turns=5,
+        contract_rejections=0,
+        contract_rejection_rate=0.0,
+        non_null_predictions=1,
+        non_null_prediction_rate=0.2,
+        status="VALID",
+    )
+    path = tmp_path / "smoke" / "dense_rag.manifest.json"
+    path.parent.mkdir()
+    path.write_text(smoke.model_dump_json(), encoding="utf-8")
+
+    _assert_matching_smoke(expected, output_dir=tmp_path)
+
+    mismatched = _manifest(run_mode="smoke", total=5, effort="medium")
+    mismatched.completed_run_keys = smoke.completed_run_keys
+    mismatched.validity = smoke.validity
+    path.write_text(mismatched.model_dump_json(), encoding="utf-8")
+    with pytest.raises(RuntimeError, match="decoding"):
+        _assert_matching_smoke(expected, output_dir=tmp_path)
+
+
+def test_smoke_artifacts_never_use_headline_paths(monkeypatch, tmp_path):
+    captured = {}
+
+    def fake_run(self, rows, **_kwargs):
+        captured["records"] = self.records_path
+        captured["manifest"] = self.manifest_path
+        captured["run_manifest"] = _kwargs["manifest"]
+        return []
+
+    monkeypatch.setattr(live_module.EvaluationRunner, "run", fake_run)
+    monkeypatch.setattr(
+        live_module,
+        "_materialize_all",
+        lambda rows: ({}, {row.instance_id: "fixture" for row in rows}),
+    )
+    rows = [_row()] * 5
+    run_live_system(
+        "agent",
+        rows=rows,
+        model_id="qwen3:4b",
+        provider="ollama",
+        output_dir=tmp_path,
+        regulation_search=object(),
+        entailer=object(),
+        smoke=5,
+    )
+
+    assert captured["records"].parent == tmp_path / "smoke"
+    assert captured["manifest"].parent == tmp_path / "smoke"
+    assert not (tmp_path / "agent.jsonl").exists()
+    assert captured["run_manifest"].provider == "ollama"
+    assert captured["run_manifest"].model_id == "qwen3:4b"
+    assert captured["run_manifest"].decoding["temperature"] == 0.0
+    assert captured["run_manifest"].decoding["thinking"] is False
+    assert captured["run_manifest"].decoding["seed"] == 2601
+    assert (
+        captured["run_manifest"].decoding[
+            "min_successful_observations_before_abstention"
+        ]
+        == 3
+    )

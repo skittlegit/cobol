@@ -14,6 +14,7 @@ from cobol_archaeologist.model.prompt import (
     SYSTEM_PROMPT,
     AgentResponse,
     DecisionModel,
+    respond_with_contract_repair,
 )
 from cobol_archaeologist.model.verify import Entailer, Finding, verify
 from cobol_archaeologist.tool_types import RunInputs, ToolLayer
@@ -51,18 +52,28 @@ class InvestigationLoop:
         budget: BudgetSpec | None = None,
         entailer: Entailer | None = None,
         clock: Callable[[], float] = time.monotonic,
+        min_successful_observations_before_abstention: int = 1,
     ) -> None:
+        if min_successful_observations_before_abstention < 1:
+            raise ValueError(
+                "min_successful_observations_before_abstention must be >= 1"
+            )
         self.tools = tools
         self.model = model
         self.budget = budget or BudgetSpec()
         self.entailer = entailer
         self.clock = clock
+        self.min_successful_observations_before_abstention = (
+            min_successful_observations_before_abstention
+        )
 
     def run(self, question: str) -> Trajectory:
         started = self.clock()
         steps: list[ToolCall] = []
         responses: list[AgentResponse] = []
         tokens_used = 0
+        contract_repairs = 0
+        model_question = question
 
         def finish(
             *,
@@ -84,6 +95,7 @@ class InvestigationLoop:
                 budget=self.budget,
                 budget_exhausted=budget_exhausted,
                 tokens_used=tokens_used,
+                contract_repairs=contract_repairs,
                 final_answer=final_answer,
                 model_id=self.model.model_id,
                 seed=self.model.seed,
@@ -97,10 +109,17 @@ class InvestigationLoop:
                 final_answer=f"Abstained: {reason}",
             )
 
+        def repair_allowed(rejected: AgentResponse) -> bool:
+            return (
+                tokens_used + rejected.token_count <= self.budget.max_tokens
+                and self.clock() - started < self.budget.wall_clock_timeout_s
+            )
+
         while True:
             if self.clock() - started >= self.budget.wall_clock_timeout_s:
                 return exhausted("wall-clock budget exhausted")
-            if len(responses) >= self.budget.max_steps:
+            semantic_turns = len(responses) - contract_repairs
+            if semantic_turns >= self.budget.max_steps:
                 return exhausted("step budget exhausted")
 
             transcript = [
@@ -115,10 +134,14 @@ class InvestigationLoop:
                 for call in steps
             ]
             try:
-                response = self.model.respond(
+                response, attempts = respond_with_contract_repair(
+                    self.model,
                     system_prompt=SYSTEM_PROMPT,
-                    question=question,
+                    question=model_question,
                     transcript=transcript,
+                    max_repairs=self.budget.max_contract_repairs
+                    - contract_repairs,
+                    repair_allowed=repair_allowed,
                 )
             # Provider adapters may surface SDK-specific exceptions. Any such
             # failure is an abstention, never permission to bypass the model.
@@ -131,8 +154,9 @@ class InvestigationLoop:
                     final_answer=f"Abstained: {reason}",
                 )
 
-            responses.append(response)
-            tokens_used += response.token_count
+            responses.extend(attempts)
+            contract_repairs += len(attempts) - 1
+            tokens_used += sum(attempt.token_count for attempt in attempts)
             if tokens_used > self.budget.max_tokens:
                 return exhausted("token budget exhausted")
             if self.clock() - started >= self.budget.wall_clock_timeout_s:
@@ -140,6 +164,38 @@ class InvestigationLoop:
 
             if response.kind == "abstain":
                 reason = response.abstention_reason or "model abstained"
+                if response.contract_error is not None:
+                    return finish(
+                        abstained=True,
+                        reason=reason,
+                        budget_exhausted=False,
+                        final_answer=response.final_answer
+                        or f"Abstained: {reason}",
+                    )
+                successful_observations = sum(
+                    call.error is None and bool(call.observation_summary)
+                    for call in steps
+                )
+                if (
+                    successful_observations
+                    < self.min_successful_observations_before_abstention
+                    and len(steps) < self.budget.max_tool_calls
+                    and semantic_turns < self.budget.max_steps
+                ):
+                    available = ", ".join(sorted(_TOOLS))
+                    model_question = (
+                        f"{question}\n\n"
+                        "Your abstention cannot be accepted yet: this hunt has "
+                        f"{successful_observations} successful bounded tool "
+                        "observation(s) and requires at least "
+                        f"{self.min_successful_observations_before_abstention}. "
+                        "Obtain the specific missing evidence you identified. "
+                        "Investigate only the stated program scope and clause; "
+                        "do not infer hidden benchmark labels, source line "
+                        "annotations, or mutation provenance. "
+                        f"Call one authorized tool: {available}."
+                    )
+                    continue
                 return finish(
                     abstained=True,
                     reason=reason,
@@ -150,8 +206,10 @@ class InvestigationLoop:
             if response.kind == "tool":
                 if len(steps) >= self.budget.max_tool_calls:
                     return exhausted("tool-call budget exhausted")
-                call = self._call_tool(response, step=len(responses))
+                semantic_turn = len(responses) - contract_repairs
+                call = self._call_tool(response, step=semantic_turn)
                 steps.append(call)
+                model_question = question
                 if self.clock() - started >= self.budget.wall_clock_timeout_s:
                     return exhausted("wall-clock budget exhausted")
                 continue

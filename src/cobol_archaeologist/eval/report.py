@@ -164,10 +164,71 @@ def write_report(report: M4Report, json_path: Path, markdown_path: Path) -> None
         lines.extend(["## Blocking issues", ""])
         lines.extend(f"- {issue}" for issue in report.issues)
         lines.append("")
+    if report.metrics:
+        lines.extend(
+            [
+                "## Headline metrics",
+                "",
+                "| System | T1 F1 | Precision | Recall | Answer rate |",
+                "|---|---:|---:|---:|---:|",
+            ]
+        )
+        for key, label in (
+            ("agent", "Agent"),
+            ("dense_rag", "Dense-RAG"),
+            ("oracle_slice", "Oracle-slice"),
+        ):
+            detection_row = report.metrics[key]["overall"]["t1_detection"]
+            lines.append(
+                f"| {label} | {detection_row['f1']:.4f} | "
+                f"{detection_row['precision']:.4f} | "
+                f"{detection_row['recall']:.4f} | "
+                f"{detection_row['answer_rate']:.4f} |"
+            )
+        agent = report.metrics["agent"]["overall"]
+        faithfulness = agent["t4_faithfulness"]
+        calibration_row = report.metrics["calibration"]
+        t6 = agent["t6_versioned_judgment"]
+        lines.extend(
+            [
+                "",
+                "## Agent coverage, faithfulness, and calibration",
+                "",
+                (
+                    f"- Coverage: {calibration_row['answered']}/"
+                    f"{calibration_row['available']} "
+                    f"({calibration_row['coverage']:.4f})."
+                ),
+                (
+                    "- Aggregate faithfulness: "
+                    f"{faithfulness['aggregate']['faithfulness']:.4f} "
+                    f"(n={faithfulness['aggregate']['n']})."
+                ),
+                "- Per-tier faithfulness: "
+                + ", ".join(
+                    f"Tier {tier} "
+                    f"{row['faithfulness']:.4f} (n={row['n']})"
+                    for tier, row in faithfulness["per_tier"].items()
+                )
+                + ".",
+                (
+                    f"- Brier score: {calibration_row['brier_score']:.4f}; "
+                    "expected calibration error: "
+                    f"{calibration_row['expected_calibration_error']:.4f}."
+                ),
+                (
+                    f"- T6: {t6['successes']}/{t6['pairs']} "
+                    f"({t6['paired_accuracy']:.4f}), exact 95% CI "
+                    f"[{t6['exact_95_ci'][0]:.4f}, "
+                    f"{t6['exact_95_ci'][1]:.4f}]."
+                ),
+                "",
+            ]
+        )
     if report.decisions:
         lines.extend(
             [
-                "## Decisions",
+                "## Frozen decisions",
                 "",
                 "```json",
                 json.dumps(report.decisions, indent=2, default=str),

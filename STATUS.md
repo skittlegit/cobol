@@ -19,6 +19,13 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **M3 (Agent Grounded): COMPLETE 2026-07-24** — T3.3b HyDE and T3.6 D1–D7
   policy hunts were independently reviewed and merged in PR #67; verified
   emission, D6 delegation, anti-shortcut policy, and the real/stub seam stand.
+- **M4 (Narrow End-to-End): CLOSED — NO_GO 2026-07-26** — all three canonical
+  Luna-Codex systems completed 204/204 frozen rows at commit `357f483` with
+  valid, paired, zero-infrastructure artifacts. The frozen report is evaluable
+  with zero blocking issues: agent T1 F1 0.3665, interprocedural delta versus
+  dense-RAG -0.3030 (95% CI [-0.4929, -0.1252], p=0.00635), and T6 2/20.
+  This valid NO_GO closes the Week-10 checkpoint and directs the next framing
+  toward the slicer rather than agent-loop superiority.
 
 ## Task ledger
 
@@ -28,13 +35,12 @@ three tracks; a task's numeric prefix does not identify its phase.
   + KYC union. Anchor RE-ANCHORED at T2.1 (2026-07-09) to the 2025 Commercial
   Banks CC/DC Directions (2022 MD repealed 2025-11-28); KYC bridge is 2025 para
   90. See the T2.1 work order.
-- **T0.3** | done | C | `src/cobol_archaeologist/schemas.py` +
-  `tests/test_schemas.py`. **SCHEMA v2 — RE-FROZEN 2026-07-12** per
-  `docs/reviews/2026-07-12/contract-change-track-c-RESOLVED.md` (loci/
-  SourceLineRef, recursive typed CurrentValue + comparator, target_path).
-  Further changes are new CONTRACT CHANGEs (flag to A/B/C).
+- **T0.3** | ready-for-review | C | Schema v3 adds `DriftPrediction`;
+  `DriftInstance` gold remains unchanged. CONTRACT v1.4 makes provenance and
+  `gold_rationale` gold-only. Provider repair, full seven-hunt replay, and paid
+  run guards are offline-gated; no provider spend.
 - **T0.4** | done | C | `docs/tasks/T0.4-work-order.md` +
-  `docs/CONTRACT.md` v1.3. Ratified amendments and sign-offs stand.
+  `docs/CONTRACT.md` v1.4. Ratified amendments and sign-offs stand.
 - **T0.5** | done | A | `docs/tasks/T0.5-work-order.md`.
 - **T0.6** | done | C | `docs/tasks/T0.6-work-order.md` — novelty sentence
   locked; cell 1-5 related-work skeleton for T7.5. Empty cell verified by live
@@ -160,33 +166,29 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T3.5** | done | C | `src/cobol_archaeologist/agent/{loop,stub_tools,
   trajectory}.py` + tests + golden late-fee trajectory. Reviewed 2026-07-24;
   17 gates green, seam purity + no-unverified-emission confirmed.
-- **T3.6** | done | C | `src/cobol_archaeologist/agent/{policy.py,
-  hunts/}` + `tests/test_policy_hunts.py`. Gates 1-8 green; D1-D7 registered,
-  D6 delegates to verify.py reachability, anti-shortcut rule enforced.
-  Reviewed and merged in PR #67; **M3 (Agent Grounded) complete.**
-- **T4.1** | done | C |
-  `src/cobol_archaeologist/eval/{schemas,materialize,run,live}.py` +
-  `model/provider.py`. Week-7 mutation→real-tool→eval seam green; merged T2.7
-  inputs materialize 204/204. Anthropic and OpenAI provider adapters plus the
-  resumable three-system runner are implemented. Paired OpenAI/Luna artifacts
-  are complete at commit `19451bf`: agent, dense-RAG, and oracle-slice each
-  contain 204/204 frozen rows with zero infrastructure failures and zero
-  unverified emissions.
-- **T4.2** | ready-for-scoring | C |
-  `src/cobol_archaeologist/eval/{metrics,statistics}.py`; frozen T1–T6 metrics
-  and paired statistics implemented. The 20-pair M4 T6 capacity gate is met;
-  all three paired live inputs are present. Scoring is intentionally deferred
-  to item 4.
-- **T4.3** | ready-for-scoring | C |
-  `src/cobol_archaeologist/eval/trajectory.py`; replay/evidence/budget/shortcut
-  assessment gates green; paired live trajectories are present.
-- **T4.4** | ready-for-scoring | C |
-  `src/cobol_archaeologist/eval/calibration.py`; coverage, abstention,
-  attempted-unavailable tiers, calibration, and per-tier faithfulness green;
-  paired live verification results are present.
-- **T4.5** | ready-for-report | C |
-  `src/cobol_archaeologist/eval/{baselines,report}.py`; fail-closed M4 report
-  implemented. The three paired live artifacts, 50 human verifier labels, and
-  20-pair T6 input are complete. Item 4 (metrics, significance, faithfulness,
-  and GO/NO_GO report) is explicitly deferred, so **M4 remains open**.
+- **T3.6** | done | C | Approved with 17 gates green. Registered D1–D7 hunts
+  retain all trajectories, prohibit edit-artifact shortcuts, require positive
+  D7 evidence, and delegate D6 reachability to the T3.4 verifier. M3 closed.
+- **T4.1** | done | C | Canonical ChatGPT-authenticated Codex
+  `gpt-5.6-luna`/high artifacts at `357f483`: agent, dense-RAG, and
+  oracle-slice each 204/204, exact frozen order, manifest/run-key matched,
+  `VALID`, zero infrastructure and contract failures. Agent retained 47
+  verified predictions and 4,570 successful tool observations (mean 22.40);
+  no unverified emission exists. One timed-out operational shard attempt is
+  preserved outside the canonical artifact; its unchanged 68-row retry was
+  clean.
+- **T4.2** | done | C | Frozen 10,000-resample scoring completed. T1 F1:
+  agent 0.3665, dense-RAG 0.7279, oracle-slice 0.5714. Agent T6 is evaluable at
+  2/20 (0.1000), exact 95% CI [0.0123, 0.3170].
+- **T4.3** | done | C | 204 trajectory assessments persisted: 204 replayable,
+  204 shortcut-free, 190 budget-consistent, 47 complete selected evidence
+  paths, and 20 gold-typed grounded code facts.
+- **T4.4** | done | C | Agent coverage 47/204 (0.2304), answered accuracy
+  0.8936, aggregate faithfulness 0.4255; Tier 1/2/3 faithfulness =
+  0.1667/0.7200/0.0625. Brier 0.1816, ECE 0.1713.
+- **T4.5** | done — NO_GO | C | `data/eval/m4/report.{json,md}` has zero
+  blocking issues. Agent trails dense-RAG interprocedurally by 0.3030 (95% CI
+  [-0.4929, -0.1252], p=0.00635) and trails oracle-slice by 0.1964; the
+  predeclared GO bars fail without post-hoc adjustment. M4 is closed and the
+  slicer-first reframing is required before scale.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
