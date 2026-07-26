@@ -215,10 +215,16 @@ three tracks; a task's numeric prefix does not identify its phase.
   Fix revised accordingly (X1/X1b). X3 replaced
   by X3′ after the verifier scored 98% (0 FN) while Tier-3 findings scored
   0.31 drift-type accuracy. Config-2 §8 amended pre-run.
-- **M4-X** | ready-for-review | C | `agent/hunts/{d1,d3,d4}.py`,
+- **M4-X** | done — CONFIG-2 SMOKE ABORTED | C | `agent/hunts/{d1,d3,d4}.py`,
   `agent/policy.py`, `model/{prompt,verify}.py`, config-2 finalizer/manifest
   plumbing, and offline gates. X1/X1b/X2/X3′/X4 per
   `docs/tasks/T4.5-decision.md` §8. Strict X3′ withholds Tier-3-only D2/D4
   proposals; the entailment threshold remains 0.5. Full offline result:
-  439 passed, 71 skipped, 5 deselected; Ruff clean. Config 2 not yet run.
+  439 passed, 71 skipped, 5 deselected; Ruff clean. The predeclared Luna/low
+  agent smoke at `0e3c1d0` completed 5/5 with zero infrastructure or contract
+  failures and mean 6.8 successful observations, but produced 0 non-null
+  verified predictions. The §8 abort condition fired; baselines and the
+  pilot/full config-2 run were not completed. Evidence:
+  `data/eval/m4-config2-smoke/{agent.jsonl,agent.manifest.json}` and
+  `docs/tasks/T4.5-decision.md` §9. M4 remains CLOSED — NO_GO.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.

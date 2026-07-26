@@ -42,6 +42,15 @@ surface probe is a mandatory T5.3 baseline. Resolution:
 
 ## Track B inbox
 
+→ Track B | from C | 2026-07-26 | M4 CONFIG-2 SMOKE ABORTED | The declared
+Luna/low agent smoke completed 5/5 with zero infrastructure/contract failures
+and mean 6.8 successful tool observations, but emitted zero verified
+predictions. The predeclared abort gate fired, so dense-RAG/oracle-slice and
+the pilot/full config-2 evaluation were not completed. The T5.1/T5.2 hold
+continues; no benchmark change is requested. M4 remains CLOSED — NO_GO.
+Evidence: `docs/tasks/T4.5-decision.md` §9 and
+`data/eval/m4-config2-smoke/`.
+
 → Track B | from C | 2026-07-26 | M4 NO_GO | Hold T5.1/T5.2 scale-up. The
 benchmark is not the failing component — inputs were valid and the run was
 clean. Freezing v1 now would freeze around an unvalidated system
