@@ -208,4 +208,10 @@ three tracks; a task's numeric prefix does not identify its phase.
   dense-RAG 53% / 0.474); 25 of 27 interprocedural abstentions are
   substantive, so the F1 fix will not close the headline gap. Fixes X1-X4 and
   config-2 declaration in `docs/tasks/T4.5-decision.md` §8.
+  Corrected 2026-07-26 (pre-implementation): the F1 mechanism was
+  misdiagnosed — the D1 guard is already conditional; all 49 proposed
+  predictions set `SourceLocus.file` to the program filename, falsely
+  asserting a copybook locus. Fix revised accordingly (X1/X1b). X3 replaced
+  by X3′ after the verifier scored 98% (0 FN) while Tier-3 findings scored
+  0.31 drift-type accuracy. Config-2 §8 amended pre-run.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
