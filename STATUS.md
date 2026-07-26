@@ -19,6 +19,13 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **M3 (Agent Grounded): COMPLETE 2026-07-24** — T3.3b HyDE and T3.6 D1–D7
   policy hunts were independently reviewed and merged in PR #67; verified
   emission, D6 delegation, anti-shortcut policy, and the real/stub seam stand.
+- **M4 (Narrow End-to-End): CLOSED — NO_GO 2026-07-26** — all three canonical
+  Luna-Codex systems completed 204/204 frozen rows at commit `357f483` with
+  valid, paired, zero-infrastructure artifacts. The frozen report is evaluable
+  with zero blocking issues: agent T1 F1 0.3665, interprocedural delta versus
+  dense-RAG -0.3030 (95% CI [-0.4929, -0.1252], p=0.00635), and T6 2/20.
+  This valid NO_GO closes the Week-10 checkpoint and directs the next framing
+  toward the slicer rather than agent-loop superiority.
 
 ## Task ledger
 
@@ -162,25 +169,26 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T3.6** | done | C | Approved with 17 gates green. Registered D1–D7 hunts
   retain all trajectories, prohibit edit-artifact shortcuts, require positive
   D7 evidence, and delegate D6 reachability to the T3.4 verifier. M3 closed.
-- **T4.1** | blocked-agent-smoke | C | The ChatGPT-authenticated Codex Luna
-  runner is implemented and pushed with API-key stripping, label-free isolated
-  tasks, strict structured output, hard per-alias tool caps, raw event
-  retention, and unchanged policy + `verify()` emission gates. The high-effort
-  agent smoke at `57be39f` completed 5/5 with 0 infrastructure failures,
-  0 contract rejections, and 273 replayed successful observations (mean 54.6).
-  Luna proposed findings on four rows, but the unchanged host-binding, policy,
-  and verifier layers rejected every proposal; the final verified-prediction
-  rate was 0.0, so validity is `NOT_EVALUABLE`. Per the predeclared high-effort
-  stop rule, dense-RAG, oracle-slice, pilot, and full were not run under this
-  identity. The recoverable evidence is preserved at
-  `data/eval/m4-v3/chatgpt-luna/failed-smoke-57be39f`; the medium and low
-  evidence remains at `failed-smoke-49524b6` and `failed-smoke-313afd7`.
-- **T4.2** | blocked-valid-inputs | C | Implemented; scoring waits for valid
-  paired artifacts.
-- **T4.3** | blocked-valid-inputs | C | Implemented; full seven-hunt replay
-  lands before the valid rerun.
-- **T4.4** | blocked-valid-inputs | C | Implemented; calibration waits for
-  valid paired artifacts.
-- **T4.5** | blocked-valid-inputs | C | M4 remains open; do not record the
-  invalid run's figures as headline results.
+- **T4.1** | done | C | Canonical ChatGPT-authenticated Codex
+  `gpt-5.6-luna`/high artifacts at `357f483`: agent, dense-RAG, and
+  oracle-slice each 204/204, exact frozen order, manifest/run-key matched,
+  `VALID`, zero infrastructure and contract failures. Agent retained 47
+  verified predictions and 4,570 successful tool observations (mean 22.40);
+  no unverified emission exists. One timed-out operational shard attempt is
+  preserved outside the canonical artifact; its unchanged 68-row retry was
+  clean.
+- **T4.2** | done | C | Frozen 10,000-resample scoring completed. T1 F1:
+  agent 0.3665, dense-RAG 0.7279, oracle-slice 0.5714. Agent T6 is evaluable at
+  2/20 (0.1000), exact 95% CI [0.0123, 0.3170].
+- **T4.3** | done | C | 204 trajectory assessments persisted: 204 replayable,
+  204 shortcut-free, 190 budget-consistent, 47 complete selected evidence
+  paths, and 20 gold-typed grounded code facts.
+- **T4.4** | done | C | Agent coverage 47/204 (0.2304), answered accuracy
+  0.8936, aggregate faithfulness 0.4255; Tier 1/2/3 faithfulness =
+  0.1667/0.7200/0.0625. Brier 0.1816, ECE 0.1713.
+- **T4.5** | done — NO_GO | C | `data/eval/m4/report.{json,md}` has zero
+  blocking issues. Agent trails dense-RAG interprocedurally by 0.3030 (95% CI
+  [-0.4929, -0.1252], p=0.00635) and trails oracle-slice by 0.1964; the
+  predeclared GO bars fail without post-hoc adjustment. M4 is closed and the
+  slicer-first reframing is required before scale.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.

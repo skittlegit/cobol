@@ -329,8 +329,8 @@ def test_committed_m4_payload_projects_to_prediction_not_gold():
         if '"prediction":{' in line
     )
     payload = row["prediction"]
-    payload["rationale"] = payload.pop("gold_rationale")
-    payload.pop("provenance")
+    assert "gold_rationale" not in payload
+    assert "provenance" not in payload
 
     prediction = DriftPrediction.model_validate(payload)
 

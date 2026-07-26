@@ -66,8 +66,10 @@ def outcomes(result: VerificationResult) -> list[tuple[str, str]]:
 
 
 @needs_cobc
-def test_tier1_executed(tools, offline_entailer):
-    r = verify(load("supported_tier1"), tools, entailer=offline_entailer)
+def test_tier1_executed(tools):
+    # Isolate the execution-tier gate from the pinned neural citation cache.
+    # Citation rejection and cached-NLI determinism have separate tests below.
+    r = verify(load("supported_tier1"), tools, entailer=LexicalEntailer())
     assert r.verified and r.tier == VerificationTier.EXECUTED
     assert r.citation_ok
     # ladder starts at Tier 1 and stops on success.
