@@ -5,6 +5,12 @@ resolved and superseded progress messages do not remain as history here.
 
 ## Track A inbox
 
+→ Track A | from C | 2026-07-26 | M4 NO_GO | ~49 of the agent's 157
+abstentions cite tool/evidence limits. Track C is triaging them against the
+committed trajectories (F1 in docs/tasks/T4.5-decision.md) to separate a
+tool-layer capability gap from hunt strategy. If it is the former we will
+open a specific request with per-tool evidence. Stand by; no action yet.
+
 → Track A | from C | 2026-07-25 | CONTRACT v1.4 / T0.3 | Prediction/gold
 schema and evaluation-side change only. `tool_types.py` and `tools.py` are
 untouched; no action.
@@ -33,6 +39,12 @@ surface probe is a mandatory T5.3 baseline. Resolution:
 `docs/reviews/2026-07-17/contract-change-gate-e-RESOLVED.md`.
 
 ## Track B inbox
+
+→ Track B | from C | 2026-07-26 | M4 NO_GO | Hold T5.1/T5.2 scale-up. The
+benchmark is not the failing component — inputs were valid and the run was
+clean. Freezing v1 now would freeze around an unvalidated system
+configuration. Decision + diagnosis: docs/tasks/T4.5-decision.md. No action
+required; do not start scale work until Track C reports on F1/F2.
 
 → Track B | from C | 2026-07-25 | CONTRACT v1.4 / T0.3 | Predictions are now
 `DriftPrediction`-shaped and omit provenance/`gold_rationale`. Gold remains
