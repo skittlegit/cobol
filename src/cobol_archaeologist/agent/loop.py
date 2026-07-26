@@ -214,6 +214,28 @@ class InvestigationLoop:
                     return exhausted("wall-clock budget exhausted")
                 continue
 
+            successful_observations = sum(
+                call.error is None and bool(call.observation_summary)
+                for call in steps
+            )
+            if successful_observations < 1:
+                if len(steps) >= self.budget.max_tool_calls:
+                    return exhausted("tool-call budget exhausted")
+                # DECISION (X7): a fluent first-turn prediction is not
+                # evidence. Force one bounded successful observation before
+                # constructing a Finding or invoking the verifier.
+                available = ", ".join(sorted(_TOOLS))
+                model_question = (
+                    f"{question}\n\n"
+                    "Your finding cannot be accepted yet: no successful "
+                    "bounded tool observation supports it. Investigate only "
+                    "the stated program scope and clause; do not infer hidden "
+                    "benchmark labels, source line annotations, or mutation "
+                    "provenance. "
+                    f"Call one authorized tool: {available}."
+                )
+                continue
+
             # DECISION: build through Finding.from_prediction so verifier hooks
             # stay outside the frozen DriftInstance contract, exactly as T3.4
             # designed. The trajectory emits the prediction only after verify().

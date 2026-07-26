@@ -193,7 +193,7 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T4.4** | done | C | Agent coverage 47/204 (0.2304), answered accuracy
   0.8936, aggregate faithfulness 0.4255; Tier 1/2/3 faithfulness =
   0.1667/0.7200/0.0625. Brier 0.1816, ECE 0.1713.
-- **T4.5** | M4 done — NO_GO; config-2 X5–X7 todo | C |
+- **T4.5** | M4 done — NO_GO; config-2 X5–X7 implemented, run pending | C |
   `data/eval/m4/report.{json,md}` has zero blocking issues. Agent trails
   dense-RAG interprocedurally by 0.3030 (95% CI [-0.4929, -0.1252],
   p=0.00635); the oracle-slice comparison is inconclusive because its CI
@@ -205,9 +205,12 @@ three tracks; a task's numeric prefix does not identify its phase.
   config-2 smoke at `0e3c1d0` completed 5/5 with no infrastructure/contract
   failures but zero predictions; its first-N sample contained three D7 null-
   value rows although only 8/204 split rows have null values. Final corrective
-  phase X5–X7 is now the only open T4.5 work: seeded seven-row stratified
-  smoke, value guard scoped to D1/D4/D5, and no first-turn finding. The
-  binding hard stop and executable offline gates are in the canonical
-  T4.5 work order. No provider run is authorised by this documentation
-  consolidation.
+  phase X5–X7 is now implemented: seed `20260726` reproducibly pins one row
+  per D1–D7 class and persists all seven IDs before execution; value
+  requirements are scoped to D1/D4/D5; and a first-turn finding is re-prompted
+  until one successful bounded observation exists. Offline gates are **448
+  passed, 71 skipped, 5 deselected**, with Ruff clean. No provider run was
+  performed in the implementation commit. The representative config-2 smoke
+  and, if valid, the paired run remain pending under the binding hard stop in
+  the canonical T4.5 work order; M4 remains closed as NO_GO.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.

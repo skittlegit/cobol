@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import random
 import subprocess
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 from typing import Literal
 
@@ -25,6 +26,45 @@ from cobol_archaeologist.model.prompt import DecisionModel
 from cobol_archaeologist.model.verify import Entailer
 from cobol_archaeologist.schemas import DriftInstance, RegulationClause
 from cobol_archaeologist.tool_types import ToolLayer
+
+CONFIG2_SMOKE_SEED = 20260726
+CONFIG2_SMOKE_IDS: tuple[str, ...] = (
+    "drift_356266",
+    "drift_377860",
+    "drift_689057",
+    "drift_110002",
+    "drift_948904",
+    "drift_858645",
+    "drift_110026",
+)
+REQUIRED_SMOKE_ROWS = len(CONFIG2_SMOKE_IDS)
+
+
+def seeded_stratified_smoke(
+    rows: Sequence[DriftInstance],
+    *,
+    seed: int,
+) -> list[DriftInstance]:
+    """Select one reproducible row per drift class for config-2 smoke."""
+
+    by_drift_type: dict[str, list[DriftInstance]] = {}
+    for row in rows:
+        by_drift_type.setdefault(row.drift_type, []).append(row)
+    if len(by_drift_type) != REQUIRED_SMOKE_ROWS:
+        raise ValueError(
+            "config-2 smoke requires exactly one stratum for each of seven "
+            f"drift types; found {len(by_drift_type)}"
+        )
+
+    generator = random.Random(seed)
+    selected = [
+        generator.choice(
+            sorted(by_drift_type[drift_type], key=lambda row: row.instance_id)
+        )
+        for drift_type in sorted(by_drift_type)
+    ]
+    generator.shuffle(selected)
+    return selected
 
 
 class SystemContext(BaseModel):
@@ -54,6 +94,8 @@ class RunManifest(BaseModel):
     schema_version: str = "2"
     run_mode: Literal["smoke", "full", "pilot"] = "full"
     smoke_rows: int | None = Field(default=None, ge=1)
+    smoke_seed: int | None = None
+    smoke_instance_ids: list[str] = Field(default_factory=list)
     total: int
     completed_run_keys: list[str] = Field(default_factory=list)
     infrastructure_failures: dict[str, str] = Field(default_factory=dict)
@@ -66,6 +108,20 @@ class RunManifest(BaseModel):
                 raise ValueError("a smoke manifest requires smoke_rows == total")
         elif self.smoke_rows is not None:
             raise ValueError("smoke_rows is valid only for a smoke manifest")
+        if (self.smoke_seed is None) != (not self.smoke_instance_ids):
+            raise ValueError(
+                "smoke_seed and smoke_instance_ids must be recorded together"
+            )
+        if len(set(self.smoke_instance_ids)) != len(self.smoke_instance_ids):
+            raise ValueError("smoke_instance_ids must be unique")
+        if (
+            self.run_mode == "smoke"
+            and self.smoke_instance_ids
+            and len(self.smoke_instance_ids) != self.total
+        ):
+            raise ValueError(
+                "a smoke manifest's smoke_instance_ids must match its total"
+            )
         if self.validity is not None and self.validity.completed_rows > self.total:
             raise ValueError("validity cannot report more rows than the manifest total")
         return self
@@ -341,6 +397,29 @@ class EvaluationRunner:
             raise ValueError("evaluation artifact contains duplicate run keys")
         return by_key
 
+    def _write_manifest(
+        self,
+        manifest: RunManifest,
+        completed: Sequence[EvaluationRecord],
+    ) -> None:
+        manifest.completed_run_keys = sorted(
+            record.run_key for record in completed
+        )
+        manifest.infrastructure_failures = {
+            record.instance_id: record.infrastructure_error
+            for record in completed
+            if record.infrastructure_error
+        }
+        manifest.validity = assess_run_validity(
+            completed,
+            system_id=manifest.system_id,
+        )
+        self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        self.manifest_path.write_text(
+            manifest.model_dump_json(indent=2),
+            encoding="utf-8",
+        )
+
     def run(
         self,
         gold_rows: Iterable[DriftInstance],
@@ -355,6 +434,9 @@ class EvaluationRunner:
         existing = self._existing()
         self.records_path.parent.mkdir(parents=True, exist_ok=True)
         completed: list[EvaluationRecord] = []
+        # DECISION (X5): persist the predeclared seed and selected row IDs
+        # before any provider-facing executor can observe or score the sample.
+        self._write_manifest(manifest, completed)
         with self.records_path.open("a", encoding="utf-8", newline="\n") as stream:
             for gold in rows:
                 key = key_factory(gold)
@@ -380,19 +462,5 @@ class EvaluationRunner:
                 )
                 if validity.status == "HALTED_CONTRACT_REJECTIONS":
                     break
-        manifest.completed_run_keys = sorted(record.run_key for record in completed)
-        manifest.infrastructure_failures = {
-            record.instance_id: record.infrastructure_error
-            for record in completed
-            if record.infrastructure_error
-        }
-        manifest.validity = assess_run_validity(
-            completed,
-            system_id=manifest.system_id,
-        )
-        self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
-        self.manifest_path.write_text(
-            manifest.model_dump_json(indent=2),
-            encoding="utf-8",
-        )
+        self._write_manifest(manifest, completed)
         return completed

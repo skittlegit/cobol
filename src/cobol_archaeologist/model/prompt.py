@@ -84,12 +84,14 @@ HUNT_PROMPTS: dict[str, str] = {
     "D1_stale_threshold": (
         "Hunt D1 stale values: compare the literal at each typed locus with "
         "the clause's resolved current-value leaf, including scalar, list, "
-        "or enum-valued leaves; resolve composite target_path."
+        "or enum-valued leaves; resolve composite target_path. A resolved "
+        "current_value is required for D1."
     ),
     "D2_missing_rule": (
         "Hunt D2 missing rules: establish absence across the scoped grep, "
         "caller graph, callee graph, and data slice; emit only when all four "
-        "negative observations are present, and report typed insertion points."
+        "negative observations are present, and report typed insertion points. "
+        "The clause current_value may be null for D2."
     ),
     "D3_contradictory": (
         "Hunt D3 contradictions: obtain at least two typed loci that produce "
@@ -99,19 +101,23 @@ HUNT_PROMPTS: dict[str, str] = {
         "Hunt D4 stale reference data only when the clause current value is "
         "itself an enum_set reference collection: compare the hardcoded "
         "enumeration and name missing or extra entries. A composite clause's "
-        "enum-valued business-rule leaf remains D1."
+        "enum-valued business-rule leaf remains D1. A resolved current_value "
+        "is required for D4."
     ),
     "D5_boundary_error": (
         "Hunt D5 boundary errors: compare the source comparator with the "
-        "typed comparator at the resolved current-value leaf."
+        "typed comparator at the resolved current-value leaf. A resolved "
+        "current_value is required for D5."
     ),
     "D6_dead_code": (
         "Hunt D6 dead compliance code: propose a dead_paragraph static claim "
-        "for the existing verifier; do not infer deadness from caller absence."
+        "for the existing verifier; do not infer deadness from caller absence. "
+        "The clause current_value may be null for D6."
     ),
     "D7_conformant": (
         "Hunt D7 conformance: require positive code evidence that the check "
-        "exists and matches; absence is never a conformant default."
+        "exists and matches; absence is never a conformant default. The clause "
+        "current_value may be null for D7."
     ),
 }
 

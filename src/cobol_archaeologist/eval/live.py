@@ -33,6 +33,9 @@ from cobol_archaeologist.eval.materialize import (
     materialize,
 )
 from cobol_archaeologist.eval.run import (
+    CONFIG2_SMOKE_IDS,
+    CONFIG2_SMOKE_SEED,
+    REQUIRED_SMOKE_ROWS,
     EvaluationRunner,
     RunManifest,
     infrastructure_failure,
@@ -40,6 +43,7 @@ from cobol_archaeologist.eval.run import (
     record_outcome,
     repository_commit,
     run_key,
+    seeded_stratified_smoke,
 )
 from cobol_archaeologist.eval.schemas import EvaluationRecord
 from cobol_archaeologist.model.prompt import (
@@ -78,7 +82,6 @@ DEFAULT_MODEL_IDS = {
     "ollama": "qwen3:4b",
     "openai": "gpt-5.6-luna",
 }
-REQUIRED_SMOKE_ROWS = 5
 # Legacy transport argument retained until the finalizer signature is retired.
 # M4-X policy ignores it and derives the real floor from EVIDENCE_MINIMUMS.
 MIN_AGENT_ABSTENTION_OBSERVATIONS = 1
@@ -446,6 +449,8 @@ def _assert_matching_smoke(
         "split_path",
         "split_sha256",
         "schema_version",
+        "smoke_seed",
+        "smoke_instance_ids",
     )
     mismatches = [
         name
@@ -507,6 +512,7 @@ def run_live_system(
     *,
     rows: Sequence[DriftInstance],
     model_id: str,
+    smoke_seed: int,
     provider: ProviderID = "ollama",
     output_dir: Path = OUTPUT_DIR,
     regulation_search: RegulationSearch | None = None,
@@ -519,13 +525,31 @@ def run_live_system(
         raise ValueError(f"unknown M4 system {system_id!r}")
     if provider not in PROVIDER_IDS:
         raise ValueError(f"unknown M4 provider {provider!r}")
+    if smoke_seed != CONFIG2_SMOKE_SEED:
+        raise ValueError(
+            "the pinned config-2 smoke seed is "
+            f"{CONFIG2_SMOKE_SEED}, not {smoke_seed}"
+        )
     requested_rows = list(rows)
     if smoke is not None:
-        if smoke < 1 or smoke > len(requested_rows):
-            raise ValueError("smoke must select between 1 and the available rows")
-        run_rows = requested_rows[:smoke]
+        if smoke != REQUIRED_SMOKE_ROWS:
+            raise ValueError(
+                "config-2 smoke must select exactly "
+                f"{REQUIRED_SMOKE_ROWS} rows"
+            )
+        run_rows = seeded_stratified_smoke(
+            requested_rows,
+            seed=smoke_seed,
+        )
+        smoke_instance_ids = [row.instance_id for row in run_rows]
+        if tuple(smoke_instance_ids) != CONFIG2_SMOKE_IDS:
+            raise ValueError(
+                "the frozen split no longer reproduces the pinned config-2 "
+                f"smoke IDs: {tuple(smoke_instance_ids)}"
+            )
     else:
         run_rows = requested_rows
+        smoke_instance_ids = list(CONFIG2_SMOKE_IDS)
     commit = repository_commit(ROOT)
     budget = AGENT_BUDGET if system_id == "agent" else BASELINE_BUDGET
     budget_payload = budget.model_dump(mode="json")
@@ -545,7 +569,9 @@ def run_live_system(
         split_sha256=hashlib.sha256(SPLIT.read_bytes()).hexdigest(),
         schema_version=SCHEMA_VERSION,
         run_mode="smoke" if smoke is not None else "full",
-        smoke_rows=smoke,
+        smoke_rows=REQUIRED_SMOKE_ROWS if smoke is not None else None,
+        smoke_seed=smoke_seed,
+        smoke_instance_ids=smoke_instance_ids,
         total=len(run_rows),
     )
     if smoke is None:
@@ -682,7 +708,19 @@ def _parse_args() -> argparse.Namespace:
         "--smoke",
         type=int,
         metavar="N",
-        help="run the first N frozen-split rows into separate smoke artifacts",
+        help=(
+            "run the seeded, one-per-drift-class config-2 sample into "
+            "separate smoke artifacts; N must be 7"
+        ),
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        required=True,
+        help=(
+            "predeclared config-2 smoke seed; the frozen value is "
+            f"{CONFIG2_SMOKE_SEED}"
+        ),
     )
     return parser.parse_args()
 
@@ -700,6 +738,7 @@ def main() -> int:
             rows=rows,
             model_id=model_id,
             provider=args.provider,
+            smoke_seed=args.seed,
             regulation_search=search,
             entailer=entailer,
             smoke=args.smoke,
