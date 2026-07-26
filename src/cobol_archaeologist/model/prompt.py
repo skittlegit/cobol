@@ -15,7 +15,7 @@ from typing import Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from cobol_archaeologist.model.verify import ExecProbe, StaticClaim
-from cobol_archaeologist.schemas import DriftPrediction, RegulationClause
+from cobol_archaeologist.schemas import CurrentValue, DriftPrediction, RegulationClause
 
 MODEL_ID = "claude-3-5-sonnet-20241022"
 MODEL_TEMPERATURE = 0.0
@@ -50,6 +50,10 @@ finding, alternative, or corrected object after it. A proposed finding must
 include a complete DriftPrediction and a separate claim, plus concrete
 execution/static evidence hooks when available. The runtime will verify every
 proposed finding; if evidence is insufficient, abstain.
+For every predicted source locus, `file` is null when the line is in the
+program's own source; it is never the program filename. Negative example
+(own source): {"program": "CLOSPEN1", "file": null}. Positive example
+(COPY expansion): {"program": "CLOSPEN2", "file": "WSDAYBAS.cpy"}.
 read_program returns a paragraph index, not statement text. Follow it with
 read_paragraph for a relevant paragraph before concluding that source evidence
 is unavailable. If an observation is insufficient and another listed bounded
@@ -112,6 +116,25 @@ HUNT_PROMPTS: dict[str, str] = {
 }
 
 
+def _composite_leaf_lines(current: CurrentValue) -> list[str]:
+    lines: list[str] = []
+
+    def walk(node: CurrentValue, path: str) -> None:
+        if isinstance(node.value, dict):
+            for name, child in node.value.items():
+                walk(child, f"{path}.{name}" if path else name)
+            return
+        rendered = json.dumps(node.value, ensure_ascii=False, sort_keys=True)
+        comparator = node.comparator or "none"
+        lines.append(
+            f"- target_path={path}: kind={node.kind}, "
+            f"value={rendered}, comparator={comparator}"
+        )
+
+    walk(current, "")
+    return lines
+
+
 def build_hunt_prompt(
     drift_type: str,
     clause: RegulationClause,
@@ -123,11 +146,17 @@ def build_hunt_prompt(
     except KeyError:
         raise KeyError(f"no prompt template registered for {drift_type!r}") from None
     scope = program_scope or "the available corpus"
+    leaves = ""
+    if clause.current_value is not None and clause.current_value.kind == "composite":
+        leaves = (
+            "\nComposite current-value leaves (select one exact target_path):\n"
+            + "\n".join(_composite_leaf_lines(clause.current_value))
+        )
     return (
         f"{policy}\nScope: {scope}.\n"
         f"Clause: {clause.doc} {clause.clause_id} "
         f"(version {clause.version}, effective {clause.effective_date}): "
-        f"{clause.text}"
+        f"{clause.text}{leaves}"
     )
 
 

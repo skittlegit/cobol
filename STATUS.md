@@ -209,9 +209,16 @@ three tracks; a task's numeric prefix does not identify its phase.
   substantive, so the F1 fix will not close the headline gap. Fixes X1-X4 and
   config-2 declaration in `docs/tasks/T4.5-decision.md` §8.
   Corrected 2026-07-26 (pre-implementation): the F1 mechanism was
-  misdiagnosed — the D1 guard is already conditional; all 49 proposed
+  misdiagnosed — the D1 guard is already conditional; 47/49 proposed
   predictions set `SourceLocus.file` to the program filename, falsely
-  asserting a copybook locus. Fix revised accordingly (X1/X1b). X3 replaced
+  asserting a copybook locus. The two genuine copybook loci remain guarded.
+  Fix revised accordingly (X1/X1b). X3 replaced
   by X3′ after the verifier scored 98% (0 FN) while Tier-3 findings scored
   0.31 drift-type accuracy. Config-2 §8 amended pre-run.
+- **M4-X** | ready-for-review | C | `agent/hunts/{d1,d3,d4}.py`,
+  `agent/policy.py`, `model/{prompt,verify}.py`, config-2 finalizer/manifest
+  plumbing, and offline gates. X1/X1b/X2/X3′/X4 per
+  `docs/tasks/T4.5-decision.md` §8. Strict X3′ withholds Tier-3-only D2/D4
+  proposals; the entailment threshold remains 0.5. Full offline result:
+  439 passed, 71 skipped, 5 deselected; Ruff clean. Config 2 not yet run.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.

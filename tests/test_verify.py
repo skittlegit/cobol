@@ -80,6 +80,12 @@ def test_tier2_static_on_noncompiling_cics(tools, offline_entailer):
     r = verify(load("supported_tier2"), tools, entailer=offline_entailer)
     assert r.verified and r.tier == VerificationTier.STATIC
     assert r.citation_ok
+    expected = offline_entailer.entail(
+        load("supported_tier2").prediction.regulation_clause.text,
+        load("supported_tier2").claim,
+    )
+    assert r.entailment_probability == expected.score
+    assert r.entailment_backend == expected.backend
     # Tier 1 was TRIED and unavailable (CICS won't compile / no backing), then Tier 2.
     assert outcomes(r) == [("EXECUTED", "unavailable"), ("STATIC", "verified")]
 
@@ -92,6 +98,10 @@ def test_tier3_entailment_only(tools, offline_entailer):
     ]
     # Tier 3 is flagged as the weakest tier on the result.
     assert "weakest tier" in r.evidence
+
+
+def test_config2_does_not_change_entailment_threshold():
+    assert V.ENTAIL_THRESHOLD == 0.5
 
 
 def test_d6_reachability_verifies(tools, offline_entailer):

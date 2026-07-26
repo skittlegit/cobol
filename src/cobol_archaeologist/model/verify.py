@@ -50,7 +50,7 @@ from enum import IntEnum
 from pathlib import Path
 from typing import Protocol
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from cobol_archaeologist.ingest.cleaner import preprocess
 from cobol_archaeologist.model.run_cobol import compile_check, run_cobol
@@ -108,6 +108,10 @@ class VerificationResult(BaseModel):
     tier: VerificationTier | None       # None iff verified is False
     evidence: str                       # what was checked, quotable in a trace
     citation_ok: bool                   # did the cited clause survive checking
+    # M4-X X3′ telemetry: retain the citation NLI result even when Tier 1/2
+    # verifies first. Defaults preserve compatibility with committed traces.
+    entailment_probability: float | None = Field(default=None, ge=0, le=1)
+    entailment_backend: str | None = None
     rejected_reason: str | None = None
     tier_attempts: list[TierAttempt]    # every tier tried, in order, w/ outcome
 
@@ -638,6 +642,8 @@ def verify(
             verified=False, tier=None,
             evidence="no tier could verify the claim; agent should abstain",
             citation_ok=citation_ok,
+            entailment_probability=citation.score,
+            entailment_backend=citation.backend,
             rejected_reason="unverifiable: all three tiers failed",
             tier_attempts=attempts,
         )
@@ -646,6 +652,8 @@ def verify(
             verified=False, tier=None,
             evidence=evidence,  # the code fact that DID pass — preserved for the trace
             citation_ok=False,
+            entailment_probability=citation.score,
+            entailment_backend=citation.backend,
             rejected_reason=(
                 f"citation rejected: cited clause {clause.doc} {clause.clause_id} does not "
                 f"entail the claim (P={citation.score}, {citation.backend}) — a correct code "
@@ -655,5 +663,8 @@ def verify(
         )
     return VerificationResult(
         verified=True, tier=verified_tier, evidence=evidence,
-        citation_ok=True, rejected_reason=None, tier_attempts=attempts,
+        citation_ok=True,
+        entailment_probability=citation.score,
+        entailment_backend=citation.backend,
+        rejected_reason=None, tier_attempts=attempts,
     )

@@ -193,9 +193,14 @@ def test_smoke_artifacts_never_use_headline_paths(monkeypatch, tmp_path):
     assert captured["run_manifest"].decoding["temperature"] == 0.0
     assert captured["run_manifest"].decoding["thinking"] is False
     assert captured["run_manifest"].decoding["seed"] == 2601
-    assert (
-        captured["run_manifest"].decoding[
-            "min_successful_observations_before_abstention"
-        ]
-        == 3
-    )
+    assert captured["run_manifest"].decoding[
+        "min_successful_observations_by_drift_type"
+    ] == {
+        "D1_stale_threshold": 1,
+        "D2_missing_rule": 4,
+        "D3_contradictory": 2,
+        "D4_stale_reference_data": 1,
+        "D5_boundary_error": 1,
+        "D6_dead_code": 1,
+        "D7_conformant": 1,
+    }

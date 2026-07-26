@@ -8,15 +8,45 @@ before starting.
 **Do not run any paid evaluation in this task.** Implementation and offline
 tests only. Config 2 is authorized separately, after `--smoke 5`.
 
+## Execution clarification — 2026-07-26 (pre-run)
+
+The initial implementation inspection found that two requirements could not
+reach the actual config-2 execution path within the original file list:
+
+- the global three-observation guard is applied by the Codex batch finalizer
+  under `eval/`, before `policy.py` validation;
+- `VerificationResult` did not carry the citation NLI probability, and
+  `policy.py` cannot recover it after `verify()` returns.
+
+These blockers were reported before implementation, and the user authorized
+continuation. The minimal scope expansion is therefore
+`model/verify.py`, `eval/codex_batch.py`, `eval/live.py`, `eval/codex_live.py`,
+their tests, and the affected golden trajectory. `schemas.py`, tool contracts,
+Track A modules, and paid evaluation remain out of scope.
+
+**Strict X3′ consequence:** the existing D2 and D4 cached proposals verify only
+at Tier 3, so config 2 withholds them. They are not exceptions to the
+no-Tier-3-only-emission rule. Existing Tier-1/Tier-2 hunts remain positive.
+This is an intentional regression-expectation update, not a claim that D2/D4
+now have a Tier-2 absence verifier.
+
+**X1 replay result:** 47 of the 49 affected proposals normalize their program
+filename to `file=None`. The other two (`drift_323235`, `drift_479980`) cite
+the genuine `WSCUTOFF.cpy` gold locus and correctly remain subject to the
+copybook-evidence guard.
+
 ## Files
 
 - `src/cobol_archaeologist/agent/hunts/d1.py`, `d3.py`, `d4.py`
 - `src/cobol_archaeologist/agent/policy.py`
 - `src/cobol_archaeologist/model/prompt.py`
+- `src/cobol_archaeologist/model/verify.py`
+- `src/cobol_archaeologist/eval/codex_batch.py`, `live.py`, `codex_live.py`
 - `tests/test_policy_hunts.py` (extend)
 
-Do not modify `schemas.py`, `tool_types.py`, `tools.py`, `verify.py`, or
-anything under `parser/`, `static_analysis/`, `ingest/`, `rag/`, `eval/`.
+Do not modify `schemas.py`, `tool_types.py`, `tools.py`, or anything under
+`parser/`, `static_analysis/`, `ingest/`, or `rag/`. Under `eval/`, only the
+three files named above may change.
 
 ## X1 — `SourceLocus.file` semantics
 

@@ -39,7 +39,11 @@ from cobol_archaeologist.eval.codex_tool import (
     execute_tool_request,
 )
 from cobol_archaeologist.model.prompt import HUNT_PROMPTS
-from cobol_archaeologist.model.verify import LexicalEntailer, StaticClaim
+from cobol_archaeologist.model.verify import (
+    LexicalEntailer,
+    StaticClaim,
+    VerificationTier,
+)
 from cobol_archaeologist.schemas import RegulationClause
 
 
@@ -493,6 +497,7 @@ def test_batched_finding_cannot_emit_around_policy_guard_or_verifier() -> None:
     submitted = SubmittedResponse.model_validate(
         {
             "exec_probe": None,
+            "static_claim": None,
             "abstention_reason": None,
             **_provider_projection(final),
         }
@@ -544,6 +549,7 @@ def test_batched_verified_finding_retains_whole_verification_result() -> None:
     submitted = SubmittedResponse.model_validate(
         {
             "exec_probe": None,
+            "static_claim": None,
             "abstention_reason": None,
             **_provider_projection(final),
         }
@@ -608,6 +614,121 @@ def test_batched_verified_finding_retains_whole_verification_result() -> None:
         "resolve_copybook",
         "read_paragraph",
     ]
+
+
+def test_batched_d1_uses_class_minimum_and_emits_with_one_bound_code_fact() -> None:
+    fixture = Path(__file__).parent / "fixtures" / "hunts"
+    cached = json.loads((fixture / "cached_decisions.json").read_text(encoding="utf-8"))
+    final = json.loads(json.dumps(cached["d1"][-1]))
+    paragraph_locus = next(
+        locus
+        for locus in final["prediction"]["code_locus"]["loci"]
+        if locus["paragraph"] == "2000-CALC"
+    )
+    final["prediction"]["code_locus"] = {
+        "loci": [paragraph_locus],
+        "slice_vars": final["prediction"]["code_locus"]["slice_vars"],
+        "is_interprocedural": False,
+    }
+    final["prediction"]["labels"]["line_level"] = [
+        {"program": "CLOSPEN2", "line": 22, "file": None}
+    ]
+    submitted = SubmittedResponse.model_validate(
+        {
+            "exec_probe": None,
+            "abstention_reason": None,
+            **_provider_projection(final),
+        }
+    )
+    clause = RegulationClause.model_validate(
+        final["prediction"]["regulation_clause"]
+    )
+    observation = StubToolLayer(fixture / "corpus").read_paragraph(
+        "CLOSPEN2", "2000-CALC"
+    )
+    logs = [
+        ToolLogEntry(
+            alias="drift_900000",
+            hunt="D1_stale_threshold",
+            sequence=1,
+            tool="read_paragraph",
+            arguments={"program": "CLOSPEN2", "name": "2000-CALC"},
+            observation_summary=observation.model_dump_json(),
+            observation_truncated=False,
+            error=None,
+            latency_ms=1,
+        )
+    ]
+
+    outcome = finalize_agent_hunt(
+        hunt_name="D1_stale_threshold",
+        submitted=submitted,
+        clause=clause,
+        program_scope="CLOSPEN2",
+        instance_id="drift_910001",
+        logs=logs,
+        tools=StubToolLayer(fixture / "corpus"),
+        budget=BudgetSpec(max_tokens=10_000),
+        entailer=LexicalEntailer(),
+        token_count=100,
+        # Config 1 supplied a global 3; config 2 must ignore it in favour of D1=1.
+        min_successful_observations=3,
+        model_id="gpt-5.6-luna",
+    )
+
+    assert not outcome.abstained
+    assert outcome.verification_tier == VerificationTier.STATIC
+
+
+def test_batched_d2_keeps_four_observation_absence_floor() -> None:
+    fixture = Path(__file__).parent / "fixtures" / "hunts"
+    cached = json.loads((fixture / "cached_decisions.json").read_text(encoding="utf-8"))
+    final = cached["d2"][-1]
+    submitted = SubmittedResponse.model_validate(
+        {
+            "exec_probe": None,
+            "static_claim": None,
+            "abstention_reason": None,
+            **_provider_projection(final),
+        }
+    )
+    clause = RegulationClause.model_validate(
+        final["prediction"]["regulation_clause"]
+    )
+    logs = [
+        ToolLogEntry(
+            alias="drift_900000",
+            hunt="D2_missing_rule",
+            sequence=1,
+            tool="grep",
+            arguments={"pattern": "CKYCR-DEADLINE"},
+            observation_summary='{"matches":[],"pattern":"CKYCR-DEADLINE"}',
+            observation_truncated=False,
+            error=None,
+            latency_ms=1,
+        )
+    ]
+
+    outcome = finalize_agent_hunt(
+        hunt_name="D2_missing_rule",
+        submitted=submitted,
+        clause=clause,
+        program_scope="KYCSYNC1",
+        instance_id="drift_910002",
+        logs=logs,
+        tools=StubToolLayer(fixture / "corpus"),
+        budget=BudgetSpec(max_tokens=10_000),
+        entailer=LexicalEntailer(),
+        token_count=100,
+        min_successful_observations=1,
+        model_id="gpt-5.6-luna",
+    )
+
+    assert outcome.abstained
+    assert outcome.abstention_reason == (
+        "batched evidence minimum not met: "
+        "1 successful observation(s), 4 required for D2_missing_rule"
+    )
 
 
 def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation() -> None:

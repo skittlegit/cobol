@@ -10,14 +10,22 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from cobol_archaeologist.agent.hunts.d4 import D4Hunt
 from cobol_archaeologist.agent.policy import (
     HUNT_REGISTRY,
     HuntOutcome,
+    _EvidenceGuardModel,
     get_hunt,
 )
 from cobol_archaeologist.agent.stub_tools import StubToolLayer
 from cobol_archaeologist.model import verify as verify_module
-from cobol_archaeologist.model.prompt import HUNT_PROMPTS, CachedDecisionModel
+from cobol_archaeologist.model.prompt import (
+    HUNT_PROMPTS,
+    SYSTEM_PROMPT,
+    AgentResponse,
+    CachedDecisionModel,
+    build_hunt_prompt,
+)
 from cobol_archaeologist.model.verify import LexicalEntailer, VerificationTier
 from cobol_archaeologist.schemas import (
     DriftInstance,
@@ -38,6 +46,12 @@ POSITIVE_CASES = {
     "D6_dead_code": "d6",
     "D7_conformant": "d7",
 }
+VERIFIED_CASES = {
+    drift_type: case
+    for drift_type, case in POSITIVE_CASES.items()
+    if drift_type not in {"D2_missing_rule", "D4_stale_reference_data"}
+}
+M4_AGENT = Path(__file__).resolve().parents[1] / "data" / "eval" / "m4" / "agent.jsonl"
 
 
 @pytest.fixture()
@@ -72,13 +86,34 @@ def _run(
     )
 
 
+def _m4_agent_row(instance_id: str) -> dict:
+    with M4_AGENT.open(encoding="utf-8") as rows:
+        for raw in rows:
+            row = json.loads(raw)
+            if row["instance_id"] == instance_id:
+                return row
+    raise AssertionError(f"M4 agent fixture {instance_id} not found")
+
+
+class _OneResponseModel:
+    model_id = "offline-gate"
+    temperature = 0.0
+    seed = 0
+
+    def __init__(self, response: AgentResponse) -> None:
+        self.response = response
+
+    def respond(self, **_kwargs) -> AgentResponse:
+        return self.response.model_copy(deep=True)
+
+
 def test_registry_has_exactly_one_hunt_per_drift_class():
     assert set(HUNT_REGISTRY) == set(POSITIVE_CASES)
     assert set(HUNT_PROMPTS) == set(POSITIVE_CASES)
     assert all(hunt.drift_type == key for key, hunt in HUNT_REGISTRY.items())
 
 
-@pytest.mark.parametrize(("drift_type", "case"), POSITIVE_CASES.items())
+@pytest.mark.parametrize(("drift_type", "case"), VERIFIED_CASES.items())
 def test_each_hunt_emits_schema_valid_verified_finding(tools, drift_type, case):
     outcome = _run(tools, drift_type, case)
     assert isinstance(outcome, HuntOutcome)
@@ -127,16 +162,121 @@ def test_insufficient_evidence_is_guarded_before_loop_emission(tools):
     assert len(outcome.trajectory.model_responses) == 1
 
 
-def test_d2_requires_all_negative_scope_evidence_and_insertion_point(tools):
-    outcome = _run(tools, "D2_missing_rule", "d2")
+@pytest.mark.parametrize(
+    ("drift_type", "case"),
+    [
+        ("D2_missing_rule", "d2"),
+        ("D4_stale_reference_data", "d4"),
+    ],
+)
+def test_entailment_only_findings_abstain_despite_class_evidence(
+    tools, drift_type, case
+):
+    outcome = _run(tools, drift_type, case)
+    assert outcome.abstained
+    assert outcome.finding is None
+    assert outcome.trajectory.finding is None
     assert outcome.verification_tier == VerificationTier.ENTAILMENT
-    assert [step.tool for step in outcome.trajectory.steps] == [
-        "grep",
-        "find_callers",
-        "find_callees",
-        "slice_on",
-    ]
-    assert outcome.finding.labels.line_level[0].line == 20
+    assert "Tier-3-only" in outcome.abstention_reason
+    if drift_type == "D2_missing_rule":
+        assert [step.tool for step in outcome.trajectory.steps] == [
+            "grep",
+            "find_callers",
+            "find_callees",
+            "slice_on",
+        ]
+
+
+def test_program_filename_is_normalized_using_real_rejected_m4_row():
+    row = _m4_agent_row("drift_000008")
+    raw = next(
+        response
+        for response in row["trajectory"]["model_responses"]
+        if response["kind"] == "finding"
+    )
+    original = AgentResponse.model_validate(raw)
+    guarded = _EvidenceGuardModel(
+        _OneResponseModel(original),
+        get_hunt("D1_stale_threshold"),
+        original.prediction.regulation_clause,
+    )
+
+    normalized = guarded.respond(
+        system_prompt=SYSTEM_PROMPT,
+        question=row["trajectory"]["question"],
+        transcript=row["trajectory"]["steps"],
+    )
+
+    assert normalized.kind == "finding"
+    assert all(locus.file is None for locus in normalized.prediction.code_locus.loci)
+    assert all(ref.file is None for ref in normalized.prediction.labels.line_level)
+    assert "SourceLocus.file normalized" in normalized.thought
+    assert '"file":"BOIDENT1.cbl"' in normalized.raw_provider_text
+
+
+def test_m4_copybook_guard_rows_split_47_program_files_and_two_copybooks():
+    affected = normalized = 0
+    still_guarded: set[str] = set()
+    with M4_AGENT.open(encoding="utf-8") as rows:
+        for raw in rows:
+            row = json.loads(raw)
+            reason = row["trajectory"].get("abstention_reason") or ""
+            if "required tool evidence missing: resolve_copybook" not in reason:
+                continue
+            affected += 1
+            response = AgentResponse.model_validate(
+                next(
+                    item
+                    for item in row["trajectory"]["model_responses"]
+                    if item["kind"] == "finding"
+                )
+            )
+            errors = get_hunt(response.prediction.drift_type).validate_response(
+                response,
+                row["trajectory"]["steps"],
+                response.prediction.regulation_clause,
+            )
+            normalized += "SourceLocus.file normalized" in response.thought
+            if any("resolve_copybook" in error for error in errors):
+                still_guarded.add(row["instance_id"])
+
+    assert affected == 49
+    assert normalized == 47
+    assert still_guarded == {"drift_323235", "drift_479980"}
+
+
+def test_d4_without_copybook_locus_does_not_require_copybook_observation():
+    final = _rows("d4")[-1]
+    payload = json.loads(json.dumps(final))
+    for locus in payload["prediction"]["code_locus"]["loci"]:
+        locus["file"] = None
+    for ref in payload["prediction"]["labels"]["line_level"]:
+        ref["file"] = None
+    response = AgentResponse.model_validate(payload)
+    clause = response.prediction.regulation_clause
+
+    errors = D4Hunt().validate_response(response, [], clause)
+
+    assert not any("resolve_copybook" in error for error in errors)
+
+
+def test_evidence_minimum_is_derived_from_drift_class_and_locus_count():
+    from cobol_archaeologist.agent.policy import evidence_minimum_for
+
+    assert evidence_minimum_for("D1_stale_threshold", locus_count=1) == 1
+    assert evidence_minimum_for("D5_boundary_error", locus_count=1) == 1
+    assert evidence_minimum_for("D2_missing_rule", locus_count=1) == 4
+    assert evidence_minimum_for("D3_contradictory", locus_count=3) == 3
+
+
+def test_prediction_prompt_disambiguates_source_file_and_enumerates_composite_leaves():
+    assert '"file": null' in SYSTEM_PROMPT
+    assert '"file": "WSDAYBAS.cpy"' in SYSTEM_PROMPT
+    prompt = build_hunt_prompt("D1_stale_threshold", _clause("d1"), "CLOSPEN2")
+    assert "Composite current-value leaves" in prompt
+    assert "target_path=closure_window" in prompt
+    assert "target_path=penalty_per_day" in prompt
+    assert "target_path=day_basis" in prompt
 
 
 def test_d6_delegates_to_existing_reachability_verifier(monkeypatch, tools):

@@ -8,12 +8,16 @@ class D3Hunt(BasePolicyHunt):
 
     def validate_response(self, response, transcript, clause):
         errors = super().validate_response(response, transcript, clause)
-        if transcript_tools(transcript).count("read_paragraph") < 2:
-            errors.append("required tool evidence missing: two read_paragraph calls")
         prediction = response.prediction
         if prediction is None:
             return errors
         loci = prediction.code_locus.loci
+        required_reads = max(2, len(loci))
+        if transcript_tools(transcript).count("read_paragraph") < required_reads:
+            errors.append(
+                "required tool evidence missing: "
+                f"{required_reads} read_paragraph calls (one per D3 locus)"
+            )
         if len(loci) < 2:
             errors.append("D3 requires at least two conflicting loci")
         if (
