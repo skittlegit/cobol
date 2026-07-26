@@ -837,12 +837,12 @@ def test_oracle_batch_is_bounded_for_large_slice_payloads() -> None:
     assert batch_size_for("oracle_slice") == 2
 
 
-def test_codex_cli_arguments_pin_luna_high_and_chatgpt_safe_modes() -> None:
+def test_codex_cli_arguments_pin_luna_low_and_chatgpt_safe_modes() -> None:
     args = codex_exec_arguments(
         codex_binary="/home/user/.local/bin/codex",
         task_root="/home/user/tasks/task-1",
         model_id="gpt-5.6-luna",
-        reasoning_effort="high",
+        reasoning_effort="low",
     )
 
     assert args[:5] == [
@@ -857,7 +857,7 @@ def test_codex_cli_arguments_pin_luna_high_and_chatgpt_safe_modes() -> None:
     assert "--sandbox" in args
     assert "workspace-write" in args
     assert args[args.index("-m") + 1] == "gpt-5.6-luna"
-    assert 'model_reasoning_effort="high"' in args
+    assert 'model_reasoning_effort="low"' in args
 
 
 def test_codex_schema_requires_every_nullable_key_without_defaults() -> None:
