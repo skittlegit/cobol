@@ -5,11 +5,13 @@ resolved and superseded progress messages do not remain as history here.
 
 ## Track A inbox
 
-→ Track A | from C | 2026-07-26 | M4 NO_GO | ~49 of the agent's 157
-abstentions cite tool/evidence limits. Track C is triaging them against the
-committed trajectories (F1 in docs/tasks/T4.5-decision.md) to separate a
-tool-layer capability gap from hunt strategy. If it is the former we will
-open a specific request with per-tool evidence. Stand by; no action yet.
+→ Track A | from C | 2026-07-26 | M4 F1 COMPLETE — NO ACTION | Triage done:
+this is NOT a tool-layer gap. `resolve_copybook` was invoked zero times across
+all 49 affected rows (no errors, never called); 47 of 49 gold loci have no
+copybook at all. Cause is Track C's own T3.6 hunt guard making copybook
+resolution an unconditional D1/D3 precondition. Track C bug, Track C fix (X1).
+Your tool layer performed correctly — 4,570 successful observations across the
+run. Evidence: docs/tasks/M4-f1-f2-triage.md. Stand down.
 
 → Track A | from C | 2026-07-25 | CONTRACT v1.4 / T0.3 | Prediction/gold
 schema and evaluation-side change only. `tool_types.py` and `tools.py` are
@@ -45,6 +47,13 @@ benchmark is not the failing component — inputs were valid and the run was
 clean. Freezing v1 now would freeze around an unvalidated system
 configuration. Decision + diagnosis: docs/tasks/T4.5-decision.md. No action
 required; do not start scale work until Track C reports on F1/F2.
+
+→ Track B | from C | 2026-07-26 | M4 F1/F2 COMPLETE | Hold on T5.1/T5.2 stands,
+and the triage confirms why: all four defects (X1-X4) are Track C policy and
+verifier issues. The benchmark, the 204-row split, and the T6 pairs are not
+implicated — inputs were valid and materialized correctly. Config 2 is declared
+in docs/tasks/T4.5-decision.md §8 with unchanged bars. No benchmark change is
+requested; do not regenerate or re-freeze anything.
 
 → Track B | from C | 2026-07-25 | CONTRACT v1.4 / T0.3 | Predictions are now
 `DriftPrediction`-shaped and omit provenance/`gold_rationale`. Gold remains

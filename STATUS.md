@@ -196,9 +196,16 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T4.5** | done — NO_GO | C | `data/eval/m4/report.{json,md}` has zero
   blocking issues. Agent trails dense-RAG interprocedurally by 0.3030 (95% CI
   [-0.4929, -0.1252], p=0.00635) and trails oracle-slice by 0.1964; the
-  predeclared GO bars fail without post-hoc adjustment. M4 is closed and the
-  slicer-first reframing is required before scale.
+  predeclared GO bars fail without post-hoc adjustment. M4 is closed; the
+  oracle-slice comparison did not resolve (see correction below).
   Written scale-or-fix decision at `docs/tasks/T4.5-decision.md` (FIX).
   Framing corrected 2026-07-26: the oracle-slice deconfounder CI crosses
   zero, so the slicer-first reframing is withdrawn as unsupported.
+- **M4-F1/F2** | done | C | `docs/tasks/M4-f1-f2-triage.md`. F1: the 49
+  `resolve_copybook` abstentions are a Track C policy bug (tool never called;
+  47/49 loci have no copybook) — Track A cleared. F2: the interprocedural gap
+  is coverage-driven (agent 25% coverage / 0.556 answered accuracy vs
+  dense-RAG 53% / 0.474); 25 of 27 interprocedural abstentions are
+  substantive, so the F1 fix will not close the headline gap. Fixes X1-X4 and
+  config-2 declaration in `docs/tasks/T4.5-decision.md` §8.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
