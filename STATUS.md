@@ -24,8 +24,15 @@ three tracks; a task's numeric prefix does not identify its phase.
   valid, paired, zero-infrastructure artifacts. The frozen report is evaluable
   with zero blocking issues: agent T1 F1 0.3665, interprocedural delta versus
   dense-RAG -0.3030 (95% CI [-0.4929, -0.1252], p=0.00635), and T6 2/20.
-  This valid NO_GO closes the Week-10 checkpoint and directs the next framing
-  toward the slicer rather than agent-loop superiority.
+  This valid NO_GO closes the Week-10 checkpoint.
+  **Established:** the agent trails dense-RAG interprocedurally; the CI
+  excludes zero and the predeclared GO bars fail.
+  **NOT established:** the oracle-slice deconfounder is INCONCLUSIVE — delta
+  -0.1964, 95% CI [-0.4330, +0.0348], crossing zero. The T4.5 reframing rule
+  triggers on the agent failing to beat oracle-slice; that comparison did not
+  resolve, so the rule has NOT fired. A slicer-first framing is an open
+  option, not a finding, and must not be adopted by default.
+  Decision (FIX, not scale) and diagnosis: `docs/tasks/T4.5-decision.md`.
 
 ## Task ledger
 
@@ -191,4 +198,7 @@ three tracks; a task's numeric prefix does not identify its phase.
   [-0.4929, -0.1252], p=0.00635) and trails oracle-slice by 0.1964; the
   predeclared GO bars fail without post-hoc adjustment. M4 is closed and the
   slicer-first reframing is required before scale.
+  Written scale-or-fix decision at `docs/tasks/T4.5-decision.md` (FIX).
+  Framing corrected 2026-07-26: the oracle-slice deconfounder CI crosses
+  zero, so the slicer-first reframing is withdrawn as unsupported.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
