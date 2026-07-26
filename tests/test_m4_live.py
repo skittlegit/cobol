@@ -13,7 +13,11 @@ from cobol_archaeologist.eval.live import (
     run_live_system,
 )
 from cobol_archaeologist.eval.materialize import MaterializedSource
-from cobol_archaeologist.eval.run import RunManifest
+from cobol_archaeologist.eval.run import (
+    CONFIG2_SMOKE_IDS,
+    CONFIG2_SMOKE_SEED,
+    RunManifest,
+)
 from cobol_archaeologist.eval.schemas import RunValidity
 from cobol_archaeologist.schemas import DriftInstance
 
@@ -76,7 +80,16 @@ def test_bounded_code_context_is_query_driven_and_line_bounded():
     assert "mutation" not in context.lower()
 
 
-def _manifest(*, run_mode="full", total=204, effort="low") -> RunManifest:
+def _manifest(
+    *,
+    run_mode="full",
+    total=204,
+    effort="low",
+    smoke_seed=CONFIG2_SMOKE_SEED,
+    smoke_instance_ids=None,
+) -> RunManifest:
+    if smoke_instance_ids is None:
+        smoke_instance_ids = list(CONFIG2_SMOKE_IDS)
     return RunManifest(
         system_id="dense_rag",
         provider="openai",
@@ -95,7 +108,9 @@ def _manifest(*, run_mode="full", total=204, effort="low") -> RunManifest:
         split_sha256="b" * 64,
         schema_version="3",
         run_mode=run_mode,
-        smoke_rows=5 if run_mode == "smoke" else None,
+        smoke_rows=7 if run_mode == "smoke" else None,
+        smoke_seed=smoke_seed,
+        smoke_instance_ids=smoke_instance_ids,
         total=total,
     )
 
@@ -124,6 +139,7 @@ def test_full_run_refuses_before_materialization_without_matching_smoke(
             "dense_rag",
             rows=[_row()],
             model_id="gpt-5.6-luna",
+            smoke_seed=CONFIG2_SMOKE_SEED,
             output_dir=tmp_path,
         )
     assert not touched
@@ -131,17 +147,17 @@ def test_full_run_refuses_before_materialization_without_matching_smoke(
 
 def test_matching_smoke_is_exact_and_must_be_valid(tmp_path):
     expected = _manifest()
-    smoke = _manifest(run_mode="smoke", total=5)
-    smoke.completed_run_keys = [f"key-{index}" for index in range(5)]
+    smoke = _manifest(run_mode="smoke", total=7)
+    smoke.completed_run_keys = [f"key-{index}" for index in range(7)]
     smoke.validity = RunValidity(
-        completed_rows=5,
-        available_rows=5,
+        completed_rows=7,
+        available_rows=7,
         infrastructure_failures=0,
-        provider_turns=5,
+        provider_turns=7,
         contract_rejections=0,
         contract_rejection_rate=0.0,
         non_null_predictions=1,
-        non_null_prediction_rate=0.2,
+        non_null_prediction_rate=1 / 7,
         status="VALID",
     )
     path = tmp_path / "smoke" / "dense_rag.manifest.json"
@@ -150,11 +166,22 @@ def test_matching_smoke_is_exact_and_must_be_valid(tmp_path):
 
     _assert_matching_smoke(expected, output_dir=tmp_path)
 
-    mismatched = _manifest(run_mode="smoke", total=5, effort="medium")
+    mismatched = _manifest(run_mode="smoke", total=7, effort="medium")
     mismatched.completed_run_keys = smoke.completed_run_keys
     mismatched.validity = smoke.validity
     path.write_text(mismatched.model_dump_json(), encoding="utf-8")
     with pytest.raises(RuntimeError, match="decoding"):
+        _assert_matching_smoke(expected, output_dir=tmp_path)
+
+    mismatched = _manifest(
+        run_mode="smoke",
+        total=7,
+        smoke_instance_ids=list(reversed(smoke.smoke_instance_ids)),
+    )
+    mismatched.completed_run_keys = smoke.completed_run_keys
+    mismatched.validity = smoke.validity
+    path.write_text(mismatched.model_dump_json(), encoding="utf-8")
+    with pytest.raises(RuntimeError, match="smoke_instance_ids"):
         _assert_matching_smoke(expected, output_dir=tmp_path)
 
 
@@ -173,7 +200,11 @@ def test_smoke_artifacts_never_use_headline_paths(monkeypatch, tmp_path):
         "_materialize_all",
         lambda rows: ({}, {row.instance_id: "fixture" for row in rows}),
     )
-    rows = [_row()] * 5
+    rows = [
+        DriftInstance.model_validate_json(line)
+        for line in SPLIT.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
     run_live_system(
         "agent",
         rows=rows,
@@ -182,7 +213,8 @@ def test_smoke_artifacts_never_use_headline_paths(monkeypatch, tmp_path):
         output_dir=tmp_path,
         regulation_search=object(),
         entailer=object(),
-        smoke=5,
+        smoke=7,
+        smoke_seed=CONFIG2_SMOKE_SEED,
     )
 
     assert captured["records"].parent == tmp_path / "smoke"

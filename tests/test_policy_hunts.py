@@ -107,6 +107,35 @@ class _OneResponseModel:
         return self.response.model_copy(deep=True)
 
 
+class _SequenceModel:
+    model_id = "offline-gate"
+    temperature = 0.0
+    seed = 0
+
+    def __init__(self, responses: list[AgentResponse]) -> None:
+        self.responses = list(responses)
+
+    def respond(self, **_kwargs) -> AgentResponse:
+        return self.responses.pop(0).model_copy(deep=True)
+
+
+def _responses_with_null_current_value(case: str) -> tuple[
+    RegulationClause,
+    list[AgentResponse],
+]:
+    clause = _clause(case).model_copy(update={"current_value": None})
+    responses = []
+    for payload in _rows(case):
+        response = AgentResponse.model_validate(payload)
+        if response.prediction is not None:
+            prediction = response.prediction.model_copy(
+                update={"regulation_clause": clause}
+            )
+            response = response.model_copy(update={"prediction": prediction})
+        responses.append(response)
+    return clause, responses
+
+
 def test_registry_has_exactly_one_hunt_per_drift_class():
     assert set(HUNT_REGISTRY) == set(POSITIVE_CASES)
     assert set(HUNT_PROMPTS) == set(POSITIVE_CASES)
@@ -277,6 +306,72 @@ def test_prediction_prompt_disambiguates_source_file_and_enumerates_composite_le
     assert "target_path=closure_window" in prompt
     assert "target_path=penalty_per_day" in prompt
     assert "target_path=day_basis" in prompt
+
+
+def test_value_requirement_is_scoped_to_d1_d4_d5_prompts() -> None:
+    for drift_type in (
+        "D1_stale_threshold",
+        "D4_stale_reference_data",
+        "D5_boundary_error",
+    ):
+        assert "resolved current_value is required" in HUNT_PROMPTS[drift_type]
+    for drift_type in (
+        "D2_missing_rule",
+        "D6_dead_code",
+        "D7_conformant",
+    ):
+        assert "current_value may be null" in HUNT_PROMPTS[drift_type]
+
+
+@pytest.mark.parametrize("drift_type", ["D6_dead_code", "D7_conformant"])
+def test_d6_d7_null_current_value_can_validate_positive_evidence(
+    tools,
+    drift_type,
+):
+    case = "d6" if drift_type == "D6_dead_code" else "d7"
+    clause, responses = _responses_with_null_current_value(case)
+
+    outcome = get_hunt(drift_type).run(
+        clause=clause,
+        tools=tools,
+        model=_SequenceModel(responses),
+        entailer=LexicalEntailer(),
+        clock=lambda: 100.0,
+    )
+
+    assert not outcome.abstained
+    assert outcome.finding is not None
+
+
+def test_d2_null_current_value_has_no_value_leaf_guard(tools):
+    clause, responses = _responses_with_null_current_value("d2")
+
+    outcome = get_hunt("D2_missing_rule").run(
+        clause=clause,
+        tools=tools,
+        model=_SequenceModel(responses),
+        entailer=LexicalEntailer(),
+        clock=lambda: 100.0,
+    )
+
+    assert outcome.abstained
+    assert "Tier-3-only" in outcome.abstention_reason
+    assert "current value" not in outcome.abstention_reason.lower()
+
+
+def test_d1_null_current_value_still_abstains_on_value_guard(tools):
+    clause, responses = _responses_with_null_current_value("d1")
+
+    outcome = get_hunt("D1_stale_threshold").run(
+        clause=clause,
+        tools=tools,
+        model=_SequenceModel(responses),
+        entailer=LexicalEntailer(),
+        clock=lambda: 100.0,
+    )
+
+    assert outcome.abstained
+    assert "D1 requires a current clause value" in outcome.abstention_reason
 
 
 def test_d6_delegates_to_existing_reachability_verifier(monkeypatch, tools):

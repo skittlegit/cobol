@@ -687,6 +687,47 @@ def test_append_only_runner_resumes_without_duplicate_execution(tmp_path):
     assert len((tmp_path / "records.jsonl").read_text().splitlines()) == 2
 
 
+def test_runner_persists_smoke_selection_identity_before_execution(tmp_path):
+    row = _rows()[0]
+    runner = EvaluationRunner(
+        tmp_path / "records.jsonl",
+        tmp_path / "manifest.json",
+    )
+    manifest = RunManifest(
+        system_id="fixture",
+        model_id="none",
+        repository_commit="a" * 40,
+        prompt_version="test",
+        split_path="test.jsonl",
+        run_mode="smoke",
+        smoke_rows=1,
+        smoke_seed=20260726,
+        smoke_instance_ids=[row.instance_id],
+        total=1,
+    )
+
+    def execute(gold, _context, key):
+        persisted = RunManifest.model_validate_json(
+            runner.manifest_path.read_text(encoding="utf-8")
+        )
+        assert persisted.smoke_seed == 20260726
+        assert persisted.smoke_instance_ids == [row.instance_id]
+        return infrastructure_failure(
+            gold,
+            system_id="fixture",
+            source_sha256="0" * 64,
+            key=key,
+            reason="offline gate",
+        )
+
+    runner.run(
+        [row],
+        manifest=manifest,
+        key_factory=lambda gold: f"key:{gold.instance_id}",
+        executor=execute,
+    )
+
+
 def test_run_key_pins_model_and_tool_versions():
     base = {
         "instance_id": "drift_000001",

@@ -8,10 +8,12 @@ resolved and superseded progress messages do not remain as history here.
 → Track A | from C | 2026-07-26 | M4 F1 COMPLETE — NO ACTION | Triage done:
 this is NOT a tool-layer gap. `resolve_copybook` was invoked zero times across
 all 49 affected rows (no errors, never called); 47 of 49 gold loci have no
-copybook at all. Cause is Track C's own T3.6 hunt guard making copybook
-resolution an unconditional D1/D3 precondition. Track C bug, Track C fix (X1).
-Your tool layer performed correctly — 4,570 successful observations across the
-run. Evidence: docs/tasks/M4-f1-f2-triage.md. Stand down.
+copybook at all. The corrected cause is 47 predictions setting
+`SourceLocus.file` to the program filename and thereby falsely asserting a
+copybook locus; the two genuine copybook loci correctly keep their evidence
+guard. Track C bug, Track C fix (X1/X1b). Your tool layer performed correctly
+— 4,570 successful observations across the run. Evidence:
+`docs/tasks/T4.5-work-order.md` under integrated F1/F2 triage. Stand down.
 
 → Track A | from C | 2026-07-25 | CONTRACT v1.4 / T0.3 | Prediction/gold
 schema and evaluation-side change only. `tool_types.py` and `tools.py` are
@@ -45,23 +47,24 @@ surface probe is a mandatory T5.3 baseline. Resolution:
 → Track B | from C | 2026-07-26 | M4 CONFIG-2 SMOKE ABORTED | The declared
 Luna/low agent smoke completed 5/5 with zero infrastructure/contract failures
 and mean 6.8 successful tool observations, but emitted zero verified
-predictions. The predeclared abort gate fired, so dense-RAG/oracle-slice and
-the pilot/full config-2 evaluation were not completed. The T5.1/T5.2 hold
-continues; no benchmark change is requested. M4 remains CLOSED — NO_GO.
-Evidence: `docs/tasks/T4.5-decision.md` §9 and
+predictions. It was a validity instrument, not a configuration-2 measurement;
+dense-RAG/oracle-slice and pilot/full evaluation were not completed. The final
+Track C-only X5–X7 corrective phase is declared in the canonical T4.5 work
+order. The T5.1/T5.2 hold continues; no benchmark change is requested. M4
+remains CLOSED — NO_GO. Evidence: `docs/tasks/T4.5-work-order.md` and
 `data/eval/m4-config2-smoke/`.
 
 → Track B | from C | 2026-07-26 | M4 NO_GO | Hold T5.1/T5.2 scale-up. The
 benchmark is not the failing component — inputs were valid and the run was
 clean. Freezing v1 now would freeze around an unvalidated system
-configuration. Decision + diagnosis: docs/tasks/T4.5-decision.md. No action
+configuration. Decision + diagnosis: `docs/tasks/T4.5-work-order.md`. No action
 required; do not start scale work until Track C reports on F1/F2.
 
 → Track B | from C | 2026-07-26 | M4 F1/F2 COMPLETE | Hold on T5.1/T5.2 stands,
 and the triage confirms why: all four defects (X1-X4) are Track C policy and
 verifier issues. The benchmark, the 204-row split, and the T6 pairs are not
 implicated — inputs were valid and materialized correctly. Config 2 is declared
-in docs/tasks/T4.5-decision.md §8 with unchanged bars. No benchmark change is
+in `docs/tasks/T4.5-work-order.md` with unchanged bars. No benchmark change is
 requested; do not regenerate or re-freeze anything.
 
 → Track B | from C | 2026-07-25 | CONTRACT v1.4 / T0.3 | Predictions are now

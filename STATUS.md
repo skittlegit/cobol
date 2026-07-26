@@ -16,7 +16,7 @@ three tracks; a task's numeric prefix does not identify its phase.
   594-row compiled catalogue, current Luna judge/drop evidence, 562-row accepted
   set, 21 real-curated seeds, and purpose-valid 583-row v1-pre splits are aligned.
   Track C may consume the corrected IDs and begin headline evaluation.
-- **M3 (Agent Grounded): COMPLETE 2026-07-24** — T3.3b HyDE and T3.6 D1–D7
+- **M3 (Agent Grounded): COMPLETE 2026-07-24** — T3.3 HyDE and T3.6 D1–D7
   policy hunts were independently reviewed and merged in PR #67; verified
   emission, D6 delegation, anti-shortcut policy, and the real/stub seam stand.
 - **M4 (Narrow End-to-End): CLOSED — NO_GO 2026-07-26** — all three canonical
@@ -32,7 +32,8 @@ three tracks; a task's numeric prefix does not identify its phase.
   triggers on the agent failing to beat oracle-slice; that comparison did not
   resolve, so the rule has NOT fired. A slicer-first framing is an open
   option, not a finding, and must not be adopted by default.
-  Decision (FIX, not scale) and diagnosis: `docs/tasks/T4.5-decision.md`.
+  Decision, diagnosis, config-2 record, and final corrective work:
+  `docs/tasks/T4.5-work-order.md`.
 
 ## Task ledger
 
@@ -154,15 +155,14 @@ three tracks; a task's numeric prefix does not identify its phase.
   `dense` 0.588, ≥ on hit@1/hit@3). Findings vs the 7-doc run are in the work
   order's refresh section — note that the reranker is no longer a near-wash
   over `hybrid`; it is what absorbs the added distractors.
-- **T3.3a** | done | C | `src/cobol_archaeologist/rag/search.py` + `tools.py`
-  (search_regulations live) + `tests/test_search_regulations.py`. Reviewed
-  2026-07-24; merged PR #61.
-- **T3.3b** | done | C |
-  `src/cobol_archaeologist/rag/hyde.py` +
-  `tests/fixtures/retrieval/hyde_cache.json` + `tests/test_hyde.py`. Pinned-model
-  24-query gate: dense mrr@5 0.588→0.722, hybrid-rerank 0.744→0.793; q23
-  improves from absent in all modes to ranks 1/1/1/2. Reviewed and merged in
-  PR #67.
+- **T3.3** | done | C | Part A:
+  `src/cobol_archaeologist/rag/search.py` + `tools.py`
+  (`search_regulations` live) + `tests/test_search_regulations.py`, merged in
+  PR #61. Part B: `src/cobol_archaeologist/rag/hyde.py` +
+  `tests/fixtures/retrieval/hyde_cache.json` + `tests/test_hyde.py`.
+  Pinned-model 24-query gate: dense mrr@5 0.588→0.722, hybrid-rerank
+  0.744→0.793; q23 improves from absent in all modes to ranks 1/1/1/2.
+  Both parts reviewed; final merge PR #67.
 - **T3.4** | done | C | `src/cobol_archaeologist/model/verify.py` +
   `tests/test_verify.py` + `tests/fixtures/verify/`. Reviewed 2026-07-24;
   16 gates green. The 55-row offline cache now uses the pinned DeBERTa neural
@@ -193,38 +193,24 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T4.4** | done | C | Agent coverage 47/204 (0.2304), answered accuracy
   0.8936, aggregate faithfulness 0.4255; Tier 1/2/3 faithfulness =
   0.1667/0.7200/0.0625. Brier 0.1816, ECE 0.1713.
-- **T4.5** | done — NO_GO | C | `data/eval/m4/report.{json,md}` has zero
-  blocking issues. Agent trails dense-RAG interprocedurally by 0.3030 (95% CI
-  [-0.4929, -0.1252], p=0.00635) and trails oracle-slice by 0.1964; the
-  predeclared GO bars fail without post-hoc adjustment. M4 is closed; the
-  oracle-slice comparison did not resolve (see correction below).
-  Written scale-or-fix decision at `docs/tasks/T4.5-decision.md` (FIX).
-  Framing corrected 2026-07-26: the oracle-slice deconfounder CI crosses
-  zero, so the slicer-first reframing is withdrawn as unsupported.
-- **M4-F1/F2** | done | C | `docs/tasks/M4-f1-f2-triage.md`. F1: the 49
-  `resolve_copybook` abstentions are a Track C policy bug (tool never called;
-  47/49 loci have no copybook) — Track A cleared. F2: the interprocedural gap
-  is coverage-driven (agent 25% coverage / 0.556 answered accuracy vs
-  dense-RAG 53% / 0.474); 25 of 27 interprocedural abstentions are
-  substantive, so the F1 fix will not close the headline gap. Fixes X1-X4 and
-  config-2 declaration in `docs/tasks/T4.5-decision.md` §8.
-  Corrected 2026-07-26 (pre-implementation): the F1 mechanism was
-  misdiagnosed — the D1 guard is already conditional; 47/49 proposed
-  predictions set `SourceLocus.file` to the program filename, falsely
-  asserting a copybook locus. The two genuine copybook loci remain guarded.
-  Fix revised accordingly (X1/X1b). X3 replaced
-  by X3′ after the verifier scored 98% (0 FN) while Tier-3 findings scored
-  0.31 drift-type accuracy. Config-2 §8 amended pre-run.
-- **M4-X** | done — CONFIG-2 SMOKE ABORTED | C | `agent/hunts/{d1,d3,d4}.py`,
-  `agent/policy.py`, `model/{prompt,verify}.py`, config-2 finalizer/manifest
-  plumbing, and offline gates. X1/X1b/X2/X3′/X4 per
-  `docs/tasks/T4.5-decision.md` §8. Strict X3′ withholds Tier-3-only D2/D4
-  proposals; the entailment threshold remains 0.5. Full offline result:
-  439 passed, 71 skipped, 5 deselected; Ruff clean. The predeclared Luna/low
-  agent smoke at `0e3c1d0` completed 5/5 with zero infrastructure or contract
-  failures and mean 6.8 successful observations, but produced 0 non-null
-  verified predictions. The §8 abort condition fired; baselines and the
-  pilot/full config-2 run were not completed. Evidence:
-  `data/eval/m4-config2-smoke/{agent.jsonl,agent.manifest.json}` and
-  `docs/tasks/T4.5-decision.md` §9. M4 remains CLOSED — NO_GO.
+- **T4.5** | M4 done — NO_GO; config-2 X5–X7 implemented, run pending | C |
+  `data/eval/m4/report.{json,md}` has zero blocking issues. Agent trails
+  dense-RAG interprocedurally by 0.3030 (95% CI [-0.4929, -0.1252],
+  p=0.00635); the oracle-slice comparison is inconclusive because its CI
+  crosses zero. M4 remains closed and the framing is benchmark-first.
+  Integrated diagnosis in `docs/tasks/T4.5-work-order.md`: F1 cleared Track A
+  after 47/49 program filenames were misbound as copybooks; F2 found the
+  interprocedural gap coverage-driven. X1/X1b/X2/X3′/X4 landed at `7cc1740`
+  with 439 passed, 71 skipped, 5 deselected and Ruff clean. The first
+  config-2 smoke at `0e3c1d0` completed 5/5 with no infrastructure/contract
+  failures but zero predictions; its first-N sample contained three D7 null-
+  value rows although only 8/204 split rows have null values. Final corrective
+  phase X5–X7 is now implemented: seed `20260726` reproducibly pins one row
+  per D1–D7 class and persists all seven IDs before execution; value
+  requirements are scoped to D1/D4/D5; and a first-turn finding is re-prompted
+  until one successful bounded observation exists. Offline gates are **448
+  passed, 71 skipped, 5 deselected**, with Ruff clean. No provider run was
+  performed in the implementation commit. The representative config-2 smoke
+  and, if valid, the paired run remain pending under the binding hard stop in
+  the canonical T4.5 work order; M4 remains closed as NO_GO.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.

@@ -1,6 +1,7 @@
 """T3.5 gates for the bounded, replayable, verify-before-emit agent loop."""
 
 import inspect
+import json
 from pathlib import Path
 
 import pytest
@@ -136,9 +137,19 @@ def test_wall_clock_budget_is_enforced():
 
 
 def test_no_unverified_finding_is_ever_emitted():
+    raw = json.loads(
+        (FIX / "unverified_responses.json").read_text(encoding="utf-8")
+    )
+    finding = AgentResponse.model_validate(raw[0])
     trajectory = InvestigationLoop(
         StubToolLayer(FIX / "corpus"),
-        model=cached("unverified_responses.json"),
+        model=QueueModel(
+            [
+                finding,
+                tool({"pattern": "WS-TOTAL-AMT-DUE"}),
+                finding,
+            ]
+        ),
         entailer=LexicalEntailer(),
         clock=lambda: 100.0,
     ).run("Return the deliberately unsupported finding.")
@@ -206,6 +217,29 @@ def tool(arguments: dict, tokens: int = 1) -> AgentResponse:
         arguments=arguments,
         token_count=tokens,
     )
+
+
+def test_first_turn_finding_is_reprompted_until_one_successful_observation():
+    raw = json.loads((FIX / "cached_responses.json").read_text(encoding="utf-8"))
+    finding = AgentResponse.model_validate(raw[-1])
+    trajectory = InvestigationLoop(
+        StubToolLayer(FIX / "corpus"),
+        model=QueueModel(
+            [
+                finding,
+                tool({"pattern": "WS-TOTAL-AMT-DUE"}),
+                finding,
+            ]
+        ),
+        entailer=LexicalEntailer(),
+        clock=lambda: 100.0,
+    ).run("Check only LATEFEE1.")
+
+    assert not trajectory.abstained
+    assert trajectory.finding is not None
+    assert len(trajectory.model_responses) == 3
+    assert len(trajectory.steps) == 1
+    assert trajectory.steps[0].error is None
 
 
 def test_contract_rejection_repairs_once_and_persists_both_attempts():

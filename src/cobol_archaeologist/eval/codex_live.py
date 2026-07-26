@@ -61,12 +61,16 @@ from cobol_archaeologist.eval.live import (
 )
 from cobol_archaeologist.eval.materialize import MaterializedSource, materialize
 from cobol_archaeologist.eval.run import (
+    CONFIG2_SMOKE_IDS,
+    CONFIG2_SMOKE_SEED,
+    REQUIRED_SMOKE_ROWS,
     RunManifest,
     assess_run_validity,
     infrastructure_failure,
     record_outcome,
     repository_commit,
     run_key,
+    seeded_stratified_smoke,
 )
 from cobol_archaeologist.eval.schemas import EvaluationRecord
 from cobol_archaeologist.model.prompt import HUNT_PROMPTS, AgentResponse
@@ -673,9 +677,23 @@ def load_reusable_baseline_contexts(
 def _mode_rows(
     rows: Sequence[DriftInstance],
     mode: RunMode,
+    *,
+    smoke_seed: int,
 ) -> list[DriftInstance]:
+    if smoke_seed != CONFIG2_SMOKE_SEED:
+        raise ValueError(
+            "the pinned config-2 smoke seed is "
+            f"{CONFIG2_SMOKE_SEED}, not {smoke_seed}"
+        )
     if mode == "smoke":
-        return list(rows[:5])
+        selected = seeded_stratified_smoke(rows, seed=smoke_seed)
+        selected_ids = tuple(row.instance_id for row in selected)
+        if selected_ids != CONFIG2_SMOKE_IDS:
+            raise ValueError(
+                "the frozen split no longer reproduces the pinned config-2 "
+                f"smoke IDs: {selected_ids}"
+            )
+        return selected
     if mode == "pilot":
         by_id = {row.instance_id: row for row in rows}
         missing = [instance_id for instance_id in PILOT_IDS if instance_id not in by_id]
@@ -735,6 +753,8 @@ def _manifest(
     rows: Sequence[DriftInstance],
     commit: str,
     cli_version: str,
+    smoke_seed: int,
+    smoke_instance_ids: Sequence[str],
 ) -> RunManifest:
     budget = AGENT_BUDGET if system_id == "agent" else BASELINE_BUDGET
     return RunManifest(
@@ -767,7 +787,9 @@ def _manifest(
         split_sha256=hashlib.sha256(SPLIT.read_bytes()).hexdigest(),
         schema_version=SCHEMA_VERSION,
         run_mode=mode,
-        smoke_rows=5 if mode == "smoke" else None,
+        smoke_rows=REQUIRED_SMOKE_ROWS if mode == "smoke" else None,
+        smoke_seed=smoke_seed,
+        smoke_instance_ids=list(smoke_instance_ids),
         total=len(rows),
     )
 
@@ -795,11 +817,13 @@ def _assert_prerequisite(
         "split_path",
         "split_sha256",
         "schema_version",
+        "smoke_seed",
+        "smoke_instance_ids",
     )
     mismatches = [
         field for field in fields if getattr(prior, field) != getattr(expected, field)
     ]
-    required_total = 5 if mode == "smoke" else len(PILOT_IDS)
+    required_total = REQUIRED_SMOKE_ROWS if mode == "smoke" else len(PILOT_IDS)
     valid = (
         prior.run_mode == mode
         and prior.total == required_total
@@ -903,6 +927,7 @@ def run_codex_system(
     *,
     rows: Sequence[DriftInstance],
     mode: RunMode,
+    smoke_seed: int,
     output_dir: Path = OUTPUT_DIR / "chatgpt-luna",
     entailer: Entailer | None = None,
     regulation_search: RegulationSearch | None = None,
@@ -914,7 +939,13 @@ def run_codex_system(
     if system_id not in SYSTEM_IDS:
         raise ValueError(f"unknown M4 system {system_id!r}")
     _assert_clean_runtime_source()
-    run_rows = _mode_rows(rows, mode)
+    smoke_rows = _mode_rows(rows, "smoke", smoke_seed=smoke_seed)
+    run_rows = (
+        smoke_rows
+        if mode == "smoke"
+        else _mode_rows(rows, mode, smoke_seed=smoke_seed)
+    )
+    smoke_instance_ids = tuple(row.instance_id for row in smoke_rows)
     commit = repository_commit(ROOT)
     support_root = prepare_support_runtime(commit=commit, distro=distro)
     login = _check_chatgpt_login(codex_binary=codex_binary, distro=distro)
@@ -930,6 +961,8 @@ def run_codex_system(
         rows=run_rows,
         commit=commit,
         cli_version=cli_version,
+        smoke_seed=smoke_seed,
+        smoke_instance_ids=smoke_instance_ids,
     )
     if mode in {"pilot", "full"}:
         _assert_prerequisite(
@@ -976,6 +1009,9 @@ def run_codex_system(
         else:
             pending.append(row)
 
+    # DECISION (X5): the representative sample identity is durable before
+    # execute_codex_task can produce any outcome used to judge config 2.
+    _write_manifest(manifest, records, manifest_path)
     batch_size = batch_size_for(system_id)
     entailer = entailer or default_entailer()
     records_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1278,6 +1314,15 @@ def _parse_args() -> argparse.Namespace:
         choices=("smoke", "pilot", "full"),
         default="smoke",
     )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        required=True,
+        help=(
+            "predeclared config-2 smoke seed; the frozen value is "
+            f"{CONFIG2_SMOKE_SEED}"
+        ),
+    )
     return parser.parse_args()
 
 
@@ -1291,6 +1336,7 @@ def main() -> int:
             system_id,
             rows=rows,
             mode=args.mode,
+            smoke_seed=args.seed,
             entailer=entailer,
             regulation_search=None,
         )

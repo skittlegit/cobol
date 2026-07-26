@@ -27,6 +27,11 @@ from cobol_archaeologist.eval.codex_batch import (
     validate_baseline_envelope,
 )
 from cobol_archaeologist.eval.codex_live import (
+    CONFIG2_SMOKE_IDS,
+    CONFIG2_SMOKE_SEED,
+    REQUIRED_SMOKE_ROWS,
+    _manifest,
+    _mode_rows,
     batch_size_for,
     build_agent_prompt,
     build_baseline_prompt,
@@ -44,7 +49,10 @@ from cobol_archaeologist.model.verify import (
     StaticClaim,
     VerificationTier,
 )
-from cobol_archaeologist.schemas import RegulationClause
+from cobol_archaeologist.schemas import DriftInstance, RegulationClause
+
+ROOT = Path(__file__).resolve().parents[1]
+SPLIT = ROOT / "data" / "benchmark" / "v1-pre" / "test.jsonl"
 
 
 def _abstention(reason: str = "insufficient evidence") -> SubmittedResponse:
@@ -835,6 +843,51 @@ def test_oracle_batch_is_bounded_for_large_slice_payloads() -> None:
     assert batch_size_for("agent") == 2
     assert batch_size_for("dense_rag") == 5
     assert batch_size_for("oracle_slice") == 2
+
+
+def test_config2_smoke_is_seeded_stratified_reproducible_and_pinned() -> None:
+    rows = [
+        DriftInstance.model_validate_json(line)
+        for line in SPLIT.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+    selected = _mode_rows(rows, "smoke", smoke_seed=CONFIG2_SMOKE_SEED)
+    replay = _mode_rows(rows, "smoke", smoke_seed=CONFIG2_SMOKE_SEED)
+
+    assert REQUIRED_SMOKE_ROWS == 7
+    assert [row.instance_id for row in selected] == list(CONFIG2_SMOKE_IDS)
+    assert [row.instance_id for row in replay] == list(CONFIG2_SMOKE_IDS)
+    assert len({row.drift_type for row in selected}) == 7
+    assert [row.instance_id for row in selected] != [
+        row.instance_id for row in rows[:REQUIRED_SMOKE_ROWS]
+    ]
+    with pytest.raises(ValueError, match="pinned config-2 smoke seed"):
+        _mode_rows(rows, "smoke", smoke_seed=CONFIG2_SMOKE_SEED + 1)
+
+
+def test_config2_manifest_records_seed_and_selected_ids() -> None:
+    rows = [
+        DriftInstance.model_validate_json(line)
+        for line in SPLIT.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    selected = _mode_rows(rows, "smoke", smoke_seed=CONFIG2_SMOKE_SEED)
+
+    manifest = _manifest(
+        system_id="agent",
+        mode="smoke",
+        rows=selected,
+        commit="a" * 40,
+        cli_version="codex-cli test",
+        smoke_seed=CONFIG2_SMOKE_SEED,
+        smoke_instance_ids=CONFIG2_SMOKE_IDS,
+    )
+
+    assert manifest.smoke_seed == CONFIG2_SMOKE_SEED
+    assert manifest.smoke_instance_ids == list(CONFIG2_SMOKE_IDS)
+    assert manifest.smoke_rows == REQUIRED_SMOKE_ROWS
+    assert manifest.total == REQUIRED_SMOKE_ROWS
 
 
 def test_codex_cli_arguments_pin_luna_low_and_chatgpt_safe_modes() -> None:
