@@ -8,7 +8,6 @@ class D4Hunt(BasePolicyHunt):
 
     def validate_response(self, response, transcript, clause):
         errors = super().validate_response(response, transcript, clause)
-        errors += require_tools(transcript, {"resolve_copybook"})
         current = clause.current_value
         if current is None or current.kind != "enum_set":
             errors.append("D4 requires a clause enum_set")
@@ -16,6 +15,8 @@ class D4Hunt(BasePolicyHunt):
         prediction = response.prediction
         if prediction is None:
             return errors
+        if any(locus.file for locus in prediction.code_locus.loci):
+            errors += require_tools(transcript, {"resolve_copybook"})
         rationale = prediction.rationale.lower()
         values = current.value if isinstance(current.value, list) else []
         if not any(str(value).lower() in rationale for value in values):

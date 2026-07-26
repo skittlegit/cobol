@@ -19,6 +19,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 from cobol_archaeologist.agent.policy import (
+    EVIDENCE_MINIMUMS,
     confidence_for_tier,
 )
 from cobol_archaeologist.agent.trajectory import BudgetSpec, Trajectory
@@ -66,8 +67,8 @@ ROOT = Path(__file__).resolve().parents[3]
 SPLIT = ROOT / "data" / "benchmark" / "v1-pre" / "test.jsonl"
 OUTPUT_DIR = ROOT / "data" / "eval" / "m4-v3"
 PROMPT_VERSIONS = {
-    "ollama": "m4-live-ollama-v1",
-    "openai": "m4-live-openai-v8",
+    "ollama": "m4-live-ollama-v2",
+    "openai": "m4-live-openai-v9",
 }
 TOOL_VERSION = "real-tool-layer-t1.6"
 INPUT_REVISION = "3acd8b0edb9d0aec26ba931e92f369fe9d612a3d"
@@ -78,7 +79,9 @@ DEFAULT_MODEL_IDS = {
     "openai": "gpt-5.6-luna",
 }
 REQUIRED_SMOKE_ROWS = 5
-MIN_AGENT_ABSTENTION_OBSERVATIONS = 3
+# Legacy transport argument retained until the finalizer signature is retired.
+# M4-X policy ignores it and derives the real floor from EVIDENCE_MINIMUMS.
+MIN_AGENT_ABSTENTION_OBSERVATIONS = 1
 SystemID = Literal["agent", "dense_rag", "oracle_slice"]
 ProviderID = Literal["ollama", "openai"]
 SYSTEM_IDS: tuple[SystemID, ...] = ("agent", "dense_rag", "oracle_slice")
@@ -484,8 +487,8 @@ def _provider_decoding(provider: ProviderID, system_id: SystemID) -> dict:
             "seed": None,
         }
     if system_id == "agent":
-        decoding["min_successful_observations_before_abstention"] = (
-            MIN_AGENT_ABSTENTION_OBSERVATIONS
+        decoding["min_successful_observations_by_drift_type"] = dict(
+            EVIDENCE_MINIMUMS
         )
     return decoding
 

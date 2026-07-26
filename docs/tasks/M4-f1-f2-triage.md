@@ -82,3 +82,44 @@ coverage substantially while leaving the headline stratum nearly untouched.
 | **X4** | Surface the clause's leaf structure to the hunt when `current_value.kind == "composite"`, so the agent enumerates candidate leaves rather than guessing | C | moderate |
 
 All four are Track C. **None require Track A or Track B.**
+
+## Correction — 2026-07-26 (same day, pre-implementation)
+
+The F1 mechanism recorded above is **wrong**, and the fix it implied (X1:
+"condition the copybook requirement on `file != None`") would have been a
+no-op. Corrected by inspecting `agent/hunts/d1.py` and recovering the proposed
+predictions from `trajectory.model_responses`.
+
+**What the guard actually does.** `D1Hunt.validate_response` is already
+conditional:
+
+    if any(locus.file for locus in loci):
+        errors += require_tools(transcript, {"resolve_copybook"})
+
+It keys on the **prediction's** loci, not gold's.
+
+**What actually happened (implementation replay correction).** **47/49**
+proposed predictions set `file` to values such as `CLOSPEN1.cbl` — a *program*
+filename, not a copybook. Per schema v2, `SourceLocus.file` is `None` when the
+line lives in the program's own source and non-null only when it resolves
+through a COPY expansion. Those 47 predictions falsely asserted copybook
+loci. The remaining two (`drift_323235`, `drift_479980`) cite
+`WSCUTOFF`/`WSCUTOFF.cpy`; gold confirms genuine `WSCUTOFF.cpy` loci, so the
+guard correctly continues to require `resolve_copybook` evidence for them.
+
+**So the guard is correct; 47 predictions are wrong and two are
+under-evidenced.** The 47-row root cause is the `file` field's semantics not
+surviving into the prediction path: the name `file` reads naturally as "the
+file this line is in," and the prompt did not disambiguate. This is a Track C
+schema-ergonomics defect originating in the T0.3a schema-v2 design authored in
+the Track C chat.
+
+**Unchanged:** the 49 rows, 31% of abstentions, D1×37 / D3×12, 47/49
+single-paragraph, and the conclusion that Track A is not implicated.
+`resolve_copybook` was still never invoked and the tool layer still performed
+correctly. X1 normalizes 47 rows; it does not waive evidence for the two real
+copybook loci.
+
+**Separately confirmed latent bug:** `agent/hunts/d4.py` requires
+`resolve_copybook` **unconditionally**. D4 was not among the 49 rows, so this
+has not yet fired, but it will. Fixed as X1b.

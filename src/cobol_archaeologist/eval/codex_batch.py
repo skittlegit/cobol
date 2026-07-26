@@ -20,6 +20,7 @@ from cobol_archaeologist.agent.policy import (
     HuntBatchOutcome,
     HuntOutcome,
     confidence_for_tier,
+    evidence_minimum_for,
     get_hunt,
 )
 from cobol_archaeologist.agent.trajectory import BudgetSpec, ToolCall, Trajectory
@@ -548,14 +549,27 @@ def finalize_agent_hunt(
         clause=clause,
         token_count=token_count,
     )
+    locus_count = (
+        len(response.prediction.code_locus.loci)
+        if response.prediction is not None
+        else None
+    )
+    # DECISION (M4-X X2): config 1 supplied one global scalar. Keep the
+    # parameter for replay/source compatibility, but the class table is now
+    # authoritative for both interactive and batched finalization.
+    del min_successful_observations
+    required_observations = evidence_minimum_for(
+        hunt_name,
+        locus_count=locus_count,
+    )
     successful = sum(
         step.error is None and bool(step.observation_summary) for step in steps
     )
-    if successful < min_successful_observations:
+    if successful < required_observations:
         reason = (
             "batched evidence minimum not met: "
             f"{successful} successful observation(s), "
-            f"{min_successful_observations} required"
+            f"{required_observations} required for {hunt_name}"
         )
         return _abstained_hunt(
             hunt_name=hunt_name,

@@ -24,6 +24,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
+from cobol_archaeologist.agent.policy import EVIDENCE_MINIMUMS
 from cobol_archaeologist.eval.baselines import (
     DenseRAGContext,
     OracleSliceContext,
@@ -74,9 +75,9 @@ from cobol_archaeologist.rag.search import RegulationSearch
 from cobol_archaeologist.schemas import DriftInstance, RegulationClause
 
 MODEL_ID = "gpt-5.6-luna"
-REASONING_EFFORT = "high"
+REASONING_EFFORT = "low"
 PROVIDER_ID = "chatgpt-codex-plus"
-PROMPT_VERSION = "m4-live-codex-batch-v3"
+PROMPT_VERSION = "m4-live-codex-batch-v4"
 DEFAULT_WSL_DISTRO = "Ubuntu"
 DEFAULT_CODEX_BINARY = (
     "/home/deepa/.local/bin/codex-x86_64-unknown-linux-musl"
@@ -749,8 +750,8 @@ def _manifest(
             "batch_size": batch_size_for(system_id),
             **(
                 {
-                    "min_successful_observations_before_abstention": (
-                        MIN_AGENT_ABSTENTION_OBSERVATIONS
+                    "min_successful_observations_by_drift_type": dict(
+                        EVIDENCE_MINIMUMS
                     )
                 }
                 if system_id == "agent"
