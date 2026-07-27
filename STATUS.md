@@ -235,5 +235,9 @@ three tracks; a task's numeric prefix does not identify its phase.
   evidence-minimum failures, 2 host-binding failures, and 1 distinct
   static-token-validator rejection. The final hard stop fired: no paired
   config-2 run and no further fix cycle; proceed to Phase 5 benchmark-first.
-- **T5.x, T7.1-T7.3, T7.5** | todo | A/B/C | Phase-5/release work remains;
-  T6.1-T6.4 and T7.4 are cut above.
+- **T5.1** | in_progress | B | `ANNOTATION.md` freezes the independent
+  annotation, adjudication, leakage-control, D1-D7, localization, and
+  agreement-reporting protocol. Guideline gates pass without provider spend;
+  scale-up and the measured second-annotator pass remain.
+- **T5.2-T5.5, T7.1-T7.3, T7.5** | todo | A/B/C | Remaining
+  Phase-5/release work; T6.1-T6.4 and T7.4 are cut above.

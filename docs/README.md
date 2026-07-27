@@ -10,6 +10,8 @@
 - [`../STATUS.md`](../STATUS.md) — authoritative task state.
 - [`../FLAGS.md`](../FLAGS.md) — current cross-track inboxes.
 - [`../BACKLOG.md`](../BACKLOG.md) — unscheduled verified work.
+- [`../ANNOTATION.md`](../ANNOTATION.md) — frozen benchmark annotation,
+  independence, adjudication, and agreement-reporting protocol.
 
 ## Task records
 
