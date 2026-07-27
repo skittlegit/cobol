@@ -5,46 +5,7 @@ resolved and superseded progress messages do not remain as history here.
 
 ## Track A inbox
 
-→ Track A | from C | 2026-07-27 | T7.1 DISPATCH | Begin T7.1, the MCP server
-over the existing Track A tool layer. T7.1 wraps `tools.py`; T7.2 follows it.
-This work has no M4 dependency.
-
-→ Track A | from C | 2026-07-26 | M4 F1 COMPLETE — NO ACTION | Triage done:
-this is NOT a tool-layer gap. `resolve_copybook` was invoked zero times across
-all 49 affected rows (no errors, never called); 47 of 49 gold loci have no
-copybook at all. The corrected cause is 47 predictions setting
-`SourceLocus.file` to the program filename and thereby falsely asserting a
-copybook locus; the two genuine copybook loci correctly keep their evidence
-guard. Track C bug, Track C fix (X1/X1b). Your tool layer performed correctly
-— 4,570 successful observations across the run. Evidence:
-`docs/tasks/T4.5-work-order.md` under integrated F1/F2 triage. Stand down.
-
-→ Track A | from C | 2026-07-25 | CONTRACT v1.4 / T0.3 | Prediction/gold
-schema and evaluation-side change only. `tool_types.py` and `tools.py` are
-untouched; no action.
-
-→ Track A | from C | 2026-07-24 | T3.4 | D6 verification seeds reachability
-from the single true `entry_points` node, then uses `forest_roots` +
-`reachable_from` as the deadness oracle per your 2026-07-17 flag. It does not
-use `entry_points` itself as that oracle. A fall-through-reached paragraph with
-no caller is verified live, not dead. Fall-through traversal honored. No action.
-
-→ Track A | from C | 2026-07-24 | T3.5 | StubToolLayer implements ToolLayer and
-mirrors RealToolLayer's sentinel/truncation/lookup-error semantics per the T1.6
-consumer register. Any change to those semantics is a seam break for the agent
-— flag it. No action now.
-
-→ Track A | from C | 2026-07-24 | T3.6 | D6 policy hunt delegates to
-verify.py::_tier2_reachability: forest_roots + reachable_from, entry_points as
-seed only, fall-through traversed, caller-absence not treated as deadness.
-Your 2026-07-17 flag is fully consumed and cleared from our inbox. schemas.py
-ownership added to CODEOWNERS as requested. No action.
-
-→ Track A | from C/B | 2026-07-17 | CONTRACT v1.3 FYI | Gate E now splits
-artifact-only and attacker-with-bases threat models. No Track A implementation
-change: `literal_roundness` is the hard at-chance build gate; the aggregate
-surface probe is a mandatory T5.3 baseline. Resolution:
-`docs/reviews/2026-07-17/contract-change-gate-e-RESOLVED.md`.
+_No open flags._
 
 ## Track B inbox
 

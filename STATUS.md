@@ -235,5 +235,10 @@ three tracks; a task's numeric prefix does not identify its phase.
   evidence-minimum failures, 2 host-binding failures, and 1 distinct
   static-token-validator rejection. The final hard stop fired: no paired
   config-2 run and no further fix cycle; proceed to Phase 5 benchmark-first.
-- **T5.x, T7.1-T7.3, T7.5** | todo | A/B/C | Phase-5/release work remains;
+- **T7.1** | done | A | `src/cobol_archaeologist/mcp_server/server.py` exposes
+  all eleven frozen `ToolLayer` methods through the official MCP SDK v1 over
+  stdio. Exact registry parity, structured delegation, `RunInputs` binding,
+  and fail-closed configuration are gated in `tests/test_mcp_server.py`;
+  canonical scope and exclusions are in `docs/tasks/T7.1-work-order.md`.
+- **T5.x, T7.2-T7.3, T7.5** | todo | A/B/C | Phase-5/release work remains;
   T6.1-T6.4 and T7.4 are cut above.
