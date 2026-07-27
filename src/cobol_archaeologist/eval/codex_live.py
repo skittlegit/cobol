@@ -450,6 +450,12 @@ observations, two conflicting loci, and a static hook; D4 resolves a copybook
 and names a missing/extra enum value; D5 compares typed source and clause
 comparators; D6 supplies a read paragraph plus dead_paragraph; D7 uses
 conformant labels with no drift lines plus positive literal/comparator evidence.
+For every non-null static hook, `static_claim.literal` and
+`static_claim.comparator` are exact substrings copied from a cited tool
+observation; they are source tokens, not explanations. Positive:
+{{"literal":"7","comparator":">="}}. Negative:
+{{"comparator":"source `>=`; clause `at_most`"}}. Put that comparison in
+prediction.rationale instead.
 
 Detector-visible cases:
 {visible}

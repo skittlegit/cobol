@@ -193,7 +193,7 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T4.4** | done | C | Agent coverage 47/204 (0.2304), answered accuracy
   0.8936, aggregate faithfulness 0.4255; Tier 1/2/3 faithfulness =
   0.1667/0.7200/0.0625. Brier 0.1816, ECE 0.1713.
-- **T4.5** | M4 done — NO_GO; config-2 X5–X7 implemented, run pending | C |
+- **T4.5** | M4 done — NO_GO; config-2 final amendment implemented, fresh smoke pending | C |
   `data/eval/m4/report.{json,md}` has zero blocking issues. Agent trails
   dense-RAG interprocedurally by 0.3030 (95% CI [-0.4929, -0.1252],
   p=0.00635); the oracle-slice comparison is inconclusive because its CI
@@ -212,5 +212,12 @@ three tracks; a task's numeric prefix does not identify its phase.
   passed, 71 skipped, 5 deselected**, with Ruff clean. No provider run was
   performed in the implementation commit. The representative config-2 smoke
   and, if valid, the paired run remain pending under the binding hard stop in
-  the canonical T4.5 work order; M4 remains closed as NO_GO.
+  the canonical T4.5 work order. Final Amendment 3 keeps X3′ and the verifier
+  unchanged, requires source-exact static-claim tokens, and fails malformed
+  hooks closed before verification without rewriting or re-prompting.
+  The pre-amendment 0/7 evidence is archived at
+  `data/eval/m4-config2/smoke-pre-amendment-e6a7762/`. Implementation gates:
+  **450 passed, 71 skipped, 5 deselected**, Ruff clean, verifier SHA-256
+  `698eb8e…c019d17`. No provider spend occurred in the implementation commit;
+  M4 remains closed as NO_GO.
 - **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.

@@ -10,6 +10,7 @@ from pydantic import BaseModel, ValidationError
 
 from cobol_archaeologist.agent.stub_tools import StubToolLayer
 from cobol_archaeologist.agent.trajectory import BudgetSpec
+from cobol_archaeologist.eval import codex_batch as codex_batch_module
 from cobol_archaeologist.eval.baselines import DenseRAGContext, OracleSliceContext
 from cobol_archaeologist.eval.codex_batch import (
     AGENT_HUNTS,
@@ -43,6 +44,7 @@ from cobol_archaeologist.eval.codex_tool import (
     ToolRequest,
     execute_tool_request,
 )
+from cobol_archaeologist.eval.schemas import EvaluationRecord
 from cobol_archaeologist.model.prompt import HUNT_PROMPTS
 from cobol_archaeologist.model.verify import (
     LexicalEntailer,
@@ -688,6 +690,82 @@ def test_batched_d1_uses_class_minimum_and_emits_with_one_bound_code_fact() -> N
     assert outcome.verification_tier == VerificationTier.STATIC
 
 
+def test_malformed_static_claim_token_fails_before_batched_verifier(
+    monkeypatch,
+) -> None:
+    records_path = (
+        ROOT
+        / "data"
+        / "eval"
+        / "m4-config2"
+        / "smoke-pre-amendment-e6a7762"
+        / "agent.jsonl"
+    )
+    records = [
+        EvaluationRecord.model_validate_json(line)
+        for line in records_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    record = next(
+        row for row in records if row.instance_id == "drift_377860"
+    )
+    trace = next(
+        row
+        for row in record.agent_hunts
+        if row.hunt == "D5_boundary_error"
+    )
+    response = next(
+        row
+        for row in reversed(trace.trajectory.model_responses)
+        if row.kind == "finding"
+    )
+    projected = _provider_projection(response.model_dump(mode="json"))
+    projected.pop("tool", None)
+    projected.pop("arguments", None)
+    submitted = SubmittedResponse.model_validate(projected)
+    logs = [
+        ToolLogEntry(
+            alias="drift_900000",
+            hunt="D5_boundary_error",
+            sequence=step.step,
+            tool=step.tool,
+            arguments=step.arguments,
+            observation_summary=step.observation_summary,
+            observation_truncated=step.observation_truncated,
+            error=step.error,
+            latency_ms=step.latency_ms or 0,
+        )
+        for step in trace.trajectory.steps
+    ]
+
+    def forbidden_verify(*_args, **_kwargs):
+        raise AssertionError("malformed static claim must not reach verify()")
+
+    monkeypatch.setattr(codex_batch_module, "verify", forbidden_verify)
+    outcome = finalize_agent_hunt(
+        hunt_name="D5_boundary_error",
+        submitted=submitted,
+        clause=record.gold.regulation_clause,
+        program_scope="KYCSYNC2",
+        instance_id=record.instance_id,
+        logs=logs,
+        tools=object(),
+        budget=BudgetSpec(max_tokens=65_536),
+        entailer=LexicalEntailer(),
+        token_count=100,
+        min_successful_observations=1,
+        model_id="gpt-5.6-luna",
+    )
+
+    assert outcome.abstained
+    assert outcome.verification is None
+    assert outcome.abstention_reason.startswith(
+        "policy evidence guard: static-claim source-token validator:"
+    )
+    assert "comparator" in outcome.abstention_reason
+    assert "verifier" not in outcome.abstention_reason
+
+
 def test_batched_d2_keeps_four_observation_absence_floor() -> None:
     fixture = Path(__file__).parent / "fixtures" / "hunts"
     cached = json.loads((fixture / "cached_decisions.json").read_text(encoding="utf-8"))
@@ -772,6 +850,9 @@ def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation()
     assert "Each D1-D7 HUNT has an independent transcript" in prompt
     assert "there is no shared hunt" in prompt
     assert "program names the containing executable program" in prompt
+    assert "are exact substrings copied from a cited tool" in prompt
+    assert '{"literal":"7","comparator":">="}' in prompt
+    assert 'source `>=`; clause `at_most`' in prompt
     normalized_prompt = " ".join(prompt.split())
     assert "claim is the citation hypothesis" in normalized_prompt
     assert "without COBOL identifiers or implementation facts" in normalized_prompt

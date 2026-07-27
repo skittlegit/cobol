@@ -142,6 +142,19 @@ def test_registry_has_exactly_one_hunt_per_drift_class():
     assert all(hunt.drift_type == key for key, hunt in HUNT_REGISTRY.items())
 
 
+def test_only_verifier_constructs_verification_results_or_mutates_their_tier():
+    source_root = (
+        Path(__file__).resolve().parents[1] / "src" / "cobol_archaeologist"
+    )
+    verifier = source_root / "model" / "verify.py"
+    for path in source_root.rglob("*.py"):
+        if path == verifier:
+            continue
+        source = path.read_text(encoding="utf-8")
+        assert "VerificationResult(" not in source, path
+        assert 'model_copy(update={"tier"' not in source, path
+
+
 @pytest.mark.parametrize(("drift_type", "case"), VERIFIED_CASES.items())
 def test_each_hunt_emits_schema_valid_verified_finding(tools, drift_type, case):
     outcome = _run(tools, drift_type, case)
