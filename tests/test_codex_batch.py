@@ -293,6 +293,47 @@ def test_host_input_binding_failure_abstains_without_infrastructure_error() -> N
     assert selection_failure.raw_provider_text == submitted.model_dump_json()
 
 
+def test_host_binding_canonicalizes_leaf_value_target_path() -> None:
+    """A provider's ``value`` wrapper names the leaf itself, not a child."""
+
+    fixture = Path(__file__).parent / "fixtures" / "hunts"
+    final = json.loads(
+        (fixture / "cached_decisions.json").read_text(encoding="utf-8")
+    )["d1"][-1]
+    projected = _provider_projection(final)
+    projected["prediction"]["target_path"] = "value"
+    submitted = SubmittedResponse.model_validate(
+        {
+            "exec_probe": None,
+            "abstention_reason": None,
+            **projected,
+        }
+    )
+    clause = RegulationClause(
+        doc="RBI-Test",
+        clause_id="1",
+        version="2026-01-01",
+        effective_date="2026-01-01",
+        text="Complete the update within seven days.",
+        current_value={
+            "kind": "duration_days",
+            "value": 7,
+            "comparator": "at_most",
+        },
+    )
+
+    response = bind_submitted_response(
+        submitted,
+        instance_id="drift_910001",
+        clause=clause,
+        token_count=100,
+    )
+
+    assert response.kind == "finding"
+    assert response.prediction is not None
+    assert response.prediction.target_path is None
+
+
 def test_invalid_interprocedural_flag_abstains_only_submitted_hunt() -> None:
     fixture = Path(__file__).parent / "fixtures" / "hunts"
     final = json.loads(

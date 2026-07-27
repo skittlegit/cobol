@@ -33,15 +33,3 @@ live repository. Installing them changes collaborator push and merge behavior
 and requires an explicit repository-administration action. Private
 vulnerability reporting is enabled in `.github/SECURITY.md`; CODEOWNERS already
 covers `tool_types.py` and requires all three tracks for the frozen schema.
-
-### BL-12 — Resolve prediction leaf binding for `target_path='value'`
-
-**Source:** M4 config-2 final smoke · **Owner:** Track C · **Trigger:** before
-any future agent evaluation
-
-Two host-binding rejections in the final config-2 smoke used
-`target_path='value'`. A remaining X4 leaf-enumeration or prediction-ergonomics
-gap is the likely cause, but it is not yet established. The issue does not
-invalidate configuration 1 or reopen M4: it was deliberately left unfixed when
-the declared hard stop fired. Diagnose and gate it before any future evaluation
-that relies on prediction-to-gold leaf binding.

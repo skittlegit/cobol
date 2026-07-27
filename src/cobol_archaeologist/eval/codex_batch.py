@@ -98,10 +98,24 @@ class SubmittedPrediction(BaseModel):
         instance_id: str,
         clause: RegulationClause,
     ) -> DriftPrediction:
+        payload = self.model_dump()
+        target_path = payload.get("target_path")
+        current_value = clause.current_value
+        if isinstance(target_path, str) and current_value is not None:
+            if current_value.kind == "composite":
+                if target_path.startswith("current_value."):
+                    target_path = target_path.removeprefix("current_value.")
+                if target_path.startswith("value."):
+                    target_path = target_path.removeprefix("value.")
+            elif target_path in {"value", "current_value", "current_value.value"}:
+                # DECISION (BL-12): these are provider wrapper names for the
+                # already-selected scalar/enum leaf, not a semantic child path.
+                target_path = None
+            payload["target_path"] = target_path
         return DriftPrediction(
             instance_id=instance_id,
             regulation_clause=clause,
-            **self.model_dump(),
+            **payload,
         )
 
 
