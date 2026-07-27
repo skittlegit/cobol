@@ -34,6 +34,12 @@ three tracks; a task's numeric prefix does not identify its phase.
   option, not a finding, and must not be adopted by default.
   Decision, diagnosis, config-2 record, and final corrective work:
   `docs/tasks/T4.5-work-order.md`.
+- **Phase 6 (T6.1-T6.4, migration): CUT 2026-07-26** — playbook Part 5 names
+  migration as the first scope cut. The M4 NO_GO removes its value as a
+  showcase: an equivalence demo built on a detector with ~23% coverage
+  demonstrates little. Effort redirects to T5.1/T5.2 (benchmark scale, freeze,
+  datasheet), T5.3's three missing baselines (static/keyword, RAG+reranker,
+  single-shot LLM), and T7.5. T7.4 (UI) also cut per the same ordering.
 
 ## Task ledger
 
@@ -43,10 +49,11 @@ three tracks; a task's numeric prefix does not identify its phase.
   + KYC union. Anchor RE-ANCHORED at T2.1 (2026-07-09) to the 2025 Commercial
   Banks CC/DC Directions (2022 MD repealed 2025-11-28); KYC bridge is 2025 para
   90. See the T2.1 work order.
-- **T0.3** | ready-for-review | C | Schema v3 adds `DriftPrediction`;
-  `DriftInstance` gold remains unchanged. CONTRACT v1.4 makes provenance and
-  `gold_rationale` gold-only. Provider repair, full seven-hunt replay, and paid
-  run guards are offline-gated; no provider spend.
+- **T0.3** | done | C | Schema v3 adds `DriftPrediction`; `DriftInstance` gold
+  remains unchanged. CONTRACT v1.4 makes provenance and `gold_rationale`
+  gold-only. Reviewed 2026-07-26: 29 gates green, DriftPrediction carries no
+  provenance, gold still requires it. Provider repair, seven-hunt replay, and
+  paid-run guards offline-gated; no provider spend.
 - **T0.4** | done | C | `docs/tasks/T0.4-work-order.md` +
   `docs/CONTRACT.md` v1.4. Ratified amendments and sign-offs stand.
 - **T0.5** | done | A | `docs/tasks/T0.5-work-order.md`.
@@ -228,4 +235,5 @@ three tracks; a task's numeric prefix does not identify its phase.
   evidence-minimum failures, 2 host-binding failures, and 1 distinct
   static-token-validator rejection. The final hard stop fired: no paired
   config-2 run and no further fix cycle; proceed to Phase 5 benchmark-first.
-- **T5.x-T7.x** | todo | A/B/C | Per playbook Part 4; not yet in play.
+- **T5.x, T7.1-T7.3, T7.5** | todo | A/B/C | Phase-5/release work remains;
+  T6.1-T6.4 and T7.4 are cut above.

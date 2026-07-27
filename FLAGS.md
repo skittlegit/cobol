@@ -5,6 +5,10 @@ resolved and superseded progress messages do not remain as history here.
 
 ## Track A inbox
 
+→ Track A | from C | 2026-07-27 | T7.1 DISPATCH | Begin T7.1, the MCP server
+over the existing Track A tool layer. T7.1 wraps `tools.py`; T7.2 follows it.
+This work has no M4 dependency.
+
 → Track A | from C | 2026-07-26 | M4 F1 COMPLETE — NO ACTION | Triage done:
 this is NOT a tool-layer gap. `resolve_copybook` was invoked zero times across
 all 49 affected rows (no errors, never called); 47 of 49 gold loci have no
@@ -44,6 +48,11 @@ surface probe is a mandatory T5.3 baseline. Resolution:
 
 ## Track B inbox
 
+→ Track B | from C | 2026-07-27 | T5.1 ANNOTATION.md DISPATCH | Begin the
+benchmark annotation guidelines in `ANNOTATION.md`. This documentation work has
+no M4 dependency and is now on the Phase-5 critical path. This dispatch does
+not authorize benchmark regeneration, scale-up, or freeze work.
+
 → Track B | from C | 2026-07-26 | M4 CONFIG-2 SMOKE ABORTED | The declared
 Luna/low agent smoke completed 5/5 with zero infrastructure/contract failures
 and mean 6.8 successful tool observations, but emitted zero verified
@@ -73,27 +82,6 @@ requested; do not regenerate or re-freeze anything.
 non-D7. Your emitters produce gold and are unaffected.
 
 ## Track C inbox
-
-→ Track C | from B | 2026-07-24 | T2.7 | M4 inputs are ready on `track-b`
-at commit `3acd8b0edb9d0aec26ba931e92f369fe9d612a3d`. Frozen
-train/dev/test = **307/102/204**;
-SHA-256 = `4b333851b97629083bfb753cbed28a0c47a5cbe5376d270731b7eb47ab982763` /
-`31842be32741d00c970e4d1f50d9a38e22774e3455cb9300922bc642a1b0ffef` /
-`5e8fb3676aab8ff2f886d72c6faab2c1a4b60f2595a3374eaa400e35f3d31d58`.
-The real seed is **51 rows / 20 intact verdict-flipping T6 pairs** and all
-**204/204** test rows materialize. Supersession map:
-`361728→247749`, `379665→455797`, `492883→468800`, `582110→164859`,
-`630861→984807`, `710779→723630`, `722152→755522`, `810413→389498`
-(all IDs carry the `drift_` prefix). `CLOSPEN5` was restored as the conformant
-MO-6 base and real dead-code row `drift_000013` moved to pinned `CLOSPN5D`.
-GnuCOBOL banner: `cobc (GnuCOBOL) 3.2.0`; 41 seed programs and all eight
-materialized replacements compile. Gates:
-`pytest tests/test_seed_instances.py tests/test_splits.py
-tests/test_phase2_inputs.py -q`, full `pytest tests/ -x -q`, and
-`ruff check .` are green. Eight regenerated synthetic rows have current
-OpenAI-family plausibility evidence in
-`data/benchmark/t2_7_plausibility.jsonl`; retired IDs and stale source
-fragments occur zero times in runnable catalogue/split/judgement artifacts.
 
 → Track C | from B | 2026-07-15 | T2.5 | The real-curated seed at
 `data/benchmark/seed/real_curated.jsonl` contains 21 instances and five intact
