@@ -40,6 +40,17 @@ three tracks; a task's numeric prefix does not identify its phase.
   demonstrates little. Effort redirects to T5.1/T5.2 (benchmark scale, freeze,
   datasheet), T5.3's three missing baselines (static/keyword, RAG+reranker,
   single-shot LLM), and T7.5. T7.4 (UI) also cut per the same ordering.
+  Migration and UI may be reconsidered only in post-release M8 under new,
+  predeclared utility gates; they are not current release requirements.
+
+## Planned post-release milestone
+
+- **M8 (Post-release Improvements): PLANNED — NOT ACTIVE** — begins only after
+  M7 submission and release is complete. M8 does not block M5 or M7, and it
+  does not reopen or replace M4's valid configuration-1 NO_GO. Its candidate
+  scope and activation rules live in `BACKLOG.md`. Before execution, each
+  accepted workstream requires its own canonical `T8.x` work order with a
+  frozen hypothesis, gates, ownership, and budget.
 
 ## Task ledger
 
@@ -217,11 +228,12 @@ three tracks; a task's numeric prefix does not identify its phase.
   requirements are scoped to D1/D4/D5; and a first-turn finding is re-prompted
   until one successful bounded observation exists. Offline gates are **448
   passed, 71 skipped, 5 deselected**, with Ruff clean. No provider run was
-  performed in the implementation commit. The representative config-2 smoke
-  and, if valid, the paired run remain pending under the binding hard stop in
-  the canonical T4.5 work order. Final Amendment 3 keeps X3′ and the verifier
-  unchanged, requires source-exact static-claim tokens, and fails malformed
-  hooks closed before verification without rewriting or re-prompting.
+  performed in the implementation commit. That implementation-only state was
+  superseded by the final representative smoke recorded below; the binding
+  hard stop ended configuration 2 without a paired run. Final Amendment 3
+  keeps X3′ and the verifier unchanged, requires source-exact static-claim
+  tokens, and fails malformed hooks closed before verification without
+  rewriting or re-prompting.
   The pre-amendment 0/7 evidence is archived at
   `data/eval/m4-config2/smoke-pre-amendment-e6a7762/`. Implementation gates:
   **450 passed, 71 skipped, 5 deselected**, Ruff clean, verifier SHA-256
@@ -246,4 +258,5 @@ three tracks; a task's numeric prefix does not identify its phase.
   canonical scope and exclusions are in `docs/tasks/T7.1-work-order.md`.
 - **T5.2-T5.5, T7.2-T7.3, T7.5** | todo | A/B/C | Remaining
   Phase-5/release work;
-  T6.1-T6.4 and T7.4 are cut above.
+  T6.1-T6.4 and T7.4 are cut above. M8 is post-release backlog scope and is
+  excluded from the active task count until ratified `T8.x` work orders exist.
