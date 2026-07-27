@@ -249,14 +249,31 @@ three tracks; a task's numeric prefix does not identify its phase.
   config-2 run and no further fix cycle; proceed to Phase 5 benchmark-first.
 - **T5.1** | in_progress | B | `ANNOTATION.md` freezes the independent
   annotation, adjudication, leakage-control, D1-D7, localization, and
-  agreement-reporting protocol. Guideline gates pass without provider spend;
-  scale-up and the measured second-annotator pass remain.
+  agreement-reporting protocol. The 51-row gold-hidden evidence pack, typed
+  independent-pass records, deterministic agreement report, and fail-closed
+  freeze tooling are committed. Two locked qualified-human passes,
+  adjudication, and measured agreement remain; no fabricated labels or
+  agreement numbers are recorded.
+- **T5.2** | todo — blocked on T5.1 evidence | B |
+  `docs/tasks/T5.2-work-order.md` freezes the 613-row benchmark and datasheet
+  gates. Implementation validates independent identities, exact disagreement
+  adjudication, 51 real rows, 20 T6 pairs, split hashes, and detector-visible
+  changes; immutable `data/benchmark/v1/` and `DATASHEET.md` remain pending.
+- **T5.3** | in_progress | C | Seven baselines and the predeclared +0.10
+  agent-over-attacker F1 floor are frozen in
+  `docs/tasks/T5.3-work-order.md`. Four deterministic no-provider baselines,
+  explicit gold-hidden provider contexts, registered six-feature attacker
+  coefficients, and fail-closed Phase-5 reporting are implemented. Final
+  frozen artifacts plus plain-LLM and explicit dense-RAG runs await T5.2.
+- **T5.4** | todo — blocked on T5.2/T5.3 | C |
+  `docs/tasks/T5.4-work-order.md`; frozen paired headline report.
+- **T5.5** | todo — blocked on T5.4 | C |
+  `docs/tasks/T5.5-work-order.md`; benchmark-first analysis and M5 decision.
 - **T7.1** | done | A | `src/cobol_archaeologist/mcp_server/server.py` exposes
   all eleven frozen `ToolLayer` methods through the official MCP SDK v1 over
   stdio. Exact registry parity, structured delegation, `RunInputs` binding,
   and fail-closed configuration are gated in `tests/test_mcp_server.py`;
   canonical scope and exclusions are in `docs/tasks/T7.1-work-order.md`.
-- **T5.2-T5.5, T7.2-T7.3, T7.5** | todo | A/B/C | Remaining
-  Phase-5/release work;
+- **T7.2-T7.3, T7.5** | todo | A/B/C | Remaining release work;
   T6.1-T6.4 and T7.4 are cut above. M8 is post-release backlog scope and is
   excluded from the active task count until ratified `T8.x` work orders exist.

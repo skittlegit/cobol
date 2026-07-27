@@ -5,7 +5,12 @@ from pathlib import Path
 import pytest
 
 from cobol_archaeologist.eval import live as live_module
-from cobol_archaeologist.eval.baselines import DenseRAGContext
+from cobol_archaeologist.eval.baselines import (
+    DenseRAGContext,
+    PlainLLMContext,
+    RetrievedRAGContext,
+    plain_llm_context,
+)
 from cobol_archaeologist.eval.live import (
     _assert_matching_smoke,
     baseline_question,
@@ -50,6 +55,21 @@ def test_dense_baseline_question_contains_no_hidden_gold_fields():
         if hidden:
             assert hidden not in rendered
     assert gold.regulation_clause.text in rendered
+
+
+def test_phase5_contexts_are_gold_hidden_and_mode_explicit():
+    gold = _row()
+    plain = plain_llm_context(gold.regulation_clause, program="bounded code")
+    assert isinstance(plain, PlainLLMContext)
+    assert "drift_type" not in plain.model_dump_json()
+    retrieved = RetrievedRAGContext(
+        retrieval_mode="dense",
+        clause_query=gold.regulation_clause.text,
+        retrieved_clauses=[],
+        program="bounded code",
+    )
+    assert retrieved.retrieval_mode == "dense"
+    assert "provenance" not in retrieved.model_dump_json()
 
 
 def test_bounded_code_context_is_query_driven_and_line_bounded():
