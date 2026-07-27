@@ -527,9 +527,7 @@ def _abstained_hunt(
         finding=None,
         confidence=None,
         verification=verification,
-        verification_tier=(
-            verification.tier if verification is not None else None
-        ),
+        verification_tier=(verification.tier if verification is not None else None),
         trajectory=trajectory,
         abstained=True,
         abstention_reason=reason,
@@ -632,8 +630,7 @@ def finalize_agent_hunt(
         verification = verify(finding, tools, entailer=entailer)
     except Exception as exc:  # noqa: BLE001
         reason = (
-            "verification unavailable; refusing emission: "
-            f"{type(exc).__name__}: {exc}"
+            f"verification unavailable; refusing emission: {type(exc).__name__}: {exc}"
         )
         return _abstained_hunt(
             hunt_name=hunt_name,

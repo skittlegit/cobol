@@ -133,12 +133,14 @@ def test_hyde_strictly_improves_dense_and_hybrid_rerank():
 
     assert set(result["raw"]["metrics"]) == set(MODES)
     assert set(result["hyde"]["metrics"]) == set(MODES)
-    assert result["hyde"]["metrics"]["dense"]["mrr@5"] > result["raw"]["metrics"][
-        "dense"
-    ]["mrr@5"]
-    assert result["hyde"]["metrics"]["hybrid_rerank"]["mrr@5"] > result["raw"][
-        "metrics"
-    ]["hybrid_rerank"]["mrr@5"]
+    assert (
+        result["hyde"]["metrics"]["dense"]["mrr@5"]
+        > result["raw"]["metrics"]["dense"]["mrr@5"]
+    )
+    assert (
+        result["hyde"]["metrics"]["hybrid_rerank"]["mrr@5"]
+        > result["raw"]["metrics"]["hybrid_rerank"]["mrr@5"]
+    )
     assert any(
         result["hyde"]["metrics"][mode]["mrr@5"]
         > result["raw"]["metrics"][mode]["mrr@5"]

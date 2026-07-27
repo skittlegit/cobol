@@ -88,7 +88,7 @@ def test_mapper_drops_none_clause_id_chunks():
     doc = "D"
     lookup = {(doc, "1"): _clause(doc, "1")}
     hits = [
-        Hit(_chunk("c-none", doc, None), 9.0),   # un-numbered: must be dropped
+        Hit(_chunk("c-none", doc, None), 9.0),  # un-numbered: must be dropped
         Hit(_chunk("c-1", doc, "1"), 5.0),
     ]
     out = map_hits_to_clause_hits(hits, lookup, k=5)

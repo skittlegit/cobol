@@ -1,4 +1,5 @@
 """Gate for tool_types.py (CONTRACT.md Part 1 normative form)."""
+
 from cobol_archaeologist import tool_types as tt
 
 
@@ -6,10 +7,17 @@ def test_roundtrip_slice():
     s = tt.Slice(
         variable="WS-YEARS-SINCE-KYC",
         scoped_program=None,
-        statements=[tt.SliceStatement(
-            ref=tt.SourceRef(program="KYCUPD", paragraph="3000-CHECK-KYC-AGE",
-                             line_start=148, line_end=148),
-            text="IF WS-YEARS-SINCE-KYC > 5")],
+        statements=[
+            tt.SliceStatement(
+                ref=tt.SourceRef(
+                    program="KYCUPD",
+                    paragraph="3000-CHECK-KYC-AGE",
+                    line_start=148,
+                    line_end=148,
+                ),
+                text="IF WS-YEARS-SINCE-KYC > 5",
+            )
+        ],
         paragraphs=[tt.NodeRef(program="KYCUPD", paragraph="3000-CHECK-KYC-AGE")],
         is_interprocedural=False,
     )

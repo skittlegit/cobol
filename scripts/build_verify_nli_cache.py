@@ -16,6 +16,7 @@ mistaken for a neural verdict. Re-run with --neural at review to replace them.
 Usage:
     python scripts/build_verify_nli_cache.py [--neural]
 """
+
 from __future__ import annotations
 
 import argparse
@@ -36,8 +37,11 @@ from cobol_archaeologist.model.verify import (
 
 FIX = ROOT / "tests" / "fixtures" / "verify"
 FIXTURES = [
-    "supported_tier1", "supported_tier2", "supported_tier3",
-    "unsupported_citation", "d6_reachability",
+    "supported_tier1",
+    "supported_tier2",
+    "supported_tier3",
+    "unsupported_citation",
+    "d6_reachability",
 ]
 ACCURACY_PAIRS = FIX / "accuracy_pairs.jsonl"
 
@@ -46,7 +50,9 @@ def collect_pairs() -> list[tuple[str, str, str]]:
     """(premise, hypothesis, source) pairs, de-duplicated by verify key."""
     pairs: dict[str, tuple[str, str, str]] = {}
     for name in FIXTURES:
-        fnd = Finding.model_validate_json((FIX / f"{name}.json").read_text(encoding="utf-8"))
+        fnd = Finding.model_validate_json(
+            (FIX / f"{name}.json").read_text(encoding="utf-8")
+        )
         clause = fnd.prediction.regulation_clause
         key = _cache_key(clause.text, fnd.claim)
         pairs[key] = (clause.text, fnd.claim, f"fixture:{name}")
@@ -56,31 +62,41 @@ def collect_pairs() -> list[tuple[str, str, str]]:
                 continue
             row = json.loads(line)
             key = _cache_key(row["premise"], row["hypothesis"])
-            pairs[key] = (row["premise"], row["hypothesis"], f"accuracy:{row['pair_id']}")
+            pairs[key] = (
+                row["premise"],
+                row["hypothesis"],
+                f"accuracy:{row['pair_id']}",
+            )
     return [(*v,) for v in pairs.values()]
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--neural", action="store_true", help="use the pinned NLI model (network)")
+    ap.add_argument(
+        "--neural", action="store_true", help="use the pinned NLI model (network)"
+    )
     args = ap.parse_args()
 
     entailer = NeuralEntailer() if args.neural else LexicalEntailer()
     rows = []
     for premise, hypothesis, source in collect_pairs():
         res = entailer.entail(premise, hypothesis)
-        rows.append({
-            "key": _cache_key(premise, hypothesis),
-            "entailment": res.entailment,
-            "score": res.score,
-            "backend": res.backend,
-            "source": source,
-            "premise_preview": premise[:80],
-            "hypothesis_preview": hypothesis[:80],
-        })
+        rows.append(
+            {
+                "key": _cache_key(premise, hypothesis),
+                "entailment": res.entailment,
+                "score": res.score,
+                "backend": res.backend,
+                "source": source,
+                "premise_preview": premise[:80],
+                "hypothesis_preview": hypothesis[:80],
+            }
+        )
     rows.sort(key=lambda r: r["source"])
     NLI_CACHE.write_text(
-        "\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n", encoding="utf-8")
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n",
+        encoding="utf-8",
+    )
     print(f"wrote {len(rows)} cache rows to {NLI_CACHE} (backend={entailer.backend})")
 
 

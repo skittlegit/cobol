@@ -98,7 +98,9 @@ def assess_trajectory(record: EvaluationRecord) -> TrajectoryAssessment:
             reasons=["no trajectory"],
         )
     try:
-        replayable = trajectory.model_validate_json(trajectory.model_dump_json()) == trajectory
+        replayable = (
+            trajectory.model_validate_json(trajectory.model_dump_json()) == trajectory
+        )
     except (ValueError, TypeError):
         replayable = False
     if not replayable:
@@ -113,8 +115,7 @@ def assess_trajectory(record: EvaluationRecord) -> TrajectoryAssessment:
         len(trajectory.steps) <= trajectory.budget.max_tool_calls
         and len(trajectory.model_responses) - trajectory.contract_repairs
         <= trajectory.budget.max_steps
-        and trajectory.contract_repairs
-        <= trajectory.budget.max_contract_repairs
+        and trajectory.contract_repairs <= trajectory.budget.max_contract_repairs
         and sum(response.token_count for response in trajectory.model_responses)
         == trajectory.tokens_used
         and trajectory.tokens_used <= trajectory.budget.max_tokens

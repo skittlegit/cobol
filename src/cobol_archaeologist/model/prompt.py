@@ -313,8 +313,7 @@ class CachedDecisionModel:
         if not isinstance(raw, list):
             raise TypeError("cached model responses must be a JSON list")
         self._responses = [
-            AgentResponse.model_validate(_migrate_cached_prediction(row))
-            for row in raw
+            AgentResponse.model_validate(_migrate_cached_prediction(row)) for row in raw
         ]
         self._cursor = 0
 

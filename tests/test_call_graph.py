@@ -11,6 +11,7 @@ built from the graph and hand-verified against source:
 The synthetic tests/fixtures/synthetic/DEADEX.cbl proves the unreachable case
 (no gate program has genuinely dead paragraphs).
 """
+
 import json
 from pathlib import Path
 
@@ -30,7 +31,8 @@ SYNTHETIC_DIR = REPO_ROOT / "tests" / "fixtures" / "synthetic"
 GATE_PROGRAMS = ["CBACT01C", "CBTRN02C", "COSGN00C", "COADM01C", "COACTUPC"]
 
 corpus_only = pytest.mark.skipif(
-    not CARDDEMO.is_dir(), reason="corpora not fetched (run scripts/fetch_corpora.sh)",
+    not CARDDEMO.is_dir(),
+    reason="corpora not fetched (run scripts/fetch_corpora.sh)",
 )
 
 
@@ -41,7 +43,9 @@ def graph():
         path = CBL_DIR / f"{name}.cbl"
         program = parse_program(path, backend="ast", include_preamble=True)
         programs.append(program)
-        pres[program.program_id] = preprocess(path.read_text(encoding="utf-8", errors="replace"))
+        pres[program.program_id] = preprocess(
+            path.read_text(encoding="utf-8", errors="replace")
+        )
     return build_call_graph(programs, pres)
 
 
@@ -51,19 +55,26 @@ def _adjacency(graph, program: str) -> dict:
         if edge.source.program != program:
             continue
         adj.setdefault(edge.source.paragraph, set()).add(
-            (edge.target.program, edge.target.paragraph, edge.edge_kind))
+            (edge.target.program, edge.target.paragraph, edge.edge_kind)
+        )
     return {
-        src: [{"program": p, "paragraph": q, "edge_kind": k} for (p, q, k) in sorted(targets)]
+        src: [
+            {"program": p, "paragraph": q, "edge_kind": k}
+            for (p, q, k) in sorted(targets)
+        ]
         for src, targets in sorted(adj.items())
     }
 
 
 # -- Gate 1: exact adjacency + the three required edge shapes ---------------
 
+
 @corpus_only
 @pytest.mark.parametrize("program", GATE_PROGRAMS)
 def test_adjacency_matches_fixture(graph, program):
-    expected = json.loads((FIXTURES_DIR / f"{program}.json").read_text(encoding="utf-8"))
+    expected = json.loads(
+        (FIXTURES_DIR / f"{program}.json").read_text(encoding="utf-8")
+    )
     assert _adjacency(graph, program) == expected
 
 
@@ -71,15 +82,21 @@ def test_adjacency_matches_fixture(graph, program):
 def test_thru_expansion_present(graph):
     """COACTUPC 0000-MAIN PERFORM 1000-PROCESS-INPUTS THRU ...-EXIT expands to
     both adjacent paragraphs (THRU is positional over Program.paragraphs)."""
-    callees = {(n.program, n.paragraph) for n in graph.callees(
-        NodeRef(program="COACTUPC", paragraph="0000-MAIN"))}
+    callees = {
+        (n.program, n.paragraph)
+        for n in graph.callees(NodeRef(program="COACTUPC", paragraph="0000-MAIN"))
+    }
     assert ("COACTUPC", "1000-PROCESS-INPUTS") in callees
     assert ("COACTUPC", "1000-PROCESS-INPUTS-EXIT") in callees
 
 
 @corpus_only
 def test_goto_edge_present(graph):
-    goto_edges = [e for e in graph.edges if e.edge_kind == "goto" and e.source.program == "COACTUPC"]
+    goto_edges = [
+        e
+        for e in graph.edges
+        if e.edge_kind == "goto" and e.source.program == "COACTUPC"
+    ]
     assert goto_edges
     assert any(e.target.paragraph == "COMMON-RETURN" for e in goto_edges)
 
@@ -88,13 +105,18 @@ def test_goto_edge_present(graph):
 def test_cross_program_xctl_edge_present(graph):
     """COSGN00C READ-USER-SEC-FILE XCTLs COADM01C ('literal') -> its first
     paragraph; and COMEN01C (not loaded) -> paragraph unknown ('')."""
-    xctl = [e for e in graph.edges if e.edge_kind == "xctl" and e.source.program == "COSGN00C"]
+    xctl = [
+        e
+        for e in graph.edges
+        if e.edge_kind == "xctl" and e.source.program == "COSGN00C"
+    ]
     targets = {(e.target.program, e.target.paragraph) for e in xctl}
     assert ("COADM01C", "MAIN-PARA") in targets
     assert ("COMEN01C", "") in targets
 
 
 # -- Gate 2: unresolved is complete (never silently dropped) ----------------
+
 
 @corpus_only
 def test_unresolved_counts(graph):
@@ -113,23 +135,31 @@ def test_perform_thru_unknown_endpoint_unresolved(graph):
     """COACTUPC PERFORMs copybook-provided paragraphs (YYYY-STORE-PFKEY,
     EDIT-DATE-*) via THRU; those aren't in the program AST, so they are
     recorded unresolved, not dropped."""
-    thru_unknown = [u for u in graph.unresolved if "THRU" in u.reason and "unknown endpoint" in u.reason]
+    thru_unknown = [
+        u
+        for u in graph.unresolved
+        if "THRU" in u.reason and "unknown endpoint" in u.reason
+    ]
     assert len(thru_unknown) == 6
 
 
 # -- Gate 3: reachability -----------------------------------------------------
 
+
 @corpus_only
 def test_reachability_marks_known_reachable(graph):
     reachable = graph.reachable_from(graph.entry_points("COACTUPC"))
-    assert any(n.program == "COACTUPC" and n.paragraph == "9000-READ-ACCT" for n in reachable)
+    assert any(
+        n.program == "COACTUPC" and n.paragraph == "9000-READ-ACCT" for n in reachable
+    )
 
 
 def _synthetic_graph(name: str):
     path = SYNTHETIC_DIR / f"{name}.cbl"
     program = parse_program(path, backend="ast", include_preamble=True)
     return build_call_graph(
-        [program], {program.program_id: preprocess(path.read_text(encoding="utf-8"))})
+        [program], {program.program_id: preprocess(path.read_text(encoding="utf-8"))}
+    )
 
 
 def test_synthetic_dead_code_unreachable():
@@ -150,6 +180,7 @@ def test_synthetic_dead_code_unreachable():
 
 # -- Gate: F7 entry / forest-root split + fall-through edges -------------------
 
+
 def test_deadiso_isolated_paragraph_is_forest_root_not_reachable():
     """DEADISO: ISO-PARA has no incoming edge of any kind and is not fallen into
     (MAIN-PARA's GOBACK blocks fall-through). It is a forest root and is NOT
@@ -159,7 +190,9 @@ def test_deadiso_isolated_paragraph_is_forest_root_not_reachable():
 
     assert [e.paragraph for e in graph.entry_points("DEADISO")] == ["MAIN-PARA"]
 
-    reachable = {n.paragraph for n in graph.reachable_from(graph.entry_points("DEADISO"))}
+    reachable = {
+        n.paragraph for n in graph.reachable_from(graph.entry_points("DEADISO"))
+    }
     assert "ISO-PARA" not in reachable
 
     roots = {n.paragraph for n in graph.forest_roots("DEADISO")}
@@ -174,10 +207,14 @@ def test_fallthru_fallen_into_paragraph_reachable_not_forest_root():
 
     assert [e.paragraph for e in graph.entry_points("FALLTHRU")] == ["MAIN-PARA"]
 
-    fallthrough = {(e.source.paragraph, e.target.paragraph) for e in graph.fallthrough_edges}
+    fallthrough = {
+        (e.source.paragraph, e.target.paragraph) for e in graph.fallthrough_edges
+    }
     assert ("MAIN-PARA", "NEXT-PARA") in fallthrough
 
-    reachable = {n.paragraph for n in graph.reachable_from(graph.entry_points("FALLTHRU"))}
+    reachable = {
+        n.paragraph for n in graph.reachable_from(graph.entry_points("FALLTHRU"))
+    }
     assert "NEXT-PARA" in reachable
 
     roots = {n.paragraph for n in graph.forest_roots("FALLTHRU")}
@@ -208,9 +245,12 @@ def test_entry_points_is_single_true_entry(graph):
 
 # -- callers/callees sanity ---------------------------------------------------
 
+
 @corpus_only
 def test_callers_and_callees_are_inverse(graph):
     node = NodeRef(program="COACTUPC", paragraph="9000-READ-ACCT")
     for callee in graph.callees(node):
-        assert any(c.program == node.program and c.paragraph == node.paragraph
-                   for c in graph.callers(callee))
+        assert any(
+            c.program == node.program and c.paragraph == node.paragraph
+            for c in graph.callers(callee)
+        )

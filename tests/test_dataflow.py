@@ -11,6 +11,7 @@ hand-verified against source. Coverage of the required cases:
 - 88-level -> parent field      -> ws_err_flg
 - corpus-wide vs program-scoped -> acct_curr_bal (both asserted)
 """
+
 import json
 from pathlib import Path
 
@@ -39,12 +40,15 @@ GATE_SPEC = [
 ]
 
 pytestmark = pytest.mark.skipif(
-    not CARDDEMO.is_dir(), reason="corpora not fetched (run scripts/fetch_corpora.sh)",
+    not CARDDEMO.is_dir(),
+    reason="corpora not fetched (run scripts/fetch_corpora.sh)",
 )
 
 
 def _load(programs):
-    return [parse_program(CBL_DIR / f"{n}.cbl", include_preamble=True) for n in programs]
+    return [
+        parse_program(CBL_DIR / f"{n}.cbl", include_preamble=True) for n in programs
+    ]
 
 
 def _serialize(trace):
@@ -66,7 +70,9 @@ def _serialize(trace):
     }
 
 
-@pytest.mark.parametrize("name,var,programs,scope", GATE_SPEC, ids=[s[0] for s in GATE_SPEC])
+@pytest.mark.parametrize(
+    "name,var,programs,scope", GATE_SPEC, ids=[s[0] for s in GATE_SPEC]
+)
 def test_trace_matches_fixture(name, var, programs, scope):
     fixture = json.loads((FIXTURES_DIR / f"{name}.json").read_text(encoding="utf-8"))
     trace = trace_variable(var, _load(programs), None, program=scope)
@@ -75,7 +81,9 @@ def test_trace_matches_fixture(name, var, programs, scope):
 
 def test_qualified_resolves_to_specific_field():
     """ERRMSGO OF COSGN0AO resolves via the OF qualifier, not any bare ERRMSGO."""
-    trace = trace_variable("ERRMSGO OF COSGN0AO", _load(["COSGN00C"]), None, program="COSGN00C")
+    trace = trace_variable(
+        "ERRMSGO OF COSGN0AO", _load(["COSGN00C"]), None, program="COSGN00C"
+    )
     assert trace.sites
     assert all("?ambiguous" not in s.statement_kind for s in trace.sites)
     # The qualified target is the BMS map field; every site's excerpt names it.
@@ -98,7 +106,9 @@ def test_qualified_trace_is_case_insensitive():
 
 def test_copybook_declaration_resolves_via_linemap():
     """CDEMO-ADMIN-OPT-COUNT's VALUE-clause def points into copybook COADM02Y."""
-    trace = trace_variable("CDEMO-ADMIN-OPT-COUNT", _load(["COADM01C"]), None, program="COADM01C")
+    trace = trace_variable(
+        "CDEMO-ADMIN-OPT-COUNT", _load(["COADM01C"]), None, program="COADM01C"
+    )
     decl = [s for s in trace.sites if s.statement_kind == "VALUE-clause"]
     assert len(decl) == 1
     assert decl[0].ref.program == "COADM02Y"  # the copybook, not the program

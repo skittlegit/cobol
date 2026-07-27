@@ -63,9 +63,7 @@ def paired_randomization_p(
 
 def _binomial_cdf(k: int, n: int, probability: float) -> float:
     return sum(
-        math.comb(n, index)
-        * probability**index
-        * (1 - probability) ** (n - index)
+        math.comb(n, index) * probability**index * (1 - probability) ** (n - index)
         for index in range(k + 1)
     )
 

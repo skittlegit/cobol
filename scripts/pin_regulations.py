@@ -109,7 +109,9 @@ def build_entries(prior: dict[str, dict]) -> list[dict]:
             entries.append(entry)
         else:
             # Preserve a user-confirmed 'unobtainable'; otherwise not-yet-downloaded.
-            status = "unobtainable" if old.get("status") == "unobtainable" else "missing"
+            status = (
+                "unobtainable" if old.get("status") == "unobtainable" else "missing"
+            )
             entry = {"file": name, "doc_role": role, "status": status}
             # Preserve a hand-written provenance note across re-runs (e.g. "which
             # specific PDF to fetch and why the previous download was incomplete").
@@ -162,7 +164,9 @@ def main() -> int:
     }
     MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
-    print(f"wrote {MANIFEST.relative_to(REPO_ROOT)}: {len(pinned)} pinned, {len(absent)} absent")
+    print(
+        f"wrote {MANIFEST.relative_to(REPO_ROOT)}: {len(pinned)} pinned, {len(absent)} absent"
+    )
     for e in absent:
         print(f"  [{e['status']:>12}] {e['file']}  ({e['doc_role']})")
     return 0

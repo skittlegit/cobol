@@ -37,15 +37,21 @@ def test_stub_is_runtime_tool_layer(stub):
 def test_every_method_returns_normative_models(stub):
     assert isinstance(stub.read_paragraph("LATEFEE1", "2000-ASSESS"), ParagraphView)
     assert isinstance(stub.read_program("LATEFEE1"), ProgramView)
-    assert all(isinstance(x, NodeRef) for x in stub.find_callers("LATEFEE1", "2000-ASSESS"))
-    assert all(isinstance(x, NodeRef) for x in stub.find_callees("LATEFEE1", "1000-MAIN"))
+    assert all(
+        isinstance(x, NodeRef) for x in stub.find_callers("LATEFEE1", "2000-ASSESS")
+    )
+    assert all(
+        isinstance(x, NodeRef) for x in stub.find_callees("LATEFEE1", "1000-MAIN")
+    )
     assert isinstance(stub.trace_variable("WS-TOTAL-AMT-DUE"), VariableTrace)
     assert isinstance(stub.slice_on("WS-TOTAL-AMT-DUE"), Slice)
     assert isinstance(stub.resolve_copybook("LATECFG"), CopybookExpansion)
     assert isinstance(stub.get_data_layout("WS-STMT-REC"), DataLayout)
     assert isinstance(stub.grep("late"), GrepResult)
     assert isinstance(stub.run_cobol("DISPLAY 'OK'"), RunResult)
-    assert all(isinstance(x, RegSearchHit) for x in stub.search_regulations("late charge"))
+    assert all(
+        isinstance(x, RegSearchHit) for x in stub.search_regulations("late charge")
+    )
 
 
 def test_original_source_paragraph_cap_and_refetch_pointer(stub):

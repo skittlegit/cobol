@@ -16,9 +16,7 @@ from pydantic import ValidationError
 
 from cobol_archaeologist.schemas import RegulationClause
 
-CLAUSES = (
-    Path(__file__).resolve().parents[1] / "data" / "regulations" / "clauses.jsonl"
-)
+CLAUSES = Path(__file__).resolve().parents[1] / "data" / "regulations" / "clauses.jsonl"
 
 
 def load_records() -> list[dict]:
@@ -77,9 +75,9 @@ def test_curation_fields_present():
         check = rec.get("check")
         assert isinstance(check, dict), f"{rid}: missing 'check' curation object"
         assert check.get("description"), f"{rid}: check needs a required-check sentence"
-        assert isinstance(
-            check.get("drift_classes"), list
-        ), f"{rid}: check.drift_classes must be a list"
+        assert isinstance(check.get("drift_classes"), list), (
+            f"{rid}: check.drift_classes must be a list"
+        )
 
 
 REPEALED_2022_DOC = (
@@ -95,9 +93,13 @@ def test_cc_records_anchored_to_2025_directions():
     # clause may still carry the repealed 2022 document identity.
     for rec in load_records():
         doc = rec["clause"]["doc"]
-        assert doc != REPEALED_2022_DOC, f"{rec['record_id']}: still on repealed 2022 MD"
+        assert doc != REPEALED_2022_DOC, (
+            f"{rec['record_id']}: still on repealed 2022 MD"
+        )
         if rec.get("record_id", "").startswith("CC-"):
-            assert doc == CC_2025_DOC, f"{rec['record_id']}: CC record not anchored to 2025 Directions"
+            assert doc == CC_2025_DOC, (
+                f"{rec['record_id']}: CC record not anchored to 2025 Directions"
+            )
             assert rec["clause"]["version"] == "2025-11-28"
 
 
@@ -125,4 +127,6 @@ def test_clause_docs_agree_with_manifest():
     }
     for rec in load_records():
         doc = rec["clause"]["doc"]
-        assert doc in known, f"{rec['record_id']}: doc '{doc}' not in manifest clause_doc_id set {known}"
+        assert doc in known, (
+            f"{rec['record_id']}: doc '{doc}' not in manifest clause_doc_id set {known}"
+        )

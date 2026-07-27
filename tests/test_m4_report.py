@@ -71,9 +71,7 @@ def test_complete_paired_artifacts_can_issue_go():
     dense = []
     for row in gold_rows:
         wrong_template = (
-            drift_template
-            if row.drift_type == "D7_conformant"
-            else conformant_template
+            drift_template if row.drift_type == "D7_conformant" else conformant_template
         )
         dense.append(
             _record(

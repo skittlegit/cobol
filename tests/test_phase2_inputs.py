@@ -17,8 +17,7 @@ SEED = BENCHMARK / "seed"
 PROGRAMS = SEED / "programs"
 TEST_SPLIT = BENCHMARK / "v1-pre" / "test.jsonl"
 SPLIT_FILES = tuple(
-    BENCHMARK / "v1-pre" / f"{split}.jsonl"
-    for split in ("train", "dev", "test")
+    BENCHMARK / "v1-pre" / f"{split}.jsonl" for split in ("train", "dev", "test")
 )
 
 SUPERSEDED_IDS = {
@@ -127,11 +126,7 @@ def test_every_refrozen_test_row_materializes_exactly():
 
 
 def test_superseded_source_drift_ids_are_absent_from_refrozen_splits():
-    present = {
-        row["instance_id"]
-        for path in SPLIT_FILES
-        for row in _load(path)
-    }
+    present = {row["instance_id"] for path in SPLIT_FILES for row in _load(path)}
     assert not SUPERSEDED_IDS & present
 
 
@@ -166,9 +161,10 @@ def test_regenerated_synthetic_rows_have_current_plausibility_evidence():
         source = materialize(row)
         main = source.files[source.main_file]
 
-        assert proof["mutated_main_sha256"] == hashlib.sha256(
-            main.encode("utf-8")
-        ).hexdigest()
+        assert (
+            proof["mutated_main_sha256"]
+            == hashlib.sha256(main.encode("utf-8")).hexdigest()
+        )
         assert proof["verdict"] == "plausible"
         assert proof["reviewer_family"] != "anthropic"
         assert "compiled" in proof["validation"]

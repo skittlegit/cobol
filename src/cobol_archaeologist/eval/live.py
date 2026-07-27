@@ -289,8 +289,7 @@ def single_shot_record(
             max_repairs=BASELINE_BUDGET.max_contract_repairs,
             repair_allowed=lambda rejected: (
                 rejected.token_count <= BASELINE_BUDGET.max_tokens
-                and time.monotonic() - started
-                < BASELINE_BUDGET.wall_clock_timeout_s
+                and time.monotonic() - started < BASELINE_BUDGET.wall_clock_timeout_s
             ),
         )
         elapsed = time.monotonic() - started
@@ -453,9 +452,7 @@ def _assert_matching_smoke(
         "smoke_instance_ids",
     )
     mismatches = [
-        name
-        for name in fields
-        if getattr(smoke, name) != getattr(expected, name)
+        name for name in fields if getattr(smoke, name) != getattr(expected, name)
     ]
     successful = (
         smoke.run_mode == "smoke"
@@ -492,9 +489,7 @@ def _provider_decoding(provider: ProviderID, system_id: SystemID) -> dict:
             "seed": None,
         }
     if system_id == "agent":
-        decoding["min_successful_observations_by_drift_type"] = dict(
-            EVIDENCE_MINIMUMS
-        )
+        decoding["min_successful_observations_by_drift_type"] = dict(EVIDENCE_MINIMUMS)
     return decoding
 
 
@@ -527,15 +522,13 @@ def run_live_system(
         raise ValueError(f"unknown M4 provider {provider!r}")
     if smoke_seed != CONFIG2_SMOKE_SEED:
         raise ValueError(
-            "the pinned config-2 smoke seed is "
-            f"{CONFIG2_SMOKE_SEED}, not {smoke_seed}"
+            f"the pinned config-2 smoke seed is {CONFIG2_SMOKE_SEED}, not {smoke_seed}"
         )
     requested_rows = list(rows)
     if smoke is not None:
         if smoke != REQUIRED_SMOKE_ROWS:
             raise ValueError(
-                "config-2 smoke must select exactly "
-                f"{REQUIRED_SMOKE_ROWS} rows"
+                f"config-2 smoke must select exactly {REQUIRED_SMOKE_ROWS} rows"
             )
         run_rows = seeded_stratified_smoke(
             requested_rows,
@@ -580,9 +573,7 @@ def run_live_system(
     materialized, failures = _materialize_all(run_rows)
     regulation_search = regulation_search or RegulationSearch()
     entailer = entailer or default_entailer()
-    artifact_dir = Path(output_dir) / "smoke" if smoke is not None else Path(
-        output_dir
-    )
+    artifact_dir = Path(output_dir) / "smoke" if smoke is not None else Path(output_dir)
     runner = EvaluationRunner(
         artifact_dir / f"{system_id}.jsonl",
         artifact_dir / f"{system_id}.manifest.json",
@@ -718,8 +709,7 @@ def _parse_args() -> argparse.Namespace:
         type=int,
         required=True,
         help=(
-            "predeclared config-2 smoke seed; the frozen value is "
-            f"{CONFIG2_SMOKE_SEED}"
+            f"predeclared config-2 smoke seed; the frozen value is {CONFIG2_SMOKE_SEED}"
         ),
     )
     return parser.parse_args()

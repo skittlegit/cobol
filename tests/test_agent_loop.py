@@ -137,9 +137,7 @@ def test_wall_clock_budget_is_enforced():
 
 
 def test_no_unverified_finding_is_ever_emitted():
-    raw = json.loads(
-        (FIX / "unverified_responses.json").read_text(encoding="utf-8")
-    )
+    raw = json.loads((FIX / "unverified_responses.json").read_text(encoding="utf-8"))
     finding = AgentResponse.model_validate(raw[0])
     trajectory = InvestigationLoop(
         StubToolLayer(FIX / "corpus"),

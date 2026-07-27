@@ -198,10 +198,7 @@ def _regenerate_kyc_rows(rows: list[dict]) -> tuple[list[dict], dict[str, str]]:
         )
         replacements[stale_id] = row
 
-    return [
-        replacements.get(row["instance_id"], row)
-        for row in rows
-    ], id_map
+    return [replacements.get(row["instance_id"], row) for row in rows], id_map
 
 
 def _plausibility_reason(filename: str) -> str:
@@ -247,9 +244,7 @@ def _replace_judgements(
 
     if keep_all_replacements:
         present = {row["instance_id"] for row in replaced}
-        template = next(
-            row for row in rows if row["instance_id"] in STALE_KYC_IDS
-        )
+        template = next(row for row in rows if row["instance_id"] in STALE_KYC_IDS)
         for stale_id, filename in zip(STALE_KYC_IDS, KYC_VARIANTS, strict=True):
             replacement_id = id_map[stale_id]
             if replacement_id in present:
@@ -293,7 +288,13 @@ def _repair_real_seed(rows: list[dict]) -> list[dict]:
 PAIR_SPECS = (
     {
         "lineage": "closure_day_basis",
-        "programs": ("T6CL01.cbl", "T6CL02.cbl", "T6CL03.cbl", "T6CL04.cbl", "T6CL05.cbl"),
+        "programs": (
+            "T6CL01.cbl",
+            "T6CL02.cbl",
+            "T6CL03.cbl",
+            "T6CL04.cbl",
+            "T6CL05.cbl",
+        ),
         "paragraphs": (
             "2000-CALCULATE-PENALTY",
             "2100-COUNT-WORKING-DAYS",
@@ -324,16 +325,18 @@ PAIR_SPECS = (
         ),
         "old_template": "drift_000001",
         "new_template": "drift_000002",
-        "old_evidence": (
-            "data/regulations/sources/cc-md-2022-as-issued.pdf#8(a)"
-        ),
-        "new_evidence": (
-            "data/regulations/sources/cc-dc-directions-2025.pdf#19"
-        ),
+        "old_evidence": ("data/regulations/sources/cc-md-2022-as-issued.pdf#8(a)"),
+        "new_evidence": ("data/regulations/sources/cc-dc-directions-2025.pdf#19"),
     },
     {
         "lineage": "bo_threshold",
-        "programs": ("T6BO01.cbl", "T6BO02.cbl", "T6BO03.cbl", "T6BO04.cbl", "T6BO05.cbl"),
+        "programs": (
+            "T6BO01.cbl",
+            "T6BO02.cbl",
+            "T6BO03.cbl",
+            "T6BO04.cbl",
+            "T6BO05.cbl",
+        ),
         "paragraphs": (
             "2000-IDENTIFY-OWNER",
             "2100-CHECK-PROFIT-SHARE",
@@ -365,16 +368,19 @@ PAIR_SPECS = (
         "old_template": "drift_000007",
         "new_template": "drift_000008",
         "old_evidence": (
-            "data/regulations/sources/"
-            "kyc-md-2016-consol-pre-2023-10.pdf#3(a)(iv)(b)"
+            "data/regulations/sources/kyc-md-2016-consol-pre-2023-10.pdf#3(a)(iv)(b)"
         ),
-        "new_evidence": (
-            "data/regulations/sources/kyc-directions-2025.pdf#5(iv)(b)"
-        ),
+        "new_evidence": ("data/regulations/sources/kyc-directions-2025.pdf#5(iv)(b)"),
     },
     {
         "lineage": "ckycr_deadline",
-        "programs": ("T6KYC01.cbl", "T6KYC02.cbl", "T6KYC03.cbl", "T6KYC04.cbl", "T6KYC05.cbl"),
+        "programs": (
+            "T6KYC01.cbl",
+            "T6KYC02.cbl",
+            "T6KYC03.cbl",
+            "T6KYC04.cbl",
+            "T6KYC05.cbl",
+        ),
         "paragraphs": (
             "2000-QUEUE-CKYCR",
             "2100-VALIDATE-FOR-SYNC",
@@ -410,9 +416,7 @@ PAIR_SPECS = (
             "kyc-md-2016-consol-pre-2023-10.pdf#56(h)+"
             "kyc-amend-2024-11-06.pdf"
         ),
-        "new_evidence": (
-            "data/regulations/sources/kyc-directions-2025.pdf#65(8)"
-        ),
+        "new_evidence": ("data/regulations/sources/kyc-directions-2025.pdf#65(8)"),
     },
 )
 

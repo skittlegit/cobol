@@ -4,6 +4,7 @@ extraction, cross-validated against an independent regex ground truth
 (Area-A-column + COBOL-scope-terminator-aware), then hand-eyeballed against
 source for CBTRN02C, COSGN00C, and COACTUPC (see assertions 1 and 3 below).
 """
+
 import json
 from pathlib import Path
 
@@ -22,12 +23,21 @@ FIXTURES_DIR = REPO_ROOT / "tests" / "fixtures" / "paragraphs"
 SEARCH_PATHS = [CARDDEMO / "app" / "cpy", CARDDEMO / "app" / "cpy-bms"]
 
 GATE_PROGRAMS = [
-    "CBTRN02C", "CBACT01C", "CBACT04C", "CBSTM03A", "COSGN00C",
-    "COACTUPC", "COACTVWC", "COCRDUPC", "COTRN02C", "COUSR02C",
+    "CBTRN02C",
+    "CBACT01C",
+    "CBACT04C",
+    "CBSTM03A",
+    "COSGN00C",
+    "COACTUPC",
+    "COACTVWC",
+    "COCRDUPC",
+    "COTRN02C",
+    "COUSR02C",
 ]
 
 pytestmark = pytest.mark.skipif(
-    not CARDDEMO.is_dir(), reason="corpora not fetched (run scripts/fetch_corpora.sh)",
+    not CARDDEMO.is_dir(),
+    reason="corpora not fetched (run scripts/fetch_corpora.sh)",
 )
 
 
@@ -55,7 +65,9 @@ def test_paragraph_spans_match_fixture(name):
     """Assertion 1: exact paragraph-set + span match per program."""
     path = _find_program_file(name)
     program = parse_program(path, backend="ast")
-    actual = [(p.span.name, p.span.line_start, p.span.line_end) for p in program.paragraphs]
+    actual = [
+        (p.span.name, p.span.line_start, p.span.line_end) for p in program.paragraphs
+    ]
     assert actual == _load_fixture(name)
 
 
@@ -90,13 +102,19 @@ def test_if_inside_if_nesting_cbtrn02c():
     """
     path = _find_program_file("CBTRN02C")
     program = parse_program(path, backend="ast")
-    para = next(p for p in program.paragraphs if p.span.name == "1000-DALYTRAN-GET-NEXT")
+    para = next(
+        p for p in program.paragraphs if p.span.name == "1000-DALYTRAN-GET-NEXT"
+    )
 
-    outer_if = next(s for s in para.statements if s.kind == "IF" and s.ref.line_start == 357)
+    outer_if = next(
+        s for s in para.statements if s.kind == "IF" and s.ref.line_start == 357
+    )
     assert outer_if.ref.line_end == 358
     assert [c.kind for c in outer_if.children] == ["OTHER"]
 
-    outer_else = next(s for s in para.statements if s.kind == "ELSE" and s.ref.line_start == 359)
+    outer_else = next(
+        s for s in para.statements if s.kind == "ELSE" and s.ref.line_start == 359
+    )
     assert outer_else.ref.line_end == 366
     assert [c.kind for c in outer_else.children] == ["IF", "ELSE"]
 
@@ -109,8 +127,15 @@ def test_if_inside_if_nesting_cbtrn02c():
     assert [c.kind for c in inner_if.children] == ["MOVE"]
 
     assert (inner_else.ref.line_start, inner_else.ref.line_end) == (362, 366)
-    assert [c.kind for c in inner_else.children] == ["OTHER", "MOVE", "PERFORM_CALL", "PERFORM_CALL"]
-    perform_targets = [c.target for c in inner_else.children if c.kind == "PERFORM_CALL"]
+    assert [c.kind for c in inner_else.children] == [
+        "OTHER",
+        "MOVE",
+        "PERFORM_CALL",
+        "PERFORM_CALL",
+    ]
+    perform_targets = [
+        c.target for c in inner_else.children if c.kind == "PERFORM_CALL"
+    ]
     assert perform_targets == ["9910-DISPLAY-IO-STATUS", "9999-ABEND-PROGRAM"]
 
 
@@ -135,10 +160,14 @@ def test_evaluate_nesting_coactupc():
     perform_call, nested_evaluate = when_2602.children
     assert perform_call.kind == "PERFORM_CALL"
     assert (perform_call.target, perform_call.thru_target) == (
-        "9600-WRITE-PROCESSING", "9600-WRITE-PROCESSING-EXIT",
+        "9600-WRITE-PROCESSING",
+        "9600-WRITE-PROCESSING-EXIT",
     )
     assert nested_evaluate.kind == "EVALUATE"
-    assert (nested_evaluate.ref.line_start, nested_evaluate.ref.line_end) == (2606, 2615)
+    assert (nested_evaluate.ref.line_start, nested_evaluate.ref.line_end) == (
+        2606,
+        2615,
+    )
     assert len(nested_evaluate.children) == 4
     assert all(c.kind == "WHEN" for c in nested_evaluate.children)
 
@@ -161,13 +190,21 @@ def test_copybook_field_resolves_via_linemap():
     src = "       COPY CVACT01Y.\n"
     exp = expand(src, SEARCH_PATHS)
     out_lines = exp.text.splitlines()
-    expanded_line = next(i for i, line in enumerate(out_lines, start=1) if "ACCT-CURR-BAL" in line)
+    expanded_line = next(
+        i for i, line in enumerate(out_lines, start=1) if "ACCT-CURR-BAL" in line
+    )
 
-    entry = next(e for e in exp.line_map if e.expanded_start <= expanded_line <= e.expanded_end)
+    entry = next(
+        e for e in exp.line_map if e.expanded_start <= expanded_line <= e.expanded_end
+    )
     assert entry.source_file.upper().endswith("CVACT01Y.CPY")
     original_line = entry.source_line_start + (expanded_line - entry.expanded_start)
 
-    copybook_lines = (CARDDEMO / "app" / "cpy" / "CVACT01Y.cpy").read_text(errors="replace").splitlines()
+    copybook_lines = (
+        (CARDDEMO / "app" / "cpy" / "CVACT01Y.cpy")
+        .read_text(errors="replace")
+        .splitlines()
+    )
     assert "ACCT-CURR-BAL" in copybook_lines[original_line - 1]
 
 
@@ -180,8 +217,11 @@ def _flatten(statements):
 def test_call_literal_taxonomy_cbact01c():
     """T1.2 D1: CALL 'literal' -> kind=CALL, target=program, dynamic=False."""
     program = parse_program(_find_program_file("CBACT01C"), backend="ast")
-    calls = [s for s in _flatten(
-        [st for p in program.paragraphs for st in p.statements]) if s.kind == "CALL"]
+    calls = [
+        s
+        for s in _flatten([st for p in program.paragraphs for st in p.statements])
+        if s.kind == "CALL"
+    ]
     by_line = {c.ref.line_start: c for c in calls}
     assert by_line[231].target == "COBDATFT" and by_line[231].dynamic is False
     assert by_line[410].target == "CEE3ABD" and by_line[410].dynamic is False
@@ -190,8 +230,11 @@ def test_call_literal_taxonomy_cbact01c():
 def test_goto_taxonomy_coactupc():
     """T1.2 D1: GO TO <label> -> kind=GOTO with target populated."""
     program = parse_program(_find_program_file("COACTUPC"), backend="ast")
-    gotos = [s for s in _flatten(
-        [st for p in program.paragraphs for st in p.statements]) if s.kind == "GOTO"]
+    gotos = [
+        s
+        for s in _flatten([st for p in program.paragraphs for st in p.statements])
+        if s.kind == "GOTO"
+    ]
     assert gotos, "COACTUPC has GO TO usage"
     first = min(gotos, key=lambda s: s.ref.line_start)
     assert (first.ref.line_start, first.target) == (973, "COMMON-RETURN")

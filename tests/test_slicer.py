@@ -17,6 +17,7 @@ hand-verified against source. The 10 slices cover the required composition:
   ws_create_trancat_rec (3), ws_option (3).
 - cross-program corpus-wide (program=None): cdemo_from_tranid.
 """
+
 import json
 from pathlib import Path
 
@@ -47,7 +48,8 @@ GATE_SPEC = [
 ]
 
 pytestmark = pytest.mark.skipif(
-    not CARDDEMO.is_dir(), reason="corpora not fetched (run scripts/fetch_corpora.sh)",
+    not CARDDEMO.is_dir(),
+    reason="corpora not fetched (run scripts/fetch_corpora.sh)",
 )
 
 _cache: dict = {}
@@ -56,9 +58,15 @@ _cache: dict = {}
 def _load(programs):
     key = tuple(programs)
     if key not in _cache:
-        progs = [parse_program(CBL_DIR / f"{n}.cbl", include_preamble=True) for n in programs]
-        pres = {p.program_id: preprocess(Path(p.path).read_text(encoding="utf-8", errors="replace"))
-                for p in progs}
+        progs = [
+            parse_program(CBL_DIR / f"{n}.cbl", include_preamble=True) for n in programs
+        ]
+        pres = {
+            p.program_id: preprocess(
+                Path(p.path).read_text(encoding="utf-8", errors="replace")
+            )
+            for p in progs
+        }
         _cache[key] = (progs, build_call_graph(progs, pres))
     return _cache[key]
 
@@ -68,10 +76,17 @@ def _serialize(sl):
         "variable": sl.variable,
         "scoped_program": sl.scoped_program,
         "is_interprocedural": sl.is_interprocedural,
-        "paragraphs": [{"program": p.program, "paragraph": p.paragraph} for p in sl.paragraphs],
+        "paragraphs": [
+            {"program": p.program, "paragraph": p.paragraph} for p in sl.paragraphs
+        ],
         "statements": [
-            {"program": s.ref.program, "paragraph": s.ref.paragraph,
-             "line_start": s.ref.line_start, "line_end": s.ref.line_end, "text": s.text}
+            {
+                "program": s.ref.program,
+                "paragraph": s.ref.paragraph,
+                "line_start": s.ref.line_start,
+                "line_end": s.ref.line_end,
+                "text": s.text,
+            }
             for s in sl.statements
         ],
     }
@@ -82,7 +97,9 @@ def _run(var, programs, scope):
     return slice_on(var, progs, cg, program=scope)
 
 
-@pytest.mark.parametrize("name,var,programs,scope", GATE_SPEC, ids=[s[0] for s in GATE_SPEC])
+@pytest.mark.parametrize(
+    "name,var,programs,scope", GATE_SPEC, ids=[s[0] for s in GATE_SPEC]
+)
 def test_slice_matches_fixture(name, var, programs, scope):
     fixture = json.loads((FIXTURES_DIR / f"{name}.json").read_text(encoding="utf-8"))
     assert _serialize(_run(var, programs, scope)) == fixture

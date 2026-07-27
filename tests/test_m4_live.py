@@ -73,9 +73,7 @@ def test_bounded_code_context_is_query_driven_and_line_bounded():
     )
 
     assert "CREDIT-LIMIT > 5000" in context
-    numbered_code_lines = [
-        line for line in context.splitlines() if line[:4].isdigit()
-    ]
+    numbered_code_lines = [line for line in context.splitlines() if line[:4].isdigit()]
     assert len(numbered_code_lines) <= 40
     assert "mutation" not in context.lower()
 

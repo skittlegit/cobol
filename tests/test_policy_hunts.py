@@ -75,9 +75,12 @@ def _run(
     case: str,
 ) -> HuntOutcome:
     return get_hunt(drift_type).run(
-        clause=_clause(case) if any(r["kind"] == "finding" for r in _rows(case))
+        clause=_clause(case)
+        if any(r["kind"] == "finding" for r in _rows(case))
         else RegulationClause.model_validate(
-            json.loads((CORPUS / "clauses.jsonl").read_text(encoding="utf-8").splitlines()[0])
+            json.loads(
+                (CORPUS / "clauses.jsonl").read_text(encoding="utf-8").splitlines()[0]
+            )
         ),
         tools=tools,
         model=CachedDecisionModel(CACHE, cache_key=case),
@@ -119,7 +122,9 @@ class _SequenceModel:
         return self.responses.pop(0).model_copy(deep=True)
 
 
-def _responses_with_null_current_value(case: str) -> tuple[
+def _responses_with_null_current_value(
+    case: str,
+) -> tuple[
     RegulationClause,
     list[AgentResponse],
 ]:
@@ -143,9 +148,7 @@ def test_registry_has_exactly_one_hunt_per_drift_class():
 
 
 def test_only_verifier_constructs_verification_results_or_mutates_their_tier():
-    source_root = (
-        Path(__file__).resolve().parents[1] / "src" / "cobol_archaeologist"
-    )
+    source_root = Path(__file__).resolve().parents[1] / "src" / "cobol_archaeologist"
     verifier = source_root / "model" / "verify.py"
     for path in source_root.rglob("*.py"):
         if path == verifier:
@@ -396,9 +399,7 @@ def test_d6_delegates_to_existing_reachability_verifier(monkeypatch, tools):
         called += 1
         return original(program, dead_para, tool_layer)
 
-    monkeypatch.setattr(
-        verify_module, "_tier2_reachability", recording_delegate
-    )
+    monkeypatch.setattr(verify_module, "_tier2_reachability", recording_delegate)
     outcome = _run(tools, "D6_dead_code", "d6")
     assert called == 1
     assert outcome.verification_tier == VerificationTier.STATIC
@@ -429,7 +430,9 @@ def test_d6_caller_absence_does_not_make_fallthrough_live_code_dead(tools):
 
 def test_d7_empty_scope_abstains_instead_of_defaulting_conformant(tools):
     clause = RegulationClause.model_validate(
-        json.loads((CORPUS / "clauses.jsonl").read_text(encoding="utf-8").splitlines()[4])
+        json.loads(
+            (CORPUS / "clauses.jsonl").read_text(encoding="utf-8").splitlines()[4]
+        )
     )
     outcome = get_hunt("D7_conformant").run(
         clause=clause,
@@ -457,20 +460,20 @@ def test_mo0_d7_uses_semantics_not_edit_artifacts(tools):
     assert "file mtimes" in policy.__doc__.lower()
     tree = ast.parse(inspect.getsource(policy))
     banned_imports = {"git", "gitpython", "subprocess"}
+    assert (
+        not {
+            node.names[0].name
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Import)
+        }
+        & banned_imports
+    )
+    assert (
+        not {node.module for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)}
+        & banned_imports
+    )
     assert not {
-        node.names[0].name
-        for node in ast.walk(tree)
-        if isinstance(node, ast.Import)
-    } & banned_imports
-    assert not {
-        node.module
-        for node in ast.walk(tree)
-        if isinstance(node, ast.ImportFrom)
-    } & banned_imports
-    assert not {
-        node.attr
-        for node in ast.walk(tree)
-        if isinstance(node, ast.Attribute)
+        node.attr for node in ast.walk(tree) if isinstance(node, ast.Attribute)
     } & {"stat", "st_mtime", "getmtime"}
 
 
@@ -495,7 +498,9 @@ def test_copybook_locus_and_temporal_pair_are_preserved(tools):
     assert new.finding.code_locus == old.finding.code_locus
     assert new.finding.labels.program_level == "drift"
     assert old.finding.labels.program_level == "conformant"
-    assert new.finding.regulation_clause.version != old.finding.regulation_clause.version
+    assert (
+        new.finding.regulation_clause.version != old.finding.regulation_clause.version
+    )
 
 
 def test_cached_hunts_are_offline_deterministic(tools):

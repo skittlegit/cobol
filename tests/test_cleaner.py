@@ -1,4 +1,5 @@
 """T1.1 gate: ingest/cleaner.py preprocessor unit tests."""
+
 import pytest
 
 from cobol_archaeologist.ingest.cleaner import PreprocessError, preprocess
@@ -24,9 +25,7 @@ def test_line_count_preserved():
 
 def test_exec_cics_masked_single_line():
     src = (
-        "       MAIN-PARA.\n"
-        "           EXEC CICS RETURN END-EXEC.\n"
-        "           GOBACK.\n"
+        "       MAIN-PARA.\n           EXEC CICS RETURN END-EXEC.\n           GOBACK.\n"
     )
     result = preprocess(src)
     out = _lines(result.text)
@@ -119,9 +118,7 @@ def test_copy_replacing_multiline_masked():
 
 def test_sequence_area_and_col_73_plus_ignored():
     # cols 1-6 sequence numbers + text past col 72 must not trigger scanning.
-    src = (
-        "123456           DISPLAY 'X'.                                    junk-past-72\n"
-    )
+    src = "123456           DISPLAY 'X'.                                    junk-past-72\n"
     result = preprocess(src)
     assert result.masked_spans == []
     assert _lines(result.text)[0] == src.splitlines()[0]
@@ -145,7 +142,7 @@ def test_continued_literal_spliced():
     """Regression: T1.1 work-order rule register — CBSTM03A.CBL:157-158 continuation."""
     src = (
         "       01  HTML-LINES.\n"
-        "             88  HTML-L08 VALUE '<table  align=\"center\" frame=\"box\" styl\n"
+        '             88  HTML-L08 VALUE \'<table  align="center" frame="box" styl\n'
         "      -             'e=\"width:70%; font:12px Segoe UI,sans-serif;\">'.\n"
         "             88  HTML-LTRS VALUE '<tr>'.\n"
     )
@@ -160,14 +157,11 @@ def test_continued_literal_spliced():
 
 # -- F6 (review 2026-07-12): unterminated blocks at EOF must raise -----------
 
+
 def test_unterminated_exec_raises():
     """An EXEC block with no END-EXEC before EOF is malformed input: raise,
     never emit blanked lines with no MaskedSpan to show for them."""
-    src = (
-        "       MAIN-PARA.\n"
-        "           EXEC CICS SEND\n"
-        "                MAP('X')\n"
-    )
+    src = "       MAIN-PARA.\n           EXEC CICS SEND\n                MAP('X')\n"
     with pytest.raises(PreprocessError) as exc:
         preprocess(src)
     assert exc.value.kind == "exec_cics"
@@ -175,10 +169,7 @@ def test_unterminated_exec_raises():
 
 
 def test_unterminated_copy_replacing_raises():
-    src = (
-        "       01  WS-REC.\n"
-        "           COPY CVACT01Y REPLACING ==:X:== BY ==ACCT==\n"
-    )
+    src = "       01  WS-REC.\n           COPY CVACT01Y REPLACING ==:X:== BY ==ACCT==\n"
     with pytest.raises(PreprocessError) as exc:
         preprocess(src)
     assert exc.value.kind == "copy_replacing"

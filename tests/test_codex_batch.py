@@ -103,10 +103,7 @@ def test_codex_environment_never_forwards_api_keys() -> None:
 
 
 def test_agent_batch_requires_exact_alias_and_hunt_parity() -> None:
-    responses = {
-        hunt: _abstention()
-        for hunt in AGENT_HUNTS
-    }
+    responses = {hunt: _abstention() for hunt in AGENT_HUNTS}
     envelope = CodexBatchEnvelope(
         results=[
             {
@@ -117,9 +114,7 @@ def test_agent_batch_requires_exact_alias_and_hunt_parity() -> None:
     )
 
     validate_agent_envelope(envelope, ["drift_900000"])
-    assert [item.hunt for item in envelope.results[0].hunts] == list(
-        AGENT_HUNTS
-    )
+    assert [item.hunt for item in envelope.results[0].hunts] == list(AGENT_HUNTS)
 
     with pytest.raises(ValidationError):
         CodexBatchEnvelope(
@@ -251,9 +246,9 @@ def test_submitted_abstention_discards_attached_finding_fields() -> None:
 
 def test_host_input_binding_failure_abstains_without_infrastructure_error() -> None:
     fixture = Path(__file__).parent / "fixtures" / "hunts"
-    final = json.loads(
-        (fixture / "cached_decisions.json").read_text(encoding="utf-8")
-    )["d1"][-1]
+    final = json.loads((fixture / "cached_decisions.json").read_text(encoding="utf-8"))[
+        "d1"
+    ][-1]
     projected = _provider_projection(final)
     projected["prediction"]["drift_type"] = "D5_boundary_error"
     projected["prediction"]["target_path"] = None
@@ -264,9 +259,7 @@ def test_host_input_binding_failure_abstains_without_infrastructure_error() -> N
             **projected,
         }
     )
-    clause = RegulationClause.model_validate(
-        final["prediction"]["regulation_clause"]
-    )
+    clause = RegulationClause.model_validate(final["prediction"]["regulation_clause"])
 
     response = bind_submitted_response(
         submitted,
@@ -297,9 +290,9 @@ def test_host_binding_canonicalizes_leaf_value_target_path() -> None:
     """A provider's ``value`` wrapper names the leaf itself, not a child."""
 
     fixture = Path(__file__).parent / "fixtures" / "hunts"
-    final = json.loads(
-        (fixture / "cached_decisions.json").read_text(encoding="utf-8")
-    )["d1"][-1]
+    final = json.loads((fixture / "cached_decisions.json").read_text(encoding="utf-8"))[
+        "d1"
+    ][-1]
     projected = _provider_projection(final)
     projected["prediction"]["target_path"] = "value"
     submitted = SubmittedResponse.model_validate(
@@ -336,9 +329,9 @@ def test_host_binding_canonicalizes_leaf_value_target_path() -> None:
 
 def test_invalid_interprocedural_flag_abstains_only_submitted_hunt() -> None:
     fixture = Path(__file__).parent / "fixtures" / "hunts"
-    final = json.loads(
-        (fixture / "cached_decisions.json").read_text(encoding="utf-8")
-    )["d1"][-1]
+    final = json.loads((fixture / "cached_decisions.json").read_text(encoding="utf-8"))[
+        "d1"
+    ][-1]
     projected = _provider_projection(final)
     projected["prediction"]["code_locus"] = {
         "loci": [
@@ -365,9 +358,7 @@ def test_invalid_interprocedural_flag_abstains_only_submitted_hunt() -> None:
             **projected,
         }
     )
-    clause = RegulationClause.model_validate(
-        final["prediction"]["regulation_clause"]
-    )
+    clause = RegulationClause.model_validate(final["prediction"]["regulation_clause"])
 
     response = bind_submitted_response(
         submitted,
@@ -553,9 +544,7 @@ def test_batched_finding_cannot_emit_around_policy_guard_or_verifier() -> None:
             **_provider_projection(final),
         }
     )
-    clause = RegulationClause.model_validate(
-        final["prediction"]["regulation_clause"]
-    )
+    clause = RegulationClause.model_validate(final["prediction"]["regulation_clause"])
     # The proposed finding has one successful but class-insufficient tool call.
     # The outer policy guard must withhold it before verification/emission.
     logs = [
@@ -605,9 +594,7 @@ def test_batched_verified_finding_retains_whole_verification_result() -> None:
             **_provider_projection(final),
         }
     )
-    clause = RegulationClause.model_validate(
-        final["prediction"]["regulation_clause"]
-    )
+    clause = RegulationClause.model_validate(final["prediction"]["regulation_clause"])
     observations = [
         StubToolLayer(fixture / "corpus").resolve_copybook("WSDAYBAS"),
         StubToolLayer(fixture / "corpus").read_paragraph("CLOSPEN2", "2000-CALC"),
@@ -691,9 +678,7 @@ def test_batched_d1_uses_class_minimum_and_emits_with_one_bound_code_fact() -> N
             **_provider_projection(final),
         }
     )
-    clause = RegulationClause.model_validate(
-        final["prediction"]["regulation_clause"]
-    )
+    clause = RegulationClause.model_validate(final["prediction"]["regulation_clause"])
     observation = StubToolLayer(fixture / "corpus").read_paragraph(
         "CLOSPEN2", "2000-CALC"
     )
@@ -747,14 +732,8 @@ def test_malformed_static_claim_token_fails_before_batched_verifier(
         for line in records_path.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    record = next(
-        row for row in records if row.instance_id == "drift_377860"
-    )
-    trace = next(
-        row
-        for row in record.agent_hunts
-        if row.hunt == "D5_boundary_error"
-    )
+    record = next(row for row in records if row.instance_id == "drift_377860")
+    trace = next(row for row in record.agent_hunts if row.hunt == "D5_boundary_error")
     response = next(
         row
         for row in reversed(trace.trajectory.model_responses)
@@ -819,9 +798,7 @@ def test_batched_d2_keeps_four_observation_absence_floor() -> None:
             **_provider_projection(final),
         }
     )
-    clause = RegulationClause.model_validate(
-        final["prediction"]["regulation_clause"]
-    )
+    clause = RegulationClause.model_validate(final["prediction"]["regulation_clause"])
     logs = [
         ToolLogEntry(
             alias="drift_900000",
@@ -858,14 +835,14 @@ def test_batched_d2_keeps_four_observation_absence_floor() -> None:
     )
 
 
-def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation() -> None:
+def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation() -> (
+    None
+):
     fixture = Path(__file__).parent / "fixtures" / "hunts"
-    final = json.loads(
-        (fixture / "cached_decisions.json").read_text(encoding="utf-8")
-    )["d1"][-1]
-    clause = RegulationClause.model_validate(
-        final["prediction"]["regulation_clause"]
-    )
+    final = json.loads((fixture / "cached_decisions.json").read_text(encoding="utf-8"))[
+        "d1"
+    ][-1]
+    clause = RegulationClause.model_validate(final["prediction"]["regulation_clause"])
 
     prompt = build_agent_prompt(
         [
@@ -875,8 +852,7 @@ def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation()
                 "clause": clause.model_dump(mode="json"),
             }
         ],
-        tool_command="/support/.venv/bin/python -m "
-        "cobol_archaeologist.eval.codex_tool",
+        tool_command="/support/.venv/bin/python -m cobol_archaeologist.eval.codex_tool",
     )
 
     assert "provenance" not in prompt
@@ -893,7 +869,7 @@ def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation()
     assert "program names the containing executable program" in prompt
     assert "are exact substrings copied from a cited tool" in prompt
     assert '{"literal":"7","comparator":">="}' in prompt
-    assert 'source `>=`; clause `at_most`' in prompt
+    assert "source `>=`; clause `at_most`" in prompt
     normalized_prompt = " ".join(prompt.split())
     assert "claim is the citation hypothesis" in normalized_prompt
     assert "without COBOL identifiers or implementation facts" in normalized_prompt

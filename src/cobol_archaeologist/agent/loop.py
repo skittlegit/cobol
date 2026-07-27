@@ -139,8 +139,7 @@ class InvestigationLoop:
                     system_prompt=SYSTEM_PROMPT,
                     question=model_question,
                     transcript=transcript,
-                    max_repairs=self.budget.max_contract_repairs
-                    - contract_repairs,
+                    max_repairs=self.budget.max_contract_repairs - contract_repairs,
                     repair_allowed=repair_allowed,
                 )
             # Provider adapters may surface SDK-specific exceptions. Any such
@@ -169,8 +168,7 @@ class InvestigationLoop:
                         abstained=True,
                         reason=reason,
                         budget_exhausted=False,
-                        final_answer=response.final_answer
-                        or f"Abstained: {reason}",
+                        final_answer=response.final_answer or f"Abstained: {reason}",
                     )
                 successful_observations = sum(
                     call.error is None and bool(call.observation_summary)
@@ -215,8 +213,7 @@ class InvestigationLoop:
                 continue
 
             successful_observations = sum(
-                call.error is None and bool(call.observation_summary)
-                for call in steps
+                call.error is None and bool(call.observation_summary) for call in steps
             )
             if successful_observations < 1:
                 if len(steps) >= self.budget.max_tool_calls:

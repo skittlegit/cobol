@@ -44,7 +44,9 @@ def load_pdf(path: Path) -> LoadedPdf:
 
 def _extract_pages(path: Path) -> list[str]:
     with pdfplumber.open(path) as pdf:
-        return [page.extract_text(x_tolerance=1, y_tolerance=3) or "" for page in pdf.pages]
+        return [
+            page.extract_text(x_tolerance=1, y_tolerance=3) or "" for page in pdf.pages
+        ]
 
 
 def _strip_page_furniture(pages: list[str]) -> list[str]:

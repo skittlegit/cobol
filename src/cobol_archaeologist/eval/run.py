@@ -288,9 +288,7 @@ def assess_run_validity(
     contract_rejections = sum(
         response.contract_error is not None for response in responses
     )
-    contract_rate = (
-        contract_rejections / provider_turns if provider_turns else 0.0
-    )
+    contract_rate = contract_rejections / provider_turns if provider_turns else 0.0
     predictions = sum(record.prediction is not None for record in available)
     prediction_rate = predictions / len(available) if available else 0.0
 
@@ -302,9 +300,7 @@ def assess_run_validity(
             for trajectory in trajectories
             for call in trajectory.steps
         )
-        mean_successful_tools = (
-            successful_tools / len(available) if available else 0.0
-        )
+        mean_successful_tools = successful_tools / len(available) if available else 0.0
 
     failed_gates: list[str] = []
     if infrastructure_failures:
@@ -402,9 +398,7 @@ class EvaluationRunner:
         manifest: RunManifest,
         completed: Sequence[EvaluationRecord],
     ) -> None:
-        manifest.completed_run_keys = sorted(
-            record.run_key for record in completed
-        )
+        manifest.completed_run_keys = sorted(record.run_key for record in completed)
         manifest.infrastructure_failures = {
             record.instance_id: record.infrastructure_error
             for record in completed

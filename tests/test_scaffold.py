@@ -50,15 +50,23 @@ def test_carddemo_checkout_matches_manifest_pin():
     import json
     import subprocess
 
-    manifest = json.loads((REPO_ROOT / "data" / "manifest.json").read_text(encoding="utf-8"))
+    manifest = json.loads(
+        (REPO_ROOT / "data" / "manifest.json").read_text(encoding="utf-8")
+    )
     pins = json.dumps(manifest)
     carddemo = REPO_ROOT / "data" / "corpora" / "carddemo"
 
     head = subprocess.run(
         ["git", "-C", str(carddemo), "rev-parse", "HEAD"],
-        capture_output=True, text=True, check=True,
+        capture_output=True,
+        text=True,
+        check=True,
     ).stdout.strip()
 
     # The manifest records the pin (full or short form); both must agree.
-    assert head.startswith("59cc6c2fd7eb"), f"carddemo HEAD {head} is not the pinned commit"
-    assert head[:12] in pins, "manifest.json no longer records the pin this checkout is on"
+    assert head.startswith("59cc6c2fd7eb"), (
+        f"carddemo HEAD {head} is not the pinned commit"
+    )
+    assert head[:12] in pins, (
+        "manifest.json no longer records the pin this checkout is on"
+    )

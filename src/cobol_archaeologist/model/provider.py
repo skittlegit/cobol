@@ -148,9 +148,7 @@ def _normalize_response_shape(data: dict[str, Any]) -> None:
             "is_interprocedural" not in code_locus
             or code_locus["is_interprocedural"] is None
         ):
-            code_locus["is_interprocedural"] = prediction.pop(
-                "is_interprocedural"
-            )
+            code_locus["is_interprocedural"] = prediction.pop("is_interprocedural")
         elif code_locus["is_interprocedural"] == misplaced:
             prediction.pop("is_interprocedural")
 
@@ -346,9 +344,7 @@ class AnthropicDecisionModel:
             if block.get("type") == "text"
         )
         usage = raw.get("usage", {})
-        total_tokens = int(
-            usage.get("input_tokens", 0) + usage.get("output_tokens", 0)
-        )
+        total_tokens = int(usage.get("input_tokens", 0) + usage.get("output_tokens", 0))
         return _agent_response(text, total_tokens)
 
 
@@ -442,8 +438,8 @@ class OpenAIDecisionModel:
         )
         raw = self._request(request)
         if raw.get("status") != "completed":
-            detail = raw.get("error") or raw.get("incomplete_details") or raw.get(
-                "status"
+            detail = (
+                raw.get("error") or raw.get("incomplete_details") or raw.get("status")
             )
             raise ProviderUnavailable(f"OpenAI response did not complete: {detail}")
         usage = raw.get("usage", {})
@@ -459,9 +455,7 @@ class OpenAIDecisionModel:
             if item.get("type") == "function_call"
         ]
         matching_calls = [
-            item
-            for item in function_calls
-            if item.get("name") == OPENAI_RESPONSE_TOOL
+            item for item in function_calls if item.get("name") == OPENAI_RESPONSE_TOOL
         ]
         if len(function_calls) != 1 or len(matching_calls) != 1:
             output_text = json.dumps(raw.get("output", []), ensure_ascii=False)
@@ -500,9 +494,7 @@ class OpenAIDecisionModel:
                     delay = 2**attempt
             except (urllib.error.URLError, TimeoutError) as exc:
                 if attempt >= self.max_retries:
-                    raise ProviderUnavailable(
-                        f"OpenAI request failed: {exc}"
-                    ) from exc
+                    raise ProviderUnavailable(f"OpenAI request failed: {exc}") from exc
                 delay = 2**attempt
             except json.JSONDecodeError as exc:
                 raise ProviderUnavailable("OpenAI response was not JSON") from exc

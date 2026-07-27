@@ -81,7 +81,9 @@ class RunValidity(BaseModel):
     @model_validator(mode="after")
     def _arithmetic_and_status(self) -> RunValidity:
         if self.available_rows + self.infrastructure_failures != self.completed_rows:
-            raise ValueError("available and infrastructure counts must sum to completed")
+            raise ValueError(
+                "available and infrastructure counts must sum to completed"
+            )
         if self.contract_rejections > self.provider_turns:
             raise ValueError("contract rejections cannot exceed provider turns")
         if self.non_null_predictions > self.available_rows:

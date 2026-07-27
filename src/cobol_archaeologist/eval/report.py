@@ -38,9 +38,9 @@ def _aligned(
 def _verdict_correct(record: EvaluationRecord) -> bool:
     if record.infrastructure_error or record.abstained or record.prediction is None:
         return False
-    return (
-        record.prediction.drift_type != "D7_conformant"
-    ) == (record.gold.drift_type != "D7_conformant")
+    return (record.prediction.drift_type != "D7_conformant") == (
+        record.gold.drift_type != "D7_conformant"
+    )
 
 
 def build_m4_report(
@@ -206,8 +206,7 @@ def write_report(report: M4Report, json_path: Path, markdown_path: Path) -> None
                 ),
                 "- Per-tier faithfulness: "
                 + ", ".join(
-                    f"Tier {tier} "
-                    f"{row['faithfulness']:.4f} (n={row['n']})"
+                    f"Tier {tier} {row['faithfulness']:.4f} (n={row['n']})"
                     for tier, row in faithfulness["per_tier"].items()
                 )
                 + ".",

@@ -83,12 +83,8 @@ REASONING_EFFORT = "low"
 PROVIDER_ID = "chatgpt-codex-plus"
 PROMPT_VERSION = "m4-live-codex-batch-v4"
 DEFAULT_WSL_DISTRO = "Ubuntu"
-DEFAULT_CODEX_BINARY = (
-    "/home/deepa/.local/bin/codex-x86_64-unknown-linux-musl"
-)
-DEFAULT_SUPPORT_BASE = (
-    "/home/deepa/.cache/cobol-archaeologist/codex-support"
-)
+DEFAULT_CODEX_BINARY = "/home/deepa/.local/bin/codex-x86_64-unknown-linux-musl"
+DEFAULT_SUPPORT_BASE = "/home/deepa/.cache/cobol-archaeologist/codex-support"
 DEFAULT_TASK_BASE = "/home/deepa/.cache/cobol-archaeologist/codex-tasks"
 AGENT_BATCH_SIZE = 2
 DENSE_RAG_BATCH_SIZE = 5
@@ -103,6 +99,7 @@ def batch_size_for(system_id: SystemID) -> int:
         "dense_rag": DENSE_RAG_BATCH_SIZE,
         "oracle_slice": ORACLE_SLICE_BATCH_SIZE,
     }[system_id]
+
 
 PILOT_IDS: tuple[str, ...] = (
     "drift_000001",
@@ -390,9 +387,7 @@ def build_agent_prompt(
     """Build a label-free multi-hunt prompt over opaque case aliases."""
 
     visible = json.dumps(list(cases), ensure_ascii=False, separators=(",", ":"))
-    hunt_guide = "\n".join(
-        f"- {hunt}: {HUNT_PROMPTS[hunt]}" for hunt in AGENT_HUNTS
-    )
+    hunt_guide = "\n".join(f"- {hunt}: {HUNT_PROMPTS[hunt]}" for hunt in AGENT_HUNTS)
     return f"""\
 You are the M4 COBOL compliance agent under evaluation. Investigate every
 opaque case below against its supplied regulation clause. Hidden benchmark
@@ -610,8 +605,7 @@ def execute_codex_task(
         stdout = result.stdout.decode("utf-8", errors="replace")
         detail = "\n".join(part for part in (stderr, stdout) if part).strip()
         raise RuntimeError(
-            f"Codex task failed ({result.returncode}) at {task_root}: "
-            f"{detail[-4000:]}"
+            f"Codex task failed ({result.returncode}) at {task_root}: {detail[-4000:]}"
         )
     stdout = result.stdout.decode("utf-8", errors="replace")
     parsed = parse_codex_events(stdout)
@@ -688,8 +682,7 @@ def _mode_rows(
 ) -> list[DriftInstance]:
     if smoke_seed != CONFIG2_SMOKE_SEED:
         raise ValueError(
-            "the pinned config-2 smoke seed is "
-            f"{CONFIG2_SMOKE_SEED}, not {smoke_seed}"
+            f"the pinned config-2 smoke seed is {CONFIG2_SMOKE_SEED}, not {smoke_seed}"
         )
     if mode == "smoke":
         selected = seeded_stratified_smoke(rows, seed=smoke_seed)
@@ -775,11 +768,7 @@ def _manifest(
             "codex_cli_version": cli_version,
             "batch_size": batch_size_for(system_id),
             **(
-                {
-                    "min_successful_observations_by_drift_type": dict(
-                        EVIDENCE_MINIMUMS
-                    )
-                }
+                {"min_successful_observations_by_drift_type": dict(EVIDENCE_MINIMUMS)}
                 if system_id == "agent"
                 else {}
             ),
@@ -909,7 +898,9 @@ def _persist_raw(
     raw_dir.mkdir(parents=True, exist_ok=True)
     stem = f"{system_id}-{batch_index:04d}"
     (raw_dir / f"{stem}.events.jsonl").write_text(
-        "\n".join(json.dumps(event, ensure_ascii=False) for event in execution.parsed.events)
+        "\n".join(
+            json.dumps(event, ensure_ascii=False) for event in execution.parsed.events
+        )
         + "\n",
         encoding="utf-8",
     )
@@ -947,9 +938,7 @@ def run_codex_system(
     _assert_clean_runtime_source()
     smoke_rows = _mode_rows(rows, "smoke", smoke_seed=smoke_seed)
     run_rows = (
-        smoke_rows
-        if mode == "smoke"
-        else _mode_rows(rows, mode, smoke_seed=smoke_seed)
+        smoke_rows if mode == "smoke" else _mode_rows(rows, mode, smoke_seed=smoke_seed)
     )
     smoke_instance_ids = tuple(row.instance_id for row in smoke_rows)
     commit = repository_commit(ROOT)
@@ -1022,27 +1011,19 @@ def run_codex_system(
     entailer = entailer or default_entailer()
     records_path.parent.mkdir(parents=True, exist_ok=True)
     with records_path.open("a", encoding="utf-8", newline="\n") as stream:
-        work_queue = [
-            (batch, 0)
-            for batch in _chunks(pending, batch_size)
-        ]
+        work_queue = [(batch, 0) for batch in _chunks(pending, batch_size)]
         batch_index = 0
         while work_queue:
             batch, repair_attempt = work_queue.pop(0)
             batch_index += 1
-            aliases = [
-                f"drift_{900000 + index:06d}"
-                for index in range(len(batch))
-            ]
+            aliases = [f"drift_{900000 + index:06d}" for index in range(len(batch))]
             alias_rows = dict(zip(aliases, batch, strict=True))
             try:
                 if system_id == "agent":
                     visible = [
                         {
                             "alias": alias,
-                            "program_scope": (
-                                Path(row.provenance.base_program).stem
-                            ),
+                            "program_scope": (Path(row.provenance.base_program).stem),
                             "clause": row.regulation_clause.model_dump(mode="json"),
                         }
                         for alias, row in alias_rows.items()
@@ -1096,9 +1077,7 @@ def run_codex_system(
                             outcome = finalize_agent_case(
                                 by_alias[alias],
                                 clause=row.regulation_clause,
-                                program_scope=Path(
-                                    row.provenance.base_program
-                                ).stem,
+                                program_scope=Path(row.provenance.base_program).stem,
                                 instance_id=row.instance_id,
                                 logs=[
                                     log
@@ -1161,9 +1140,7 @@ def run_codex_system(
                         len(by_alias),
                     )
                     batch_records = []
-                    returned_aliases = [
-                        alias for alias in aliases if alias in by_alias
-                    ]
+                    returned_aliases = [alias for alias in aliases if alias in by_alias]
                     for token_count, alias in zip(
                         allocations,
                         returned_aliases,
@@ -1173,9 +1150,7 @@ def run_codex_system(
                         source = materialized[row.instance_id]
                         submitted = by_alias[alias]
                         context = (
-                            DenseRAGContext.model_validate(
-                                contexts[row.instance_id]
-                            )
+                            DenseRAGContext.model_validate(contexts[row.instance_id])
                             if system_id == "dense_rag"
                             else OracleSliceContext.model_validate(
                                 contexts[row.instance_id]
@@ -1222,10 +1197,7 @@ def run_codex_system(
                                 )
                             )
                     if missing_aliases:
-                        if (
-                            repair_attempt
-                            < BASELINE_BUDGET.max_contract_repairs
-                        ):
+                        if repair_attempt < BASELINE_BUDGET.max_contract_repairs:
                             work_queue = [
                                 ([alias_rows[alias]], repair_attempt + 1)
                                 for alias in missing_aliases
@@ -1247,15 +1219,10 @@ def run_codex_system(
                                 for alias in missing_aliases
                             )
             except Exception as exc:  # noqa: BLE001
-                budget = (
-                    AGENT_BUDGET
-                    if system_id == "agent"
-                    else BASELINE_BUDGET
-                )
+                budget = AGENT_BUDGET if system_id == "agent" else BASELINE_BUDGET
                 if repair_attempt < budget.max_contract_repairs and len(batch) > 1:
                     work_queue = [
-                        ([row], repair_attempt + 1)
-                        for row in batch
+                        ([row], repair_attempt + 1) for row in batch
                     ] + work_queue
                     batch_records = []
                 else:
@@ -1263,14 +1230,9 @@ def run_codex_system(
                         infrastructure_failure(
                             row,
                             system_id=system_id,
-                            source_sha256=materialized[
-                                row.instance_id
-                            ].source_sha256,
+                            source_sha256=materialized[row.instance_id].source_sha256,
                             key=keys[row.instance_id],
-                            reason=(
-                                "Codex batch failed: "
-                                f"{type(exc).__name__}: {exc}"
-                            ),
+                            reason=(f"Codex batch failed: {type(exc).__name__}: {exc}"),
                         )
                         for row in batch
                     ]
@@ -1325,8 +1287,7 @@ def _parse_args() -> argparse.Namespace:
         type=int,
         required=True,
         help=(
-            "predeclared config-2 smoke seed; the frozen value is "
-            f"{CONFIG2_SMOKE_SEED}"
+            f"predeclared config-2 smoke seed; the frozen value is {CONFIG2_SMOKE_SEED}"
         ),
     )
     return parser.parse_args()

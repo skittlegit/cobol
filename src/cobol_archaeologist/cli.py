@@ -183,9 +183,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 judgement_by_id = {item.instance_id: item for item in judgements}
                 override_path = _override_path(args)
                 existing_overrides = _load_overrides_if_present(override_path)
-                override_by_id = {
-                    item.instance_id: item for item in existing_overrides
-                }
+                override_by_id = {item.instance_id: item for item in existing_overrides}
                 if len(override_by_id) != len(existing_overrides):
                     raise ValueError("judge overrides contain duplicate instance IDs")
                 for decision in decisions:
@@ -220,17 +218,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 manifest.setdefault("judging", {})["unsure_adjudication"] = {
                     "file": str(args.adjudications),
                     "reviewed": len(decisions),
-                    "accepted": sum(
-                        item.verdict == "plausible" for item in decisions
-                    ),
+                    "accepted": sum(item.verdict == "plausible" for item in decisions),
                     "rejected": sum(
                         item.verdict == "implausible" for item in decisions
                     ),
                 }
                 manifest_path.write_text(
-                    json.dumps(
-                        manifest, ensure_ascii=False, indent=2, sort_keys=True
-                    )
+                    json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True)
                     + "\n",
                     encoding="utf-8",
                 )
