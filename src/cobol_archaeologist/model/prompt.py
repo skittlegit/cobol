@@ -50,6 +50,10 @@ finding, alternative, or corrected object after it. A proposed finding must
 include a complete DriftPrediction and a separate claim, plus concrete
 execution/static evidence hooks when available. The runtime will verify every
 proposed finding; if evidence is insufficient, abstain.
+For a static evidence hook, copy `static_claim.literal` and
+`static_claim.comparator` exactly from source text returned by a cited tool
+observation. These fields contain source tokens, never a prose comparison;
+put the explanation in prediction.rationale.
 For every predicted source locus, `file` is null when the line is in the
 program's own source; it is never the program filename. Negative example
 (own source): {"program": "CLOSPEN1", "file": null}. Positive example

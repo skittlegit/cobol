@@ -323,6 +323,7 @@ class BasePolicyHunt:
             )
         if prediction.regulation_clause != clause:
             errors.append("proposal clause differs from the requested clause")
+        errors.extend(_static_claim_source_token_errors(response, transcript))
         return errors
 
     def validate_trajectory(self, trajectory: Trajectory) -> list[str]:
@@ -524,6 +525,97 @@ def _step_binds_locus(step: ToolCall, locus: SourceLocus) -> bool:
             if _overlaps(locus, source_start, source_end):
                 return True
     return False
+
+
+def _bound_source_texts(step: ToolCall, locus: SourceLocus) -> list[str]:
+    """Return source-bearing text from one observation bound to ``locus``."""
+
+    if not _step_binds_locus(step, locus):
+        return []
+    try:
+        value = json.loads(step.observation_summary)
+    except (json.JSONDecodeError, TypeError):
+        return []
+    if not isinstance(value, dict):
+        return []
+    if step.tool == "read_paragraph":
+        code = value.get("code")
+        return [code] if isinstance(code, str) else []
+    if step.tool == "resolve_copybook":
+        text = value.get("text")
+        return [text] if isinstance(text, str) else []
+    if step.tool == "grep":
+        return [
+            match["text"]
+            for match in value.get("matches", [])
+            if (
+                isinstance(match, dict)
+                and isinstance(match.get("text"), str)
+                and isinstance(match.get("program"), str)
+                and isinstance(match.get("line"), int)
+                and _same_program(locus.program, match["program"])
+                and _overlaps(locus, match["line"], match["line"])
+            )
+        ]
+    if step.tool == "trace_variable":
+        return [
+            site["excerpt"]
+            for site in value.get("sites", [])
+            if (
+                isinstance(site, dict)
+                and isinstance(site.get("excerpt"), str)
+                and _source_ref_matches(locus, site.get("ref"))
+            )
+        ]
+    if step.tool == "slice_on":
+        return [
+            statement["text"]
+            for statement in value.get("statements", [])
+            if (
+                isinstance(statement, dict)
+                and isinstance(statement.get("text"), str)
+                and _source_ref_matches(locus, statement.get("ref"))
+            )
+        ]
+    return []
+
+
+def _static_claim_source_token_errors(
+    response: AgentResponse,
+    transcript: list[dict[str, Any]],
+) -> list[str]:
+    """Fail closed when static hooks are prose rather than observed tokens."""
+
+    prediction = response.prediction
+    static_claim = response.static_claim
+    if prediction is None or static_claim is None:
+        return []
+    claimed_tokens = {
+        "literal": static_claim.literal,
+        "comparator": static_claim.comparator,
+    }
+    if all(token is None for token in claimed_tokens.values()):
+        return []
+
+    steps = [ToolCall.model_validate(step) for step in transcript]
+    source_texts = [
+        text
+        for step in steps
+        if step.error is None and step.observation_summary
+        for locus in prediction.code_locus.loci
+        for text in _bound_source_texts(step, locus)
+    ]
+    errors: list[str] = []
+    for field, token in claimed_tokens.items():
+        if token is None:
+            continue
+        if not token or not any(token in text for text in source_texts):
+            errors.append(
+                "static-claim source-token validator: "
+                f"{field} {token!r} is not an exact substring of any "
+                "source-bearing observation bound to the claimed loci"
+            )
+    return errors
 
 
 def _has_bound_code_fact(trajectory: Trajectory) -> bool:
