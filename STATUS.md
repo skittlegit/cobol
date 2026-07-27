@@ -239,5 +239,11 @@ three tracks; a task's numeric prefix does not identify its phase.
   annotation, adjudication, leakage-control, D1-D7, localization, and
   agreement-reporting protocol. Guideline gates pass without provider spend;
   scale-up and the measured second-annotator pass remain.
-- **T5.2-T5.5, T7.1-T7.3, T7.5** | todo | A/B/C | Remaining
-  Phase-5/release work; T6.1-T6.4 and T7.4 are cut above.
+- **T7.1** | done | A | `src/cobol_archaeologist/mcp_server/server.py` exposes
+  all eleven frozen `ToolLayer` methods through the official MCP SDK v1 over
+  stdio. Exact registry parity, structured delegation, `RunInputs` binding,
+  and fail-closed configuration are gated in `tests/test_mcp_server.py`;
+  canonical scope and exclusions are in `docs/tasks/T7.1-work-order.md`.
+- **T5.2-T5.5, T7.2-T7.3, T7.5** | todo | A/B/C | Remaining
+  Phase-5/release work;
+  T6.1-T6.4 and T7.4 are cut above.
