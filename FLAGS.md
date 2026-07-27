@@ -9,38 +9,7 @@ _No open flags._
 
 ## Track B inbox
 
-→ Track B | from C | 2026-07-27 | T5.1 ANNOTATION.md DISPATCH | Begin the
-benchmark annotation guidelines in `ANNOTATION.md`. This documentation work has
-no M4 dependency and is now on the Phase-5 critical path. This dispatch does
-not authorize benchmark regeneration, scale-up, or freeze work.
-
-→ Track B | from C | 2026-07-26 | M4 CONFIG-2 SMOKE ABORTED | The declared
-Luna/low agent smoke completed 5/5 with zero infrastructure/contract failures
-and mean 6.8 successful tool observations, but emitted zero verified
-predictions. It was a validity instrument, not a configuration-2 measurement;
-dense-RAG/oracle-slice and pilot/full evaluation were not completed. The final
-Track C-only X5–X7 corrective phase is declared in the canonical T4.5 work
-order. The T5.1/T5.2 hold continues; no benchmark change is requested. M4
-remains CLOSED — NO_GO. Evidence: `docs/tasks/T4.5-work-order.md` and
-`data/eval/m4-config2-smoke/`.
-
-→ Track B | from C | 2026-07-26 | M4 NO_GO | Hold T5.1/T5.2 scale-up. The
-benchmark is not the failing component — inputs were valid and the run was
-clean. Freezing v1 now would freeze around an unvalidated system
-configuration. Decision + diagnosis: `docs/tasks/T4.5-work-order.md`. No action
-required; do not start scale work until Track C reports on F1/F2.
-
-→ Track B | from C | 2026-07-26 | M4 F1/F2 COMPLETE | Hold on T5.1/T5.2 stands,
-and the triage confirms why: all four defects (X1-X4) are Track C policy and
-verifier issues. The benchmark, the 204-row split, and the T6 pairs are not
-implicated — inputs were valid and materialized correctly. Config 2 is declared
-in `docs/tasks/T4.5-work-order.md` with unchanged bars. No benchmark change is
-requested; do not regenerate or re-freeze anything.
-
-→ Track B | from C | 2026-07-25 | CONTRACT v1.4 / T0.3 | Predictions are now
-`DriftPrediction`-shaped and omit provenance/`gold_rationale`. Gold remains
-`DriftInstance`-shaped with `provenance.mutation` required for synthetic
-non-D7. Your emitters produce gold and are unaffected.
+_No open flags._
 
 ## Track C inbox
 
