@@ -356,9 +356,7 @@ def transcript_tools(transcript: list[dict[str, Any]]) -> list[str]:
     ]
 
 
-def observations(
-    transcript: list[dict[str, Any]], tool: str
-) -> list[Any]:
+def observations(transcript: list[dict[str, Any]], tool: str) -> list[Any]:
     values: list[Any] = []
     for step in transcript:
         if step["tool"] != tool or step.get("error"):
@@ -630,9 +628,7 @@ def _has_bound_code_fact(trajectory: Trajectory) -> bool:
     )
 
 
-def require_tools(
-    transcript: list[dict[str, Any]], required: set[str]
-) -> list[str]:
+def require_tools(transcript: list[dict[str, Any]], required: set[str]) -> list[str]:
     missing = required - set(transcript_tools(transcript))
     if not missing:
         return []

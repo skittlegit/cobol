@@ -166,9 +166,7 @@ def compare_raw_and_hyde(
             "note": query.note,
             "raw_query": query.query,
             "hyde_query": generator.describe(query.query),
-            "raw": {
-                mode: raw_by_id[query.query_id][mode] for mode in raw["metrics"]
-            },
+            "raw": {mode: raw_by_id[query.query_id][mode] for mode in raw["metrics"]},
             "hyde": {
                 mode: hyde_by_id[query.query_id][mode] for mode in hyde["metrics"]
             },

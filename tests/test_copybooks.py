@@ -1,4 +1,5 @@
 """T1.1 gate #5: parser/copybooks.py expansion + LineMap unit tests."""
+
 from pathlib import Path
 
 import pytest
@@ -11,16 +12,13 @@ CARDDEMO = REPO_ROOT / "data" / "corpora" / "carddemo"
 SEARCH_PATHS = [CARDDEMO / "app" / "cpy", CARDDEMO / "app" / "cpy-bms"]
 
 pytestmark = pytest.mark.skipif(
-    not CARDDEMO.is_dir(), reason="corpora not fetched (run scripts/fetch_corpora.sh)",
+    not CARDDEMO.is_dir(),
+    reason="corpora not fetched (run scripts/fetch_corpora.sh)",
 )
 
 
 def test_plain_copy_resolves_and_inlines():
-    src = (
-        "       01  SOME-RECORD.\n"
-        "       COPY CVACT01Y.\n"
-        "       PROCEDURE DIVISION.\n"
-    )
+    src = "       01  SOME-RECORD.\n       COPY CVACT01Y.\n       PROCEDURE DIVISION.\n"
     exp = expand(src, SEARCH_PATHS)
     assert "ACCT-CURR-BAL" in exp.text
     assert any("CVACT01Y" in e.source_file for e in exp.line_map)
@@ -34,11 +32,15 @@ def test_linemap_round_trips_to_copybook_line():
     field_idx = next(i for i, line in enumerate(out_lines) if "ACCT-CURR-BAL" in line)
     expanded_line = field_idx + 1
 
-    entry = next(e for e in exp.line_map if e.expanded_start <= expanded_line <= e.expanded_end)
+    entry = next(
+        e for e in exp.line_map if e.expanded_start <= expanded_line <= e.expanded_end
+    )
     assert entry.source_file.upper().endswith("CVACT01Y.CPY")
     original_line = entry.source_line_start + (expanded_line - entry.expanded_start)
 
-    copybook_text = (CARDDEMO / "app" / "cpy" / "CVACT01Y.cpy").read_text(errors="replace")
+    copybook_text = (CARDDEMO / "app" / "cpy" / "CVACT01Y.cpy").read_text(
+        errors="replace"
+    )
     assert "ACCT-CURR-BAL" in copybook_text.splitlines()[original_line - 1]
 
 
@@ -46,7 +48,9 @@ def test_own_lines_are_source_file_empty_string():
     src = "       DISPLAY 'X'.\n"
     exp = expand(src, SEARCH_PATHS)
     assert exp.line_map == [
-        LineMapEntry(expanded_start=1, expanded_end=1, source_file="", source_line_start=1)
+        LineMapEntry(
+            expanded_start=1, expanded_end=1, source_file="", source_line_start=1
+        )
     ]
 
 

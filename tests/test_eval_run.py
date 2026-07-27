@@ -84,7 +84,9 @@ def test_materializes_local_copybook_and_interprogram_edits(operator):
     if operator == "MO-1×":
         assert any(name.lower().endswith(".cpy") for name in source.files)
     if operator == "MO-6×":
-        assert len([name for name in source.files if name.lower().endswith(".cbl")]) >= 2
+        assert (
+            len([name for name in source.files if name.lower().endswith(".cbl")]) >= 2
+        )
 
 
 def test_materializer_blanks_deletion_without_changing_line_count(tmp_path):
@@ -203,9 +205,9 @@ def test_ollama_provider_is_local_structured_and_credential_free(monkeypatch):
     assert payload["think"] is False
     assert payload["options"] == {"temperature": 0.0, "seed": 2601}
     assert payload["format"]["title"] == "AgentResponse"
-    assert payload["format"]["$defs"]["DriftPrediction"]["properties"][
-        "instance_id"
-    ]["enum"] == ["drift_000000"]
+    assert payload["format"]["$defs"]["DriftPrediction"]["properties"]["instance_id"][
+        "enum"
+    ] == ["drift_000000"]
     assert "must-not-be-read" not in json.dumps(payload)
     assert result.kind == "abstain"
     assert result.token_count == 18
@@ -292,9 +294,7 @@ def test_openai_provider_forces_one_response_function_without_persisting(
     response_schema = response_tool["parameters"]
     assert response_schema["title"] == "AgentResponse"
     assert "Call submit_agent_response exactly once and stop" in provider_instruction
-    assert "code_locus (loci, slice_vars, is_interprocedural)" in (
-        provider_instruction
-    )
+    assert "code_locus (loci, slice_vars, is_interprocedural)" in (provider_instruction)
     prediction_id = response_schema["$defs"]["DriftPrediction"]["properties"][
         "instance_id"
     ]
@@ -303,12 +303,14 @@ def test_openai_provider_forces_one_response_function_without_persisting(
     assert "contract_error" not in response_schema["properties"]
     assert "allOf" not in response_schema
     assert "requires both a complete prediction" in response_schema["description"]
-    assert "Required and complete" in response_schema["properties"]["prediction"][
-        "description"
-    ]
-    assert "Required and non-empty" in response_schema["properties"]["claim"][
-        "description"
-    ]
+    assert (
+        "Required and complete"
+        in response_schema["properties"]["prediction"]["description"]
+    )
+    assert (
+        "Required and non-empty"
+        in response_schema["properties"]["claim"]["description"]
+    )
     assert prediction_id["enum"] == ["drift_000000"]
     assert payload["store"] is False
     assert "test-only-key" not in json.dumps(payload)
@@ -490,9 +492,7 @@ def test_openai_provider_canonicalizes_unambiguous_locus_wire_shape():
         )
     )[0]
     prediction = raw["prediction"]
-    prediction["is_interprocedural"] = prediction["code_locus"][
-        "is_interprocedural"
-    ]
+    prediction["is_interprocedural"] = prediction["code_locus"]["is_interprocedural"]
     prediction["},"] = ":null"
     ref = prediction["labels"]["line_level"][0]
     line = ref.pop("line")
@@ -555,15 +555,17 @@ def test_openai_provider_turns_malformed_finding_into_typed_abstention():
     assert result.raw_provider_text
 
     reparsed = json.loads(result.raw_provider_text)
-    reparsed["prediction"]["labels"]["line_level"][0]["line"] = reparsed[
-        "prediction"
-    ]["code_locus"]["loci"][0]["line_span"][0]
+    reparsed["prediction"]["labels"]["line_level"][0]["line"] = reparsed["prediction"][
+        "code_locus"
+    ]["loci"][0]["line_span"][0]
     repaired = provider_module._agent_response(json.dumps(reparsed), 11)
     assert repaired.kind == "finding"
     assert repaired.contract_error is None
 
 
-@pytest.mark.parametrize("provider_text", ["not JSON", '{"kind": "abstain"} trailing {}'])
+@pytest.mark.parametrize(
+    "provider_text", ["not JSON", '{"kind": "abstain"} trailing {}']
+)
 def test_openai_provider_turns_malformed_text_into_typed_abstention(provider_text):
     result = provider_module._agent_response(provider_text, 29)
 
@@ -850,11 +852,7 @@ def test_run_validity_accepts_a_verified_non_null_prediction():
     prediction = DriftPrediction.from_gold(gold)
     verified = Trajectory.model_validate_json(
         (
-            ROOT
-            / "tests"
-            / "fixtures"
-            / "agent"
-            / "golden_late_fee_trajectory.json"
+            ROOT / "tests" / "fixtures" / "agent" / "golden_late_fee_trajectory.json"
         ).read_text(encoding="utf-8")
     ).verification
     response = AgentResponse(
@@ -901,9 +899,7 @@ def test_agent_record_persists_all_seven_hunts_and_validity_counts_them():
     corpus = ROOT / "tests" / "fixtures" / "hunts" / "corpus"
     raw = json.loads(hunt_cache.read_text(encoding="utf-8"))
     clause = raw["d1"][-1]["prediction"]["regulation_clause"]
-    cache_keys = iter(
-        ["d1", "d2", "d3", "d4", "d5", "d6", "d7"]
-    )
+    cache_keys = iter(["d1", "d2", "d3", "d4", "d5", "d6", "d7"])
     batch = investigate_all_hunts(
         SystemContext(
             clause=clause,

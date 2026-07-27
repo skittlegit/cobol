@@ -11,8 +11,7 @@ from cobol_archaeologist.eval.schemas import EvaluationRecord, TrajectoryAssessm
 
 def _correct(record: EvaluationRecord) -> bool:
     return bool(
-        record.prediction
-        and record.prediction.drift_type == record.gold.drift_type
+        record.prediction and record.prediction.drift_type == record.gold.drift_type
     )
 
 
@@ -89,8 +88,7 @@ def calibration(
                 and assessment.evidence_path_ok
                 and assessment.code_fact_ok
                 and assessment.shortcut_free
-                and record.prediction.regulation_clause
-                == record.gold.regulation_clause
+                and record.prediction.regulation_clause == record.gold.regulation_clause
             )
             for record in tier_rows
         )

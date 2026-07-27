@@ -237,9 +237,7 @@ def test_line_ref_outside_span_rejected():
 
 def test_line_ref_program_matching_no_locus_rejected():
     data = load_fixture()
-    data["labels"]["line_level"] = [
-        {"program": "NOPE.cbl", "line": 147, "file": None}
-    ]
+    data["labels"]["line_level"] = [{"program": "NOPE.cbl", "line": 147, "file": None}]
     with pytest.raises(ValidationError):
         DriftInstance.model_validate(data)
 
@@ -317,11 +315,7 @@ def test_gold_shape_is_unchanged_and_prediction_omits_gold_only_fields():
 
 def test_committed_m4_payload_projects_to_prediction_not_gold():
     artifact = (
-        Path(__file__).resolve().parents[1]
-        / "data"
-        / "eval"
-        / "m4"
-        / "dense_rag.jsonl"
+        Path(__file__).resolve().parents[1] / "data" / "eval" / "m4" / "dense_rag.jsonl"
     )
     row = next(
         json.loads(line)

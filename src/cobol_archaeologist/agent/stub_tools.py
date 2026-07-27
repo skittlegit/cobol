@@ -181,9 +181,7 @@ class StubToolLayer:
         prog = self._program(program)
         para = self._paragraph(prog, name)
         if para is None:
-            raise ToolLookupError(
-                f"unknown paragraph {name!r} in program {program!r}"
-            )
+            raise ToolLookupError(f"unknown paragraph {name!r} in program {program!r}")
         lines = prog.lines[para.line_start - 1 : para.line_end]
         return ParagraphView(
             ref=SourceRef(
@@ -205,9 +203,7 @@ class StubToolLayer:
             program=prog.program,
             path=str(prog.path),
             paragraphs=[
-                ParagraphSpan(
-                    name=p.name, line_start=p.line_start, line_end=p.line_end
-                )
+                ParagraphSpan(name=p.name, line_start=p.line_start, line_end=p.line_end)
                 for p in prog.paragraphs
             ],
         )
@@ -233,9 +229,7 @@ class StubToolLayer:
 
     # -- ToolLayer: trace/slice -------------------------------------------
 
-    def trace_variable(
-        self, var: str, program: str | None = None
-    ) -> VariableTrace:
+    def trace_variable(self, var: str, program: str | None = None) -> VariableTrace:
         variable = var.upper()
         scoped = self._key(program) if program is not None else None
         sources: list[tuple[str, Path, _Program | None]] = []
@@ -274,9 +268,7 @@ class StubToolLayer:
                         excerpt=text.strip(),
                     )
                 )
-        return VariableTrace(
-            variable=variable, scoped_program=scoped, sites=sites
-        )
+        return VariableTrace(variable=variable, scoped_program=scoped, sites=sites)
 
     def slice_on(self, var: str, program: str | None = None) -> Slice:
         trace = self.trace_variable(var, program)
@@ -296,8 +288,7 @@ class StubToolLayer:
             statements=statements,
             paragraphs=paragraphs,
             is_interprocedural=(
-                len({node.program for node in paragraphs}) > 1
-                or len(paragraphs) > 1
+                len({node.program for node in paragraphs}) > 1 or len(paragraphs) > 1
             ),
         )
 
@@ -386,9 +377,7 @@ class StubToolLayer:
                 break
         return GrepResult(pattern=pattern, matches=matches, truncated=truncated)
 
-    def run_cobol(
-        self, snippet: str, inputs: RunInputs | None = None
-    ) -> RunResult:
+    def run_cobol(self, snippet: str, inputs: RunInputs | None = None) -> RunResult:
         # DECISION (offline Tier 1): never pretend unsupported code executed;
         # return the same compiled_ok=False "unavailable" signal as real CICS.
         del inputs

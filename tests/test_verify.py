@@ -40,7 +40,9 @@ FIX = REPO_ROOT / "tests" / "fixtures" / "verify"
 CORPUS = FIX / "corpus"
 
 _HAVE_COBC = bool(os.environ.get("COBC") or shutil.which("cobc"))
-needs_cobc = pytest.mark.skipif(not _HAVE_COBC, reason="cobc not found (run scripts/setup_cobc.sh)")
+needs_cobc = pytest.mark.skipif(
+    not _HAVE_COBC, reason="cobc not found (run scripts/setup_cobc.sh)"
+)
 
 
 @pytest.fixture(scope="module")
@@ -55,7 +57,9 @@ def offline_entailer() -> CachedEntailer:
 
 
 def load(name: str) -> Finding:
-    return Finding.model_validate_json((FIX / f"{name}.json").read_text(encoding="utf-8"))
+    return Finding.model_validate_json(
+        (FIX / f"{name}.json").read_text(encoding="utf-8")
+    )
 
 
 def outcomes(result: VerificationResult) -> list[tuple[str, str]]:
@@ -94,7 +98,9 @@ def test_tier3_entailment_only(tools, offline_entailer):
     r = verify(load("supported_tier3"), tools, entailer=offline_entailer)
     assert r.verified and r.tier == VerificationTier.ENTAILMENT
     assert outcomes(r) == [
-        ("EXECUTED", "unavailable"), ("STATIC", "unavailable"), ("ENTAILMENT", "verified"),
+        ("EXECUTED", "unavailable"),
+        ("STATIC", "unavailable"),
+        ("ENTAILMENT", "verified"),
     ]
     # Tier 3 is flagged as the weakest tier on the result.
     assert "weakest tier" in r.evidence
@@ -112,7 +118,12 @@ def test_d6_reachability_verifies(tools, offline_entailer):
 
 def test_tier1_attempt_is_recorded_unavailable_not_skipped(tools, offline_entailer):
     # A finding that cannot execute still records a Tier-1 attempt (never omitted).
-    for name in ("supported_tier2", "supported_tier3", "unsupported_citation", "d6_reachability"):
+    for name in (
+        "supported_tier2",
+        "supported_tier3",
+        "unsupported_citation",
+        "d6_reachability",
+    ):
         r = verify(load(name), tools, entailer=offline_entailer)
         assert r.tier_attempts[0].tier == VerificationTier.EXECUTED
         assert r.tier_attempts[0].outcome == "unavailable"
@@ -274,8 +285,13 @@ def test_require_cache_raises_on_miss():
 
 def test_committed_cache_uses_pinned_neural_backend(offline_entailer):
     expected_backend = f"{V.NLI_FAMILY}:{V.NLI_MODEL}"
-    for name in ("supported_tier1", "supported_tier2", "supported_tier3",
-                 "unsupported_citation", "d6_reachability"):
+    for name in (
+        "supported_tier1",
+        "supported_tier2",
+        "supported_tier3",
+        "unsupported_citation",
+        "d6_reachability",
+    ):
         f = load(name)
         clause = f.prediction.regulation_clause
         cached = offline_entailer.entail(clause.text, f.claim)
@@ -292,8 +308,11 @@ ACCURACY_PAIRS = FIX / "accuracy_pairs.jsonl"
 def _load_accuracy_pairs() -> list[dict]:
     import json
 
-    return [json.loads(line) for line in
-            ACCURACY_PAIRS.read_text(encoding="utf-8").splitlines() if line.strip()]
+    return [
+        json.loads(line)
+        for line in ACCURACY_PAIRS.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
 
 def test_accuracy_pairs_are_well_formed():

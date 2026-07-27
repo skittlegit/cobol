@@ -428,10 +428,7 @@ def _distribution(
         "",
         "| file | SHA-256 |",
         "|---|---|",
-        *[
-            f"| {split}.jsonl | `{file_hashes[split]}` |"
-            for split in SPLITS
-        ],
+        *[f"| {split}.jsonl | `{file_hashes[split]}` |" for split in SPLITS],
         "`CI-fragile` marks every split × class × stratum cell with n < 10.",
         "",
         "## Split summary",
@@ -623,9 +620,7 @@ def build_splits(
     # DECISION: hashes cover the exact UTF-8 JSONL bytes written above. They
     # bind the public freeze without making distribution.md self-referential.
     file_hashes = {
-        split: hashlib.sha256(
-            (output_dir / f"{split}.jsonl").read_bytes()
-        ).hexdigest()
+        split: hashlib.sha256((output_dir / f"{split}.jsonl").read_bytes()).hexdigest()
         for split in SPLITS
     }
     distribution, fragile = _distribution(

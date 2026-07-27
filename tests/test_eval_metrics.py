@@ -77,9 +77,10 @@ def _record(
 
 def test_perfect_seven_class_predictions_score_one():
     rows = _rows(SPLIT)
-    gold = [next(row for row in rows if row.drift_type == kind) for kind in {
-        row.drift_type for row in rows
-    }]
+    gold = [
+        next(row for row in rows if row.drift_type == kind)
+        for kind in {row.drift_type for row in rows}
+    ]
     result = evaluate([_record(row) for row in gold])
 
     assert len(gold) == 7
@@ -129,11 +130,15 @@ def test_statistical_helpers_are_paired_and_deterministic():
     first = paired_bootstrap_delta(left, right, metric, resamples=500, seed=7)
     assert first == paired_bootstrap_delta(left, right, metric, resamples=500, seed=7)
     assert first[0] == 0.5
-    assert 0 <= paired_randomization_p(
-        [True, True, False, True],
-        [False, True, False, False],
-        samples=500,
-        seed=7,
-    ) <= 1
+    assert (
+        0
+        <= paired_randomization_p(
+            [True, True, False, True],
+            [False, True, False, False],
+            samples=500,
+            seed=7,
+        )
+        <= 1
+    )
     assert exact_binomial_interval(0, 5)[0] == 0
     assert exact_binomial_interval(5, 5)[1] == 1

@@ -369,9 +369,7 @@ def test_search_regulations_delegates_with_typed_list_semantics(layer, monkeypat
             assert k == 5
             return []
 
-    monkeypatch.setattr(
-        layer, "_reg_search", OfflineRegulationSearch(), raising=False
-    )
+    monkeypatch.setattr(layer, "_reg_search", OfflineRegulationSearch(), raising=False)
 
     result = layer.search_regulations("credit card interest")
 

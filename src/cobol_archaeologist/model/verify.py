@@ -82,9 +82,9 @@ ENTAIL_THRESHOLD = 0.5
 
 
 class VerificationTier(IntEnum):
-    EXECUTED = 1     # behaviourally executed via run_cobol
-    STATIC = 2       # AST/dataflow/slice/reachability fact matches the claim
-    ENTAILMENT = 3   # retrieved clause entails the claim (NLI); weakest tier
+    EXECUTED = 1  # behaviourally executed via run_cobol
+    STATIC = 2  # AST/dataflow/slice/reachability fact matches the claim
+    ENTAILMENT = 3  # retrieved clause entails the claim (NLI); weakest tier
 
 
 class TierOutcome:
@@ -98,22 +98,22 @@ class TierAttempt(BaseModel):
 
     tier: VerificationTier
     outcome: str  # verified | refuted | unavailable
-    detail: str   # what was checked / why unavailable — quotable in a trace
+    detail: str  # what was checked / why unavailable — quotable in a trace
 
 
 class VerificationResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     verified: bool
-    tier: VerificationTier | None       # None iff verified is False
-    evidence: str                       # what was checked, quotable in a trace
-    citation_ok: bool                   # did the cited clause survive checking
+    tier: VerificationTier | None  # None iff verified is False
+    evidence: str  # what was checked, quotable in a trace
+    citation_ok: bool  # did the cited clause survive checking
     # M4-X X3′ telemetry: retain the citation NLI result even when Tier 1/2
     # verifies first. Defaults preserve compatibility with committed traces.
     entailment_probability: float | None = Field(default=None, ge=0, le=1)
     entailment_backend: str | None = None
     rejected_reason: str | None = None
-    tier_attempts: list[TierAttempt]    # every tier tried, in order, w/ outcome
+    tier_attempts: list[TierAttempt]  # every tier tried, in order, w/ outcome
 
 
 # --------------------------------------------------------------------------
@@ -140,8 +140,8 @@ class StaticClaim(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    literal: str | None = None         # must appear in the locus paragraph code
-    comparator: str | None = None      # comparator token expected in the locus code
+    literal: str | None = None  # must appear in the locus paragraph code
+    comparator: str | None = None  # comparator token expected in the locus code
     dead_paragraph: str | None = None  # D6: must be unreachable from the true entry
 
 
@@ -153,7 +153,7 @@ class Finding(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     prediction: DriftPrediction
-    claim: str                          # NL proposition for entailment + citation
+    claim: str  # NL proposition for entailment + citation
     exec_probe: ExecProbe | None = None
     static_claim: StaticClaim | None = None
 
@@ -191,7 +191,7 @@ class EntailResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     entailment: bool
-    score: float          # P(premise entails hypothesis) in [0, 1]
+    score: float  # P(premise entails hypothesis) in [0, 1]
     backend: str
 
 
@@ -298,7 +298,9 @@ class NeuralEntailer:
             from transformers import pipeline  # network / heavy import
 
             self._pipe = pipeline(
-                "text-classification", model=self.model, revision=self.revision,
+                "text-classification",
+                model=self.model,
+                revision=self.revision,
                 top_k=None,
             )
         return self._pipe
@@ -391,14 +393,16 @@ def _tier1_executed(finding: Finding, tools) -> TierAttempt:
     probe = finding.exec_probe
     if probe is None:
         return TierAttempt(
-            tier=T, outcome=TierOutcome.UNAVAILABLE,
+            tier=T,
+            outcome=TierOutcome.UNAVAILABLE,
             detail="no execution probe; Tier-1 not applicable to this finding",
         )
     program = finding.prediction.code_locus.loci[0].program
     source = _program_source(program, tools)
     if source is None:
         return TierAttempt(
-            tier=T, outcome=TierOutcome.UNAVAILABLE,
+            tier=T,
+            outcome=TierOutcome.UNAVAILABLE,
             detail=f"source for {program!r} unavailable to the tool layer",
         )
     try:
@@ -409,29 +413,34 @@ def _tier1_executed(finding: Finding, tools) -> TierAttempt:
         # but the verifier is a tiering consumer, so absent Tier-1 backing is
         # recorded as `unavailable` and the ladder degrades to Tier 2/3.
         return TierAttempt(
-            tier=T, outcome=TierOutcome.UNAVAILABLE,
+            tier=T,
+            outcome=TierOutcome.UNAVAILABLE,
             detail=f"Tier-1 execution backing unavailable ({exc})",
         )
     if not comp.ok:
         msg = "; ".join(comp.messages[:2]) if comp.messages else "compile failed"
         return TierAttempt(
-            tier=T, outcome=TierOutcome.UNAVAILABLE,
+            tier=T,
+            outcome=TierOutcome.UNAVAILABLE,
             detail=f"{program} does not compile (Tier-1 unavailable, expected for CICS): {msg}",
         )
     result = run_cobol(source, RunInputs(stdin=probe.stdin))
     if not result.compiled_ok:
         return TierAttempt(
-            tier=T, outcome=TierOutcome.UNAVAILABLE,
+            tier=T,
+            outcome=TierOutcome.UNAVAILABLE,
             detail=f"{program} failed to compile under run harness (Tier-1 unavailable)",
         )
     out = result.stdout.strip()
     if probe.expect_substring in result.stdout:
         return TierAttempt(
-            tier=T, outcome=TierOutcome.VERIFIED,
+            tier=T,
+            outcome=TierOutcome.VERIFIED,
             detail=f"ran {program}; observed {probe.expect_substring!r} in output ({out!r})",
         )
     return TierAttempt(
-        tier=T, outcome=TierOutcome.REFUTED,
+        tier=T,
+        outcome=TierOutcome.REFUTED,
         detail=f"ran {program}; expected {probe.expect_substring!r} absent from output ({out!r})",
     )
 
@@ -458,28 +467,31 @@ def _tier2_reachability(program: str, dead_para: str, tools) -> TierAttempt:
     built = _build_program_graph(program, tools)
     if built is None:
         return TierAttempt(
-            tier=T, outcome=TierOutcome.UNAVAILABLE,
+            tier=T,
+            outcome=TierOutcome.UNAVAILABLE,
             detail=f"cannot build call graph for {program!r}",
         )
     prog, graph = built
     pid = prog.program_id
     want = dead_para.upper()
-    entries = graph.entry_points(pid)             # the true entry: reachability SEED only
-    reached = graph.reachable_from(entries)       # traverses fallthrough edges
+    entries = graph.entry_points(pid)  # the true entry: reachability SEED only
+    reached = graph.reachable_from(entries)  # traverses fallthrough edges
     roots = {n.paragraph.upper() for n in graph.forest_roots(pid)}
     reached_names = {n.paragraph.upper() for n in reached}
     entry_names = [n.paragraph for n in entries]
     if want in reached_names:
         return TierAttempt(
-            tier=T, outcome=TierOutcome.REFUTED,
+            tier=T,
+            outcome=TierOutcome.REFUTED,
             detail=f"{dead_para} IS reachable from entry {entry_names} "
-                   f"(reachable_from traverses fallthrough); not dead",
+            f"(reachable_from traverses fallthrough); not dead",
         )
     is_root = want in roots
     return TierAttempt(
-        tier=T, outcome=TierOutcome.VERIFIED,
+        tier=T,
+        outcome=TierOutcome.VERIFIED,
         detail=f"{dead_para} unreachable from entry {entry_names}; forest_root={is_root} "
-               f"(forest_roots + reachable_from; entry_points not used as oracle)",
+        f"(forest_roots + reachable_from; entry_points not used as oracle)",
     )
 
 
@@ -488,7 +500,8 @@ def _tier2_static(finding: Finding, tools) -> TierAttempt:
     sc = finding.static_claim
     if sc is None:
         return TierAttempt(
-            tier=T, outcome=TierOutcome.UNAVAILABLE,
+            tier=T,
+            outcome=TierOutcome.UNAVAILABLE,
             detail="no static claim; Tier-2 not applicable to this finding",
         )
     loci = finding.prediction.code_locus.loci
@@ -497,8 +510,7 @@ def _tier2_static(finding: Finding, tools) -> TierAttempt:
             (
                 candidate
                 for candidate in loci
-                if (candidate.paragraph or "").upper()
-                == sc.dead_paragraph.upper()
+                if (candidate.paragraph or "").upper() == sc.dead_paragraph.upper()
             ),
             loci[0],
         )
@@ -528,7 +540,8 @@ def _tier2_static(finding: Finding, tools) -> TierAttempt:
 
     if not readable:
         return TierAttempt(
-            tier=T, outcome=TierOutcome.UNAVAILABLE,
+            tier=T,
+            outcome=TierOutcome.UNAVAILABLE,
             detail=(
                 "no cited paragraph/copybook locus is readable"
                 + (f" ({'; '.join(unavailable)})" if unavailable else "")
@@ -540,7 +553,8 @@ def _tier2_static(finding: Finding, tools) -> TierAttempt:
         matches = [label for label, code in readable if sc.literal in code]
         if not matches:
             return TierAttempt(
-                tier=T, outcome=TierOutcome.REFUTED,
+                tier=T,
+                outcome=TierOutcome.REFUTED,
                 detail=(
                     f"claimed literal {sc.literal!r} absent from cited loci "
                     f"{[label for label, _ in readable]}"
@@ -554,7 +568,8 @@ def _tier2_static(finding: Finding, tools) -> TierAttempt:
         matches = [label for label, code in readable if sc.comparator in code]
         if not matches:
             return TierAttempt(
-                tier=T, outcome=TierOutcome.REFUTED,
+                tier=T,
+                outcome=TierOutcome.REFUTED,
                 detail=(
                     f"claimed comparator {sc.comparator!r} absent from cited loci "
                     f"{[label for label, _ in readable]}"
@@ -566,12 +581,14 @@ def _tier2_static(finding: Finding, tools) -> TierAttempt:
             checks.append(f"comparator {sc.comparator!r} present in {matches}")
     if not checks:
         return TierAttempt(
-            tier=T, outcome=TierOutcome.UNAVAILABLE,
+            tier=T,
+            outcome=TierOutcome.UNAVAILABLE,
             detail="static claim carried no checkable literal/comparator/dead_paragraph",
         )
     prefix = f"{readable[0][0]} — " if len(readable) == 1 else ""
     return TierAttempt(
-        tier=T, outcome=TierOutcome.VERIFIED,
+        tier=T,
+        outcome=TierOutcome.VERIFIED,
         detail=prefix + "; ".join(checks),
     )
 
@@ -582,14 +599,16 @@ def _tier3_entailment(finding: Finding, entailer: Entailer) -> TierAttempt:
     res = entailer.entail(clause.text, finding.claim)
     if res.entailment:
         return TierAttempt(
-            tier=T, outcome=TierOutcome.VERIFIED,
+            tier=T,
+            outcome=TierOutcome.VERIFIED,
             detail=f"clause {clause.doc} {clause.clause_id} entails the claim "
-                   f"(P={res.score}, {res.backend}); Tier-3 is entailment-only (weakest tier)",
+            f"(P={res.score}, {res.backend}); Tier-3 is entailment-only (weakest tier)",
         )
     return TierAttempt(
-        tier=T, outcome=TierOutcome.REFUTED,
+        tier=T,
+        outcome=TierOutcome.REFUTED,
         detail=f"clause {clause.doc} {clause.clause_id} does not entail the claim "
-               f"(P={res.score}, {res.backend})",
+        f"(P={res.score}, {res.backend})",
     )
 
 
@@ -639,7 +658,8 @@ def verify(
     # --- combine: a passing tier is necessary; a supported citation is too ---
     if verified_tier is None:
         return VerificationResult(
-            verified=False, tier=None,
+            verified=False,
+            tier=None,
             evidence="no tier could verify the claim; agent should abstain",
             citation_ok=citation_ok,
             entailment_probability=citation.score,
@@ -649,7 +669,8 @@ def verify(
         )
     if not citation_ok:
         return VerificationResult(
-            verified=False, tier=None,
+            verified=False,
+            tier=None,
             evidence=evidence,  # the code fact that DID pass — preserved for the trace
             citation_ok=False,
             entailment_probability=citation.score,
@@ -662,9 +683,12 @@ def verify(
             tier_attempts=attempts,
         )
     return VerificationResult(
-        verified=True, tier=verified_tier, evidence=evidence,
+        verified=True,
+        tier=verified_tier,
+        evidence=evidence,
         citation_ok=True,
         entailment_probability=citation.score,
         entailment_backend=citation.backend,
-        rejected_reason=None, tier_attempts=attempts,
+        rejected_reason=None,
+        tier_attempts=attempts,
     )

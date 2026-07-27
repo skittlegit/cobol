@@ -14,7 +14,10 @@
   ```python
   from pathlib import Path
   from cobol_archaeologist.rag.chunker import build_all_chunks
-  with Path("tests/fixtures/retrieval/chunks.jsonl").open("w", encoding="utf-8", newline="\n") as fh:
+
+  with Path("tests/fixtures/retrieval/chunks.jsonl").open(
+      "w", encoding="utf-8", newline="\n"
+  ) as fh:
       for c in build_all_chunks():
           fh.write(c.model_dump_json() + "\n")
   ```

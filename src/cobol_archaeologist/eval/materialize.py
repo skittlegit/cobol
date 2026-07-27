@@ -87,7 +87,9 @@ def _mutation_values(note: str) -> tuple[str, str]:
         old = ast.literal_eval(fields["old"])
         new = ast.literal_eval(fields["new"])
     except (KeyError, SyntaxError, ValueError) as exc:
-        raise MaterializationError("mutation provenance lacks parseable old/new") from exc
+        raise MaterializationError(
+            "mutation provenance lacks parseable old/new"
+        ) from exc
     if not isinstance(old, str) or not isinstance(new, str):
         raise MaterializationError("mutation old/new values must be strings")
     return old, new
@@ -118,9 +120,7 @@ def materialize(
             name = Path(locus.file).name
         elif Path(locus.program).stem.upper() != main.stem.upper():
             name = (
-                locus.program
-                if Path(locus.program).suffix
-                else f"{locus.program}.cbl"
+                locus.program if Path(locus.program).suffix else f"{locus.program}.cbl"
             )
         else:
             continue
@@ -174,8 +174,7 @@ def materialize(
                             if locus.file
                             else (
                                 main.name
-                                if Path(locus.program).stem.upper()
-                                == main.stem.upper()
+                                if Path(locus.program).stem.upper() == main.stem.upper()
                                 else (
                                     locus.program
                                     if Path(locus.program).suffix
@@ -197,9 +196,7 @@ def materialize(
                 blanked = "".join(
                     char if char in "\r\n" else " " for char in match.group()
                 )
-                files[filename] = (
-                    text[: match.start()] + blanked + text[match.end() :]
-                )
+                files[filename] = text[: match.start()] + blanked + text[match.end() :]
                 return MaterializedSource(
                     main_file=main.name,
                     files=files,
@@ -222,7 +219,9 @@ def materialize(
                     )
                 lines[index] = lines[index].replace(old, replacement, 1)
                 if replacement and replacement not in lines[index]:
-                    raise MaterializationError("mutation replacement postcondition failed")
+                    raise MaterializationError(
+                        "mutation replacement postcondition failed"
+                    )
             files[filename] = "".join(lines)
 
     return MaterializedSource(

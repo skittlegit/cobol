@@ -46,7 +46,9 @@ def test_pinned_sources_exist_and_match():
             continue
         path = SOURCES / entry["file"]
         assert path.is_file(), f"{entry['file']}: pinned but not on disk"
-        assert path.stat().st_size == entry["bytes"], f"{entry['file']}: byte-count drift"
+        assert path.stat().st_size == entry["bytes"], (
+            f"{entry['file']}: byte-count drift"
+        )
         assert _sha256(path) == entry["sha256"], (
             f"{entry['file']}: sha256 mismatch (provenance break)"
         )

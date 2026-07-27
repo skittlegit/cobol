@@ -109,9 +109,7 @@ def execute_tool_request(
     if sum(
         entry.alias == request.alias and entry.hunt == request.hunt
         for entry in prior_calls
-    ) >= (
-        MAX_TOOL_CALLS_PER_HUNT
-    ):
+    ) >= (MAX_TOOL_CALLS_PER_HUNT):
         raise RuntimeError(
             f"tool budget exhausted for {request.alias}/{request.hunt}: "
             f"maximum {MAX_TOOL_CALLS_PER_HUNT} calls"

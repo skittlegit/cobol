@@ -65,7 +65,9 @@ def detection(records: Sequence[EvaluationRecord]) -> dict:
         "precision": precision,
         "recall": recall,
         "f1": _safe_div(2 * precision * recall, precision + recall),
-        "answer_rate": _safe_div(answered, sum(not r.infrastructure_error for r in records)),
+        "answer_rate": _safe_div(
+            answered, sum(not r.infrastructure_error for r in records)
+        ),
         "answered_accuracy": _safe_div(correct_answered, answered),
     }
 
@@ -78,7 +80,9 @@ def classification(records: Sequence[EvaluationRecord]) -> dict:
             if record.infrastructure_error:
                 continue
             gold_match = record.gold.drift_type == drift_type
-            predicted_match = _answered(record) and record.prediction.drift_type == drift_type
+            predicted_match = (
+                _answered(record) and record.prediction.drift_type == drift_type
+            )
             tp += int(gold_match and predicted_match)
             fp += int(not gold_match and predicted_match)
             fn += int(gold_match and not predicted_match)
@@ -109,9 +113,7 @@ def _paragraphs(instance) -> list[tuple[str, str | None]]:
 
 
 def _lines(instance) -> list[tuple[str, str | None, int]]:
-    return [
-        (line.program, line.file, line.line) for line in instance.labels.line_level
-    ]
+    return [(line.program, line.file, line.line) for line in instance.labels.line_level]
 
 
 def localization(records: Sequence[EvaluationRecord]) -> dict:
@@ -218,14 +220,11 @@ def versioned_judgment(records: Sequence[EvaluationRecord]) -> dict:
     for pair in pairs:
         successes += int(
             all(
-                _answered(row)
-                and _is_drift(row.prediction) == _is_drift(row.gold)
+                _answered(row) and _is_drift(row.prediction) == _is_drift(row.gold)
                 for row in pair
             )
         )
-    interval = (
-        exact_binomial_interval(successes, len(pairs)) if pairs else (None, None)
-    )
+    interval = exact_binomial_interval(successes, len(pairs)) if pairs else (None, None)
     return {
         "pairs": len(pairs),
         "successes": successes,
@@ -246,9 +245,7 @@ def evaluate(
         raise ValueError("duplicate evaluation instance IDs")
     strata = {
         "local": [r for r in records if not r.gold.code_locus.is_interprocedural],
-        "interprocedural": [
-            r for r in records if r.gold.code_locus.is_interprocedural
-        ],
+        "interprocedural": [r for r in records if r.gold.code_locus.is_interprocedural],
     }
     return {
         "overall": {
