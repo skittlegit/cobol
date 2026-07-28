@@ -102,7 +102,7 @@ def build_phase5_report(
     if not benchmark_frozen:
         issues.append("T5.2 immutable benchmark manifest is absent")
     if not annotation_complete:
-        issues.append("T5.1 independent annotation evidence is incomplete")
+        issues.append("T5.1 annotation and verification evidence is incomplete")
     if not agent:
         issues.append("agent artifact is absent")
     if not oracle_slice:

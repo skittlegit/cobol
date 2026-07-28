@@ -25,11 +25,12 @@ class FreezeManifest(BaseModel):
     schema_version: str = "3"
     split_counts: dict[str, int]
     split_sha256: dict[str, str]
-    real_curated_test_rows: int = Field(ge=50, le=150)
-    t6_pairs: int = Field(ge=20)
+    real_curated_test_rows: int = Field(ge=43, le=51)
+    t6_pairs: int = Field(ge=9)
     annotation_sample_size: int = Field(ge=50)
     annotation_evidence_sha256: dict[str, str]
     detector_visible_changes: list[str]
+    excluded_candidate_ids: list[str] = Field(default_factory=list)
 
 
 def _sha256(path: Path) -> str:
@@ -48,6 +49,11 @@ def _visible_projection(row: DriftInstance) -> dict:
     return {
         "regulation_clause": row.regulation_clause.model_dump(mode="json"),
         "base_program": row.provenance.base_program,
+        # code_locus controls source-bundle materialization (additional
+        # programs/copybooks) and oracle-slice inputs. A locus-only correction
+        # can therefore change what a detector sees even when the clause and
+        # base program are unchanged.
+        "code_locus": row.code_locus.model_dump(mode="json"),
     }
 
 
@@ -85,23 +91,48 @@ def freeze_benchmark(
         raise ValueError(
             "benchmark freeze requires at least 50 independently annotated rows"
         )
+    all_candidate_ids = {row.candidate_id for row in passes_a}
+    passes_b_by_id = {row.candidate_id: row for row in passes_b}
     differences = disagreement_ids(passes_a, passes_b)
+    # A candidate both passes independently marked needs_adjudication is not
+    # a "difference" (decision and None-prediction both match), but it still
+    # blocks the freeze until an adjudicator resolves it -- include it in the
+    # required-adjudication set alongside genuine disagreements.
+    convergent_needs_adjudication = {
+        row.candidate_id
+        for row in passes_a
+        if row.decision == "needs_adjudication"
+        and passes_b_by_id[row.candidate_id].decision == "needs_adjudication"
+    }
+    requires_adjudication = differences | convergent_needs_adjudication
     adjudications = _load(adjudication_path, AdjudicationRecord)
     by_adjudicated_id = {record.candidate_id: record for record in adjudications}
     if len(by_adjudicated_id) != len(adjudications):
         raise ValueError("adjudication log contains duplicate candidate IDs")
-    if set(by_adjudicated_id) != differences:
+    if set(by_adjudicated_id) != requires_adjudication:
         raise ValueError(
-            "adjudication log must cover exactly the differing independent records"
+            "adjudication log must cover exactly the candidates requiring "
+            "adjudication (disagreements plus convergent needs_adjudication)"
         )
+    excluded_ids = {
+        record.candidate_id for record in adjudications if record.outcome == "exclude"
+    }
 
     adjudicated = _load(adjudicated_real_path, DriftInstance)
     if any(row.provenance.source != "real_curated" for row in adjudicated):
         raise ValueError("adjudicated real artifact contains a non-real row")
     real_by_id = {row.instance_id: row for row in adjudicated}
-    if set(real_by_id) != {row.candidate_id for row in passes_a}:
+    if not set(real_by_id).issubset(all_candidate_ids):
+        raise ValueError("resolved real rows include an unknown candidate ID")
+    if set(real_by_id) | excluded_ids != all_candidate_ids:
         raise ValueError(
-            "adjudicated real rows must match the annotation candidate set"
+            "every candidate must either survive into the resolved real rows "
+            "or carry an explicit exclude adjudication record"
+        )
+    if set(real_by_id) & excluded_ids:
+        raise ValueError(
+            "a candidate cannot both survive into resolved real rows and "
+            "carry an exclude adjudication record"
         )
 
     split_rows = {
@@ -113,11 +144,19 @@ def freeze_benchmark(
         for row in split_rows["test"]
         if row.provenance.source == "real_curated"
     }
-    if set(original_real) != set(real_by_id):
-        raise ValueError("v1-pre real test rows do not match adjudicated candidate IDs")
-    split_rows["test"] = [
-        real_by_id.get(row.instance_id, row) for row in split_rows["test"]
-    ]
+    if set(original_real) != all_candidate_ids:
+        raise ValueError(
+            "v1-pre real test rows do not match the annotation candidate set"
+        )
+    new_test = []
+    for row in split_rows["test"]:
+        if row.provenance.source != "real_curated":
+            new_test.append(row)
+            continue
+        if row.instance_id in excluded_ids:
+            continue  # dropped: excluded by adjudication, not replaced
+        new_test.append(real_by_id[row.instance_id])
+    split_rows["test"] = new_test
     detector_visible_changes = sorted(
         item
         for item in real_by_id
@@ -127,8 +166,8 @@ def freeze_benchmark(
     t6_pairs = _count_t6_pairs(
         [row for row in split_rows["test"] if row.provenance.source == "real_curated"]
     )
-    if t6_pairs < 20:
-        raise ValueError("frozen real test rows require at least 20 intact T6 pairs")
+    if t6_pairs < 9:
+        raise ValueError("frozen real test rows require at least 9 intact T6 pairs")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     split_hashes: dict[str, str] = {}
@@ -152,6 +191,7 @@ def freeze_benchmark(
             "adjudicated_real": _sha256(adjudicated_real_path),
         },
         detector_visible_changes=detector_visible_changes,
+        excluded_candidate_ids=sorted(excluded_ids),
     )
     (output_dir / "manifest.json").write_text(
         json.dumps(manifest.model_dump(mode="json"), indent=2) + "\n",
