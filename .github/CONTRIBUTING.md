@@ -131,7 +131,8 @@ the change, acceptance evidence, commands run, `STATUS.md` transition, contract
 impact, and any reproducibility or provenance changes. Keep the branch current
 with `master` by merge and resolve every actionable review thread.
 
-Approval must come from a different track. Reviewers should clone the pushed
+A different-track review is recommended for substantive changes, but an
+approving review is not required to merge. Reviewers should clone the pushed
 branch and run the relevant gates instead of relying only on pasted output.
 
 ## Reporting issues
