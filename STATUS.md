@@ -40,6 +40,17 @@ three tracks; a task's numeric prefix does not identify its phase.
   demonstrates little. Effort redirects to T5.1/T5.2 (benchmark scale, freeze,
   datasheet), T5.3's three missing baselines (static/keyword, RAG+reranker,
   single-shot LLM), and T7.5. T7.4 (UI) also cut per the same ordering.
+  Migration and UI may be reconsidered only in post-release M8 under new,
+  predeclared utility gates; they are not current release requirements.
+
+## Planned post-release milestone
+
+- **M8 (Post-release Improvements): PLANNED — NOT ACTIVE** — begins only after
+  M7 submission and release is complete. M8 does not block M5 or M7, and it
+  does not reopen or replace M4's valid configuration-1 NO_GO. Its candidate
+  scope and activation rules live in `BACKLOG.md`. Before execution, each
+  accepted workstream requires its own canonical `T8.x` work order with a
+  frozen hypothesis, gates, ownership, and budget.
 
 ## Task ledger
 
@@ -217,11 +228,12 @@ three tracks; a task's numeric prefix does not identify its phase.
   requirements are scoped to D1/D4/D5; and a first-turn finding is re-prompted
   until one successful bounded observation exists. Offline gates are **448
   passed, 71 skipped, 5 deselected**, with Ruff clean. No provider run was
-  performed in the implementation commit. The representative config-2 smoke
-  and, if valid, the paired run remain pending under the binding hard stop in
-  the canonical T4.5 work order. Final Amendment 3 keeps X3′ and the verifier
-  unchanged, requires source-exact static-claim tokens, and fails malformed
-  hooks closed before verification without rewriting or re-prompting.
+  performed in the implementation commit. That implementation-only state was
+  superseded by the final representative smoke recorded below; the binding
+  hard stop ended configuration 2 without a paired run. Final Amendment 3
+  keeps X3′ and the verifier unchanged, requires source-exact static-claim
+  tokens, and fails malformed hooks closed before verification without
+  rewriting or re-prompting.
   The pre-amendment 0/7 evidence is archived at
   `data/eval/m4-config2/smoke-pre-amendment-e6a7762/`. Implementation gates:
   **450 passed, 71 skipped, 5 deselected**, Ruff clean, verifier SHA-256
@@ -235,15 +247,73 @@ three tracks; a task's numeric prefix does not identify its phase.
   evidence-minimum failures, 2 host-binding failures, and 1 distinct
   static-token-validator rejection. The final hard stop fired: no paired
   config-2 run and no further fix cycle; proceed to Phase 5 benchmark-first.
-- **T5.1** | in_progress | B | `ANNOTATION.md` freezes the independent
-  annotation, adjudication, leakage-control, D1-D7, localization, and
-  agreement-reporting protocol. Guideline gates pass without provider spend;
-  scale-up and the measured second-annotator pass remain.
+- **T5.1** | done | B | `ANNOTATION.md` freezes the human-primary plus Claude-
+  verification annotation workflow, final review, leakage-control, D1-D7,
+  localization, and agreement-reporting protocol. Two 51-row review passes
+  (`data/benchmark/annotation/pass_1_Human-Primary.jsonl`,
+  `pass_2_Claude-Verification.jsonl`) are locked, timestamped, and schema-
+  valid. The primary labels and final include/exclude decisions were made by a
+  human; Claude performed the separate verification pass. Pre-final-review
+  inclusion agreement is 94.1% (Cohen's kappa 0.807), and class agreement is
+  95% on 40 comparable rows (kappa 0.927, Krippendorff's alpha 0.928).
+  All 13 needs_adjudication/disagreement candidates (7 P1 old-side
+  day-basis-ambiguous per ANNOTATION.md's own rule, 5 genuine cross-pass
+  disagreements, 1 upstream-evidence gap resolved by cross-referencing a
+  sibling candidate) carry an immutable `adjudication_log.jsonl` record
+  resolving to include/exclude; zero unresolved `needs_adjudication`
+  remains. The resolved set (`real_curated_resolved_v1.jsonl`) round-trips
+  `DriftInstance` at **43/51 rows** (8 excluded per-protocol: 7 for the
+  ANNOTATION.md P1 calendar/working-day ambiguity with no decisive primary
+  authority found, 1 for unresolved clause-scope uncertainty in a T6KYC
+  pair member). T5.2's originally-ratified gate 4 assumed all 51 candidates
+  would survive cleanly; it is amended (see T5.2 below) to match this actual
+  outcome.
+- **T5.2** | done | B | `data/benchmark/v1/{train,dev,test}.jsonl`
+  + `manifest.json` + `DATASHEET.md`. Frozen 307/102/196 = **605 rows**
+  (amended from the originally planned 613 — see below), all round-trip
+  `DriftInstance`. Test carries **43** real-curated rows and **9** intact
+  T6 pairs (amended from 51/20 in `docs/tasks/T5.2-work-order.md`'s
+  2026-07-28 amendment note, matching T5.1's actual protocol-correct
+  outcome rather than the pre-annotation assumption). `manifest.json`
+  records detector-visible code-locus refinements on all 43 surviving
+  real-curated rows, the 8 `excluded_candidate_ids`, and annotation-evidence
+  hashes for both passes, the final-review log, and the resolved-real
+  artifact. Reuse audit found one shared source-bundle change
+  (`drift_000021`) and oracle-slice input changes on all 43 real rows:
+  agent/RAG+reranker require a targeted rerun of `drift_000021`, while
+  oracle-slice requires rerunning the 43 real rows. `freeze.py` gained explicit,
+  regression-tested support for the partial-exclusion path; T2.6/T2.7
+  purpose gates and the T2.2 artifact-only surface probe are untouched.
+  Full offline suite 470 passed / 71 skipped / 5 deselected, Ruff clean.
+  `DATASHEET.md` records the human-primary, Claude-verification workflow.
+- **T5.3** | in_progress | C | Seven baselines and the predeclared +0.10
+  agent-over-attacker F1 floor are frozen in
+  `docs/tasks/T5.3-work-order.md`. Four deterministic no-provider baselines,
+  explicit gold-hidden provider contexts, registered six-feature attacker
+  coefficients, and fail-closed Phase-5 reporting are implemented. T5.2 is
+  complete, so final offline artifacts and the plain-LLM/explicit dense-RAG
+  provider runs are now unblocked. Reuse the 195 source-identical
+  agent/RAG+reranker rows only after identity checks, rerun their
+  `drift_000021` row, and rerun oracle-slice on all 43 real-curated rows.
+- **T5.4** | todo — blocked on T5.3 only | C |
+  `docs/tasks/T5.4-work-order.md`; frozen paired headline report. The work order
+  records the exact partial-reuse and targeted-rerun boundary.
+- **T5.5** | todo — blocked on T5.4 | C |
+  `docs/tasks/T5.5-work-order.md`; benchmark-first analysis and M5 decision.
 - **T7.1** | done | A | `src/cobol_archaeologist/mcp_server/server.py` exposes
   all eleven frozen `ToolLayer` methods through the official MCP SDK v1 over
   stdio. Exact registry parity, structured delegation, `RunInputs` binding,
   and fail-closed configuration are gated in `tests/test_mcp_server.py`;
   canonical scope and exclusions are in `docs/tasks/T7.1-work-order.md`.
-- **T5.2-T5.5, T7.2-T7.3, T7.5** | todo | A/B/C | Remaining
-  Phase-5/release work;
-  T6.1-T6.4 and T7.4 are cut above.
+- **T7.2** | todo — unblocked | A | Air-gapped/on-prem deployment bundle and
+  guide; canonical scope and offline gates are in
+  `docs/tasks/T7.2-work-order.md`.
+- **T7.3** | todo — preparation unblocked; publication waits on M5 | B |
+  Benchmark/release packaging, checksums, licensing, and validation;
+  `docs/tasks/T7.3-work-order.md`.
+- **T7.5** | todo — final results blocked on M5 | C | Paper and submission
+  package; drafting and reproducibility wiring may proceed under
+  `docs/tasks/T7.5-work-order.md`. Final claims consume the frozen T5.4/T5.5
+  result and the T7.2/T7.3 release artifacts.
+  T6.1-T6.4 and T7.4 are cut above. M8 is post-release backlog scope and is
+  excluded from the active task count until ratified `T8.x` work orders exist.

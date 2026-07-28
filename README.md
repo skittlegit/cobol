@@ -44,9 +44,15 @@ Two invariants hold everywhere:
 - **M2 — benchmark v1-pre:** 594 compiled instances; independent Luna judging
   passed the raw plausibility gate, with 562 accepted rows and purpose-valid
   train/dev/test splits. Complete.
-- **Track C retrieval:** T3.1 is complete; T3.2 needs its model-backed relevance
-  gate refreshed on the expanded eight-document fixture before HyDE,
-  verification, agent loop, and policy hunts (T3.3–T3.6).
+- **M3 — grounded agent:** retrieval, verification, the agent loop, and D1-D7
+  policy hunts are complete.
+- **M4 — narrow evaluation:** closed `NO_GO`; the measured result is retained
+  without post-result threshold changes.
+- **Benchmark v1:** frozen at 605 rows, including 43 human-annotated,
+  Claude-verified real-curated test rows.
+- **Current work:** Track C is completing T5.3-T5.5 evaluation; Track A owns
+  the T7.2 offline deployment bundle; Track B owns T7.3 release packaging;
+  Track C owns T7.5 paper/submission work.
 
 The validated spike is retained at
 [`docs/reference/spike_parser.py`](docs/reference/spike_parser.py). Its production

@@ -208,10 +208,11 @@ record ambiguity and adjudication references after the independent pass.
 
 ## Independent annotation
 
-Each candidate receives two independent annotations from qualified annotators.
-Both annotators see the same pinned primary clause, source bundle, build
-evidence, and approved static-analysis outputs. Neither sees the other's work,
-existing gold, mutation metadata, model predictions, or judge verdicts.
+Each candidate receives a human primary annotation and a separate Claude
+verification pass. Both reviewers use the same pinned primary clause, source
+bundle, build evidence, and approved static-analysis outputs. Existing gold,
+mutation metadata, model predictions, and judge verdicts remain hidden during
+review.
 
 Each pass records:
 
@@ -222,15 +223,15 @@ Each pass records:
 - a rationale with source and regulation pointers; and
 - one or more structured disagreement codes when uncertain.
 
-The two records are immutable inputs to adjudication. Discussion begins only
-after both are timestamped and locked.
+The two records are immutable inputs to final review. Human final review begins
+only after both are timestamped and locked.
 
 ## Adjudication
 
-An adjudicator reviews both independent records, the primary evidence, and the
-named disagreement—not merely the proposed labels. The adjudicator may accept
-one record, synthesize a corrected record, request additional primary evidence,
-or exclude the candidate.
+A human final reviewer considers the primary annotation, Claude verification,
+the primary evidence, and the named disagreement—not merely the proposed
+labels. The reviewer may accept one record, synthesize a corrected record,
+request additional primary evidence, or exclude the candidate.
 
 Every change log entry records candidate ID, fields changed, both original
 values, final value, adjudicator, date, evidence pointer, and rationale.

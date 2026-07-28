@@ -105,11 +105,13 @@ def _hash_files(files: dict[str, str]) -> str:
     return digest.hexdigest()
 
 
-def materialize(
+def materialize_base(
     instance: DriftInstance,
     *,
     programs_root: Path = PROGRAMS,
 ) -> MaterializedSource:
+    """Reconstruct the published base bundle without applying mutation metadata."""
+
     main = _find_unique(instance.provenance.base_program, programs_root)
     files = _load_source_closure(main)
 
@@ -130,6 +132,21 @@ def materialize(
                 path = _find_unique(name, programs_root)
             files[name] = path.read_text(encoding="utf-8", errors="replace")
 
+    return MaterializedSource(
+        main_file=main.name,
+        files=files,
+        source_sha256=_hash_files(files),
+    )
+
+
+def materialize(
+    instance: DriftInstance,
+    *,
+    programs_root: Path = PROGRAMS,
+) -> MaterializedSource:
+    base = materialize_base(instance, programs_root=programs_root)
+    main = _find_unique(instance.provenance.base_program, programs_root)
+    files = dict(base.files)
     note = instance.provenance.mutation
     if instance.provenance.source == "synthetic" and note:
         old, new = _mutation_values(note)

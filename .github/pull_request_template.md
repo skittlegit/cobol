@@ -34,8 +34,8 @@ rather than as a follow-up:
 ## Review
 
 Reviewer: clone this pushed branch and run the gate tests locally. Do not review
-from pasted output. Approval must come from a different track because GitHub
-blocks self-approval.
+from pasted output. A different-track review is recommended for substantive
+changes, but an approving review is not required to merge.
 
 - [ ] Cloned the branch and ran the relevant gate tests; they pass.
 - [ ] Source branch is current with `master` (`git merge origin/master`, no rebase).

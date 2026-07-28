@@ -15,6 +15,11 @@ state with:
 gh api repos/skittlegit/cobol/rulesets
 ```
 
+The default-branch ruleset requires changes to arrive through a pull request
+and requires all review threads to be resolved, but it does not require an
+approving review. This permits the repository owner to merge their own pull
+request while still preserving the review discussion and merge-commit policy.
+
 Changing these files does not update GitHub automatically. Apply any later
 change through the repository-rulesets API and record the resulting state here
 in the same reviewed commit.

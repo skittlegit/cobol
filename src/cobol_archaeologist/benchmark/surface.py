@@ -61,6 +61,42 @@ class ProbeReport:
     samples: int
 
 
+@dataclass(frozen=True)
+class SurfaceClassifier:
+    """Frozen six-feature logistic attacker fitted on the registered probe."""
+
+    feature_names: tuple[str, ...]
+    centers: tuple[float, ...]
+    scales: tuple[float, ...]
+    weights: tuple[float, ...]
+    bias: float
+
+    def score(self, features: dict[str, float]) -> float:
+        unknown = set(features) - set(FEATURE_NAMES)
+        missing = set(self.feature_names) - set(features)
+        if unknown or missing:
+            raise ValueError(
+                f"surface feature mismatch: missing={sorted(missing)}, "
+                f"unknown={sorted(unknown)}"
+            )
+        standardized = [
+            (float(features[name]) - center) / scale
+            for name, center, scale in zip(
+                self.feature_names,
+                self.centers,
+                self.scales,
+                strict=True,
+            )
+        ]
+        return self.bias + sum(
+            weight * value
+            for weight, value in zip(self.weights, standardized, strict=True)
+        )
+
+    def predict(self, features: dict[str, float]) -> int:
+        return int(self.score(features) >= 0.0)
+
+
 def _line_bounds(lines: list[str], region: tuple[int, int] | None) -> range:
     if not lines:
         return range(0)
@@ -430,6 +466,43 @@ def _train_logistic(
     return weights, bias
 
 
+def fit_surface_classifier(
+    rows: list[ProbeRow],
+    *,
+    feature_names: tuple[str, ...] = FEATURE_NAMES,
+) -> SurfaceClassifier:
+    """Fit the exact registered attacker for paired downstream evaluation."""
+
+    if len(rows) < 4 or {row.label for row in rows} != {0, 1}:
+        raise ValueError(
+            "surface classifier requires both labels and at least four rows"
+        )
+    if not feature_names or set(feature_names) - set(FEATURE_NAMES):
+        raise ValueError("feature_names must be a non-empty known subset")
+    raw = [[row.features[name] for name in feature_names] for row in rows]
+    columns = list(zip(*raw, strict=True))
+    centers = tuple(mean(column) for column in columns)
+    scales = tuple(
+        math.sqrt(mean((value - center) ** 2 for value in column)) or 1.0
+        for column, center in zip(columns, centers, strict=True)
+    )
+    matrix = [
+        [
+            (value - center) / scale
+            for value, center, scale in zip(row, centers, scales, strict=True)
+        ]
+        for row in raw
+    ]
+    weights, bias = _train_logistic(matrix, [row.label for row in rows])
+    return SurfaceClassifier(
+        feature_names=feature_names,
+        centers=centers,
+        scales=scales,
+        weights=tuple(weights),
+        bias=bias,
+    )
+
+
 def _auc(labels: list[int], scores: list[float]) -> float:
     positive = [
         score for label, score in zip(labels, scores, strict=True) if label == 1
@@ -480,14 +553,9 @@ def surface_probe_report(
         raise ValueError("surface probe requires both labels and at least four rows")
     if not feature_names or set(feature_names) - set(FEATURE_NAMES):
         raise ValueError("surface probe feature_names must be a non-empty known subset")
-    matrix = _standardize(
-        [[row.features[name] for name in feature_names] for row in rows]
-    )
     labels = [row.label for row in rows]
-    weights, bias = _train_logistic(matrix, labels)
-    scores = [
-        bias + sum(w * x for w, x in zip(weights, row, strict=True)) for row in matrix
-    ]
+    classifier = fit_surface_classifier(rows, feature_names=feature_names)
+    scores = [classifier.score(row.features) for row in rows]
     auc = _auc(labels, scores)
 
     rng = random.Random(seed)
