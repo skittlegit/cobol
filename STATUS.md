@@ -295,6 +295,22 @@ three tracks; a task's numeric prefix does not identify its phase.
   provider runs are now unblocked. Reuse the 195 source-identical
   agent/RAG+reranker rows only after identity checks, rerun their
   `drift_000021` row, and rerun oracle-slice on all 43 real-curated rows.
+  **Deterministic portion DONE 2026-08-09**: the four no-provider baselines are
+  frozen at `data/eval/m5/baselines/` (196 rows each, answer rate 1.0; test
+  split SHA-256 `b1150d5…e7e3a78c` matches the T5.2 manifest). Binary T1 F1 =
+  train-majority 0.8768, prevalence-random 0.7331, static/keyword 0.7040,
+  attacker-with-bases 0.8768. All four are per-instance identical under a
+  reordered test file, and the 8 excluded candidate IDs appear in no artifact
+  (both gated by `tests/test_phase5_baselines.py`). Attacker coefficients and
+  probe hash `83b3a2a…9b9e5f6c` are recorded in its manifest and the work order.
+  **Open decision before any M5 headline:** the fitted attacker is degenerate —
+  the T2.2 probe is exactly balanced per feature, so all six weights and the
+  bias fit to 0.0 and the attacker predicts drift everywhere, making it
+  numerically identical to train-majority. The predeclared +0.10 surface floor
+  therefore currently demands ≥0.9768 agent T1 F1 and measures prevalence, not
+  surface cues. Not fixed here (post-hoc changes are prohibited by the work
+  order's Exclusions); options are in `docs/tasks/T5.3-work-order.md`
+  Finding A. No provider baseline has been run.
 - **T5.4** | todo — blocked on T5.3 only | C |
   `docs/tasks/T5.4-work-order.md`; frozen paired headline report. The work order
   records the exact partial-reuse and targeted-rerun boundary.

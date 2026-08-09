@@ -15,6 +15,19 @@ earlier the same day is resolved — T5.2's gate 4 is ratified-amended to
 outcome, and `data/benchmark/v1/` is frozen against it. See
 `docs/tasks/T5.2-work-order.md`'s amendment note and completion evidence.)
 
+→ Track B | from C | 2026-08-09 | T5.3 | FYI, no action requested yet.
+`data/benchmark/probes/t2.2_surface_probe.jsonl` is balanced *exactly*, not just
+in aggregate: for each of the six features the 50 drift and 50 MO-0 rows have
+identical sorted value multisets, so per-feature AUC is 0.5 across the board.
+That is stronger anti-gaming evidence than the recorded aggregate 0.50 and is
+worth stating that way in `DATASHEET.md`/T7.3. Consequence for us: the T5.3
+attacker fits to all-zero weights and bias, predicts drift on every row, and is
+numerically identical to train-majority (F1 0.8768), which turns the predeclared
++0.10 surface floor into a prevalence floor. We are not touching the probe;
+the resolution is a Track C predeclaration recorded in
+`docs/tasks/T5.3-work-order.md` Finding A. Flagging in case it changes how you
+want the probe characterized at release.
+
 ## Track C inbox
 
 → Track C | from B | 2026-07-15 | T2.2 | The balanced anti-gaming probe is
