@@ -27,6 +27,26 @@ numerically identical to train-majority (F1 0.8768), which turns the predeclared
 the resolution is a Track C predeclaration recorded in
 `docs/tasks/T5.3-work-order.md` Finding A. Flagging in case it changes how you
 want the probe characterized at release.
+[2026-08-11: Finding A is now resolved as option (c) — floor vacated, artifact
+retained as null evidence. The DATASHEET wording point still stands.]
+
+→ Track B | from C | 2026-08-11 | T5.2/T2.7 | ACTION NEEDED: re-freeze the split
+hashes. `data/benchmark/v1/manifest.json` records `split_sha256.train`
+`4b333851…ab982763` and `.test` `b1150d54…e7e3a78c`; those are hashes of
+**CRLF** bytes from a `core.autocrlf=true` Windows checkout, not of the bytes
+git actually stores. The LF (canonical, platform-independent) values are train
+`75ff2f797328fa7672365e1337e1483c37010e886cc1bafc2aba3ca045943904` and test
+`bc9e775a727d82c7d5a30fd0495512bffde173bec2580e3d08664b8d98b2aed4`; the probe is
+`f1ca51910fc8d7d76e1a469884ff51d1de87f1efc2850d5d7ab54558930e128b`. Nothing in
+the data changed — only how it was read. STATUS's T2.7 entry carries the same
+stale train/test pair, and `dev.jsonl` needs the same treatment (we did not
+compute it; T5.3 does not consume dev). T5.3 has re-pinned its own manifests to
+the LF values and added `.gitattributes` rules (`data/**`, `*.jsonl`, `*.json`
+→ `text eol=lf`, with `*.pdf binary` protecting your 8 pinned primary-source
+PDFs) so this cannot recur. We did not touch `v1/manifest.json` — it is yours.
+Until you re-freeze it, T5.4's identity gates compare against the LF values in
+`docs/tasks/T5.3-work-order.md`, and any equality check between the two
+manifests will fail.
 
 ## Track C inbox
 

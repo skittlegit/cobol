@@ -286,9 +286,10 @@ three tracks; a task's numeric prefix does not identify its phase.
   purpose gates and the T2.2 artifact-only surface probe are untouched.
   Full offline suite 470 passed / 71 skipped / 5 deselected, Ruff clean.
   `DATASHEET.md` records the human-primary, Claude-verification workflow.
-- **T5.3** | in_progress | C | Seven baselines and the predeclared +0.10
-  agent-over-attacker F1 floor are frozen in
-  `docs/tasks/T5.3-work-order.md`. Four deterministic no-provider baselines,
+- **T5.3** | in_progress | C | Seven baselines are frozen in
+  `docs/tasks/T5.3-work-order.md`; its predeclared +0.10 agent-over-attacker F1
+  floor is **VACATED** by the ratified Amendment — Finding A resolution
+  (option (c), 2026-08-11). Four deterministic no-provider baselines,
   explicit gold-hidden provider contexts, registered six-feature attacker
   coefficients, and fail-closed Phase-5 reporting are implemented. T5.2 is
   complete, so final offline artifacts and the plain-LLM/explicit dense-RAG
@@ -296,24 +297,41 @@ three tracks; a task's numeric prefix does not identify its phase.
   agent/RAG+reranker rows only after identity checks, rerun their
   `drift_000021` row, and rerun oracle-slice on all 43 real-curated rows.
   **Deterministic portion DONE 2026-08-09**: the four no-provider baselines are
-  frozen at `data/eval/m5/baselines/` (196 rows each, answer rate 1.0; test
-  split SHA-256 `b1150d5…e7e3a78c` matches the T5.2 manifest). Binary T1 F1 =
-  train-majority 0.8768, prevalence-random 0.7331, static/keyword 0.7040,
-  attacker-with-bases 0.8768. All four are per-instance identical under a
-  reordered test file, and the 8 excluded candidate IDs appear in no artifact
-  (both gated by `tests/test_phase5_baselines.py`). Attacker coefficients and
-  probe hash `83b3a2a…9b9e5f6c` are recorded in its manifest and the work order.
-  **Open decision before any M5 headline:** the fitted attacker is degenerate —
-  the T2.2 probe is exactly balanced per feature, so all six weights and the
-  bias fit to 0.0 and the attacker predicts drift everywhere, making it
-  numerically identical to train-majority. The predeclared +0.10 surface floor
-  therefore currently demands ≥0.9768 agent T1 F1 and measures prevalence, not
-  surface cues. Not fixed here (post-hoc changes are prohibited by the work
-  order's Exclusions); options are in `docs/tasks/T5.3-work-order.md`
-  Finding A. No provider baseline has been run.
+  frozen at `data/eval/m5/baselines/` (196 rows each, answer rate 1.0). Binary
+  T1 F1 = train-majority 0.8768, prevalence-random 0.7331, static/keyword
+  0.7040, attacker-with-bases 0.8768. All four are per-instance identical under
+  a reordered test file, and the 8 excluded candidate IDs appear in no artifact
+  (both gated by `tests/test_phase5_baselines.py`).
+  **Hashes re-pinned to LF 2026-08-11**: `.gitattributes` forces `data/**`,
+  `*.jsonl`, and `*.json` to LF (`*.pdf binary` exempts the 8 pinned PDFs), and
+  the manifests were regenerated from the LF working tree. Canonical test-split
+  SHA-256 is `bc9e775a…98b2aed4` and the T2.2 probe hash is `f1ca5191…930e128b`;
+  the previously recorded `b1150d5…e7e3a78c` / `83b3a2a…9b9e5f6c` were CRLF
+  checkout artifacts. All four prediction `.jsonl` files and
+  `offline-summary.json` are byte-identical across the regeneration; only
+  `split_sha256` and `source_probe_sha256` changed. Gated by
+  `test_recorded_hashes_are_lf_normalized`. **Track B follow-up:** T5.2's
+  `data/benchmark/v1/manifest.json` and T2.7's entry above still record the
+  CRLF train/test hashes and need re-freezing; Track B owns those artifacts.
+  **Finding A is RESOLVED — option (c) ratified**, no longer an open decision:
+  the fitted attacker is degenerate (the T2.2 probe is exactly balanced per
+  feature, so all six weights and the bias fit to 0.0 and it predicts drift
+  everywhere, numerically identical to train-majority). The +0.10 surface floor
+  is vacated for T5.4, `attacker_with_bases` is retained as null anti-gaming
+  evidence, the paired agent-minus-attacker delta is dropped from the headline,
+  and T4.5 §8.4 forbids any probe/fit/threshold change from here. See
+  `docs/tasks/T5.3-work-order.md` Amendment — Finding A resolution.
+  No provider baseline has been run.
 - **T5.4** | todo — blocked on T5.3 only | C |
   `docs/tasks/T5.4-work-order.md`; frozen paired headline report. The work order
-  records the exact partial-reuse and targeted-rerun boundary.
+  records the exact partial-reuse and targeted-rerun boundary. The +0.10
+  agent-over-attacker surface floor is **vacated** by the ratified T5.3
+  Amendment — Finding A resolution: this report drops that paired delta from
+  headline reporting and retains `attacker_with_bases` as null evidence for the
+  T2.2 probe's anti-gaming construction, reported with its all-zero
+  coefficients and probe hash. Identity gates must compare against the LF
+  hashes recorded in the T5.3 work order, not against
+  `data/benchmark/v1/manifest.json`, until Track B re-freezes it.
 - **T5.5** | todo — blocked on T5.4 | C |
   `docs/tasks/T5.5-work-order.md`; benchmark-first analysis and M5 decision.
 - **T7.1** | done | A | `src/cobol_archaeologist/mcp_server/server.py` exposes
