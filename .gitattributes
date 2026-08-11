@@ -1,1 +1,12 @@
 *.sh text eol=lf
+
+# T5.3: hash-bearing artifacts must be byte-identical across platforms. Every
+# recorded split_sha256 / source_probe_sha256 is a hash of the on-disk bytes,
+# so a CRLF checkout silently produces different hashes than an LF one.
+data/**  text eol=lf
+*.jsonl  text eol=lf
+*.json   text eol=lf
+
+# Exempt the pinned primary-source PDFs under data/: the rule above would
+# otherwise mark them text and corrupt them on checkout.
+*.pdf    binary

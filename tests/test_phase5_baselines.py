@@ -1,3 +1,4 @@
+import hashlib
 import json
 import random
 from pathlib import Path
@@ -72,6 +73,43 @@ def test_attacker_uses_exact_registered_features_without_operator_leakage():
         payload = record.model_dump_json()
         assert "operator" not in payload
         assert "mutation" not in payload
+
+
+def test_recorded_hashes_are_lf_normalized():
+    """T5.3 gate: the hashes pinned in the baseline manifests are the LF ones.
+
+    Every `split_sha256` / `source_probe_sha256` is a hash of on-disk bytes, so
+    a `core.autocrlf=true` Windows checkout used to record different values than
+    an LF checkout for identical data. `.gitattributes` pins these paths to LF;
+    this fails if that pin is lost and a CRLF checkout is scored instead.
+    """
+
+    for path, field, manifests in (
+        (V1 / "test.jsonl", "split_sha256", OFFLINE_SYSTEMS),
+        (
+            ROOT / "data/benchmark/probes/t2.2_surface_probe.jsonl",
+            "source_probe_sha256",
+            ("attacker_with_bases",),
+        ),
+    ):
+        raw = path.read_bytes()
+        lf_bytes = raw.replace(b"\r\n", b"\n")
+        crlf_bytes = lf_bytes.replace(b"\n", b"\r\n")
+        lf = hashlib.sha256(lf_bytes).hexdigest()
+        crlf = hashlib.sha256(crlf_bytes).hexdigest()
+        assert lf != crlf, f"{path.name} has no line endings to disagree about"
+
+        assert hashlib.sha256(raw).hexdigest() == lf, (
+            f"{path.name} is checked out with CRLF; .gitattributes must pin it "
+            "to LF or every recorded hash silently changes"
+        )
+
+        for system in manifests:
+            recorded = json.loads(
+                (BASELINES / f"{system}.manifest.json").read_text(encoding="utf-8")
+            )[field]
+            assert recorded == lf, f"{system}.{field} is not the LF hash"
+            assert recorded != crlf, f"{system}.{field} is a stale CRLF hash"
 
 
 def test_frozen_offline_suite_is_reorder_invariant_and_excludes_dropped_ids(tmp_path):
