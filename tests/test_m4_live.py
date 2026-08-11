@@ -6,8 +6,8 @@ import pytest
 
 from cobol_archaeologist.eval import live as live_module
 from cobol_archaeologist.eval.baselines import (
-    DenseRAGContext,
     PlainLLMContext,
+    RAGRerankerContext,
     RetrievedRAGContext,
     plain_llm_context,
 )
@@ -38,13 +38,13 @@ def _row() -> DriftInstance:
 
 def test_dense_baseline_question_contains_no_hidden_gold_fields():
     gold = _row()
-    visible = DenseRAGContext(
+    visible = RAGRerankerContext(
         clause_query=gold.regulation_clause.text,
         retrieved_clauses=[],
         program="0001: IDENTIFICATION DIVISION.",
     )
 
-    rendered = baseline_question("dense_rag", visible)
+    rendered = baseline_question("rag_reranker", visible)
 
     for hidden in (
         gold.instance_id,
@@ -109,7 +109,7 @@ def _manifest(
     if smoke_instance_ids is None:
         smoke_instance_ids = list(CONFIG2_SMOKE_IDS)
     return RunManifest(
-        system_id="dense_rag",
+        system_id="rag_reranker",
         provider="openai",
         model_id="gpt-5.6-luna",
         decoding={
@@ -154,7 +154,7 @@ def test_full_run_refuses_before_materialization_without_matching_smoke(
     )
     with pytest.raises(RuntimeError, match="requires a successful matching"):
         run_live_system(
-            "dense_rag",
+            "rag_reranker",
             rows=[_row()],
             model_id="gpt-5.6-luna",
             smoke_seed=CONFIG2_SMOKE_SEED,
@@ -178,7 +178,7 @@ def test_matching_smoke_is_exact_and_must_be_valid(tmp_path):
         non_null_prediction_rate=1 / 7,
         status="VALID",
     )
-    path = tmp_path / "smoke" / "dense_rag.manifest.json"
+    path = tmp_path / "smoke" / "rag_reranker.manifest.json"
     path.parent.mkdir()
     path.write_text(smoke.model_dump_json(), encoding="utf-8")
 

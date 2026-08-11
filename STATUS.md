@@ -321,8 +321,9 @@ three tracks; a task's numeric prefix does not identify its phase.
   evidence, the paired agent-minus-attacker delta is dropped from the headline,
   and T4.5 §8.4 forbids any probe/fit/threshold change from here. See
   `docs/tasks/T5.3-work-order.md` Amendment — Finding A resolution.
-  **Amendment 1 — provider-runner extension (2026-08-11) is RATIFIED** and the
-  provider-runner extension is the next scope. It extends `SystemID` to
+  **Amendment 1 — provider-runner extension (2026-08-11) is RATIFIED and
+  IMPLEMENTED**; unratified provider smokes are the next scope. It extends
+  `SystemID` to
   `{agent, plain_llm, rag_dense, rag_reranker, oracle_slice}`, retiring
   `dense_rag` as a runner identity and relabeling the historical M4 artifact
   `rag_reranker` only once `search.mode == "hybrid_rerank"` is confirmed against
@@ -332,9 +333,21 @@ three tracks; a task's numeric prefix does not identify its phase.
   shared across all four non-agent IDs. A paid stratified seven-row smoke gates
   each of `plain_llm`, `rag_dense`, and `rag_reranker` before any full run, and
   a failing smoke stops that system without authorizing prompt, budget, or
-  verifier changes. The deterministic portion above remains **DONE** and is
-  unaffected by the extension. No runner code has been written yet and no
-  provider baseline has been run.
+  verifier changes. Landed in `eval/{baselines,live,codex_live,codex_batch}.py`
+  with `tests/test_provider_runner.py` (23 gates): the shared registry in
+  `eval.live` now exposes `SYSTEM_IDS` and `BASELINE_SYSTEM_IDS`,
+  `RAGDenseContext`/`RAGRerankerContext` are pinned subclasses of
+  `RetrievedRAGContext` fed by `rag_baseline_context` (which delegates to
+  `retrieved_rag_context` and refuses a search whose mode disagrees), and
+  `validate_baseline_envelope` now takes a required `system_id` and enforces
+  the clause-index contract on findings. The committed M4 artifacts under
+  `data/eval/m4*/` are untouched and were NOT relabeled; `DenseRAGContext` and
+  `dense_rag_context` are deliberately retained as the historical M4 context
+  shape so T5.4 reuse can still read them, and `eval/report.py` keeps the M4
+  `dense_rag` naming. The deterministic portion above remains **DONE** and is
+  unaffected by the extension. **Next scope: the three paid per-system smokes,
+  which are NOT yet ratified for execution.** No provider baseline has been run
+  and no API call of any kind was made in this commit.
 - **T5.4** | todo — blocked on T5.3 only | C |
   `docs/tasks/T5.4-work-order.md`; frozen paired headline report. The work order
   records the exact partial-reuse and targeted-rerun boundary. The +0.10

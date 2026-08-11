@@ -24,6 +24,10 @@ from cobol_archaeologist.agent.policy import (
     get_hunt,
 )
 from cobol_archaeologist.agent.trajectory import BudgetSpec, ToolCall, Trajectory
+from cobol_archaeologist.eval.baselines import (
+    RAG_RETRIEVAL_MODES,
+    SINGLE_CLAUSE_BASELINES,
+)
 from cobol_archaeologist.model.prompt import AgentResponse, build_hunt_prompt
 from cobol_archaeologist.model.verify import (
     Entailer,
@@ -329,8 +333,17 @@ def validate_agent_envelope(
 def validate_baseline_envelope(
     envelope: CodexBaselineEnvelope,
     aliases: Sequence[str],
+    *,
+    system_id: str,
+    retrieved_counts: Mapping[str, int] | None = None,
 ) -> list[str]:
-    """Reject duplicate/unknown aliases and return requested aliases omitted."""
+    """Reject duplicate/unknown aliases and return requested aliases omitted.
+
+    Also enforces the T5.3 Amendment 1 clause-selection contract per runner
+    identity: a baseline that sees one clause must not select an index, and a
+    retrieval baseline must select one that its own visible list contains.
+    Abstentions bind no clause, so the rules apply to findings only.
+    """
 
     actual = [result.alias for result in envelope.results]
     if len(actual) != len(set(actual)):
@@ -338,6 +351,38 @@ def validate_baseline_envelope(
     unexpected = sorted(set(actual) - set(aliases))
     if unexpected:
         raise ValueError(f"response aliases contain unexpected values: {unexpected}")
+
+    findings = [
+        result for result in envelope.results if result.response.kind == "finding"
+    ]
+    if system_id in SINGLE_CLAUSE_BASELINES:
+        for result in findings:
+            if result.clause_index is not None:
+                raise ValueError(
+                    f"{system_id} finding {result.alias} must not carry a "
+                    "clause_index"
+                )
+    elif system_id in RAG_RETRIEVAL_MODES:
+        counts = retrieved_counts or {}
+        for result in findings:
+            if result.clause_index is None:
+                raise ValueError(
+                    f"{system_id} finding {result.alias} requires a clause_index"
+                )
+            available = counts.get(result.alias)
+            if available is None:
+                raise ValueError(
+                    f"{system_id} validation requires the retrieved_clauses count "
+                    f"for {result.alias}"
+                )
+            if not 0 <= result.clause_index < available:
+                raise ValueError(
+                    f"{system_id} finding {result.alias} clause_index "
+                    f"{result.clause_index} is outside {available} "
+                    "retrieved clauses"
+                )
+    else:
+        raise ValueError(f"unsupported baseline system {system_id!r}")
     return [alias for alias in aliases if alias not in actual]
 
 

@@ -26,8 +26,11 @@ from pydantic import BaseModel
 
 from cobol_archaeologist.agent.policy import EVIDENCE_MINIMUMS
 from cobol_archaeologist.eval.baselines import (
-    DenseRAGContext,
+    RAG_CONTEXT_TYPES,
+    RAG_RETRIEVAL_MODES,
     OracleSliceContext,
+    PlainLLMContext,
+    RetrievedRAGContext,
 )
 from cobol_archaeologist.eval.codex_batch import (
     AGENT_HUNTS,
@@ -47,6 +50,7 @@ from cobol_archaeologist.eval.codex_tool import ToolLogEntry
 from cobol_archaeologist.eval.live import (
     AGENT_BUDGET,
     BASELINE_BUDGET,
+    BASELINE_SYSTEM_IDS,
     INPUT_REVISION,
     MIN_AGENT_ABSTENTION_OBSERVATIONS,
     OUTPUT_DIR,
@@ -87,16 +91,27 @@ DEFAULT_CODEX_BINARY = "/home/deepa/.local/bin/codex-x86_64-unknown-linux-musl"
 DEFAULT_SUPPORT_BASE = "/home/deepa/.cache/cobol-archaeologist/codex-support"
 DEFAULT_TASK_BASE = "/home/deepa/.cache/cobol-archaeologist/codex-tasks"
 AGENT_BATCH_SIZE = 2
-DENSE_RAG_BATCH_SIZE = 5
+PLAIN_LLM_BATCH_SIZE = 5
+RAG_BATCH_SIZE = 5
 ORACLE_SLICE_BATCH_SIZE = 2
-SystemID = Literal["agent", "dense_rag", "oracle_slice"]
+# T5.3 Amendment 1: `dense_rag` is retired as a runner identity; see
+# `eval.live.SystemID` for the shared registry this mirrors.
+SystemID = Literal[
+    "agent",
+    "plain_llm",
+    "rag_dense",
+    "rag_reranker",
+    "oracle_slice",
+]
 RunMode = Literal["smoke", "pilot", "full"]
 
 
 def batch_size_for(system_id: SystemID) -> int:
     return {
         "agent": AGENT_BATCH_SIZE,
-        "dense_rag": DENSE_RAG_BATCH_SIZE,
+        "plain_llm": PLAIN_LLM_BATCH_SIZE,
+        "rag_dense": RAG_BATCH_SIZE,
+        "rag_reranker": RAG_BATCH_SIZE,
         "oracle_slice": ORACLE_SLICE_BATCH_SIZE,
     }[system_id]
 
@@ -461,13 +476,16 @@ def build_baseline_prompt(
     system_id: SystemID,
     cases: Sequence[dict[str, Any]],
 ) -> str:
-    if system_id not in {"dense_rag", "oracle_slice"}:
-        raise ValueError("baseline prompt requires dense_rag or oracle_slice")
+    if system_id not in BASELINE_SYSTEM_IDS:
+        raise ValueError(
+            "baseline prompt requires one of "
+            f"{', '.join(BASELINE_SYSTEM_IDS)}"
+        )
     clause_selection = (
         "For a finding, set clause_index to the zero-based index of the "
         "supporting clause in context.retrieved_clauses. The host validates "
         "that selection and attaches that exact detector-visible clause."
-        if system_id == "dense_rag"
+        if system_id in RAG_RETRIEVAL_MODES
         else (
             "Set clause_index to null. The host attaches the single "
             "detector-visible context.clause."
@@ -500,32 +518,55 @@ Detector-visible cases:
 """
 
 
+def _baseline_context(
+    system_id: SystemID,
+    payload: Mapping[str, Any],
+) -> PlainLLMContext | RetrievedRAGContext | OracleSliceContext:
+    """Revalidate a persisted context under its own runner identity's shape."""
+
+    if system_id in RAG_RETRIEVAL_MODES:
+        return RAG_CONTEXT_TYPES[system_id].model_validate(payload)
+    if system_id == "plain_llm":
+        return PlainLLMContext.model_validate(payload)
+    if system_id == "oracle_slice":
+        return OracleSliceContext.model_validate(payload)
+    raise ValueError(f"unsupported baseline system {system_id}")
+
+
 def select_baseline_clause(
     system_id: SystemID,
     clause_index: int | None,
-    context: DenseRAGContext | OracleSliceContext,
+    context: PlainLLMContext | RetrievedRAGContext | OracleSliceContext,
 ) -> RegulationClause:
     """Bind a baseline finding only to a clause visible in its own context."""
 
-    if system_id == "dense_rag":
-        if not isinstance(context, DenseRAGContext):
-            raise TypeError("dense_rag requires DenseRAGContext")
+    if system_id in RAG_RETRIEVAL_MODES:
+        expected_rag = RAG_CONTEXT_TYPES[system_id]
+        if not isinstance(context, expected_rag):
+            raise TypeError(f"{system_id} requires {expected_rag.__name__}")
         if clause_index is None:
-            raise ValueError("dense_rag finding requires clause_index")
+            raise ValueError(f"{system_id} finding requires clause_index")
         if clause_index < 0:
-            raise ValueError("dense_rag clause_index must be non-negative")
+            raise ValueError(f"{system_id} clause_index must be non-negative")
         try:
             return context.retrieved_clauses[clause_index].clause
         except IndexError as exc:
             raise ValueError(
-                f"dense_rag clause_index {clause_index} is outside "
+                f"{system_id} clause_index {clause_index} is outside "
                 f"{len(context.retrieved_clauses)} visible retrievals"
             ) from exc
-    if system_id == "oracle_slice":
-        if not isinstance(context, OracleSliceContext):
-            raise TypeError("oracle_slice requires OracleSliceContext")
+    # plain_llm and oracle_slice each see exactly one clause, so an index would
+    # be a selection they were never offered.
+    single: dict[str, type[PlainLLMContext | OracleSliceContext]] = {
+        "plain_llm": PlainLLMContext,
+        "oracle_slice": OracleSliceContext,
+    }
+    expected_single = single.get(system_id)
+    if expected_single is not None:
+        if not isinstance(context, expected_single):
+            raise TypeError(f"{system_id} requires {expected_single.__name__}")
         if clause_index is not None:
-            raise ValueError("oracle_slice clause_index must be null")
+            raise ValueError(f"{system_id} clause_index must be null")
         return context.clause
     raise ValueError(f"unsupported baseline system {system_id}")
 
@@ -650,7 +691,7 @@ def load_reusable_baseline_contexts(
 ) -> dict[str, dict[str, Any]]:
     """Reuse only deterministic, source-hash-matched contexts from API runs."""
 
-    if system_id not in {"dense_rag", "oracle_slice"}:
+    if system_id not in BASELINE_SYSTEM_IDS:
         raise ValueError("only baseline contexts are reusable")
     path = Path(artifact_dir) / f"{system_id}.jsonl"
     contexts: dict[str, dict[str, Any]] = {}
@@ -1133,6 +1174,13 @@ def run_codex_system(
                     missing_aliases = validate_baseline_envelope(
                         envelope,
                         aliases,
+                        system_id=system_id,
+                        retrieved_counts={
+                            alias: len(
+                                contexts[row.instance_id].get("retrieved_clauses", [])
+                            )
+                            for alias, row in alias_rows.items()
+                        },
                     )
                     by_alias = {result.alias: result for result in envelope.results}
                     allocations = allocate_tokens(
@@ -1149,12 +1197,9 @@ def run_codex_system(
                         row = alias_rows[alias]
                         source = materialized[row.instance_id]
                         submitted = by_alias[alias]
-                        context = (
-                            DenseRAGContext.model_validate(contexts[row.instance_id])
-                            if system_id == "dense_rag"
-                            else OracleSliceContext.model_validate(
-                                contexts[row.instance_id]
-                            )
+                        context = _baseline_context(
+                            system_id,
+                            contexts[row.instance_id],
                         )
                         clause = row.regulation_clause
                         binding_error = None
