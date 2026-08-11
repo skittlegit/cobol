@@ -24,8 +24,10 @@ from cobol_archaeologist.agent.policy import (
 )
 from cobol_archaeologist.agent.trajectory import BudgetSpec, Trajectory
 from cobol_archaeologist.eval.baselines import (
-    dense_rag_context,
+    RAG_RETRIEVAL_MODES,
     oracle_slice_context,
+    plain_llm_context,
+    rag_baseline_context,
 )
 from cobol_archaeologist.eval.materialize import (
     MaterializationError,
@@ -85,9 +87,30 @@ DEFAULT_MODEL_IDS = {
 # Legacy transport argument retained until the finalizer signature is retired.
 # M4-X policy ignores it and derives the real floor from EVIDENCE_MINIMUMS.
 MIN_AGENT_ABSTENTION_OBSERVATIONS = 1
-SystemID = Literal["agent", "dense_rag", "oracle_slice"]
+# T5.3 Amendment 1: `dense_rag` is retired as a runner identity. Phase 5 splits
+# it into `rag_dense` (explicit dense retrieval) and `rag_reranker` (hybrid plus
+# cross-encoder, the mode the M4 artifact actually ran), and adds `plain_llm`.
+SystemID = Literal[
+    "agent",
+    "plain_llm",
+    "rag_dense",
+    "rag_reranker",
+    "oracle_slice",
+]
 ProviderID = Literal["ollama", "openai"]
-SYSTEM_IDS: tuple[SystemID, ...] = ("agent", "dense_rag", "oracle_slice")
+BASELINE_LABELS: dict[str, str] = {
+    "plain_llm": "plain single-shot LLM",
+    "rag_dense": "dense-RAG single-shot",
+    "rag_reranker": "RAG+reranker single-shot",
+    "oracle_slice": "oracle-slice",
+}
+BASELINE_SYSTEM_IDS: tuple[SystemID, ...] = (
+    "plain_llm",
+    "rag_dense",
+    "rag_reranker",
+    "oracle_slice",
+)
+SYSTEM_IDS: tuple[SystemID, ...] = ("agent", *BASELINE_SYSTEM_IDS)
 PROVIDER_IDS: tuple[ProviderID, ...] = ("ollama", "openai")
 
 # Provider token_count is total input + output usage. The schema and replay
@@ -162,9 +185,9 @@ def load_split(path: Path = SPLIT) -> list[DriftInstance]:
 def baseline_question(system_id: str, context: BaseModel) -> str:
     """Render only the context authorized for the selected baseline."""
 
-    if system_id not in {"dense_rag", "oracle_slice"}:
+    if system_id not in BASELINE_LABELS:
         raise ValueError(f"not a single-shot baseline: {system_id}")
-    label = "dense-RAG" if system_id == "dense_rag" else "oracle-slice"
+    label = BASELINE_LABELS[system_id]
     return (
         f"System: {label} single-shot compliance detector.\n"
         "Visible context (JSON):\n"
@@ -650,12 +673,23 @@ def run_live_system(
                     key=key,
                 )
 
-            if system_id == "dense_rag":
-                code = bounded_code_context(source, gold.regulation_clause.text)
-                context = dense_rag_context(
+            if system_id == "plain_llm":
+                context = plain_llm_context(
+                    gold.regulation_clause,
+                    program=bounded_code_context(
+                        source,
+                        gold.regulation_clause.text,
+                    ),
+                )
+            elif system_id in RAG_RETRIEVAL_MODES:
+                context = rag_baseline_context(
+                    system_id,
                     gold.regulation_clause.text,
-                    program=code,
-                    tools=tools,
+                    program=bounded_code_context(
+                        source,
+                        gold.regulation_clause.text,
+                    ),
+                    search=regulation_search,
                 )
             else:
                 context = oracle_slice_context(gold, tools=tools)

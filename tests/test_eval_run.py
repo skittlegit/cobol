@@ -819,11 +819,11 @@ def test_run_validity_reports_all_failed_gates_with_frozen_precedence():
         contract_error="bad JSON",
     )
     contract_record = _abstained_record(
-        system_id="dense_rag",
+        system_id="rag_reranker",
         responses=[rejected, *[_semantic_abstention() for _ in range(4)]],
         contract_repairs=1,
     )
-    contract = assess_run_validity([contract_record], system_id="dense_rag")
+    contract = assess_run_validity([contract_record], system_id="rag_reranker")
     assert contract.status == "HALTED_CONTRACT_REJECTIONS"
     assert contract.contract_rejection_rate == 0.2
     assert len(contract.failed_gates) == 2
@@ -886,12 +886,12 @@ def test_run_validity_accepts_a_verified_non_null_prediction():
         verification=verified,
         trajectory=trajectory,
         abstained=False,
-        system_id="dense_rag",
+        system_id="rag_reranker",
         source_sha256="0" * 64,
         run_key="valid:fixture",
     )
 
-    assert assess_run_validity([record], system_id="dense_rag").status == "VALID"
+    assert assess_run_validity([record], system_id="rag_reranker").status == "VALID"
 
 
 def test_agent_record_persists_all_seven_hunts_and_validity_counts_them():

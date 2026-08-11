@@ -11,7 +11,7 @@ from pydantic import BaseModel, ValidationError
 from cobol_archaeologist.agent.stub_tools import StubToolLayer
 from cobol_archaeologist.agent.trajectory import BudgetSpec
 from cobol_archaeologist.eval import codex_batch as codex_batch_module
-from cobol_archaeologist.eval.baselines import DenseRAGContext, OracleSliceContext
+from cobol_archaeologist.eval.baselines import OracleSliceContext, RAGDenseContext
 from cobol_archaeologist.eval.codex_batch import (
     AGENT_HUNTS,
     CodexBaselineEnvelope,
@@ -148,9 +148,14 @@ def test_baseline_batch_returns_omitted_aliases_for_conservative_retry() -> None
     assert validate_baseline_envelope(
         envelope,
         ["drift_900000", "drift_900001"],
+        system_id="oracle_slice",
     ) == ["drift_900001"]
     with pytest.raises(ValueError, match="unexpected"):
-        validate_baseline_envelope(envelope, ["drift_900001"])
+        validate_baseline_envelope(
+            envelope,
+            ["drift_900001"],
+            system_id="oracle_slice",
+        )
 
 
 def test_token_allocation_is_exact_and_deterministic() -> None:
@@ -279,7 +284,7 @@ def test_host_input_binding_failure_abstains_without_infrastructure_error() -> N
         instance_id="drift_910001",
         clause=clause,
         token_count=100,
-        prebinding_error="dense_rag finding requires clause_index",
+        prebinding_error="rag_dense finding requires clause_index",
     )
     assert selection_failure.kind == "abstain"
     assert "requires clause_index" in (selection_failure.abstention_reason or "")
@@ -882,7 +887,7 @@ def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation()
 def test_baseline_prompt_requires_visible_clause_selection_and_clean_claim() -> None:
     dense_prompt = " ".join(
         build_baseline_prompt(
-            "dense_rag",
+            "rag_dense",
             [{"alias": "drift_900000", "context": {"retrieved_clauses": []}}],
         ).split()
     )
@@ -910,7 +915,7 @@ def test_baseline_clause_selection_is_limited_to_visible_context() -> None:
         text="The issuer must act within seven days.",
         current_value=None,
     )
-    dense = DenseRAGContext.model_validate(
+    dense = RAGDenseContext.model_validate(
         {
             "clause_query": "seven days",
             "retrieved_clauses": [
@@ -925,21 +930,23 @@ def test_baseline_clause_selection_is_limited_to_visible_context() -> None:
         slices=[],
     )
 
-    assert select_baseline_clause("dense_rag", 0, dense) == clause
+    assert select_baseline_clause("rag_dense", 0, dense) == clause
     assert select_baseline_clause("oracle_slice", None, oracle) == clause
     with pytest.raises(ValueError, match="requires clause_index"):
-        select_baseline_clause("dense_rag", None, dense)
+        select_baseline_clause("rag_dense", None, dense)
     with pytest.raises(ValueError, match="outside 1 visible retrievals"):
-        select_baseline_clause("dense_rag", 1, dense)
+        select_baseline_clause("rag_dense", 1, dense)
     with pytest.raises(ValueError, match="must be non-negative"):
-        select_baseline_clause("dense_rag", -1, dense)
+        select_baseline_clause("rag_dense", -1, dense)
     with pytest.raises(ValueError, match="must be null"):
         select_baseline_clause("oracle_slice", 0, oracle)
 
 
 def test_oracle_batch_is_bounded_for_large_slice_payloads() -> None:
     assert batch_size_for("agent") == 2
-    assert batch_size_for("dense_rag") == 5
+    assert batch_size_for("plain_llm") == 5
+    assert batch_size_for("rag_dense") == 5
+    assert batch_size_for("rag_reranker") == 5
     assert batch_size_for("oracle_slice") == 2
 
 
