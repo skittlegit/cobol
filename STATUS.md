@@ -321,7 +321,20 @@ three tracks; a task's numeric prefix does not identify its phase.
   evidence, the paired agent-minus-attacker delta is dropped from the headline,
   and T4.5 §8.4 forbids any probe/fit/threshold change from here. See
   `docs/tasks/T5.3-work-order.md` Amendment — Finding A resolution.
-  No provider baseline has been run.
+  **Amendment 1 — provider-runner extension (2026-08-11) is RATIFIED** and the
+  provider-runner extension is the next scope. It extends `SystemID` to
+  `{agent, plain_llm, rag_dense, rag_reranker, oracle_slice}`, retiring
+  `dense_rag` as a runner identity and relabeling the historical M4 artifact
+  `rag_reranker` only once `search.mode == "hybrid_rerank"` is confirmed against
+  its manifest; registers dense/reranker context aliases over
+  `RetrievedRAGContext`; extends `build_baseline_prompt` and
+  `validate_baseline_envelope` to the new IDs; and keeps `BASELINE_BUDGET`
+  shared across all four non-agent IDs. A paid stratified seven-row smoke gates
+  each of `plain_llm`, `rag_dense`, and `rag_reranker` before any full run, and
+  a failing smoke stops that system without authorizing prompt, budget, or
+  verifier changes. The deterministic portion above remains **DONE** and is
+  unaffected by the extension. No runner code has been written yet and no
+  provider baseline has been run.
 - **T5.4** | todo — blocked on T5.3 only | C |
   `docs/tasks/T5.4-work-order.md`; frozen paired headline report. The work order
   records the exact partial-reuse and targeted-rerun boundary. The +0.10
