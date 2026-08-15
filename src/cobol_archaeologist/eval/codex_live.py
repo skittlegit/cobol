@@ -60,9 +60,11 @@ from cobol_archaeologist.eval.live import (
     SYSTEM_IDS,
     TOOL_VERSION,
     _tool_layer,
+    bounded_code_context,
     load_split,
     single_shot_record,
 )
+from cobol_archaeologist.eval.baselines import plain_llm_context
 from cobol_archaeologist.eval.materialize import MaterializedSource, materialize
 from cobol_archaeologist.eval.run import (
     CONFIG2_SMOKE_IDS,
@@ -1017,14 +1019,25 @@ def run_codex_system(
         instance_id: source.source_sha256
         for instance_id, source in materialized.items()
     }
-    contexts = (
-        load_reusable_baseline_contexts(
+    if system_id == "plain_llm":
+        # Amendment 1: plain_llm is a new provider run and has no reusable M4
+        # context. Build only its declared clause-plus-bounded-code context.
+        contexts = {
+            row.instance_id: plain_llm_context(
+                row.regulation_clause,
+                program=bounded_code_context(
+                    materialized[row.instance_id], row.regulation_clause.text
+                ),
+            ).model_dump(mode="json")
+            for row in run_rows
+        }
+    elif system_id == "agent":
+        contexts = {}
+    else:
+        contexts = load_reusable_baseline_contexts(
             system_id,
             source_shas=source_shas,
         )
-        if system_id != "agent"
-        else {}
-    )
     artifact_dir = _artifact_dir(Path(output_dir), mode)
     records_path = artifact_dir / f"{system_id}.jsonl"
     manifest_path = artifact_dir / f"{system_id}.manifest.json"
