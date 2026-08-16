@@ -29,13 +29,13 @@ from cobol_archaeologist.tool_types import ToolLayer
 
 CONFIG2_SMOKE_SEED = 20260726
 CONFIG2_SMOKE_IDS: tuple[str, ...] = (
+    "drift_096952",
+    "drift_425267",
+    "drift_110018",
     "drift_356266",
-    "drift_377860",
-    "drift_689057",
-    "drift_110002",
-    "drift_948904",
+    "drift_068667",
+    "drift_957679",
     "drift_858645",
-    "drift_110026",
 )
 REQUIRED_SMOKE_ROWS = len(CONFIG2_SMOKE_IDS)
 
