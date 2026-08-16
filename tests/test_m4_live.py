@@ -27,7 +27,7 @@ from cobol_archaeologist.eval.schemas import RunValidity
 from cobol_archaeologist.schemas import DriftInstance
 
 ROOT = Path(__file__).resolve().parents[1]
-SPLIT = ROOT / "data" / "benchmark" / "v1-pre" / "test.jsonl"
+SPLIT = ROOT / "data" / "benchmark" / "v1" / "test.jsonl"
 
 
 def _row() -> DriftInstance:

@@ -54,7 +54,7 @@ from cobol_archaeologist.model.verify import (
 from cobol_archaeologist.schemas import DriftInstance, RegulationClause
 
 ROOT = Path(__file__).resolve().parents[1]
-SPLIT = ROOT / "data" / "benchmark" / "v1-pre" / "test.jsonl"
+SPLIT = ROOT / "data" / "benchmark" / "v1" / "test.jsonl"
 
 
 def _abstention(reason: str = "insufficient evidence") -> SubmittedResponse:
