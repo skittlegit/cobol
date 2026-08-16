@@ -31,6 +31,8 @@ from cobol_archaeologist.eval.baselines import (
     OracleSliceContext,
     PlainLLMContext,
     RetrievedRAGContext,
+    plain_llm_context,
+    rag_baseline_context,
 )
 from cobol_archaeologist.eval.codex_batch import (
     AGENT_HUNTS,
@@ -63,10 +65,6 @@ from cobol_archaeologist.eval.live import (
     bounded_code_context,
     load_split,
     single_shot_record,
-)
-from cobol_archaeologist.eval.baselines import (
-    plain_llm_context,
-    rag_baseline_context,
 )
 from cobol_archaeologist.eval.materialize import MaterializedSource, materialize
 from cobol_archaeologist.eval.run import (
