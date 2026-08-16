@@ -64,7 +64,10 @@ from cobol_archaeologist.eval.live import (
     load_split,
     single_shot_record,
 )
-from cobol_archaeologist.eval.baselines import plain_llm_context
+from cobol_archaeologist.eval.baselines import (
+    plain_llm_context,
+    rag_baseline_context,
+)
 from cobol_archaeologist.eval.materialize import MaterializedSource, materialize
 from cobol_archaeologist.eval.run import (
     CONFIG2_SMOKE_IDS,
@@ -1028,6 +1031,20 @@ def run_codex_system(
                 program=bounded_code_context(
                     materialized[row.instance_id], row.regulation_clause.text
                 ),
+            ).model_dump(mode="json")
+            for row in run_rows
+        }
+    elif system_id == "rag_dense":
+        if regulation_search is None:
+            regulation_search = RegulationSearch(mode="dense")
+        contexts = {
+            row.instance_id: rag_baseline_context(
+                system_id,
+                row.regulation_clause.text,
+                program=bounded_code_context(
+                    materialized[row.instance_id], row.regulation_clause.text
+                ),
+                search=regulation_search,
             ).model_dump(mode="json")
             for row in run_rows
         }
