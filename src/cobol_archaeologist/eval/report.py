@@ -103,7 +103,8 @@ def build_m4_report(
             decisions={},
         )
 
-    metric = lambda rows: detection(rows)["f1"]
+    def metric(rows):
+        return detection(rows)["f1"]
     dense_delta, dense_low, dense_high = paired_bootstrap_delta(
         agent_dense,
         dense_paired,

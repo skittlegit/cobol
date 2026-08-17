@@ -30,16 +30,19 @@ class Phase5Report(BaseModel):
 
     status: Literal["EVALUABLE", "NOT_EVALUABLE"]
     issues: list[str]
+    provenance: dict = {}
     systems: dict
     comparisons: dict
     decisions: dict
 
 
-def _agent_binary(records: list[EvaluationRecord]) -> list[BinaryBaselineRecord]:
+def _structured_binary(
+    records: list[EvaluationRecord], system_id: str
+) -> list[BinaryBaselineRecord]:
     return [
         BinaryBaselineRecord(
             instance_id=record.instance_id,
-            system_id="agent",
+            system_id=system_id,
             gold_is_drift=record.gold.drift_type != "D7_conformant",
             predicted_is_drift=bool(
                 not record.infrastructure_error
@@ -94,6 +97,7 @@ def build_phase5_report(
     structured: dict[str, list[EvaluationRecord]],
     binary: dict[str, list[BinaryBaselineRecord]],
     assessments: list[TrajectoryAssessment] = (),
+    provenance: dict | None = None,
     benchmark_frozen: bool,
     annotation_complete: bool,
     resamples: int = 10_000,
@@ -117,6 +121,7 @@ def build_phase5_report(
         return Phase5Report(
             status="NOT_EVALUABLE",
             issues=issues,
+            provenance=provenance or {},
             systems={},
             comparisons={},
             decisions={},
@@ -140,7 +145,7 @@ def build_phase5_report(
             for name, rows in binary.items()
         },
     }
-    agent_binary = _agent_binary(agent)
+    agent_binary = _structured_binary(agent, "agent")
     attacker_delta = _paired_delta(
         agent_binary,
         binary["attacker_with_bases"],
@@ -153,15 +158,33 @@ def build_phase5_report(
             "bootstrap_95_ci": [attacker_delta[1], attacker_delta[2]],
         }
     }
+    for offset, name in enumerate(("rag_dense", "rag_reranker", "oracle_slice"), 1):
+        rows = oracle_slice if name == "oracle_slice" else structured[name]
+        delta = _paired_delta(
+            agent_binary,
+            _structured_binary(rows, name),
+            seed=20260727 + offset,
+            samples=resamples,
+        )
+        comparisons[f"agent_minus_{name}_t1_f1"] = {
+            "delta": delta[0],
+            "bootstrap_95_ci": [delta[1], delta[2]],
+        }
     decisions = {
         "surface_floor": {
             "required_margin": 0.10,
-            "met": attacker_delta[0] >= 0.10 and attacker_delta[1] > 0.0,
+            "status": "VACATED",
+            "met": None,
+            "reason": (
+                "T5.3 Finding A option (c): the registered attacker fit is "
+                "all-zero and measures prevalence rather than surface cues"
+            ),
         }
     }
     return Phase5Report(
         status="EVALUABLE",
         issues=[],
+        provenance=provenance or {},
         systems=systems,
         comparisons=comparisons,
         decisions=decisions,

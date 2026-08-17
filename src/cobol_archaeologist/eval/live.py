@@ -632,10 +632,11 @@ def run_live_system(
             )
         with tempfile.TemporaryDirectory(prefix=f"m4-{system_id}-") as temp:
             tools = _tool_layer(source, Path(temp), regulation_search)
-            model_factory = lambda: _RecordIdentityModel(
-                _decision_model(provider, model_id),
-                gold.instance_id,
-            )
+            def model_factory():
+                return _RecordIdentityModel(
+                    _decision_model(provider, model_id),
+                    gold.instance_id,
+                )
             if system_id == "agent":
                 try:
                     outcome = investigate_all_hunts(

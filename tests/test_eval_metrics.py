@@ -125,7 +125,8 @@ def test_metrics_are_order_invariant_and_duplicate_ids_rejected():
 def test_statistical_helpers_are_paired_and_deterministic():
     left = [1.0, 1.0, 0.0, 1.0]
     right = [0.0, 1.0, 0.0, 0.0]
-    metric = lambda values: sum(values) / len(values)
+    def metric(values):
+        return sum(values) / len(values)
 
     first = paired_bootstrap_delta(left, right, metric, resamples=500, seed=7)
     assert first == paired_bootstrap_delta(left, right, metric, resamples=500, seed=7)

@@ -77,4 +77,9 @@ def test_phase5_report_requires_and_scores_all_seven_baselines():
     assert report.status == "EVALUABLE"
     assert len(report.systems) == 9
     assert "agent_minus_attacker_with_bases_t1_f1" in report.comparisons
+    assert "agent_minus_rag_dense_t1_f1" in report.comparisons
+    assert "agent_minus_rag_reranker_t1_f1" in report.comparisons
+    assert "agent_minus_oracle_slice_t1_f1" in report.comparisons
+    assert report.decisions["surface_floor"]["status"] == "VACATED"
+    assert report.decisions["surface_floor"]["met"] is None
     json.dumps(report.model_dump(mode="json"))
