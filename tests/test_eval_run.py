@@ -670,7 +670,8 @@ def test_append_only_runner_resumes_without_duplicate_execution(tmp_path):
             reason="fixture has no provider",
         )
 
-    key_factory = lambda gold: f"key:{gold.instance_id}"
+    def key_factory(gold):
+        return f"key:{gold.instance_id}"
     first = runner.run(
         rows,
         manifest=manifest,

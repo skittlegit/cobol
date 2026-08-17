@@ -286,7 +286,7 @@ three tracks; a task's numeric prefix does not identify its phase.
   purpose gates and the T2.2 artifact-only surface probe are untouched.
   Full offline suite 470 passed / 71 skipped / 5 deselected, Ruff clean.
   `DATASHEET.md` records the human-primary, Claude-verification workflow.
-- **T5.3** | in_progress | C | Seven baselines are frozen in
+- **T5.3** | done | C | Seven baselines are frozen in
   `docs/tasks/T5.3-work-order.md`; its predeclared +0.10 agent-over-attacker F1
   floor is **VACATED** by the ratified Amendment — Finding A resolution
   (option (c), 2026-08-11). Four deterministic no-provider baselines,
@@ -345,10 +345,20 @@ three tracks; a task's numeric prefix does not identify its phase.
   `dense_rag_context` are deliberately retained as the historical M4 context
   shape so T5.4 reuse can still read them, and `eval/report.py` keeps the M4
   `dense_rag` naming. The deterministic portion above remains **DONE** and is
-  unaffected by the extension. **Next scope: the three paid per-system smokes,
-  which are NOT yet ratified for execution.** No provider baseline has been run
-  and no API call of any kind was made in this commit.
-- **T5.4** | todo — blocked on T5.3 only | C |
+  unaffected by the extension. **COMPLETE 2026-08-17:** all three paid smokes
+  passed 7/7 with zero infrastructure/contract failures and verifier passes on
+  every non-abstained row. New 196-row `plain_llm` and `rag_dense` artifacts
+  are `VALID`. Fail-closed projections combine 195 M4 rows plus the targeted
+  `drift_000021` rerun for agent and RAG+reranker, and 153 M4 synthetic rows
+  plus 43 real-curated reruns for oracle-slice; all three projections are
+  196/196, frozen-order, and `VALID`. Amendment 2 proves the historical
+  reranker's omitted `search.mode` from immutable M4 source and records, rather
+  than hides, mixed M4-high/v3 and rerun-low/v4 provenance. The `EVALUABLE`
+  10,000-resample result is `data/eval/m5/t5.3-completion-summary.{json,md}`.
+  T1 F1: agent 0.3665, plain LLM 0.7023, dense RAG 0.7259, RAG+reranker
+  0.7410, oracle-slice 0.6024, train-majority/attacker 0.8768,
+  prevalence-random 0.7331, static/keyword 0.7040. Finding A remains `VACATED`.
+- **T5.4** | todo — unblocked | C |
   `docs/tasks/T5.4-work-order.md`; frozen paired headline report. The work order
   records the exact partial-reuse and targeted-rerun boundary. The +0.10
   agent-over-attacker surface floor is **vacated** by the ratified T5.3
