@@ -6,9 +6,10 @@ import argparse
 import hashlib
 import json
 import subprocess
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from cobol_archaeologist.eval.live import ROOT
 from cobol_archaeologist.eval.materialize import materialize
