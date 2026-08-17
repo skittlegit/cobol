@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import json
 
+from cobol_archaeologist.eval.phase5_complete import build_completion_summary
 from cobol_archaeologist.eval.phase5_reuse import (
     FROZEN_TEST,
     confirm_m4_reranker_identity,
     projection_specs,
 )
-from cobol_archaeologist.eval.phase5_complete import build_completion_summary
 from cobol_archaeologist.eval.schemas import EvaluationRecord
 from cobol_archaeologist.schemas import DriftInstance
 

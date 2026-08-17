@@ -10,8 +10,9 @@ from __future__ import annotations
 import argparse
 import json
 import tempfile
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from cobol_archaeologist.eval import codex_live
 from cobol_archaeologist.eval.baselines import (

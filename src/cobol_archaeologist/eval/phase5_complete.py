@@ -8,7 +8,10 @@ from pathlib import Path
 
 from cobol_archaeologist.eval.live import ROOT
 from cobol_archaeologist.eval.phase5 import BinaryBaselineRecord
-from cobol_archaeologist.eval.phase5_report import build_phase5_report, write_phase5_report
+from cobol_archaeologist.eval.phase5_report import (
+    build_phase5_report,
+    write_phase5_report,
+)
 from cobol_archaeologist.eval.schemas import EvaluationRecord
 
 M5 = ROOT / "data" / "eval" / "m5"
