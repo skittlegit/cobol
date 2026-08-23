@@ -358,18 +358,20 @@ three tracks; a task's numeric prefix does not identify its phase.
   T1 F1: agent 0.3665, plain LLM 0.7023, dense RAG 0.7259, RAG+reranker
   0.7410, oracle-slice 0.6024, train-majority/attacker 0.8768,
   prevalence-random 0.7331, static/keyword 0.7040. Finding A remains `VACATED`.
-- **T5.4** | todo — unblocked | C |
-  `docs/tasks/T5.4-work-order.md`; frozen paired headline report. The work order
-  records the exact partial-reuse and targeted-rerun boundary. The +0.10
-  agent-over-attacker surface floor is **vacated** by the ratified T5.3
-  Amendment — Finding A resolution: this report drops that paired delta from
-  headline reporting and retains `attacker_with_bases` as null evidence for the
-  T2.2 probe's anti-gaming construction, reported with its all-zero
-  coefficients and probe hash. Identity gates must compare against the LF
-  hashes recorded in the T5.3 work order, not against
-  `data/benchmark/v1/manifest.json`, until Track B re-freezes it.
-- **T5.5** | todo — blocked on T5.4 | C |
-  `docs/tasks/T5.5-work-order.md`; benchmark-first analysis and M5 decision.
+- **T5.4** | done | C | `data/eval/m5/report.{json,md}` and
+  `error-analysis.{json,md}` are frozen and `EVALUABLE` over the same 196
+  canonical-LF v1 IDs for all nine systems, with zero identity or
+  infrastructure issues and zero new provider runs. The 36-row headline
+  interprocedural result is agent F1 0.4000 versus RAG+reranker 0.6939:
+  delta F1 **-0.2939**, 10,000-resample paired 95% CI
+  **[-0.4990, -0.1101]**, 20,000-sample paired p=**0.01175**. Agent coverage
+  is 42/196; T6 is 1/9 and `NOT_EVALUABLE_FOR_BAR`. The attacker floor remains
+  **VACATED** and non-gating. Focused gates: 19 passed; full suite: 391 passed,
+  183 skipped, 5 deselected; Ruff and `git diff --check` clean. Durable
+  evidence: `docs/tasks/T5.4-work-order.md` section 19.
+- **T5.5** | todo — unblocked | C | `docs/tasks/T5.5-work-order.md`;
+  benchmark-first analysis and M5 decision may now consume the frozen T5.4
+  result.
 - **T7.1** | done | A | `src/cobol_archaeologist/mcp_server/server.py` exposes
   all eleven frozen `ToolLayer` methods through the official MCP SDK v1 over
   stdio. Exact registry parity, structured delegation, `RunInputs` binding,
