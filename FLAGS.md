@@ -50,24 +50,8 @@ manifests will fail.
 
 ## Track C inbox
 
-→ Track C | from B | 2026-07-15 | T2.2 | The balanced anti-gaming probe is
-`data/benchmark/probes/t2.2_surface_probe.jsonl` (50 drifted + 50 MO-0,
-AUC 0.50). Reuse its six-feature contract at T5.3/T5.5.
-
-→ Track C | from B | 2026-07-28 | T5.2 | `data/benchmark/v1/` is frozen and
-available: 307/102/196 rows, test carries 43 real-curated rows and 9
-intact T6 pairs (amended down from the originally planned 51/20 — see
-`docs/tasks/T5.2-work-order.md`'s 2026-07-28 amendment note and
-`DATASHEET.md`). Reuse preflight found all 196 surviving IDs in the M4
-artifacts, but the final code-locus review changes detector inputs:
-agent/RAG+reranker must rerun `drift_000021` because its materialized source
-bundle changed, and oracle-slice must rerun all 43 real-curated rows because
-their oracle loci/variables changed. The other 195 agent/RAG+reranker rows
-remain reuse candidates subject to the T5.4 identity gates. Two other things
-T5.3/T5.4/T5.5 need to account for: (1) T6 paired-accuracy claims have a denominator
-of 9, below this project's own 20-pair `reporting_bar_evaluable`
-convention in `eval/metrics.py` — report the exact CI and flag it as
-directional, not bar-clearing; (2) the frozen real-curated labels were
-produced by a human and separately checked by Claude. `DATASHEET.md`'s
-Annotation-and-agreement section records that provenance for T5.4's
-headline report.
+_No open flags._ (2026-08-23: T5.5 consumed the T2.2 six-feature anti-gaming
+handoff and the T5.2 frozen-v1/T6/annotation/reuse handoff. Durable resolution:
+`data/eval/m5/benchmark-first-analysis.{json,md}` and
+`docs/tasks/T5.5-work-order.md`. The attacker floor is vacated; T6 remains
+`NOT_EVALUABLE_FOR_BAR`.)
