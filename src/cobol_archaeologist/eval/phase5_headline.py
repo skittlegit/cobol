@@ -153,6 +153,13 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _lf_sha256(path: Path) -> str:
+    """Hash a frozen text artifact using its canonical Git/LF representation."""
+
+    normalized = path.read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(normalized).hexdigest()
+
+
 def _crlf_sha256(path: Path) -> str:
     normalized = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
     return hashlib.sha256(normalized).hexdigest()
@@ -254,7 +261,7 @@ def _validate_projection(
             "historical_manifest_sha256" if kind == "reuse" else "manifest_sha256"
         ]
         _require(
-            _sha256(manifest_path) == expected_hash,
+            _lf_sha256(manifest_path) == expected_hash,
             f"{system_id} {kind} manifest hash mismatch",
         )
         sources[kind] = {
@@ -413,9 +420,9 @@ def load_frozen_inputs() -> FrozenInputs:
         identities[system_id] = {
             "system_id": system_id,
             "artifact": _relative(records_path),
-            "artifact_sha256": _sha256(records_path),
+            "artifact_sha256": _lf_sha256(records_path),
             "manifest": _relative(manifest_path),
-            "manifest_sha256": _sha256(manifest_path),
+            "manifest_sha256": _lf_sha256(manifest_path),
             "row_count": len(records),
             "unique_instance_ids": len(set(ids)),
             "instance_ids_match_frozen_order": ids == frozen_ids,
@@ -488,9 +495,9 @@ def load_frozen_inputs() -> FrozenInputs:
         identities[system_id] = {
             "system_id": system_id,
             "artifact": _relative(records_path),
-            "artifact_sha256": _sha256(records_path),
+            "artifact_sha256": _lf_sha256(records_path),
             "manifest": _relative(manifest_path),
-            "manifest_sha256": _sha256(manifest_path),
+            "manifest_sha256": _lf_sha256(manifest_path),
             "row_count": len(records),
             "unique_instance_ids": len(set(ids)),
             "instance_ids_match_frozen_order": ids == frozen_ids,

@@ -11,6 +11,7 @@ from cobol_archaeologist.eval.phase5_headline import (
     EXCLUDED_IDS,
     FROZEN_INPUT_PATHS,
     REQUIRED_ERROR_CATEGORIES,
+    _lf_sha256,
     build_headline_outputs,
     load_frozen_inputs,
     paired_f1_comparison,
@@ -24,6 +25,14 @@ def _hashes() -> dict[str, str]:
         path.as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in FROZEN_INPUT_PATHS
     }
+
+
+def test_canonical_lf_hash_is_line_ending_invariant(tmp_path: Path):
+    artifact = tmp_path / "manifest.json"
+    artifact.write_bytes(b'{\r\n  "status": "frozen"\r\n}\r\n')
+
+    expected = hashlib.sha256(b'{\n  "status": "frozen"\n}\n').hexdigest()
+    assert _lf_sha256(artifact) == expected
 
 
 def test_frozen_headline_preflight_and_supports_reconcile():
