@@ -23,6 +23,7 @@ from cobol_archaeologist.eval.ablations import (
     assess_ablation_validity,
     load_frozen_panel,
     select_panel,
+    singleton_schema_retries,
 )
 from cobol_archaeologist.eval.codex_tool import ToolRequest, execute_tool_request
 from cobol_archaeologist.eval.live import load_split
@@ -215,6 +216,18 @@ def test_validity_gate_does_not_gate_on_scientific_performance() -> None:
     validity = assess_ablation_validity([], expected_rows=0)
     assert validity.status == "VALID"
     assert validity.non_null_prediction_rate == 0.0
+
+
+def test_malformed_multirow_envelope_uses_frozen_singleton_fallback() -> None:
+    assert singleton_schema_retries(
+        ["a", "b"], repair_attempt=0, max_repairs=2
+    ) == [(["a"], 1), (["b"], 1)]
+    assert singleton_schema_retries(
+        ["a"], repair_attempt=0, max_repairs=2
+    ) is None
+    assert singleton_schema_retries(
+        ["a", "b"], repair_attempt=2, max_repairs=2
+    ) is None
 
 
 def test_paired_report_uses_ablation_minus_control_sign() -> None:

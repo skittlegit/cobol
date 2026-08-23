@@ -399,9 +399,13 @@ three tracks; a task's numeric prefix does not identify its phase.
   `RegulationClause` and prompt contract, while frozen retrieval has no
   detachable version/effective-date filter. Definition evidence is
   `docs/tasks/T5.5A-work-order.md` and `data/eval/m5/ablations/{panel,definition}.json`.
-  Offline definition gates: 10 focused passed; full suite 408 passed, 183
-  skipped, 5 deselected; Ruff and `git diff --check` clean. Provider execution
-  remains blocked until this definition is committed.
+  The first committed control smoke stopped on a missing-alias batch envelope;
+  its `NOT_EVALUABLE` artifact is preserved under
+  `data/eval/m5/ablations/failed-smokes/control-c6a47a9/`. The T5.5A path had
+  omitted the frozen M4 singleton-envelope fallback; that infrastructure-only
+  repair is implemented with 37 focused gates and a green full suite (409
+  passed, 183 skipped, 5 deselected). Ruff and `git diff --check` are clean.
+  Provider retry remains blocked until the repair is committed.
 - **T7.1** | done | A | `src/cobol_archaeologist/mcp_server/server.py` exposes
   all eleven frozen `ToolLayer` methods through the official MCP SDK v1 over
   stdio. Exact registry parity, structured delegation, `RunInputs` binding,

@@ -1371,6 +1371,7 @@ def run_codex_ablation(
         assert_definition_committed,
         assess_ablation_validity,
         load_frozen_panel,
+        singleton_schema_retries,
     )
 
     if configuration_id not in CONFIGURATIONS:
@@ -1543,7 +1544,11 @@ def run_codex_ablation(
     write_manifest()
     records_path.parent.mkdir(parents=True, exist_ok=True)
     with records_path.open("a", encoding="utf-8", newline="\n") as stream:
-        for batch_index, batch in enumerate(_chunks(pending, AGENT_BATCH_SIZE), start=1):
+        work_queue = [(batch, 0) for batch in _chunks(pending, AGENT_BATCH_SIZE)]
+        batch_index = 0
+        while work_queue:
+            batch, repair_attempt = work_queue.pop(0)
+            batch_index += 1
             aliases = [f"drift_{900000 + index:06d}" for index in range(len(batch))]
             alias_rows = dict(zip(aliases, batch, strict=True))
             batch_records: list[EvaluationRecord] = []
@@ -1626,6 +1631,19 @@ def run_codex_ablation(
                         )
                     )
             except Exception as exc:  # noqa: BLE001
+                # Preserve the frozen M4 provider mechanism: a malformed or
+                # alias-incomplete multi-row envelope is retried as singleton
+                # batches. The scientific response is never repaired or
+                # rewritten; an invalid singleton remains infrastructure
+                # failure and stops a validity smoke.
+                retries = singleton_schema_retries(
+                    batch,
+                    repair_attempt=repair_attempt,
+                    max_repairs=AGENT_BUDGET.max_contract_repairs,
+                )
+                if retries is not None:
+                    work_queue = retries + work_queue
+                    continue
                 batch_records = [
                     infrastructure_failure(
                         row,

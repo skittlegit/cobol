@@ -421,6 +421,19 @@ def assess_ablation_validity(
     )
 
 
+def singleton_schema_retries[T](
+    batch: Sequence[T],
+    *,
+    repair_attempt: int,
+    max_repairs: int,
+) -> list[tuple[list[T], int]] | None:
+    """Return the frozen M4 singleton fallback for a malformed batch envelope."""
+
+    if len(batch) <= 1 or repair_attempt >= max_repairs:
+        return None
+    return [([row], repair_attempt + 1) for row in batch]
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--freeze-definition", action="store_true")
