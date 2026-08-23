@@ -34,6 +34,17 @@ three tracks; a task's numeric prefix does not identify its phase.
   option, not a finding, and must not be adopted by default.
   Decision, diagnosis, config-2 record, and final corrective work:
   `docs/tasks/T4.5-work-order.md`.
+- **M5 (Benchmark Scale + Headline): CLOSED 2026-08-23** — T5.1-T5.5 are
+  complete. Benchmark v1 remains frozen at 196 test rows with 43 real-curated
+  rows and nine intact T6 pairs. The T5.4 report is `EVALUABLE`; on 36
+  interprocedural rows the agent significantly underperforms RAG+reranker
+  (F1 0.4000 versus 0.6939, delta -0.2939, paired 95% CI
+  [-0.4990, -0.1101], p=0.01175). Agent coverage is 42/196. T6 is 1/9 and
+  `NOT_EVALUABLE_FOR_BAR`. T5.5's fail-closed audit and benchmark-first
+  interpretation are `data/eval/m5/benchmark-first-analysis.{json,md}`. The
+  T2.2 attacker is null anti-gaming evidence with six zero weights and zero
+  bias; its +0.10 floor remains `VACATED`. M5 closure records this negative
+  measurement, preserves M4's valid `NO_GO`, and does not activate M8.
 - **Phase 6 (T6.1-T6.4, migration): CUT 2026-07-26** — playbook Part 5 names
   migration as the first scope cut. The M4 NO_GO removes its value as a
   showcase: an equivalence demo built on a detector with ~23% coverage
@@ -369,9 +380,15 @@ three tracks; a task's numeric prefix does not identify its phase.
   **VACATED** and non-gating. Focused gates: 19 passed; full suite: 391 passed,
   183 skipped, 5 deselected; Ruff and `git diff --check` clean. Durable
   evidence: `docs/tasks/T5.4-work-order.md` section 19.
-- **T5.5** | todo — unblocked | C | `docs/tasks/T5.5-work-order.md`;
-  benchmark-first analysis and M5 decision may now consume the frozen T5.4
-  result.
+- **T5.5** | done | C | `data/eval/m5/benchmark-first-analysis.{json,md}` and
+  `docs/tasks/T5.5-work-order.md`. The deterministic audit reproduces the
+  frozen T5.4 report/error analysis, validates all nine 196-ID artifact and
+  provenance boundaries, preserves M4 `NO_GO`, records the significant
+  negative T5.4 result and 42/196 agent coverage, keeps T6 1/9
+  `NOT_EVALUABLE_FOR_BAR`, consumes the T2.2/T5.2 Track C flags, and separates
+  benchmark contribution from detector performance. Focused gates: 6 passed;
+  full suite: 398 passed, 183 skipped, 5 deselected. Ruff and
+  `git diff --check` clean. M5 is closed; M8 remains inactive.
 - **T7.1** | done | A | `src/cobol_archaeologist/mcp_server/server.py` exposes
   all eleven frozen `ToolLayer` methods through the official MCP SDK v1 over
   stdio. Exact registry parity, structured delegation, `RunInputs` binding,
@@ -380,12 +397,13 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T7.2** | todo — unblocked | A | Air-gapped/on-prem deployment bundle and
   guide; canonical scope and offline gates are in
   `docs/tasks/T7.2-work-order.md`.
-- **T7.3** | todo — preparation unblocked; publication waits on M5 | B |
+- **T7.3** | todo — unblocked | B |
   Benchmark/release packaging, checksums, licensing, and validation;
   `docs/tasks/T7.3-work-order.md`.
-- **T7.5** | todo — final results blocked on M5 | C | Paper and submission
-  package; drafting and reproducibility wiring may proceed under
+- **T7.5** | todo — final-claims work unblocked; completion waits on T7.2/T7.3
+  | C | Paper and submission package under
   `docs/tasks/T7.5-work-order.md`. Final claims consume the frozen T5.4/T5.5
-  result and the T7.2/T7.3 release artifacts.
+  result; the reproducibility statement and final package still require the
+  T7.2/T7.3 release artifacts. This is Track C's next active task.
   T6.1-T6.4 and T7.4 are cut above. M8 is post-release backlog scope and is
   excluded from the active task count until ratified `T8.x` work orders exist.
