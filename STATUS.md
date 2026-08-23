@@ -389,6 +389,19 @@ three tracks; a task's numeric prefix does not identify its phase.
   benchmark contribution from detector performance. Focused gates: 6 passed;
   full suite: 398 passed, 183 skipped, 5 deselected. Ruff and
   `git diff --check` clean. M5 is closed; M8 remains inactive.
+- **T5.5A** | in progress | C | Supplemental core-ablation paper-support task;
+  it does not reopen M4 or M5. The frozen definition uses seed `20260823` for
+  all 36 interprocedural rows plus five local rows per D1-D7 class (71 total),
+  with a one-row-per-class validity smoke. Executable configurations are the
+  identity-matched control plus `no_slicing`, `no_execution`, `no_entailment`,
+  and `no_reranking` (maximum 390 provider rows). Regulation versioning is
+  `NOT_INDEPENDENTLY_ABLATABLE`: temporal identity is embedded in the supplied
+  `RegulationClause` and prompt contract, while frozen retrieval has no
+  detachable version/effective-date filter. Definition evidence is
+  `docs/tasks/T5.5A-work-order.md` and `data/eval/m5/ablations/{panel,definition}.json`.
+  Offline definition gates: 10 focused passed; full suite 408 passed, 183
+  skipped, 5 deselected; Ruff and `git diff --check` clean. Provider execution
+  remains blocked until this definition is committed.
 - **T7.1** | done | A | `src/cobol_archaeologist/mcp_server/server.py` exposes
   all eleven frozen `ToolLayer` methods through the official MCP SDK v1 over
   stdio. Exact registry parity, structured delegation, `RunInputs` binding,
@@ -400,7 +413,8 @@ three tracks; a task's numeric prefix does not identify its phase.
 - **T7.3** | todo — unblocked | B |
   Benchmark/release packaging, checksums, licensing, and validation;
   `docs/tasks/T7.3-work-order.md`.
-- **T7.5** | todo — final-claims work unblocked; completion waits on T7.2/T7.3
+- **T7.5** | todo — final-claims work remains otherwise unblocked, but Track C
+  is executing the late T5.5A supplement first; completion waits on T7.2/T7.3
   | C | Paper and submission package under
   `docs/tasks/T7.5-work-order.md`. Final claims consume the frozen T5.4/T5.5
   result; the reproducibility statement and final package still require the
