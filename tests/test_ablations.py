@@ -8,7 +8,11 @@ from pathlib import Path
 
 import pytest
 
-from cobol_archaeologist.eval.ablation_report import _paired
+from cobol_archaeologist.eval.ablation_report import (
+    _paired,
+    _tradeoffs,
+    render_markdown,
+)
 from cobol_archaeologist.eval.ablations import (
     BOOTSTRAP_RESAMPLES,
     CONFIGURATION_IDS,
@@ -240,3 +244,66 @@ def test_paired_report_uses_ablation_minus_control_sign() -> None:
     assert comparison["delta_f1_ablation_minus_control"] == 0.0
     assert comparison["paired_bootstrap_95_ci"] == [0.0, 0.0]
     assert comparison["bootstrap_resamples"] == 10_000
+
+
+def test_tradeoff_report_is_control_relative_and_preserves_uncertainty() -> None:
+    metrics = {
+        configuration_id: {
+            "t1": {"overall": {"answer_rate": 0.2}},
+            "faithfulness": {"aggregate": {"faithfulness": 0.5}},
+            "efficiency": {
+                "tokens": 100,
+                "tool_calls": 10,
+                "successful_tool_calls": 9,
+            },
+        }
+        for configuration_id in CONFIGURATION_IDS
+    }
+    metrics["no_execution"]["t1"]["overall"]["answer_rate"] = 0.1
+    metrics["no_execution"]["efficiency"]["tool_calls"] = 4
+    tradeoffs = _tradeoffs(metrics)
+    assert tradeoffs["control_relative_deltas"]["no_execution"] == {
+        "answer_rate_delta": -0.1,
+        "faithfulness_delta": 0.0,
+        "tokens_delta": 0,
+        "tool_calls_delta": -6,
+        "successful_tool_calls_delta": 0,
+    }
+    assert "include zero" in tradeoffs["uncertainty"]
+
+
+def test_markdown_reports_tradeoffs_and_bounded_findings() -> None:
+    metrics = {
+        configuration_id: {
+            "t1": {
+                "overall": {"f1": 0.1, "answer_rate": 0.2},
+                "local": {"f1": 0.1},
+                "interprocedural": {"f1": 0.1},
+            },
+            "faithfulness": {"aggregate": {"faithfulness": 0.5}},
+            "efficiency": {"tokens": 100, "tool_calls": 10},
+        }
+        for configuration_id in CONFIGURATION_IDS
+    }
+    report = {
+        "status": "EVALUABLE",
+        "metrics": metrics,
+        "paired_comparisons": {},
+        "tradeoffs": _tradeoffs(
+            {
+                key: {
+                    **value,
+                    "efficiency": {
+                        **value["efficiency"],
+                        "successful_tool_calls": 9,
+                    },
+                }
+                for key, value in metrics.items()
+            }
+        ),
+        "versioning": VERSIONING_DISPOSITION,
+    }
+    rendered = render_markdown(report)
+    assert "## Coverage, faithfulness, and efficiency tradeoffs" in rendered
+    assert "## Bounded component findings" in rendered
+    assert "do not support changing the frozen architecture" in rendered

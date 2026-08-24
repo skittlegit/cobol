@@ -204,6 +204,71 @@ def _paired(
     }
 
 
+def _tradeoffs(
+    metrics: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    control = metrics["control"]
+    control_efficiency = control["efficiency"]
+    control_faithfulness = control["faithfulness"]["aggregate"]["faithfulness"]
+    control_answer_rate = control["t1"]["overall"]["answer_rate"]
+    deltas: dict[str, Any] = {}
+    for configuration_id in CONFIGURATION_IDS:
+        if configuration_id == "control":
+            continue
+        ablation = metrics[configuration_id]
+        ablation_faithfulness = ablation["faithfulness"]["aggregate"]["faithfulness"]
+        deltas[configuration_id] = {
+            "answer_rate_delta": (
+                ablation["t1"]["overall"]["answer_rate"] - control_answer_rate
+            ),
+            "faithfulness_delta": (
+                ablation_faithfulness - control_faithfulness
+            ),
+            "tokens_delta": (
+                ablation["efficiency"]["tokens"] - control_efficiency["tokens"]
+            ),
+            "tool_calls_delta": (
+                ablation["efficiency"]["tool_calls"]
+                - control_efficiency["tool_calls"]
+            ),
+            "successful_tool_calls_delta": (
+                ablation["efficiency"]["successful_tool_calls"]
+                - control_efficiency["successful_tool_calls"]
+            ),
+        }
+    return {
+        "control_relative_deltas": deltas,
+        "component_findings": {
+            "no_execution": (
+                "Execution grounding has the strongest directional contribution on "
+                "this panel: its removal produced the largest overall and local F1 "
+                "decreases and the largest coverage decrease. Both paired confidence "
+                "intervals include zero, so this is not a definitive component effect."
+            ),
+            "no_slicing": (
+                "Slicing shows a directional overall/local benefit and reduces tool use, "
+                "but the interprocedural direction reverses and every paired confidence "
+                "interval includes zero."
+            ),
+            "no_entailment": (
+                "Entailment verification appears directionally useful for faithfulness: "
+                "removal increased coverage by one row while lowering faithfulness, with "
+                "no supported F1 improvement."
+            ),
+            "no_reranking": (
+                "Reranking does not show a benefit on this supplemental panel: removal "
+                "raised the point estimates for overall and interprocedural F1, but the "
+                "paired intervals include zero and do not support changing the frozen "
+                "architecture."
+            ),
+        },
+        "uncertainty": (
+            "All four overall paired 95% confidence intervals include zero. Class/locus "
+            "cells and the single intact temporal pair in this panel are CI-fragile."
+        ),
+    }
+
+
 def build_report() -> dict[str, Any]:
     panel = load_frozen_panel()
     definition = json.loads(DEFINITION_PATH.read_text(encoding="utf-8"))
@@ -283,6 +348,7 @@ def build_report() -> dict[str, Any]:
         for configuration_id in CONFIGURATION_IDS
         if configuration_id != "control"
     }
+    tradeoffs = _tradeoffs(metrics)
     return {
         "experiment_id": panel.experiment_id,
         "status": "EVALUABLE",
@@ -298,6 +364,7 @@ def build_report() -> dict[str, Any]:
         "versioning": VERSIONING_DISPOSITION,
         "metrics": metrics,
         "paired_comparisons": paired,
+        "tradeoffs": tradeoffs,
         "interpretation_rule": (
             "Report quantitative paired effects, uncertainty, class/locus consistency, "
             "coverage, and faithfulness without post-result categorical thresholds."
@@ -357,6 +424,28 @@ def render_markdown(report: dict[str, Any]) -> str:
                 f"paired 95% CI [{low:.4f}, {high:.4f}], n={comparison['paired_rows']}."
             )
         lines.append("")
+    lines.extend(
+        [
+            "## Coverage, faithfulness, and efficiency tradeoffs",
+            "",
+            "| Configuration | Answer-rate delta | Faithfulness delta | Token delta | Tool-call delta |",
+            "|---|---:|---:|---:|---:|",
+        ]
+    )
+    for configuration_id, deltas in report["tradeoffs"][
+        "control_relative_deltas"
+    ].items():
+        lines.append(
+            f"| {configuration_id} | {deltas['answer_rate_delta']:+.4f} | "
+            f"{deltas['faithfulness_delta']:+.4f} | {deltas['tokens_delta']:+d} | "
+            f"{deltas['tool_calls_delta']:+d} |"
+        )
+    lines.extend(["", "## Bounded component findings", ""])
+    for configuration_id, finding in report["tradeoffs"][
+        "component_findings"
+    ].items():
+        lines.append(f"- **{configuration_id}:** {finding}")
+    lines.extend(["", report["tradeoffs"]["uncertainty"], ""])
     lines.extend(
         [
             "## Versioning disposition",
