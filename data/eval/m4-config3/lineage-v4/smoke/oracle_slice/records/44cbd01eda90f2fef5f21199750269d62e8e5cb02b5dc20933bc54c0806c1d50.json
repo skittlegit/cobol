@@ -1,0 +1,127 @@
+{
+  "instance_id": "drift_824062",
+  "gold": {
+    "instance_id": "drift_824062",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "past_due_grace": {
+            "kind": "duration_days",
+            "value": 3,
+            "comparator": "strictly_greater",
+            "note": null
+          },
+          "charge_base": {
+            "kind": "enum_set",
+            "value": [
+              "outstanding_after_due_date"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "LATEFEE2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            10,
+            10
+          ]
+        },
+        {
+          "program": "LATEFEE2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            12,
+            12
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-PAST-DUE",
+        "WS-OUTSTANDING",
+        "WS-CHARGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": "past_due_grace",
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at LATEFEE2:<source>:10-10+LATEFEE2:<source>:12-12; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "LATEFEE2.cbl",
+      "mutation": "MO-0; locus=LATEFEE2:<source>:10-10+LATEFEE2:<source>:12-12; old='01  WS-RPT-HEADING            PIC X(10)'; new='01  WS-RPT-HEADING            PIC X(20)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"LATEFEE2\",\"slices\":[{\"variable\":\"WS-DAYS-PAST-DUE\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":16},\"text\":\"ACCEPT WS-DAYS-PAST-DUE\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-OUTSTANDING\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":15,\"line_end\":15},\"text\":\"ACCEPT WS-OUTSTANDING\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-CHARGE\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-CHARGE                 PIC 9(7)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":15,\"line_end\":15},\"text\":\"ACCEPT WS-OUTSTANDING\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":16},\"text\":\"ACCEPT WS-DAYS-PAST-DUE\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":17,\"line_end\":17},\"text\":\"PERFORM 2000-FEE\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"line_start\":21,\"line_end\":22},\"text\":\"IF WS-DAYS-PAST-DUE > 3\\n              COMPUTE WS-CHARGE ROUNDED = .025 * WS-OUTSTANDING\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"line_start\":22,\"line_end\":22},\"text\":\"COMPUTE WS-CHARGE ROUNDED = .025 * WS-OUTSTANDING\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"line_start\":24,\"line_end\":24},\"text\":\"MOVE ZERO TO WS-CHARGE\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible fee branch positively checks the more-than-three-day condition and computes the charge from the outstanding amount, matching the selected obligations.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_82... visible requirements.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_82... visible requirements.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible fee branch positively checks the more-than-three-day condition and computes the charge from the outstanding amount, matching the selected obligations.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"file\":null,\"line_span\":[21,22]}],\"slice_vars\":[\"WS-DAYS-PAST-DUE\",\"WS-OUTSTANDING\",\"WS-CHARGE\"],\"is_interprocedural\":true},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[{\"program\":\"LATEFEE2\",\"line\":21,\"file\":null},{\"program\":\"LATEFEE2\",\"line\":22,\"file\":null}]},\"rationale\":\"Clause 23(5) permits penal charges only when past due for more than three days and limits late charges to the outstanding amount after the due date. LATEFEE2 paragraph 2000-FEE line 21 guards with WS-DAYS-PAST-DUE > 3, and line 22 computes WS-CHARGE from WS-OUTSTANDING, providing positive source evidence matching those visible requirements.\"},\"claim\":\"Penal charges may be levied only after an account has been past due for more than three days, and they must apply only to the outstanding amount after the due date.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"3\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Clause 23(5) requires more than three days past due before penal charges and restricts the charge base to the outstanding amount after the due date. LATEFEE2 line 21 uses > 3 and line 22 computes from WS-OUTSTANDING, so the visible code is conformant.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_82... visible requirements.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_82... visible requirements.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_82... visible requirements.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "8a60088780072e5cb13534a98a5c03e3772770c209fdc5bfbf5d1ed378e56f18",
+  "run_key": "44cbd01eda90f2fef5f21199750269d62e8e5cb02b5dc20933bc54c0806c1d50"
+}

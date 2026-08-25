@@ -116,9 +116,14 @@ def assess_trajectory(record: EvaluationRecord) -> TrajectoryAssessment:
         and len(trajectory.model_responses) - trajectory.contract_repairs
         <= trajectory.budget.max_steps
         and trajectory.contract_repairs <= trajectory.budget.max_contract_repairs
-        and sum(response.token_count for response in trajectory.model_responses)
-        == trajectory.tokens_used
-        and trajectory.tokens_used <= trajectory.budget.max_tokens
+        and (
+            not trajectory.token_usage_recorded
+            or (
+                sum(response.token_count for response in trajectory.model_responses)
+                == trajectory.tokens_used
+                and trajectory.tokens_used <= trajectory.budget.max_tokens
+            )
+        )
     )
     if not budget_ok:
         reasons.append("recorded budget totals do not recompute")

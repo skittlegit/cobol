@@ -1,0 +1,127 @@
+{
+  "instance_id": "drift_824062",
+  "gold": {
+    "instance_id": "drift_824062",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "past_due_grace": {
+            "kind": "duration_days",
+            "value": 3,
+            "comparator": "strictly_greater",
+            "note": null
+          },
+          "charge_base": {
+            "kind": "enum_set",
+            "value": [
+              "outstanding_after_due_date"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "LATEFEE2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            10,
+            10
+          ]
+        },
+        {
+          "program": "LATEFEE2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            12,
+            12
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-PAST-DUE",
+        "WS-OUTSTANDING",
+        "WS-CHARGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": "past_due_grace",
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at LATEFEE2:<source>:10-10+LATEFEE2:<source>:12-12; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "LATEFEE2.cbl",
+      "mutation": "MO-0; locus=LATEFEE2:<source>:10-10+LATEFEE2:<source>:12-12; old='01  WS-RPT-HEADING            PIC X(10)'; new='01  WS-RPT-HEADING            PIC X(20)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"FILE LATEFEE2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. LATEFEE2.\\n0003:       * LATE CHARGE ON OUTSTANDING AFTER DUE DATE (3-DAY GRACE)\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.\\n0008:        01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\\n0009:        01  WS-CHARGE                 PIC 9(7)V99 VALUE ZERO.\\n0010:        01  WS-RPT-HEADING            PIC X(20)\\n0011:            VALUE SPACES.\\n0012:        01  FILLER                    PIC X(2) VALUE SPACES.\\n0013:        PROCEDURE DIVISION.\\n0014:        1000-MAIN.\\n0015:            ACCEPT WS-OUTSTANDING\\n0016:            ACCEPT WS-DAYS-PAST-DUE\\n0017:            PERFORM 2000-FEE\\n0018:            DISPLAY 'CHARGE: ' WS-CHARGE\\n0019:            STOP RUN.\\n0020:        2000-FEE.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible source performs paragraph 2000-FEE, but the supplied context ends at that paragraph label and shows no fee computation or charge-base logic. The required grace and outstanding-only conditions cannot be assessed.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The source context ends before the body of 2000-FEE, so there is no positive evidence for or against the required charge rules.",
+        "final_answer": "The clause requires past-due reporting or penal charges only after more than three days and charges based only on the outstanding amount after the due date. The supplied code shows only a PERFORM of 2000-FEE with no visible body, so evidence is insufficient.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible source performs paragraph 2000-FEE, but the supplied context ends at that paragraph label and shows no fee computation or charge-base logic. The required grace and outstanding-only conditions cannot be assessed.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The source context ends before the body of 2000-FEE, so there is no positive evidence for or against the required charge rules.\",\"final_answer\":\"The clause requires past-due reporting or penal charges only after more than three days and charges based only on the outstanding amount after the due date. The supplied code shows only a PERFORM of 2000-FEE with no visible body, so evidence is insufficient.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The source context ends before the body of 2000-FEE, so there is no positive evidence for or against the required charge rules.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires past-due reporting or penal charges only after more than three days and charges based only on the outstanding amount after the due date. The supplied code shows only a PERFORM of 2000-FEE with no visible body, so evidence is insufficient.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The source context ends before the body of 2000-FEE, so there is no positive evidence for or against the required charge rules.",
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "8a60088780072e5cb13534a98a5c03e3772770c209fdc5bfbf5d1ed378e56f18",
+  "run_key": "026b7684ffd98df373247d4db3948ab4653555b6399fb11e5dd3a7e82365f08e"
+}

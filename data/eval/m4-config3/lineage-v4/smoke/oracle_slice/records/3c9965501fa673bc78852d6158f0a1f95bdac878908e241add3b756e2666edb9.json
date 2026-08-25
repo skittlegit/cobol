@@ -1,0 +1,357 @@
+{
+  "instance_id": "drift_620215",
+  "gold": {
+    "instance_id": "drift_620215",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "past_due_grace": {
+            "kind": "duration_days",
+            "value": 3,
+            "comparator": "strictly_greater",
+            "note": null
+          },
+          "charge_base": {
+            "kind": "enum_set",
+            "value": [
+              "outstanding_after_due_date"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "LATEFEE2",
+          "paragraph": "2000-FEE",
+          "file": null,
+          "line_span": [
+            21,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-PAST-DUE",
+        "WS-OUTSTANDING",
+        "WS-CHARGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": "past_due_grace",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "LATEFEE2",
+          "line": 21,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-3 changes 'IF WS-DAYS-PAST-DUE > 3' to 'IF WS-DAYS-PAST-DUE > ZERO' at LATEFEE2:2000-FEE:21-21, producing D3_contradictory.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "LATEFEE2.cbl",
+      "mutation": "MO-3; locus=LATEFEE2:2000-FEE:21-21; old='IF WS-DAYS-PAST-DUE > 3'; new='IF WS-DAYS-PAST-DUE > ZERO'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_620215",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "past_due_grace": {
+            "kind": "duration_days",
+            "value": 3,
+            "comparator": "strictly_greater",
+            "note": null
+          },
+          "charge_base": {
+            "kind": "enum_set",
+            "value": [
+              "outstanding_after_due_date"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "LATEFEE2",
+          "paragraph": "2000-FEE",
+          "file": null,
+          "line_span": [
+            21,
+            22
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-PAST-DUE",
+        "WS-OUTSTANDING",
+        "WS-CHARGE"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "past_due_grace",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "LATEFEE2",
+          "line": 21,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "RBI clause 23(5) requires charges only when past due for more than three days. At LATEFEE2 paragraph 2000-FEE, lines 21-22, `IF WS-DAYS-PAST-DUE > ZERO` gates the charge computation, so any positive value, including one through three days, triggers it. The strict comparator is retained, but the threshold operand is zero rather than three; this supports D1_stale_threshold on the visible `past_due_grace` leaf."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "LATEFEE2:2000-FEE — literal 'ZERO' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9565,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "LATEFEE2:2000-FEE — literal 'ZERO' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"LATEFEE2\",\"slices\":[{\"variable\":\"WS-DAYS-PAST-DUE\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":16},\"text\":\"ACCEPT WS-DAYS-PAST-DUE\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-OUTSTANDING\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":15,\"line_end\":15},\"text\":\"ACCEPT WS-OUTSTANDING\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-CHARGE\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-CHARGE                 PIC 9(7)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":15,\"line_end\":15},\"text\":\"ACCEPT WS-OUTSTANDING\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":16},\"text\":\"ACCEPT WS-DAYS-PAST-DUE\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":17,\"line_end\":17},\"text\":\"PERFORM 2000-FEE\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"line_start\":21,\"line_end\":22},\"text\":\"IF WS-DAYS-PAST-DUE > ZERO\\n              COMPUTE WS-CHARGE ROUNDED = .025 * WS-OUTSTANDING\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"line_start\":22,\"line_end\":22},\"text\":\"COMPUTE WS-CHARGE ROUNDED = .025 * WS-OUTSTANDING\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"line_start\":24,\"line_end\":24},\"text\":\"MOVE ZERO TO WS-CHARGE\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "Clause 23(5) visibly requires a strictly-greater-than-three-day threshold. The executable predicate at LATEFEE2 paragraph 2000-FEE uses a strictly-greater-than-zero threshold, directly establishing stale-threshold drift.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_620215",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "23(5)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "past_due_grace": {
+                  "kind": "duration_days",
+                  "value": 3,
+                  "comparator": "strictly_greater",
+                  "note": null
+                },
+                "charge_base": {
+                  "kind": "enum_set",
+                  "value": [
+                    "outstanding_after_due_date"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE2",
+                "paragraph": "2000-FEE",
+                "file": null,
+                "line_span": [
+                  21,
+                  22
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-PAST-DUE",
+              "WS-OUTSTANDING",
+              "WS-CHARGE"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE2",
+                "line": 21,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "RBI clause 23(5) requires charges only when past due for more than three days. At LATEFEE2 paragraph 2000-FEE, lines 21-22, `IF WS-DAYS-PAST-DUE > ZERO` gates the charge computation, so any positive value, including one through three days, triggers it. The strict comparator is retained, but the threshold operand is zero rather than three; this supports D1_stale_threshold on the visible `past_due_grace` leaf."
+        },
+        "claim": "A card account may be reported past-due to CICs or have penal charges levied only when it has been past due for more than three days; late charges must be computed from the outstanding amount after the payment due date, not the Total Amount Due.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D1_stale_threshold: LATEFEE2 paragraph 2000-FEE, lines 21-22, charges when WS-DAYS-PAST-DUE > ZERO, while clause 23(5) permits penal charges only after more than three days. The affected clause leaf is `past_due_grace`.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"Clause 23(5) visibly requires a strictly-greater-than-three-day threshold. The executable predicate at LATEFEE2 paragraph 2000-FEE uses a strictly-greater-than-zero threshold, directly establishing stale-threshold drift.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"file\":null,\"line_span\":[21,22]}],\"slice_vars\":[\"WS-DAYS-PAST-DUE\",\"WS-OUTSTANDING\",\"WS-CHARGE\"],\"is_interprocedural\":true},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"past_due_grace\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"LATEFEE2\",\"line\":21,\"file\":null}]},\"rationale\":\"RBI clause 23(5) requires charges only when past due for more than three days. At LATEFEE2 paragraph 2000-FEE, lines 21-22, `IF WS-DAYS-PAST-DUE > ZERO` gates the charge computation, so any positive value, including one through three days, triggers it. The strict comparator is retained, but the threshold operand is zero rather than three; this supports D1_stale_threshold on the visible `past_due_grace` leaf.\"},\"claim\":\"A card account may be reported past-due to CICs or have penal charges levied only when it has been past due for more than three days; late charges must be computed from the outstanding amount after the payment due date, not the Total Amount Due.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"ZERO\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"D1_stale_threshold: LATEFEE2 paragraph 2000-FEE, lines 21-22, charges when WS-DAYS-PAST-DUE > ZERO, while clause 23(5) permits penal charges only after more than three days. The affected clause leaf is `past_due_grace`.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "LATEFEE2:2000-FEE — literal 'ZERO' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9565,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "LATEFEE2:2000-FEE — literal 'ZERO' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_620215",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "23(5)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "past_due_grace": {
+              "kind": "duration_days",
+              "value": 3,
+              "comparator": "strictly_greater",
+              "note": null
+            },
+            "charge_base": {
+              "kind": "enum_set",
+              "value": [
+                "outstanding_after_due_date"
+              ],
+              "comparator": null,
+              "note": null
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "LATEFEE2",
+            "paragraph": "2000-FEE",
+            "file": null,
+            "line_span": [
+              21,
+              22
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-DAYS-PAST-DUE",
+          "WS-OUTSTANDING",
+          "WS-CHARGE"
+        ],
+        "is_interprocedural": true
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": "past_due_grace",
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "LATEFEE2",
+            "line": 21,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "RBI clause 23(5) requires charges only when past due for more than three days. At LATEFEE2 paragraph 2000-FEE, lines 21-22, `IF WS-DAYS-PAST-DUE > ZERO` gates the charge computation, so any positive value, including one through three days, triggers it. The strict comparator is retained, but the threshold operand is zero rather than three; this supports D1_stale_threshold on the visible `past_due_grace` leaf."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "D1_stale_threshold: LATEFEE2 paragraph 2000-FEE, lines 21-22, charges when WS-DAYS-PAST-DUE > ZERO, while clause 23(5) permits penal charges only after more than three days. The affected clause leaf is `past_due_grace`.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "9f887a8eab0b7bc351e8e61858742c24947102798aa0eb4eaf28252ff080dfcf",
+  "run_key": "3c9965501fa673bc78852d6158f0a1f95bdac878908e241add3b756e2666edb9"
+}

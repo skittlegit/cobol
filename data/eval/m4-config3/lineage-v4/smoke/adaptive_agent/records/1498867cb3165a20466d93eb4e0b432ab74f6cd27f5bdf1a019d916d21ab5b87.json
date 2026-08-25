@@ -1,0 +1,399 @@
+{
+  "instance_id": "drift_483089",
+  "gold": {
+    "instance_id": "drift_483089",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(2)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "no_capitalization_of_unpaid_charges",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "INTROLL2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            17,
+            17
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-INTEREST-RULE-FLAG",
+        "INTEREST-RULE-ON",
+        "WS-INT-BASE",
+        "WS-INTEREST-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "INTROLL2",
+          "line": 17,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-6 changes 'PERFORM 1500-LOAD-INTEREST-RULE' to '(deleted)' at INTROLL2:1000-MAIN:17-17, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "INTROLL2.cbl",
+      "mutation": "MO-6; locus=INTROLL2:1000-MAIN:17-17; old='PERFORM 1500-LOAD-INTEREST-RULE'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"INTROLL2\",\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(2)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"no_capitalization_of_unpaid_charges\",\"comparator\":null,\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program^": "INTROLL2^"
+        },
+        "observation_summary": "TypeError: RealToolLayer.read_program() got an unexpected keyword argument 'program^'",
+        "observation_truncated": false,
+        "error": "TypeError: RealToolLayer.read_program() got an unexpected keyword argument 'program^'",
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_program",
+        "arguments": {
+          "program": "INTROLL2"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 30, \"line_start\": 16, \"name\": \"1000-MAIN\"}, {\"line_end\": 32, \"line_start\": 31, \"name\": \"1500-LOAD-INTEREST-RULE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\adaptive_agent\\\\task-staging-v1\\\\1498867cb3165a20466d93eb4e0b432ab74f6cd27f5bdf1a019d916d21ab5b87\\\\cases\\\\drift_900000\\\\INTROLL2.cbl\", \"program\": \"INTROLL2\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "INTROLL2",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n\\n           ACCEPT WS-OUTSTANDING\\n           ACCEPT WS-UNPAID-FEES\\n           ACCEPT WS-CREDITS\\n           IF INTEREST-RULE-ON\\n              COMPUTE WS-INT-BASE = WS-OUTSTANDING\\n                      - WS-UNPAID-FEES - WS-CREDITS\\n              IF WS-INT-BASE > ZERO\\n                 COMPUTE WS-INTEREST-AMT ROUNDED =\\n                         (WS-INT-BASE * WS-APR) / 1200\\n              END-IF\\n           END-IF\\n           DISPLAY 'INTEREST: ' WS-INTEREST-AMT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 30, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"INTROLL2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 15.0
+      },
+      {
+        "step": 4,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "INTROLL2",
+          "name": "1500-LOAD-INTEREST-RULE"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1500-LOAD-INTEREST-RULE.\\n           MOVE 'Y' TO WS-INTEREST-RULE-FLAG.\", \"name\": \"1500-LOAD-INTEREST-RULE\", \"ref\": {\"line_end\": 32, \"line_start\": 31, \"paragraph\": \"1500-LOAD-INTEREST-RULE\", \"program\": \"INTROLL2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 5,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-UNPAID-FEES"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 10, \"program\": \"INTROLL2\", \"text\": \"       01  WS-UNPAID-FEES PIC 9(7)V99 VALUE ZERO.\"}, {\"line\": 19, \"program\": \"INTROLL2\", \"text\": \"           ACCEPT WS-UNPAID-FEES\"}, {\"line\": 23, \"program\": \"INTROLL2\", \"text\": \"                      - WS-UNPAID-FEES - WS-CREDITS\"}], \"pattern\": \"WS-UNPAID-FEES\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 6,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-APR"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 13, \"program\": \"INTROLL2\", \"text\": \"       01  WS-APR          PIC 9(2)V99 VALUE 36.00.\"}, {\"line\": 26, \"program\": \"INTROLL2\", \"text\": \"                         (WS-INT-BASE * WS-APR) / 1200\"}], \"pattern\": \"WS-APR\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 7,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "INTEREST-RULE"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 7, \"program\": \"INTROLL2\", \"text\": \"       01  WS-INTEREST-RULE-FLAG PIC X VALUE 'N'.\"}, {\"line\": 8, \"program\": \"INTROLL2\", \"text\": \"           88  INTEREST-RULE-ON VALUE 'Y'.\"}, {\"line\": 21, \"program\": \"INTROLL2\", \"text\": \"           IF INTEREST-RULE-ON\"}, {\"line\": 31, \"program\": \"INTROLL2\", \"text\": \"       1500-LOAD-INTEREST-RULE.\"}, {\"line\": 32, \"program\": \"INTROLL2\", \"text\": \"           MOVE 'Y' TO WS-INTEREST-RULE-FLAG.\"}], \"pattern\": \"INTEREST-RULE\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 8,
+        "tool": "find_callers",
+        "arguments": {
+          "program": "INTROLL2",
+          "para": "1500-LOAD-INTEREST-RULE"
+        },
+        "observation_summary": "[]",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 9,
+        "tool": "find_callees",
+        "arguments": {
+          "program": "INTROLL2",
+          "para": "1000-MAIN"
+        },
+        "observation_summary": "[]",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 10,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-INTEREST-RULE-FLAG",
+          "program": "INTROLL2"
+        },
+        "observation_summary": "{\"scoped_program\": \"INTROLL2\", \"sites\": [{\"excerpt\": \"01  WS-INTEREST-RULE-FLAG PIC X VALUE 'N'.\", \"kind\": \"def\", \"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"INTROLL2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"IF INTEREST-RULE-ON\", \"kind\": \"use\", \"ref\": {\"line_end\": 21, \"line_start\": 21, \"paragraph\": \"1000-MAIN\", \"program\": \"INTROLL2\"}, \"statement_kind\": \"IF\"}, {\"excerpt\": \"MOVE 'Y' TO WS-INTEREST-RULE-FLAG.\", \"kind\": \"def\", \"ref\": {\"line_end\": 32, \"line_start\": 32, \"paragraph\": \"1500-LOAD-INTEREST-RULE\", \"program\": \"INTROLL2\"}, \"statement_kind\": \"MOVE\"}], \"variable\": \"WS-INTEREST-RULE-FLAG\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 11,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-INTEREST-RULE-FLAG",
+          "program": "INTROLL2"
+        },
+        "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1500-LOAD-INTEREST-RULE\", \"program\": \"INTROLL2\"}], \"scoped_program\": \"INTROLL2\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"INTROLL2\"}, \"text\": \"01  WS-INTEREST-RULE-FLAG PIC X VALUE 'N'.\"}, {\"ref\": {\"line_end\": 32, \"line_start\": 32, \"paragraph\": \"1500-LOAD-INTEREST-RULE\", \"program\": \"INTROLL2\"}, \"text\": \"MOVE 'Y' TO WS-INTEREST-RULE-FLAG.\"}], \"variable\": \"WS-INTEREST-RULE-FLAG\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The no-capitalization arithmetic is present, but its enabling interest-rule loader is an unreachable paragraph; the flag remains at its default N and the regulated path is dead.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_483089",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "23(2)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+            "current_value": {
+              "kind": "boolean_required",
+              "value": "no_capitalization_of_unpaid_charges",
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "INTROLL2",
+                "paragraph": "1500-LOAD-INTEREST-RULE",
+                "file": null,
+                "line_span": [
+                  31,
+                  32
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-INTEREST-RULE-FLAG",
+              "INTEREST-RULE-ON",
+              "WS-UNPAID-FEES",
+              "WS-CREDITS",
+              "WS-INT-BASE",
+              "WS-INTEREST-AMT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D6_dead_code",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "INTROLL2",
+                "line": 32,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "1500-LOAD-INTEREST-RULE only moves 'Y' into WS-INTEREST-RULE-FLAG, while the flag defaults to 'N' and gates the interest calculation in 1000-MAIN. The caller/callee, trace, and slice observations support the dead_paragraph claim, so the no-capitalization check is not activated."
+        },
+        "claim": "The 1500-LOAD-INTEREST-RULE paragraph is dead, so its Y assignment never enables the interest path containing the unpaid-charge exclusion.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": null,
+          "comparator": null,
+          "dead_paragraph": "1500-LOAD-INTEREST-RULE"
+        },
+        "abstention_reason": null,
+        "final_answer": "D6_dead_code: the interest-rule enabling paragraph is unreachable.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The no-capitalization arithmetic is present, but its enabling interest-rule loader is an unreachable paragraph; the flag remains at its default N and the regulated path is dead.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\",\"file\":null,\"line_span\":[31,32]}],\"slice_vars\":[\"WS-INTEREST-RULE-FLAG\",\"INTEREST-RULE-ON\",\"WS-UNPAID-FEES\",\"WS-CREDITS\",\"WS-INT-BASE\",\"WS-INTEREST-AMT\"],\"is_interprocedural\":false},\"drift_type\":\"D6_dead_code\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"INTROLL2\",\"line\":32,\"file\":null}]},\"rationale\":\"1500-LOAD-INTEREST-RULE only moves 'Y' into WS-INTEREST-RULE-FLAG, while the flag defaults to 'N' and gates the interest calculation in 1000-MAIN. The caller/callee, trace, and slice observations support the dead_paragraph claim, so the no-capitalization check is not activated.\"},\"claim\":\"The 1500-LOAD-INTEREST-RULE paragraph is dead, so its Y assignment never enables the interest path containing the unpaid-charge exclusion.\",\"exec_probe\":null,\"static_claim\":{\"literal\":null,\"comparator\":null,\"dead_paragraph\":\"1500-LOAD-INTEREST-RULE\"},\"abstention_reason\":null,\"final_answer\":\"D6_dead_code: the interest-rule enabling paragraph is unreachable.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 2,
+            "observation_sha256": "2c0e336901646f20a47eba119bbd3dc7c1eab613e05bafb0d440e272adda9d78",
+            "hypothesis": "D6_dead_code",
+            "bearing": "context",
+            "rationale": "The program has a main paragraph and a separate interest-rule loader paragraph, identifying the loader as the candidate compliance-control locus."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "adedb3c2280a5430705bdfcf0e3c039958e5d3425a50843be9727045a476bba8",
+            "hypothesis": "D6_dead_code",
+            "bearing": "supports",
+            "rationale": "The interest computation is guarded by INTEREST-RULE-ON; the no-capitalization arithmetic therefore depends on the flag being enabled."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "352f3a799f4e70f9958f93e21f5531fb7dc96419e93f928a3f28994f1efd5ebc",
+            "hypothesis": "D6_dead_code",
+            "bearing": "supports",
+            "rationale": "The loader paragraph consists solely of MOVE 'Y' TO WS-INTEREST-RULE-FLAG, making it the enabling compliance-control statement."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "8d6f9617950f94a56b8d22ce5dfbdbe8b00f15aff18d6c267eea53f0cc8d49ce",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "WS-UNPAID-FEES is accepted and subtracted from WS-INT-BASE before interest calculation, which is local positive evidence for excluding unpaid fees."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "8d6f9617950f94a56b8d22ce5dfbdbe8b00f15aff18d6c267eea53f0cc8d49ce",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "refutes",
+            "rationale": "The scoped source contains an explicit unpaid-fees exclusion, so the rule is not wholly absent."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "8d6f9617950f94a56b8d22ce5dfbdbe8b00f15aff18d6c267eea53f0cc8d49ce",
+            "hypothesis": "D3_contradictory",
+            "bearing": "refutes",
+            "rationale": "Only one typed arithmetic outcome is visible; no second conflicting regulated-condition locus is present."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "8d6f9617950f94a56b8d22ce5dfbdbe8b00f15aff18d6c267eea53f0cc8d49ce",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "refutes",
+            "rationale": "The trusted clause current value is boolean_required, not an enum_set reference collection, and no hardcoded enumeration is shown."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "3f67a67bfddd076f3ec0068bb9c9e28157798f4aa728402455d6232e7eed462c",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "refutes",
+            "rationale": "The only numeric literal shown is the APR value 36.00; there is no literal representing the boolean regulated leaf's current value."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "3f67a67bfddd076f3ec0068bb9c9e28157798f4aa728402455d6232e7eed462c",
+            "hypothesis": "D5_boundary_error",
+            "bearing": "refutes",
+            "rationale": "The APR multiplication expression supplies no source comparator corresponding to the clause's null comparator."
+          },
+          {
+            "observation_step": 7,
+            "observation_sha256": "e18e264390d3aeb7c3ba0ba1eaa2bcd49d050659de3a3976ee42b24d10deee7f",
+            "hypothesis": "D6_dead_code",
+            "bearing": "supports",
+            "rationale": "The flag defaults to 'N', INTEREST-RULE-ON is tested in main, and only the loader assigns 'Y'; activation depends entirely on that loader."
+          },
+          {
+            "observation_step": 8,
+            "observation_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "hypothesis": "D6_dead_code",
+            "bearing": "supports",
+            "rationale": "The static caller query returns no callers for 1500-LOAD-INTEREST-RULE, supporting the dead-paragraph verification claim for the enabling assignment."
+          },
+          {
+            "observation_step": 9,
+            "observation_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "hypothesis": "D6_dead_code",
+            "bearing": "supports",
+            "rationale": "The main paragraph has no callees, so it does not invoke the loader through an intra-program paragraph call."
+          },
+          {
+            "observation_step": 10,
+            "observation_sha256": "e5f77014d239076428f9fccd5ab1facfeae59ba162eb70f63e7690599406222d",
+            "hypothesis": "D6_dead_code",
+            "bearing": "supports",
+            "rationale": "The variable trace shows the default 'N' definition, the line-21 gate use, and the sole 'Y' definition at line 32 in the loader."
+          },
+          {
+            "observation_step": 11,
+            "observation_sha256": "5a97cab0cad5511010663e675826c6375f328a8a74a246c87586d19b7f6f9cce",
+            "hypothesis": "D6_dead_code",
+            "bearing": "supports",
+            "rationale": "The variable slice contains the default and loader assignment, with 1500-LOAD-INTEREST-RULE as the affecting paragraph, confirming the enabling code is isolated there."
+          },
+          {
+            "observation_step": 11,
+            "observation_sha256": "5a97cab0cad5511010663e675826c6375f328a8a74a246c87586d19b7f6f9cce",
+            "hypothesis": "D7_conformant",
+            "bearing": "refutes",
+            "rationale": "Although the subtraction exists, the slice and gate evidence show the enabling assignment is isolated in the dead loader, so active conformance is not established."
+          }
+        ]
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "adaptive evidence ledger: ledger step 6 observation hash differs; ledger step 6 observation hash differs",
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: adaptive evidence ledger: ledger step 6 observation hash differs; ledger step 6 observation hash differs",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "adaptive evidence ledger: ledger step 6 observation hash differs; ledger step 6 observation hash differs",
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "87650f698dec5b2c877e43a6b80a37f7ce05039300d584bcdb78641651d83a91",
+  "run_key": "1498867cb3165a20466d93eb4e0b432ab74f6cd27f5bdf1a019d916d21ab5b87"
+}

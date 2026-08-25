@@ -317,6 +317,14 @@ def load_frozen_inputs() -> FrozenInputs:
         _sha256(FROZEN_TEST) == CANONICAL_TEST_SHA256, "canonical LF test hash mismatch"
     )
     _require(
+        benchmark_manifest["split_sha256"]["test"] == CANONICAL_TEST_SHA256,
+        "benchmark manifest test identity mismatch",
+    )
+    _require(
+        benchmark_manifest["split_sha256"]["train"] == CANONICAL_TRAIN_SHA256,
+        "benchmark manifest train identity mismatch",
+    )
+    _require(
         set(benchmark_manifest["excluded_candidate_ids"]) == EXCLUDED_IDS,
         "excluded-candidate identity mismatch",
     )
@@ -518,7 +526,8 @@ def load_frozen_inputs() -> FrozenInputs:
         "sha256": _sha256(FROZEN_TEST),
         "canonical_lf_sha256": CANONICAL_TEST_SHA256,
         "canonical_lf_identity_used": True,
-        "stale_manifest_crlf_hash_ignored": benchmark_manifest["split_sha256"]["test"],
+        "manifest_split_sha256": benchmark_manifest["split_sha256"]["test"],
+        "manifest_identity_matches_canonical": True,
         "row_count": len(gold),
         "unique_instance_ids": len(set(frozen_ids)),
         "instance_ids_sha256": id_hash,
@@ -887,7 +896,11 @@ def _trajectory_resources(
         "provider_turns_recomputed": sum(
             len(row.model_responses) for row in trajectories
         ),
-        "token_count_total": sum(row.tokens_used for row in trajectories),
+        "token_count_total": (
+            sum(row.tokens_used for row in trajectories)
+            if all(row.token_usage_recorded for row in trajectories)
+            else "not_recorded"
+        ),
         "tool_calls": len(tool_calls),
         "successful_tool_observations": sum(step.error is None for step in tool_calls),
         "mean_successful_tool_observations_per_row": (

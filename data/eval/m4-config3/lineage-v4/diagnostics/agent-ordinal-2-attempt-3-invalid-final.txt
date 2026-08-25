@@ -1,0 +1,19 @@
+Both aliases expose the same compliance gap; I recommend D2_missing_rule for both.
+
+Evidence (bounded-tool loci):
+
+- `KYCSY208.cbl`, `2000-CHECK-SLA`, line 27: `IF WS-DAYS-SINCE-UPD = ZERO`; the paragraph only moves `NEW` to `WS-SLA-STATUS`.
+- `KYCSY206.cbl`, same paragraph/line and same code.
+- `grep UPDATE`: no matches for either program.
+- D2 graph checks: empty callers/callees for the missing update routine query; `slice_on` for `WS-KYC-UPDATE` returns no statements.
+- The checker is live, not dead: `1000-MAIN` performs `2000-CHECK-SLA`; `find_callers` confirms this.
+- `grep 7`: no matches.
+- No contradictory loci or enum reference data.
+
+Use a D2 locus such as:
+
+```json
+{"program":"KYCSY208","paragraph":"2000-CHECK-SLA","file":"KYCSY208.cbl","line_span":[27,29]}
+```
+
+and equivalent `KYCSY206`/`KYCSY206.cbl`; `is_interprocedural:false`, `slice_vars:["WS-KYC-UPDATE"]`. Set `target_path:null`, `static_claim:null`, and line-level drift at line 27. Abstain D1/D3–D7: `ZERO` is only a NEW-status equality, not demonstrably a stale seven-day bound; no comparator/positive conformance, contradiction, enum set, or dead paragraph is evidenced.

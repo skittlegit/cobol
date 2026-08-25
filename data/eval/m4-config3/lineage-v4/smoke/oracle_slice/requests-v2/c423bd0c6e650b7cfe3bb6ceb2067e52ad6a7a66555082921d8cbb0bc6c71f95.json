@@ -1,0 +1,422 @@
+{
+  "schema_version": "configuration-3-collaboration-request-v2",
+  "transport": "collaboration_subagent",
+  "provider": "collaboration_subagent",
+  "authentication": "in_product_orchestration",
+  "model_id": "gpt-5.6-luna",
+  "reasoning_effort": "max",
+  "run_key": "c423bd0c6e650b7cfe3bb6ceb2067e52ad6a7a66555082921d8cbb0bc6c71f95",
+  "request_sha256": "7e688f0519e7e05807c0aeada2b4652562431d350887175a3ce3f91a341cfbac",
+  "prompt": "Perform one evidence-grounded COBOL compliance classification for each opaque\ncase using only its supplied oracle_slice context. Tools and file access are not\navailable. Return exactly one response per alias under the required JSON\nschema. A finding must use the alias as prediction.instance_id, copy the\nschema. Set clause_index to null. The host attaches the single detector-visible context.clause.\nThe host also attaches the case identity; author the remaining prediction\nfields, cite concrete source loci from the context, and include verifier hooks.\nThe separate claim is the citation hypothesis: write only a regulatory\nobligation entailed by the selected visible clause, without COBOL identifiers\nor implementation facts. Put the code-versus-clause comparison in\nprediction.rationale and final_answer. In a locus, program names the containing\nexecutable program and file names the physical copybook/source filename, never\nan absolute task path. Set target_path to null unless a D1 or D5 finding\ntargets a composite current_value; in that case it must name a non-composite\nleaf from the selected visible clause. D7 requires positive source evidence of\nconformance and is never a default verdict. Abstain when evidence is\ninsufficient. Do not use or infer hidden labels, generation provenance,\nmutation metadata, git history, file timestamps, formatting, comment\nfreshness, or identifier style.\n\nDetector-visible cases:\n[{\"alias\":\"drift_900000\",\"context\":{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"LATEFEE2\",\"slices\":[{\"variable\":\"WS-DAYS-PAST-DUE\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":16},\"text\":\"ACCEPT WS-DAYS-PAST-DUE\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}},{\"alias\":\"drift_900001\",\"context\":{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"program\":\"BOIDENT3\",\"slices\":[{\"variable\":\"WS-OWN-PCT\",\"scoped_program\":\"BOIDENT3\",\"statements\":[{\"ref\":{\"program\":\"BOIDENT3\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-OWN-PCT                PIC 9(3)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"BOIDENT3\",\"paragraph\":\"1000-MAIN\",\"line_start\":17,\"line_end\":17},\"text\":\"ACCEPT WS-OWN-PCT\"}],\"paragraphs\":[{\"program\":\"BOIDENT3\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-CTRL-IND\",\"scoped_program\":\"BOIDENT3\",\"statements\":[{\"ref\":{\"program\":\"BOIDENT3\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-CTRL-IND               PIC X(1) VALUE 'N'.\"},{\"ref\":{\"program\":\"BOIDENT3\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"ACCEPT WS-CTRL-IND\"}],\"paragraphs\":[{\"program\":\"BOIDENT3\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}}]\n\n\nSTRICT RESPONSE CONTRACT (part of this frozen model-visible prompt):\nReturn exactly one JSON object matching the JSON Schema below. Do not wrap it in Markdown and do not include any text before or after it.\nJSON Schema (canonical JSON):\n{\"$defs\":{\"ExecProbe\":{\"additionalProperties\":false,\"description\":\"A Tier-1 execution probe: feed ``stdin`` to the compiled locus program and\\nrequire ``expect_substring`` in stdout for the claim to hold.\",\"properties\":{\"description\":{\"title\":\"Description\",\"type\":\"string\"},\"expect_substring\":{\"title\":\"Expect Substring\",\"type\":\"string\"},\"stdin\":{\"title\":\"Stdin\",\"type\":\"string\"}},\"required\":[\"stdin\",\"expect_substring\",\"description\"],\"title\":\"ExecProbe\",\"type\":\"object\"},\"Labels\":{\"additionalProperties\":false,\"properties\":{\"line_level\":{\"items\":{\"$ref\":\"#/$defs/SourceLineRef\"},\"title\":\"Line Level\",\"type\":\"array\"},\"paragraph_level\":{\"enum\":[\"drift\",\"conformant\"],\"title\":\"Paragraph Level\",\"type\":\"string\"},\"program_level\":{\"enum\":[\"drift\",\"conformant\"],\"title\":\"Program Level\",\"type\":\"string\"}},\"required\":[\"program_level\",\"paragraph_level\",\"line_level\"],\"title\":\"Labels\",\"type\":\"object\"},\"SourceLineRef\":{\"additionalProperties\":false,\"properties\":{\"file\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"File\"},\"line\":{\"title\":\"Line\",\"type\":\"integer\"},\"program\":{\"title\":\"Program\",\"type\":\"string\"}},\"required\":[\"program\",\"line\",\"file\"],\"title\":\"SourceLineRef\",\"type\":\"object\"},\"SourceLocus\":{\"additionalProperties\":false,\"properties\":{\"file\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"File\"},\"line_span\":{\"items\":{\"type\":\"integer\"},\"title\":\"Line Span\",\"type\":\"array\"},\"paragraph\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Paragraph\"},\"program\":{\"title\":\"Program\",\"type\":\"string\"}},\"required\":[\"program\",\"paragraph\",\"file\",\"line_span\"],\"title\":\"SourceLocus\",\"type\":\"object\"},\"StaticClaim\":{\"additionalProperties\":false,\"description\":\"A Tier-2 static assertion about the locus, checked against tool facts.\\n\\nAny subset may be given; the attempt verifies iff *all* provided sub-claims\\nhold. ``dead_paragraph`` routes to call-graph reachability (D6).\",\"properties\":{\"comparator\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Comparator\"},\"dead_paragraph\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Dead Paragraph\"},\"literal\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Literal\"}},\"required\":[\"literal\",\"comparator\",\"dead_paragraph\"],\"title\":\"StaticClaim\",\"type\":\"object\"},\"SubmittedBaselineCase\":{\"additionalProperties\":false,\"properties\":{\"alias\":{\"title\":\"Alias\",\"type\":\"string\"},\"clause_index\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"title\":\"Clause Index\"},\"response\":{\"$ref\":\"#/$defs/SubmittedResponse\"}},\"required\":[\"alias\",\"clause_index\",\"response\"],\"title\":\"SubmittedBaselineCase\",\"type\":\"object\"},\"SubmittedCodeLocus\":{\"additionalProperties\":false,\"description\":\"Provider-authored locus before host-side semantic validation.\\n\\nJSON-schema structured output cannot express the cross-field rule that\\nmulti-program loci require ``is_interprocedural=True``. Keep the submitted\\nvalue intact here, then let ``DriftPrediction`` validate it during trusted\\ninput binding. A violation therefore abstains only that hunt instead of\\ninvalidating every row in the provider batch.\",\"properties\":{\"is_interprocedural\":{\"title\":\"Is Interprocedural\",\"type\":\"boolean\"},\"loci\":{\"items\":{\"$ref\":\"#/$defs/SourceLocus\"},\"title\":\"Loci\",\"type\":\"array\"},\"slice_vars\":{\"items\":{\"type\":\"string\"},\"title\":\"Slice Vars\",\"type\":\"array\"}},\"required\":[\"loci\",\"slice_vars\",\"is_interprocedural\"],\"title\":\"SubmittedCodeLocus\",\"type\":\"object\"},\"SubmittedPrediction\":{\"additionalProperties\":false,\"description\":\"Provider-authored prediction fields; trusted inputs are host-attached.\",\"properties\":{\"code_locus\":{\"$ref\":\"#/$defs/SubmittedCodeLocus\"},\"drift_type\":{\"enum\":[\"D1_stale_threshold\",\"D2_missing_rule\",\"D3_contradictory\",\"D4_stale_reference_data\",\"D5_boundary_error\",\"D6_dead_code\",\"D7_conformant\"],\"title\":\"Drift Type\",\"type\":\"string\"},\"labels\":{\"$ref\":\"#/$defs/Labels\"},\"rationale\":{\"title\":\"Rationale\",\"type\":\"string\"},\"target_path\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Target Path\"}},\"required\":[\"code_locus\",\"drift_type\",\"target_path\",\"labels\",\"rationale\"],\"title\":\"SubmittedPrediction\",\"type\":\"object\"},\"SubmittedResponse\":{\"additionalProperties\":false,\"description\":\"Provider-facing final answer without provider-owned telemetry.\",\"properties\":{\"abstention_reason\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Abstention Reason\"},\"claim\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Claim\"},\"exec_probe\":{\"anyOf\":[{\"$ref\":\"#/$defs/ExecProbe\"},{\"type\":\"null\"}]},\"final_answer\":{\"title\":\"Final Answer\",\"type\":\"string\"},\"kind\":{\"enum\":[\"finding\",\"abstain\"],\"title\":\"Kind\",\"type\":\"string\"},\"prediction\":{\"anyOf\":[{\"$ref\":\"#/$defs/SubmittedPrediction\"},{\"type\":\"null\"}]},\"static_claim\":{\"anyOf\":[{\"$ref\":\"#/$defs/StaticClaim\"},{\"type\":\"null\"}]},\"thought\":{\"title\":\"Thought\",\"type\":\"string\"}},\"required\":[\"kind\",\"thought\",\"prediction\",\"claim\",\"exec_probe\",\"static_claim\",\"abstention_reason\",\"final_answer\"],\"title\":\"SubmittedResponse\",\"type\":\"object\"}},\"additionalProperties\":false,\"properties\":{\"results\":{\"items\":{\"$ref\":\"#/$defs/SubmittedBaselineCase\"},\"title\":\"Results\",\"type\":\"array\"}},\"required\":[\"results\"],\"title\":\"CodexBaselineEnvelope\",\"type\":\"object\"}",
+  "prompt_sha256": "5f5a038373db5c111550a2de1ef147bdfa7109242172afc5787d3c2994fcf3ec",
+  "response_schema": {
+    "$defs": {
+      "ExecProbe": {
+        "additionalProperties": false,
+        "description": "A Tier-1 execution probe: feed ``stdin`` to the compiled locus program and\nrequire ``expect_substring`` in stdout for the claim to hold.",
+        "properties": {
+          "stdin": {
+            "title": "Stdin",
+            "type": "string"
+          },
+          "expect_substring": {
+            "title": "Expect Substring",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stdin",
+          "expect_substring",
+          "description"
+        ],
+        "title": "ExecProbe",
+        "type": "object"
+      },
+      "Labels": {
+        "additionalProperties": false,
+        "properties": {
+          "program_level": {
+            "enum": [
+              "drift",
+              "conformant"
+            ],
+            "title": "Program Level",
+            "type": "string"
+          },
+          "paragraph_level": {
+            "enum": [
+              "drift",
+              "conformant"
+            ],
+            "title": "Paragraph Level",
+            "type": "string"
+          },
+          "line_level": {
+            "items": {
+              "$ref": "#/$defs/SourceLineRef"
+            },
+            "title": "Line Level",
+            "type": "array"
+          }
+        },
+        "required": [
+          "program_level",
+          "paragraph_level",
+          "line_level"
+        ],
+        "title": "Labels",
+        "type": "object"
+      },
+      "SourceLineRef": {
+        "additionalProperties": false,
+        "properties": {
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "line": {
+            "title": "Line",
+            "type": "integer"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          }
+        },
+        "required": [
+          "program",
+          "line",
+          "file"
+        ],
+        "title": "SourceLineRef",
+        "type": "object"
+      },
+      "SourceLocus": {
+        "additionalProperties": false,
+        "properties": {
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paragraph"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "line_span": {
+            "title": "Line Span",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "program",
+          "paragraph",
+          "file",
+          "line_span"
+        ],
+        "title": "SourceLocus",
+        "type": "object"
+      },
+      "StaticClaim": {
+        "additionalProperties": false,
+        "description": "A Tier-2 static assertion about the locus, checked against tool facts.\n\nAny subset may be given; the attempt verifies iff *all* provided sub-claims\nhold. ``dead_paragraph`` routes to call-graph reachability (D6).",
+        "properties": {
+          "literal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Literal"
+          },
+          "comparator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparator"
+          },
+          "dead_paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dead Paragraph"
+          }
+        },
+        "title": "StaticClaim",
+        "type": "object",
+        "required": [
+          "literal",
+          "comparator",
+          "dead_paragraph"
+        ]
+      },
+      "SubmittedBaselineCase": {
+        "additionalProperties": false,
+        "properties": {
+          "alias": {
+            "title": "Alias",
+            "type": "string"
+          },
+          "clause_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clause Index"
+          },
+          "response": {
+            "$ref": "#/$defs/SubmittedResponse"
+          }
+        },
+        "required": [
+          "alias",
+          "clause_index",
+          "response"
+        ],
+        "title": "SubmittedBaselineCase",
+        "type": "object"
+      },
+      "SubmittedCodeLocus": {
+        "additionalProperties": false,
+        "description": "Provider-authored locus before host-side semantic validation.\n\nJSON-schema structured output cannot express the cross-field rule that\nmulti-program loci require ``is_interprocedural=True``. Keep the submitted\nvalue intact here, then let ``DriftPrediction`` validate it during trusted\ninput binding. A violation therefore abstains only that hunt instead of\ninvalidating every row in the provider batch.",
+        "properties": {
+          "loci": {
+            "items": {
+              "$ref": "#/$defs/SourceLocus"
+            },
+            "title": "Loci",
+            "type": "array"
+          },
+          "slice_vars": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Slice Vars",
+            "type": "array"
+          },
+          "is_interprocedural": {
+            "title": "Is Interprocedural",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "loci",
+          "slice_vars",
+          "is_interprocedural"
+        ],
+        "title": "SubmittedCodeLocus",
+        "type": "object"
+      },
+      "SubmittedPrediction": {
+        "additionalProperties": false,
+        "description": "Provider-authored prediction fields; trusted inputs are host-attached.",
+        "properties": {
+          "code_locus": {
+            "$ref": "#/$defs/SubmittedCodeLocus"
+          },
+          "drift_type": {
+            "enum": [
+              "D1_stale_threshold",
+              "D2_missing_rule",
+              "D3_contradictory",
+              "D4_stale_reference_data",
+              "D5_boundary_error",
+              "D6_dead_code",
+              "D7_conformant"
+            ],
+            "title": "Drift Type",
+            "type": "string"
+          },
+          "target_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Path"
+          },
+          "labels": {
+            "$ref": "#/$defs/Labels"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code_locus",
+          "drift_type",
+          "target_path",
+          "labels",
+          "rationale"
+        ],
+        "title": "SubmittedPrediction",
+        "type": "object"
+      },
+      "SubmittedResponse": {
+        "additionalProperties": false,
+        "description": "Provider-facing final answer without provider-owned telemetry.",
+        "properties": {
+          "kind": {
+            "enum": [
+              "finding",
+              "abstain"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "thought": {
+            "title": "Thought",
+            "type": "string"
+          },
+          "prediction": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SubmittedPrediction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claim"
+          },
+          "exec_probe": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ExecProbe"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "static_claim": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/StaticClaim"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "abstention_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstention Reason"
+          },
+          "final_answer": {
+            "title": "Final Answer",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "thought",
+          "prediction",
+          "claim",
+          "exec_probe",
+          "static_claim",
+          "abstention_reason",
+          "final_answer"
+        ],
+        "title": "SubmittedResponse",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "results": {
+        "items": {
+          "$ref": "#/$defs/SubmittedBaselineCase"
+        },
+        "title": "Results",
+        "type": "array"
+      }
+    },
+    "required": [
+      "results"
+    ],
+    "title": "CodexBaselineEnvelope",
+    "type": "object"
+  },
+  "schema_sha256": "50226a448fdebb712b67454bd9d203765423b544a99ce0d55a694d8d36845bae",
+  "source_sha256": {},
+  "runtime_source_sha256": "9367860de165aa899577ab6b5d42eee305db9c7db78053a9a040b8fc14178e43",
+  "authorized_hunts": [],
+  "visible_cases": 2,
+  "prior_case_context_included": false,
+  "group": {
+    "group_id": "config3:smoke:oracle_slice",
+    "mode": "concurrent",
+    "ordinal": 5,
+    "size": 7
+  }
+}

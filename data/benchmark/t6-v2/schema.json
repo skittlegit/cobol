@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cobol-archaeologist.invalid/benchmark/t6-v2/schema.json",
+  "title": "T6-v2 preparation manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "lifecycle_state", "source_benchmark",
+    "authority_manifest", "candidate_proposals", "blinded_review_packet", "blind_release_policy",
+    "review_response_schema", "candidate_programs", "authority_sources",
+    "inherited_review_evidence",
+    "reviewed_pair_count", "candidate_pair_count", "target_pair_count",
+    "evaluation_eligible_pair_count", "evaluation_ready",
+    "development_use_prohibited", "v1_excluded_candidate_ids",
+    "carried_forward_pairs", "candidate_pair_specs"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "lifecycle_state": {"const": "candidate_preparation_only"},
+    "source_benchmark": {"$ref": "#/$defs/ArtifactPin"},
+    "authority_manifest": {"$ref": "#/$defs/ArtifactPin"},
+    "candidate_proposals": {"$ref": "#/$defs/ArtifactPin"},
+    "blinded_review_packet": {"$ref": "#/$defs/ArtifactPin"},
+    "blind_release_policy": {"$ref": "#/$defs/ArtifactPin"},
+    "review_response_schema": {"$ref": "#/$defs/ArtifactPin"},
+    "candidate_programs": {
+      "type": "array", "minItems": 11, "maxItems": 11,
+      "items": {"$ref": "#/$defs/CandidateProgramPin"}
+    },
+    "authority_sources": {"type": "array", "items": {"$ref": "#/$defs/AuthorityPin"}},
+    "inherited_review_evidence": {"type": "array", "items": {"$ref": "#/$defs/ArtifactPin"}},
+    "reviewed_pair_count": {"const": 9},
+    "candidate_pair_count": {"const": 11},
+    "target_pair_count": {"const": 20},
+    "evaluation_eligible_pair_count": {"const": 9},
+    "evaluation_ready": {"const": false},
+    "development_use_prohibited": {"const": true},
+    "v1_excluded_candidate_ids": {"type": "array", "items": {"type": "string", "pattern": "^drift_[0-9]{6}$"}},
+    "carried_forward_pairs": {"type": "array", "minItems": 9, "maxItems": 9, "items": {"$ref": "#/$defs/CarriedForwardPair"}},
+    "candidate_pair_specs": {"type": "array", "minItems": 11, "maxItems": 11, "items": {"$ref": "#/$defs/CandidatePairSpec"}}
+  },
+  "$defs": {
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "ArtifactPin": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/Sha256"}}
+    },
+    "CandidateProgramPin": {
+      "type": "object", "additionalProperties": false,
+      "required": ["pair_id", "path", "sha256"],
+      "properties": {
+        "pair_id": {"type": "string", "pattern": "^t6v2-candidate-[0-9]{2}$"},
+        "path": {"type": "string", "pattern": "^data/benchmark/t6-v2/candidates/programs/T6V2P[345][A-Z0-9]+\\.cbl$"},
+        "sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "AuthorityPin": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_role", "file", "sha256"],
+      "properties": {
+        "source_role": {"type": "string", "minLength": 1},
+        "file": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "RowReference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["instance_id", "row_sha256", "version", "effective_date", "expected_drift_type"],
+      "properties": {
+        "instance_id": {"type": "string", "pattern": "^drift_[0-9]{6}$"},
+        "row_sha256": {"$ref": "#/$defs/Sha256"},
+        "version": {"type": "string", "minLength": 1},
+        "effective_date": {"type": "string", "format": "date"},
+        "expected_drift_type": {"type": "string", "pattern": "^D[1-7]_"}
+      }
+    },
+    "CarriedForwardPair": {
+      "type": "object", "additionalProperties": false,
+      "required": ["pair_id", "period", "source_split", "sides", "code_input_path", "code_sha256", "review_state", "eligible_for_evaluation"],
+      "properties": {
+        "pair_id": {"type": "string", "pattern": "^t6v2-carried-[0-9]{2}$"},
+        "period": {"enum": ["P4", "P5"]},
+        "source_split": {"const": "data/benchmark/v1/test.jsonl"},
+        "sides": {"type": "array", "minItems": 2, "maxItems": 2, "prefixItems": [{"$ref": "#/$defs/RowReference"}, {"$ref": "#/$defs/RowReference"}]},
+        "code_input_path": {"type": "string", "pattern": "^data/benchmark/seed/programs/.+\\.cbl$"},
+        "code_sha256": {"$ref": "#/$defs/Sha256"},
+        "review_state": {"const": "v1_independently_reviewed"},
+        "eligible_for_evaluation": {"const": true}
+      }
+    },
+    "CandidateAuthority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_role", "clause_id", "version", "effective_date"],
+      "properties": {
+        "source_role": {"type": "string", "minLength": 1},
+        "clause_id": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "effective_date": {"type": "string", "format": "date"}
+      }
+    },
+    "CandidatePairSpec": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "pair_id", "origin", "period", "planned_code_input", "locality",
+        "implementation_shape", "old_authority", "new_authority",
+        "review_state", "human_primary_review", "independent_verification",
+        "adjudication", "eligible_for_evaluation", "development_use_prohibited"
+      ],
+      "properties": {
+        "pair_id": {"type": "string", "pattern": "^t6v2-candidate-[0-9]{2}$"},
+        "origin": {"const": "new_pair_design"},
+        "period": {"enum": ["P3", "P4", "P5"]},
+        "planned_code_input": {"type": "string", "pattern": "^T6V2P[345][A-Z0-9]+\\.cbl$"},
+        "locality": {"enum": ["local", "interprocedural"]},
+        "implementation_shape": {"type": "string", "minLength": 20},
+        "old_authority": {"$ref": "#/$defs/CandidateAuthority"},
+        "new_authority": {"$ref": "#/$defs/CandidateAuthority"},
+        "review_state": {"const": "candidate_unreviewed"},
+        "human_primary_review": {"type": "null"},
+        "independent_verification": {"type": "null"},
+        "adjudication": {"type": "null"},
+        "eligible_for_evaluation": {"const": false},
+        "development_use_prohibited": {"const": true}
+      }
+    }
+  }
+}

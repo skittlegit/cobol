@@ -1,0 +1,108 @@
+{
+  "instance_id": "drift_405485",
+  "gold": {
+    "instance_id": "drift_405485",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT3",
+          "paragraph": "2000-CLASSIFY",
+          "file": null,
+          "line_span": [
+            29,
+            29
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-OWN-PCT",
+        "WS-CTRL-IND"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "BOIDENT3",
+          "line": 29,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-5 changes '>' to '>=' at BOIDENT3:2000-CLASSIFY:29-29, producing D5_boundary_error.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "BOIDENT3.cbl",
+      "mutation": "MO-5; locus=BOIDENT3:2000-CLASSIFY:29-29; old='>'; new='>='; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"program\":\"BOIDENT3\",\"slices\":[{\"variable\":\"WS-OWN-PCT\",\"scoped_program\":\"BOIDENT3\",\"statements\":[{\"ref\":{\"program\":\"BOIDENT3\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-OWN-PCT                PIC 9(3)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"BOIDENT3\",\"paragraph\":\"1000-MAIN\",\"line_start\":17,\"line_end\":17},\"text\":\"ACCEPT WS-OWN-PCT\"}],\"paragraphs\":[{\"program\":\"BOIDENT3\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-CTRL-IND\",\"scoped_program\":\"BOIDENT3\",\"statements\":[{\"ref\":{\"program\":\"BOIDENT3\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-CTRL-IND               PIC X(1) VALUE 'N'.\"},{\"ref\":{\"program\":\"BOIDENT3\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"ACCEPT WS-CTRL-IND\"}],\"paragraphs\":[{\"program\":\"BOIDENT3\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied slices only declare and accept WS-OWN-PCT and WS-CTRL-IND; they show no beneficial-owner determination or threshold comparison.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Insufficient evidence: BOIDENT3 lines 8, 17, 9, and 18 show declarations and input only, without logic establishing ownership or entitlement above ten percent of capital or profits.",
+        "final_answer": "Abstain. BOIDENT3 line 8 declares WS-OWN-PCT and paragraph 1000-MAIN line 17 accepts it; lines 9 and 18 likewise only declare and accept WS-CTRL-IND. No visible code compares ownership or entitlement against the more-than-ten-percent obligation in clause 5(iv)(b).",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied slices only declare and accept WS-OWN-PCT and WS-CTRL-IND; they show no beneficial-owner determination or threshold comparison.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Insufficient evidence: BOIDENT3 lines 8, 17, 9, and 18 show declarations and input only, without logic establishing ownership or entitlement above ten percent of capital or profits.\",\"final_answer\":\"Abstain. BOIDENT3 line 8 declares WS-OWN-PCT and paragraph 1000-MAIN line 17 accepts it; lines 9 and 18 likewise only declare and accept WS-CTRL-IND. No visible code compares ownership or entitlement against the more-than-ten-percent obligation in clause 5(iv)(b).\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "Insufficient evidence: BOIDENT3 lines 8, 17, 9, and 18 show declarations and input only, without logic establishing ownership or entitlement above ten percent of capital or profits.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain. BOIDENT3 line 8 declares WS-OWN-PCT and paragraph 1000-MAIN line 17 accepts it; lines 9 and 18 likewise only declare and accept WS-CTRL-IND. No visible code compares ownership or entitlement against the more-than-ten-percent obligation in clause 5(iv)(b).",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "Insufficient evidence: BOIDENT3 lines 8, 17, 9, and 18 show declarations and input only, without logic establishing ownership or entitlement above ten percent of capital or profits.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "f7c3a577fa14ee2c9e3928c799f3a8ee489c03870a6db558951db579a0e77839",
+  "run_key": "1dd3db9e721282083fcf2c06acaabf710144d796d13632ca8d4d6335d16fbfa7"
+}

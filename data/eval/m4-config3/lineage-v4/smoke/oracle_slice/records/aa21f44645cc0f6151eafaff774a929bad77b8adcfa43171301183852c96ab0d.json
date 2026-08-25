@@ -1,0 +1,122 @@
+{
+  "instance_id": "drift_290361",
+  "gold": {
+    "instance_id": "drift_290361",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "past_due_grace": {
+            "kind": "duration_days",
+            "value": 3,
+            "comparator": "strictly_greater",
+            "note": null
+          },
+          "charge_base": {
+            "kind": "enum_set",
+            "value": [
+              "outstanding_after_due_date"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "LATEFEE2",
+          "paragraph": "2000-FEE",
+          "file": null,
+          "line_span": [
+            21,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-PAST-DUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": "past_due_grace",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "LATEFEE2",
+          "line": 21,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-5 changes '>' to '>=' at LATEFEE2:2000-FEE:21-21, producing D5_boundary_error.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "LATEFEE2.cbl",
+      "mutation": "MO-5; locus=LATEFEE2:2000-FEE:21-21; old='>'; new='>='; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"LATEFEE2\",\"slices\":[{\"variable\":\"WS-DAYS-PAST-DUE\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":16},\"text\":\"ACCEPT WS-DAYS-PAST-DUE\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied slice only declares and accepts WS-DAYS-PAST-DUE; it shows no test or computation for the clause's three-day rule or charge base.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Insufficient evidence: LATEFEE2 lines 8 and 16 show declaration and input only, with no visible past-due gate, due-date computation, or late-charge base.",
+        "final_answer": "Abstain. LATEFEE2 line 8 declares WS-DAYS-PAST-DUE and paragraph 1000-MAIN line 16 accepts it, but the visible code does not expose a strictly-greater-than-three-day gate or the required outstanding-after-due-date charge base for clause 23(5).",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied slice only declares and accepts WS-DAYS-PAST-DUE; it shows no test or computation for the clause's three-day rule or charge base.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Insufficient evidence: LATEFEE2 lines 8 and 16 show declaration and input only, with no visible past-due gate, due-date computation, or late-charge base.\",\"final_answer\":\"Abstain. LATEFEE2 line 8 declares WS-DAYS-PAST-DUE and paragraph 1000-MAIN line 16 accepts it, but the visible code does not expose a strictly-greater-than-three-day gate or the required outstanding-after-due-date charge base for clause 23(5).\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "Insufficient evidence: LATEFEE2 lines 8 and 16 show declaration and input only, with no visible past-due gate, due-date computation, or late-charge base.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain. LATEFEE2 line 8 declares WS-DAYS-PAST-DUE and paragraph 1000-MAIN line 16 accepts it, but the visible code does not expose a strictly-greater-than-three-day gate or the required outstanding-after-due-date charge base for clause 23(5).",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "Insufficient evidence: LATEFEE2 lines 8 and 16 show declaration and input only, with no visible past-due gate, due-date computation, or late-charge base.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "f6683dc27e18de771ada2237dbada2fc1a7a4daf74802854c344c9230d94c201",
+  "run_key": "aa21f44645cc0f6151eafaff774a929bad77b8adcfa43171301183852c96ab0d"
+}

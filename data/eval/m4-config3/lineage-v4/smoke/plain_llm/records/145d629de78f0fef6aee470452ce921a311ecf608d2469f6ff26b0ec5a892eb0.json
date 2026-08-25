@@ -1,0 +1,110 @@
+{
+  "instance_id": "drift_483089",
+  "gold": {
+    "instance_id": "drift_483089",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(2)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "no_capitalization_of_unpaid_charges",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "INTROLL2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            17,
+            17
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-INTEREST-RULE-FLAG",
+        "INTEREST-RULE-ON",
+        "WS-INT-BASE",
+        "WS-INTEREST-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "INTROLL2",
+          "line": 17,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-6 changes 'PERFORM 1500-LOAD-INTEREST-RULE' to '(deleted)' at INTROLL2:1000-MAIN:17-17, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "INTROLL2.cbl",
+      "mutation": "MO-6; locus=INTROLL2:1000-MAIN:17-17; old='PERFORM 1500-LOAD-INTEREST-RULE'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(2)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"no_capitalization_of_unpaid_charges\",\"comparator\":null,\"note\":null}},\"program\":\"FILE INTROLL2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. INTROLL2.\\n0003:       * MONTHLY INTEREST POSTING WITH RULE TABLE INITIALIZATION.\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-INTEREST-RULE-FLAG PIC X VALUE 'N'.\\n0008:            88  INTEREST-RULE-ON VALUE 'Y'.\\n0009:        01  WS-OUTSTANDING PIC 9(9)V99 VALUE ZERO.\\n0010:        01  WS-UNPAID-FEES PIC 9(7)V99 VALUE ZERO.\\n0011:        01  WS-CREDITS      PIC 9(9)V99 VALUE ZERO.\\n0012:        01  WS-INT-BASE     PIC S9(9)V99 VALUE ZERO.\\n0013:        01  WS-APR          PIC 9(2)V99 VALUE 36.00.\\n0014:        01  WS-INTEREST-AMT PIC 9(7)V99 VALUE ZERO.\\n0015:        PROCEDURE DIVISION.\\n0016:        1000-MAIN.\\n0017:            \\n0018:            ACCEPT WS-OUTSTANDING\\n0019:            ACCEPT WS-UNPAID-FEES\\n0020:            ACCEPT WS-CREDITS\\nFILE INTROLL2.cbl LINES 21-32\\n0021:            IF INTEREST-RULE-ON\\n0022:               COMPUTE WS-INT-BASE = WS-OUTSTANDING\\n0023:                       - WS-UNPAID-FEES - WS-CREDITS\\n0024:               IF WS-INT-BASE > ZERO\\n0025:                  COMPUTE WS-INTEREST-AMT ROUNDED =\\n0026:                          (WS-INT-BASE * WS-APR) / 1200\\n0027:               END-IF\\n0028:            END-IF\\n0029:            DISPLAY 'INTEREST: ' WS-INTEREST-AMT\\n0030:            STOP RUN.\\n0031:        1500-LOAD-INTEREST-RULE.\\n0032:            MOVE 'Y' TO WS-INTEREST-RULE-FLAG.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The source contains an otherwise compliant interest-base calculation, but the rule flag is initialized off and its only visible initializer is in paragraph 1500-LOAD-INTEREST-RULE after STOP RUN, with no visible PERFORM. The conformance logic is therefore unreachable in the shown execution path.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, line_level ref (program='INTROLL2', file='INTROLL2.cbl', line=7) matches no locus span [type=value_error, input_value={'instance_id': 'drift_48... shown execution path.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, line_level ref (program='INTROLL2', file='INTROLL2.cbl', line=7) matches no locus span [type=value_error, input_value={'instance_id': 'drift_48... shown execution path.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The source contains an otherwise compliant interest-base calculation, but the rule flag is initialized off and its only visible initializer is in paragraph 1500-LOAD-INTEREST-RULE after STOP RUN, with no visible PERFORM. The conformance logic is therefore unreachable in the shown execution path.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"file\":\"INTROLL2.cbl\",\"line_span\":[21,28]},{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\",\"file\":\"INTROLL2.cbl\",\"line_span\":[31,32]}],\"slice_vars\":[\"WS-INTEREST-RULE-FLAG\",\"INTEREST-RULE-ON\",\"WS-UNPAID-FEES\",\"WS-INT-BASE\",\"WS-INTEREST-AMT\"],\"is_interprocedural\":false},\"drift_type\":\"D6_dead_code\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"INTROLL2\",\"line\":7,\"file\":\"INTROLL2.cbl\"},{\"program\":\"INTROLL2\",\"line\":21,\"file\":\"INTROLL2.cbl\"},{\"program\":\"INTROLL2\",\"line\":22,\"file\":\"INTROLL2.cbl\"},{\"program\":\"INTROLL2\",\"line\":23,\"file\":\"INTROLL2.cbl\"},{\"program\":\"INTROLL2\",\"line\":24,\"file\":\"INTROLL2.cbl\"},{\"program\":\"INTROLL2\",\"line\":25,\"file\":\"INTROLL2.cbl\"},{\"program\":\"INTROLL2\",\"line\":26,\"file\":\"INTROLL2.cbl\"},{\"program\":\"INTROLL2\",\"line\":31,\"file\":\"INTROLL2.cbl\"},{\"program\":\"INTROLL2\",\"line\":32,\"file\":\"INTROLL2.cbl\"}]},\"rationale\":\"Clause 23(2) requires unpaid charges, levies and taxes not to be capitalized for charging or compounding interest. Lines 22-26 calculate interest on outstanding less unpaid fees, but line 21 is guarded by a flag initialized to N at line 7; the only visible MOVE to Y is in 1500-LOAD-INTEREST-RULE at lines 31-32 after STOP RUN and without a visible call. Thus the otherwise conforming calculation is dead in the shown execution path.\"},\"claim\":\"Minimum Amount Due must avoid negative amortization, and unpaid charges, levies and taxes must not be capitalized for charging or compounding interest.\",\"exec_probe\":null,\"static_claim\":{\"literal\":null,\"comparator\":null,\"dead_paragraph\":\"1500-LOAD-INTEREST-RULE\"},\"abstention_reason\":null,\"final_answer\":\"D6 dead-code drift: although lines 22-26 exclude unpaid fees from the interest base, the guarding rule flag is never enabled on the shown path because its only initializer follows STOP RUN. The required non-capitalization logic is therefore unreachable.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, line_level ref (program='INTROLL2', file='INTROLL2.cbl', line=7) matches no locus span [type=value_error, input_value={'instance_id': 'drift_48... shown execution path.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, line_level ref (program='INTROLL2', file='INTROLL2.cbl', line=7) matches no locus span [type=value_error, input_value={'instance_id': 'drift_48... shown execution path.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, line_level ref (program='INTROLL2', file='INTROLL2.cbl', line=7) matches no locus span [type=value_error, input_value={'instance_id': 'drift_48... shown execution path.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "87650f698dec5b2c877e43a6b80a37f7ce05039300d584bcdb78641651d83a91",
+  "run_key": "145d629de78f0fef6aee470452ce921a311ecf608d2469f6ff26b0ec5a892eb0"
+}

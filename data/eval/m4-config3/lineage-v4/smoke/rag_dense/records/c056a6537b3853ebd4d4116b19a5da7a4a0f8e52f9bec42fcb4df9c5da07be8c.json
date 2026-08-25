@@ -1,0 +1,108 @@
+{
+  "instance_id": "drift_723630",
+  "gold": {
+    "instance_id": "drift_723630",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSY206",
+          "paragraph": "2000-CHECK-SLA",
+          "file": null,
+          "line_span": [
+            22,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD",
+        "WS-SLA-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSY206",
+          "line": 22,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-2 removes the live seven-day SLA branch from KYCSY206:2000-CHECK-SLA:22-26. The remaining zero-day NEW-status special case is credible legacy classification logic but does not enforce CKYCR update within seven days, producing D2_missing_rule.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSY206.cbl",
+      "mutation": "MO-2; locus=KYCSY206:2000-CHECK-SLA:22-26; old=\"IF WS-DAYS-SINCE-UPD > 7 MOVE 'OVERDUE' TO WS-SLA-STATUS ELSE MOVE 'INSLA' TO WS-SLA-STATUS END-IF\"; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "task=T2.7; supersession_map=t2_7_plausibility.jsonl; plausibility=t2_7_plausibility.jsonl"
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"score\":0.8152306609113623}],\"program\":\"FILE KYCSY206.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. KYCSY206.\\n0003:       * CKYCR STATUS HOST - EXCEPTION LIST\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-CUST-REC.\\n0008:            05  WS-CUST-ID            PIC X(10) VALUE SPACES.\\n0009:            05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\\n0010:        01  WS-FLAGS.\\n0011:            05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.\\n0012:        01  WS-REPORT-CONTROL.\\n0013:            05  WS-EXCEPTION-CODE     PIC X(2) VALUE SPACES.\\n0014:        PROCEDURE DIVISION.\\n0015:        1000-MAIN.\\n0016:            ACCEPT WS-CUST-ID\\n0017:            ACCEPT WS-DAYS-SINCE-UPD\\n0018:            PERFORM 2000-CHECK-SLA\\n0019:            DISPLAY 'SLA: ' WS-SLA-STATUS\\n0020:            STOP RUN.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied source shows inputs, a PERFORM, and output, but not the 2000-CHECK-SLA implementation or any update comparison.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The visible excerpt omits the executable SLA-check logic needed to compare the program with the seven-day registry-update obligation.",
+        "final_answer": "Abstain: the supplied lines do not show whether the program performs the required update within seven days.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied source shows inputs, a PERFORM, and output, but not the 2000-CHECK-SLA implementation or any update comparison.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The visible excerpt omits the executable SLA-check logic needed to compare the program with the seven-day registry-update obligation.\",\"final_answer\":\"Abstain: the supplied lines do not show whether the program performs the required update within seven days.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The visible excerpt omits the executable SLA-check logic needed to compare the program with the seven-day registry-update obligation.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain: the supplied lines do not show whether the program performs the required update within seven days.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The visible excerpt omits the executable SLA-check logic needed to compare the program with the seven-day registry-update obligation.",
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "8740d487160af6241922e240679939f358db450af9ad37d5a967b9a6f90adf65",
+  "run_key": "c056a6537b3853ebd4d4116b19a5da7a4a0f8e52f9bec42fcb4df9c5da07be8c"
+}

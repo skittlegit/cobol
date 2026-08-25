@@ -52,6 +52,7 @@ class Trajectory(BaseModel):
     budget: BudgetSpec
     budget_exhausted: bool
     tokens_used: int = Field(ge=0)
+    token_usage_recorded: bool = True
     contract_repairs: int = Field(default=0, ge=0)
     final_answer: str
     model_id: str
@@ -59,6 +60,11 @@ class Trajectory(BaseModel):
 
     @model_validator(mode="after")
     def _emission_invariants(self) -> Trajectory:
+        recorded = all(response.token_count_recorded for response in self.model_responses)
+        if self.token_usage_recorded != recorded:
+            raise ValueError("trajectory token-usage status differs from its responses")
+        if not self.token_usage_recorded and self.tokens_used != 0:
+            raise ValueError("unrecorded trajectory usage must use the zero placeholder")
         if self.contract_repairs > self.budget.max_contract_repairs:
             raise ValueError("contract repairs exceed the frozen repair budget")
         if len(self.model_responses) - self.contract_repairs > self.budget.max_steps:

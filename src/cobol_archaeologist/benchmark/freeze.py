@@ -176,6 +176,7 @@ def freeze_benchmark(
         destination.write_text(
             "".join(row.model_dump_json() + "\n" for row in rows),
             encoding="utf-8",
+            newline="\n",
         )
         split_hashes[name] = _sha256(destination)
     manifest = FreezeManifest(
@@ -196,5 +197,6 @@ def freeze_benchmark(
     (output_dir / "manifest.json").write_text(
         json.dumps(manifest.model_dump(mode="json"), indent=2) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     return manifest

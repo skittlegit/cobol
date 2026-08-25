@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -18,6 +19,7 @@ from cobol_archaeologist.schemas import DriftInstance, DriftPrediction
 
 ROOT = Path(__file__).resolve().parents[1]
 PRE = ROOT / "data" / "benchmark" / "v1-pre"
+V1 = ROOT / "data" / "benchmark" / "v1"
 REAL = ROOT / "data" / "benchmark" / "seed" / "real_curated.jsonl"
 
 
@@ -47,6 +49,18 @@ def _write_pass(path: Path, rows: list[DriftInstance], annotator: str) -> None:
     )
 
 
+def test_committed_manifest_pins_exact_canonical_lf_split_bytes():
+    manifest = json.loads((V1 / "manifest.json").read_text(encoding="utf-8"))
+
+    for name in ("train", "dev", "test"):
+        split_bytes = (V1 / f"{name}.jsonl").read_bytes()
+        assert b"\r\n" not in split_bytes
+        assert (
+            hashlib.sha256(split_bytes).hexdigest()
+            == manifest["split_sha256"][name]
+        )
+
+
 def test_freeze_requires_and_hashes_independent_evidence(tmp_path):
     rows = _real_rows()
     left = tmp_path / "left.jsonl"
@@ -71,6 +85,11 @@ def test_freeze_requires_and_hashes_independent_evidence(tmp_path):
     assert manifest.detector_visible_changes == []
     assert manifest.excluded_candidate_ids == []
     assert set(manifest.split_sha256) == {"train", "dev", "test"}
+    for name, expected_sha256 in manifest.split_sha256.items():
+        split_bytes = (tmp_path / "v1" / f"{name}.jsonl").read_bytes()
+        assert b"\r\n" not in split_bytes
+        assert hashlib.sha256(split_bytes).hexdigest() == expected_sha256
+    assert b"\r\n" not in (tmp_path / "v1" / "manifest.json").read_bytes()
 
 
 def test_detector_visible_projection_includes_code_locus_but_not_gold_rationale():

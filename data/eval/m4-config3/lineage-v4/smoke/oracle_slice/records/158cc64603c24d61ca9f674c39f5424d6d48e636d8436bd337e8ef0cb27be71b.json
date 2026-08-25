@@ -1,0 +1,110 @@
+{
+  "instance_id": "drift_483089",
+  "gold": {
+    "instance_id": "drift_483089",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(2)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "no_capitalization_of_unpaid_charges",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "INTROLL2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            17,
+            17
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-INTEREST-RULE-FLAG",
+        "INTEREST-RULE-ON",
+        "WS-INT-BASE",
+        "WS-INTEREST-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "INTROLL2",
+          "line": 17,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-6 changes 'PERFORM 1500-LOAD-INTEREST-RULE' to '(deleted)' at INTROLL2:1000-MAIN:17-17, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "INTROLL2.cbl",
+      "mutation": "MO-6; locus=INTROLL2:1000-MAIN:17-17; old='PERFORM 1500-LOAD-INTEREST-RULE'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(2)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"no_capitalization_of_unpaid_charges\",\"comparator\":null,\"note\":null}},\"program\":\"INTROLL2\",\"slices\":[{\"variable\":\"WS-INTEREST-RULE-FLAG\",\"scoped_program\":\"INTROLL2\",\"statements\":[{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-INTEREST-RULE-FLAG PIC X VALUE 'N'.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\",\"line_start\":32,\"line_end\":32},\"text\":\"MOVE 'Y' TO WS-INTEREST-RULE-FLAG.\"}],\"paragraphs\":[{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\"}],\"is_interprocedural\":false},{\"variable\":\"INTEREST-RULE-ON\",\"scoped_program\":\"INTROLL2\",\"statements\":[{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-INTEREST-RULE-FLAG PIC X VALUE 'N'.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\",\"line_start\":32,\"line_end\":32},\"text\":\"MOVE 'Y' TO WS-INTEREST-RULE-FLAG.\"}],\"paragraphs\":[{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\"}],\"is_interprocedural\":false},{\"variable\":\"WS-INT-BASE\",\"scoped_program\":\"INTROLL2\",\"statements\":[{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-INTEREST-RULE-FLAG PIC X VALUE 'N'.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-OUTSTANDING PIC 9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":10,\"line_end\":10},\"text\":\"01  WS-UNPAID-FEES PIC 9(7)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":11,\"line_end\":11},\"text\":\"01  WS-CREDITS      PIC 9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"01  WS-INT-BASE     PIC S9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"ACCEPT WS-OUTSTANDING\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"ACCEPT WS-UNPAID-FEES\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":20,\"line_end\":20},\"text\":\"ACCEPT WS-CREDITS\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":21,\"line_end\":26},\"text\":\"IF INTEREST-RULE-ON\\n              COMPUTE WS-INT-BASE = WS-OUTSTANDING\\n                      - WS-UNPAID-FEES - WS-CREDITS\\n              IF WS-INT-BASE > ZERO\\n                 COMPUTE WS-INTEREST-AMT ROUNDED =\\n                         (WS-INT-BASE * WS-APR) / 1200\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":22,\"line_end\":23},\"text\":\"COMPUTE WS-INT-BASE = WS-OUTSTANDING\\n                      - WS-UNPAID-FEES - WS-CREDITS\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\",\"line_start\":32,\"line_end\":32},\"text\":\"MOVE 'Y' TO WS-INTEREST-RULE-FLAG.\"}],\"paragraphs\":[{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\"}],\"is_interprocedural\":true},{\"variable\":\"WS-INTEREST-AMT\",\"scoped_program\":\"INTROLL2\",\"statements\":[{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-INTEREST-RULE-FLAG PIC X VALUE 'N'.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-OUTSTANDING PIC 9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":10,\"line_end\":10},\"text\":\"01  WS-UNPAID-FEES PIC 9(7)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":11,\"line_end\":11},\"text\":\"01  WS-CREDITS      PIC 9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"01  WS-INT-BASE     PIC S9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"01  WS-APR          PIC 9(2)V99 VALUE 36.00.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":null,\"line_start\":14,\"line_end\":14},\"text\":\"01  WS-INTEREST-AMT PIC 9(7)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"ACCEPT WS-OUTSTANDING\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"ACCEPT WS-UNPAID-FEES\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":20,\"line_end\":20},\"text\":\"ACCEPT WS-CREDITS\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":21,\"line_end\":26},\"text\":\"IF INTEREST-RULE-ON\\n              COMPUTE WS-INT-BASE = WS-OUTSTANDING\\n                      - WS-UNPAID-FEES - WS-CREDITS\\n              IF WS-INT-BASE > ZERO\\n                 COMPUTE WS-INTEREST-AMT ROUNDED =\\n                         (WS-INT-BASE * WS-APR) / 1200\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":22,\"line_end\":23},\"text\":\"COMPUTE WS-INT-BASE = WS-OUTSTANDING\\n                      - WS-UNPAID-FEES - WS-CREDITS\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":24,\"line_end\":26},\"text\":\"IF WS-INT-BASE > ZERO\\n                 COMPUTE WS-INTEREST-AMT ROUNDED =\\n                         (WS-INT-BASE * WS-APR) / 1200\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":25,\"line_end\":26},\"text\":\"COMPUTE WS-INTEREST-AMT ROUNDED =\\n                         (WS-INT-BASE * WS-APR) / 1200\"},{\"ref\":{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\",\"line_start\":32,\"line_end\":32},\"text\":\"MOVE 'Y' TO WS-INTEREST-RULE-FLAG.\"}],\"paragraphs\":[{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible interest computation excludes unpaid fees from the interest base before calculating interest, which is positive evidence of the no-capitalization requirement.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_48... the loader paragraph.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_48... the loader paragraph.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible interest computation excludes unpaid fees from the interest base before calculating interest, which is positive evidence of the no-capitalization requirement.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"INTROLL2\",\"paragraph\":\"1000-MAIN\",\"file\":null,\"line_span\":[21,26]},{\"program\":\"INTROLL2\",\"paragraph\":\"1500-LOAD-INTEREST-RULE\",\"file\":null,\"line_span\":[32,32]}],\"slice_vars\":[\"INTEREST-RULE-ON\",\"WS-OUTSTANDING\",\"WS-UNPAID-FEES\",\"WS-CREDITS\",\"WS-INT-BASE\",\"WS-INTEREST-AMT\"],\"is_interprocedural\":true},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[{\"program\":\"INTROLL2\",\"line\":22,\"file\":null},{\"program\":\"INTROLL2\",\"line\":25,\"file\":null},{\"program\":\"INTROLL2\",\"line\":32,\"file\":null}]},\"rationale\":\"The code computes WS-INT-BASE as WS-OUTSTANDING minus WS-UNPAID-FEES and then calculates interest only on a positive adjusted base; the rule flag is enabled in the loader paragraph.\"},\"claim\":\"The Minimum Amount Due must avoid negative amortization, and unpaid charges, levies, and taxes must not be capitalized when charging or compounding interest.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"WS-UNPAID-FEES\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Conformant: unpaid fees are subtracted from the outstanding balance before interest is computed, providing visible evidence that they are not capitalized into the interest base.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_48... the loader paragraph.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_48... the loader paragraph.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_48... the loader paragraph.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "87650f698dec5b2c877e43a6b80a37f7ce05039300d584bcdb78641651d83a91",
+  "run_key": "158cc64603c24d61ca9f674c39f5424d6d48e636d8436bd337e8ef0cb27be71b"
+}

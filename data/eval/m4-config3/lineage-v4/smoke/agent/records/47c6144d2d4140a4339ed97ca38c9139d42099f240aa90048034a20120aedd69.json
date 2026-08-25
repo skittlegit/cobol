@@ -1,0 +1,865 @@
+{
+  "instance_id": "drift_509963",
+  "gold": {
+    "instance_id": "drift_509963",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SANCBAT2",
+          "paragraph": null,
+          "file": "UNSCREG2.cpy",
+          "line_span": [
+            3,
+            3
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-BATCH-ROUTE",
+        "WS-RECORD-COUNT",
+        "WS-SCREEN-COUNT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SANCBAT2",
+          "line": 3,
+          "file": "UNSCREG2.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'S88' to '(deleted)' at SANCBAT2:UNSCREG2.cpy:3-3, producing D4_stale_reference_data. MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "SANCBAT2.cbl",
+      "mutation": "MO-4; locus=SANCBAT2:UNSCREG2.cpy:3-3; old='S88'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: SANCBAT2.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "SANCBAT2"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 12, \"name\": \"1000-MAIN\"}, {\"line_end\": 25, \"line_start\": 19, \"name\": \"2000-ROUTE-FEED\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\c9fa912469acbf5f13ac62b086fa016b8428e7fbf30c813133f8c7c9560d20f8\\\\cases\\\\drift_900001\\\\SANCBAT2.cbl\", \"program\": \"SANCBAT2\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "SANCBAT2",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-LIST-SOURCE\\n           ACCEPT WS-RECORD-COUNT\\n           PERFORM 2000-ROUTE-FEED\\n           DISPLAY 'ROUTE: ' WS-BATCH-ROUTE\\n           DISPLAY 'SCREENED: ' WS-SCREEN-COUNT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "SANCBAT2",
+          "name": "2000-ROUTE-FEED"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}], \"code\": \"       2000-ROUTE-FEED.\\n           IF MANDATED-SANCTIONS-FEED\\n              MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\\n              MOVE 'SCREEN' TO WS-BATCH-ROUTE\\n           ELSE\\n              MOVE 'HOLD' TO WS-BATCH-ROUTE\\n           END-IF.\", \"name\": \"2000-ROUTE-FEED\", \"ref\": {\"line_end\": 25, \"line_start\": 19, \"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The clause current value is an enum_set reference collection, so D1 has no scalar threshold leaf to resolve; the observed source has no typed threshold literal.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Class-specific D1 evidence is incomplete; this enum-set reference-data comparison belongs to D4.",
+        "final_answer": "Abstain: no D1 threshold literal was observed; the enum-set mismatch is evaluated under D4.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause current value is an enum_set reference collection, so D1 has no scalar threshold leaf to resolve; the observed source has no typed threshold literal.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Class-specific D1 evidence is incomplete; this enum-set reference-data comparison belongs to D4.\",\"final_answer\":\"Abstain: no D1 threshold literal was observed; the enum-set mismatch is evaluated under D4.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "Class-specific D1 evidence is incomplete; this enum-set reference-data comparison belongs to D4.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: Class-specific D1 evidence is incomplete; this enum-set reference-data comparison belongs to D4.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: SANCBAT2.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "SANCBAT2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 12, \"name\": \"1000-MAIN\"}, {\"line_end\": 25, \"line_start\": 19, \"name\": \"2000-ROUTE-FEED\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\c9fa912469acbf5f13ac62b086fa016b8428e7fbf30c813133f8c7c9560d20f8\\\\cases\\\\drift_900001\\\\SANCBAT2.cbl\", \"program\": \"SANCBAT2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "SANCBAT2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-LIST-SOURCE\\n           ACCEPT WS-RECORD-COUNT\\n           PERFORM 2000-ROUTE-FEED\\n           DISPLAY 'ROUTE: ' WS-BATCH-ROUTE\\n           DISPLAY 'SCREENED: ' WS-SCREEN-COUNT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "SANCBAT2",
+              "name": "2000-ROUTE-FEED"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}], \"code\": \"       2000-ROUTE-FEED.\\n           IF MANDATED-SANCTIONS-FEED\\n              MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\\n              MOVE 'SCREEN' TO WS-BATCH-ROUTE\\n           ELSE\\n              MOVE 'HOLD' TO WS-BATCH-ROUTE\\n           END-IF.\", \"name\": \"2000-ROUTE-FEED\", \"ref\": {\"line_end\": 25, \"line_start\": 19, \"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The clause current value is an enum_set reference collection, so D1 has no scalar threshold leaf to resolve; the observed source has no typed threshold literal.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Class-specific D1 evidence is incomplete; this enum-set reference-data comparison belongs to D4.",
+            "final_answer": "Abstain: no D1 threshold literal was observed; the enum-set mismatch is evaluated under D4.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause current value is an enum_set reference collection, so D1 has no scalar threshold leaf to resolve; the observed source has no typed threshold literal.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Class-specific D1 evidence is incomplete; this enum-set reference-data comparison belongs to D4.\",\"final_answer\":\"Abstain: no D1 threshold literal was observed; the enum-set mismatch is evaluated under D4.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "Class-specific D1 evidence is incomplete; this enum-set reference-data comparison belongs to D4.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: Class-specific D1 evidence is incomplete; this enum-set reference-data comparison belongs to D4.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "Class-specific D1 evidence is incomplete; this enum-set reference-data comparison belongs to D4."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\nScope: SANCBAT2.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "MANDATED-SANCTIONS-FEED"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 20, \"program\": \"SANCBAT2\", \"text\": \"           IF MANDATED-SANCTIONS-FEED\"}, {\"line\": 3, \"program\": \"UNSCREG2\", \"text\": \"           88  MANDATED-SANCTIONS-FEED VALUES 'S67' ''.\"}], \"pattern\": \"MANDATED-SANCTIONS-FEED\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "SANCBAT2",
+              "para": "2000-ROUTE-FEED"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "SANCBAT2",
+              "para": "2000-ROUTE-FEED"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-LIST-SOURCE",
+              "program": "SANCBAT2"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [], \"scoped_program\": \"SANCBAT2\", \"statements\": [], \"variable\": \"WS-LIST-SOURCE\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The required four-negative test fails: grep finds MANDATED-SANCTIONS-FEED, find_callers finds 1000-MAIN, while find_callees and slice_on are empty.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D2 requires negative grep, caller, callee, and slice observations; grep and caller observations are positive.",
+            "final_answer": "Abstain: the rule is present and reached, so the D2 all-negative contract is not met.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The required four-negative test fails: grep finds MANDATED-SANCTIONS-FEED, find_callers finds 1000-MAIN, while find_callees and slice_on are empty.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D2 requires negative grep, caller, callee, and slice observations; grep and caller observations are positive.\",\"final_answer\":\"Abstain: the rule is present and reached, so the D2 all-negative contract is not met.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D2 requires negative grep, caller, callee, and slice observations; grep and caller observations are positive.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D2 requires negative grep, caller, callee, and slice observations; grep and caller observations are positive.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D2 requires negative grep, caller, callee, and slice observations; grep and caller observations are positive."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\nScope: SANCBAT2.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "SANCBAT2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-LIST-SOURCE\\n           ACCEPT WS-RECORD-COUNT\\n           PERFORM 2000-ROUTE-FEED\\n           DISPLAY 'ROUTE: ' WS-BATCH-ROUTE\\n           DISPLAY 'SCREENED: ' WS-SCREEN-COUNT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "SANCBAT2",
+              "name": "2000-ROUTE-FEED"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}], \"code\": \"       2000-ROUTE-FEED.\\n           IF MANDATED-SANCTIONS-FEED\\n              MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\\n              MOVE 'SCREEN' TO WS-BATCH-ROUTE\\n           ELSE\\n              MOVE 'HOLD' TO WS-BATCH-ROUTE\\n           END-IF.\", \"name\": \"2000-ROUTE-FEED\", \"ref\": {\"line_end\": 25, \"line_start\": 19, \"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "SCREEN"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 10, \"program\": \"SANCBAT2\", \"text\": \"       01  WS-SCREEN-COUNT PIC 9(6) VALUE ZERO.\"}, {\"line\": 17, \"program\": \"SANCBAT2\", \"text\": \"           DISPLAY 'SCREENED: ' WS-SCREEN-COUNT\"}, {\"line\": 21, \"program\": \"SANCBAT2\", \"text\": \"              MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\"}, {\"line\": 22, \"program\": \"SANCBAT2\", \"text\": \"              MOVE 'SCREEN' TO WS-BATCH-ROUTE\"}], \"pattern\": \"SCREEN\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The two paragraph observations show one routing condition with SCREEN and HOLD outcomes, not two conflicting implementations of the same regulated condition.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No two typed loci with conflicting regulated outcomes were observed.",
+            "final_answer": "Abstain: no contradictory pair of regulated checks was found.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The two paragraph observations show one routing condition with SCREEN and HOLD outcomes, not two conflicting implementations of the same regulated condition.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No two typed loci with conflicting regulated outcomes were observed.\",\"final_answer\":\"Abstain: no contradictory pair of regulated checks was found.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No two typed loci with conflicting regulated outcomes were observed.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No two typed loci with conflicting regulated outcomes were observed.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No two typed loci with conflicting regulated outcomes were observed."
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": {
+        "verified": false,
+        "tier": null,
+        "evidence": "SANCBAT2:UNSCREG2.cpy — literal 'S67' present",
+        "citation_ok": false,
+        "entailment_probability": 0.2353,
+        "entailment_backend": "lexical_proxy_v1",
+        "rejected_reason": "citation rejected: cited clause RBI-KYC-Directions-2025 56(prevention) does not entail the claim (P=0.2353, lexical_proxy_v1) — a correct code fact attached to the wrong clause",
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "SANCBAT2:UNSCREG2.cpy — literal 'S67' present"
+          }
+        ]
+      },
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: SANCBAT2.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "UNSC"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 3, \"program\": \"SANCBAT2\", \"text\": \"      * SANCTIONS-FEED INTAKE FOR THE TWO MANDATED UNSC SOURCES.\"}, {\"line\": 7, \"program\": \"SANCBAT2\", \"text\": \"       COPY UNSCREG2.\"}, {\"line\": 1, \"program\": \"UNSCREG2\", \"text\": \"      * MANDATED UNSC LIST SOURCES: 1267/1989/2253 AND TALIBAN 1988.\"}], \"pattern\": \"UNSC\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "resolve_copybook",
+            "arguments": {
+              "name": "UNSCREG2"
+            },
+            "observation_summary": "{\"line_map\": [{\"expanded_end\": 3, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\c9fa912469acbf5f13ac62b086fa016b8428e7fbf30c813133f8c7c9560d20f8\\\\cases\\\\drift_900001\\\\UNSCREG2.cpy\", \"source_line_start\": 1}], \"name\": \"UNSCREG2\", \"text\": \"      * MANDATED UNSC LIST SOURCES: 1267/1989/2253 AND TALIBAN 1988.\\n       01  WS-LIST-SOURCE PIC X(3) VALUE 'S67'.\\n           88  MANDATED-SANCTIONS-FEED VALUES 'S67' ''.\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "S67"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 2, \"program\": \"UNSCREG2\", \"text\": \"       01  WS-LIST-SOURCE PIC X(3) VALUE 'S67'.\"}, {\"line\": 3, \"program\": \"UNSCREG2\", \"text\": \"           88  MANDATED-SANCTIONS-FEED VALUES 'S67' ''.\"}], \"pattern\": \"S67\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "UNSC grep identifies the UNSCREG2 copybook. Resolving it shows the hard-coded values S67 and an empty value; the source therefore does not enumerate the two clause-side UNSC identities.",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_509963",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "56(prevention)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+                "current_value": {
+                  "kind": "enum_set",
+                  "value": [
+                    "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+                    "UNSC-Taliban-1988"
+                  ],
+                  "comparator": null,
+                  "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "SANCBAT2",
+                    "paragraph": null,
+                    "file": "UNSCREG2.cpy",
+                    "line_span": [
+                      2,
+                      3
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-LIST-SOURCE",
+                  "MANDATED-SANCTIONS-FEED"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D4_stale_reference_data",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "SANCBAT2",
+                    "line": 2,
+                    "file": "UNSCREG2.cpy"
+                  },
+                  {
+                    "program": "SANCBAT2",
+                    "line": 3,
+                    "file": "UNSCREG2.cpy"
+                  }
+                ]
+              },
+              "rationale": "The clause enum_set requires UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. Resolved UNSCREG2.cpy line 2 contains VALUE 'S67', and line 3 contains VALUES 'S67' ''. The hard-coded reference set omits UNSC-Taliban-1988 and the full mandated ISIL/Daesh/Al-Qaida identity, while adding the empty value; this is stale reference data."
+            },
+            "claim": "The regulated entity must not hold any account in the name of an individual or entity appearing on either UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 or UNSC-Taliban-1988.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "S67",
+              "comparator": null,
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "Finding: UNSCREG2.cpy hard-codes S67 and an empty value, while the clause requires the two named UNSC list identities, including missing UNSC-Taliban-1988 and the full ISIL/Daesh/Al-Qaida identity.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"UNSC grep identifies the UNSCREG2 copybook. Resolving it shows the hard-coded values S67 and an empty value; the source therefore does not enumerate the two clause-side UNSC identities.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"SANCBAT2\",\"paragraph\":null,\"file\":\"UNSCREG2.cpy\",\"line_span\":[2,3]}],\"slice_vars\":[\"WS-LIST-SOURCE\",\"MANDATED-SANCTIONS-FEED\"],\"is_interprocedural\":false},\"drift_type\":\"D4_stale_reference_data\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"SANCBAT2\",\"line\":2,\"file\":\"UNSCREG2.cpy\"},{\"program\":\"SANCBAT2\",\"line\":3,\"file\":\"UNSCREG2.cpy\"}]},\"rationale\":\"The clause enum_set requires UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. Resolved UNSCREG2.cpy line 2 contains VALUE 'S67', and line 3 contains VALUES 'S67' ''. The hard-coded reference set omits UNSC-Taliban-1988 and the full mandated ISIL/Daesh/Al-Qaida identity, while adding the empty value; this is stale reference data.\"},\"claim\":\"The regulated entity must not hold any account in the name of an individual or entity appearing on either UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 or UNSC-Taliban-1988.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"S67\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Finding: UNSCREG2.cpy hard-codes S67 and an empty value, while the clause requires the two named UNSC list identities, including missing UNSC-Taliban-1988 and the full ISIL/Daesh/Al-Qaida identity.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": false,
+          "tier": null,
+          "evidence": "SANCBAT2:UNSCREG2.cpy — literal 'S67' present",
+          "citation_ok": false,
+          "entailment_probability": 0.2353,
+          "entailment_backend": "lexical_proxy_v1",
+          "rejected_reason": "citation rejected: cited clause RBI-KYC-Directions-2025 56(prevention) does not entail the claim (P=0.2353, lexical_proxy_v1) — a correct code fact attached to the wrong clause",
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "SANCBAT2:UNSCREG2.cpy — literal 'S67' present"
+            }
+          ]
+        },
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "citation rejected: cited clause RBI-KYC-Directions-2025 56(prevention) does not entail the claim (P=0.2353, lexical_proxy_v1) — a correct code fact attached to the wrong clause",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: citation rejected: cited clause RBI-KYC-Directions-2025 56(prevention) does not entail the claim (P=0.2353, lexical_proxy_v1) — a correct code fact attached to the wrong clause",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "citation rejected: cited clause RBI-KYC-Directions-2025 56(prevention) does not entail the claim (P=0.2353, lexical_proxy_v1) — a correct code fact attached to the wrong clause"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\nScope: SANCBAT2.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "SANCBAT2",
+              "name": "2000-ROUTE-FEED"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}], \"code\": \"       2000-ROUTE-FEED.\\n           IF MANDATED-SANCTIONS-FEED\\n              MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\\n              MOVE 'SCREEN' TO WS-BATCH-ROUTE\\n           ELSE\\n              MOVE 'HOLD' TO WS-BATCH-ROUTE\\n           END-IF.\", \"name\": \"2000-ROUTE-FEED\", \"ref\": {\"line_end\": 25, \"line_start\": 19, \"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": ">="
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \">=\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "COMP"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"COMP\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The routed paragraph uses a condition-name test without a typed relational comparator; grep finds no >= or COMP comparator.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No source comparator can be compared with a resolved clause comparator.",
+            "final_answer": "Abstain: the enum-set clause supplies no comparator and the source has no typed boundary comparator.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The routed paragraph uses a condition-name test without a typed relational comparator; grep finds no >= or COMP comparator.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No source comparator can be compared with a resolved clause comparator.\",\"final_answer\":\"Abstain: the enum-set clause supplies no comparator and the source has no typed boundary comparator.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No source comparator can be compared with a resolved clause comparator.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No source comparator can be compared with a resolved clause comparator.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No source comparator can be compared with a resolved clause comparator."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\nScope: SANCBAT2.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "SANCBAT2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 12, \"name\": \"1000-MAIN\"}, {\"line_end\": 25, \"line_start\": 19, \"name\": \"2000-ROUTE-FEED\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\c9fa912469acbf5f13ac62b086fa016b8428e7fbf30c813133f8c7c9560d20f8\\\\cases\\\\drift_900001\\\\SANCBAT2.cbl\", \"program\": \"SANCBAT2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "SANCBAT2",
+              "name": "2000-ROUTE-FEED"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}], \"code\": \"       2000-ROUTE-FEED.\\n           IF MANDATED-SANCTIONS-FEED\\n              MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\\n              MOVE 'SCREEN' TO WS-BATCH-ROUTE\\n           ELSE\\n              MOVE 'HOLD' TO WS-BATCH-ROUTE\\n           END-IF.\", \"name\": \"2000-ROUTE-FEED\", \"ref\": {\"line_end\": 25, \"line_start\": 19, \"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "SANCBAT2",
+              "para": "2000-ROUTE-FEED"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The program has two paragraphs, and read_paragraph shows 2000-ROUTE-FEED called by 1000-MAIN. No dead-paragraph claim is supportable from these observations.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Positive caller evidence exists, and deadness cannot be inferred from caller absence alone.",
+            "final_answer": "Abstain: no dead compliance paragraph was established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The program has two paragraphs, and read_paragraph shows 2000-ROUTE-FEED called by 1000-MAIN. No dead-paragraph claim is supportable from these observations.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Positive caller evidence exists, and deadness cannot be inferred from caller absence alone.\",\"final_answer\":\"Abstain: no dead compliance paragraph was established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "Positive caller evidence exists, and deadness cannot be inferred from caller absence alone.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: Positive caller evidence exists, and deadness cannot be inferred from caller absence alone.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "Positive caller evidence exists, and deadness cannot be inferred from caller absence alone."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: SANCBAT2.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "SANCBAT2",
+              "name": "2000-ROUTE-FEED"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}], \"code\": \"       2000-ROUTE-FEED.\\n           IF MANDATED-SANCTIONS-FEED\\n              MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\\n              MOVE 'SCREEN' TO WS-BATCH-ROUTE\\n           ELSE\\n              MOVE 'HOLD' TO WS-BATCH-ROUTE\\n           END-IF.\", \"name\": \"2000-ROUTE-FEED\", \"ref\": {\"line_end\": 25, \"line_start\": 19, \"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "resolve_copybook",
+            "arguments": {
+              "name": "UNSCREG2"
+            },
+            "observation_summary": "{\"line_map\": [{\"expanded_end\": 3, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\c9fa912469acbf5f13ac62b086fa016b8428e7fbf30c813133f8c7c9560d20f8\\\\cases\\\\drift_900001\\\\UNSCREG2.cpy\", \"source_line_start\": 1}], \"name\": \"UNSCREG2\", \"text\": \"      * MANDATED UNSC LIST SOURCES: 1267/1989/2253 AND TALIBAN 1988.\\n       01  WS-LIST-SOURCE PIC X(3) VALUE 'S67'.\\n           88  MANDATED-SANCTIONS-FEED VALUES 'S67' ''.\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "1267"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 1, \"program\": \"UNSCREG2\", \"text\": \"      * MANDATED UNSC LIST SOURCES: 1267/1989/2253 AND TALIBAN 1988.\"}], \"pattern\": \"1267\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The source has a feed flag, but the resolved copybook contains only S67 and an empty value; the 1267 search finds only a comment, not a positive literal/comparator match to both clause members.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D7 requires positive code evidence matching the clause; no such exact match was observed.",
+            "final_answer": "Abstain: a feed check exists, but positive literal evidence matching both mandated enum members is incomplete.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source has a feed flag, but the resolved copybook contains only S67 and an empty value; the 1267 search finds only a comment, not a positive literal/comparator match to both clause members.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D7 requires positive code evidence matching the clause; no such exact match was observed.\",\"final_answer\":\"Abstain: a feed check exists, but positive literal evidence matching both mandated enum members is incomplete.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D7 requires positive code evidence matching the clause; no such exact match was observed.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D7 requires positive code evidence matching the clause; no such exact match was observed.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D7 requires positive code evidence matching the clause; no such exact match was observed."
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "Class-specific D1 evidence is incomplete; this enum-set reference-data comparison belongs to D4.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "37c0577d9dd2ed0c40fdcca2f6c5c3d97aaa520060a03bcdf4afa4f679107545",
+  "run_key": "47c6144d2d4140a4339ed97ca38c9139d42099f240aa90048034a20120aedd69"
+}

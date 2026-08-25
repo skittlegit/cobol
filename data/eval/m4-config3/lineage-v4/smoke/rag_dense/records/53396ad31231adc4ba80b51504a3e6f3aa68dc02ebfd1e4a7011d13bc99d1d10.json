@@ -1,0 +1,312 @@
+{
+  "instance_id": "drift_236339",
+  "gold": {
+    "instance_id": "drift_236339",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT3",
+          "paragraph": "2000-CLASSIFY",
+          "file": null,
+          "line_span": [
+            25,
+            25
+          ]
+        },
+        {
+          "program": "BOIDENT3",
+          "paragraph": "2000-CLASSIFY",
+          "file": null,
+          "line_span": [
+            29,
+            29
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-OWN-PCT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "BOIDENT3",
+          "line": 25,
+          "file": null
+        },
+        {
+          "program": "BOIDENT3",
+          "line": 29,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-1 changes '10.00' to '15.00' at BOIDENT3:2000-CLASSIFY:25-25+BOIDENT3:2000-CLASSIFY:29-29, producing D1_stale_threshold.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "BOIDENT3.cbl",
+      "mutation": "MO-1; locus=BOIDENT3:2000-CLASSIFY:25-25+BOIDENT3:2000-CLASSIFY:29-29; old='10.00'; new='15.00'; validation=compiled; stale_source=prior_verified; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_236339",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT3",
+          "paragraph": "2000-CLASSIFY",
+          "file": "BOIDENT3.cbl",
+          "line_span": [
+            29,
+            29
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-ENTITY-TYPE",
+        "WS-OWN-PCT",
+        "WS-CTRL-IND",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "BOIDENT3",
+          "line": 29,
+          "file": "BOIDENT3.cbl"
+        }
+      ]
+    },
+    "rationale": "The selected clause defines the beneficial owner of a partnership firm using ownership of or entitlement to more than 10 percent of capital or profits. The partnership branch at line 29 instead requires WS-OWN-PCT > 15.00 (or a control indicator), so the visible ownership threshold is stale and excludes qualifying percentages above 10 and up to 15."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "BOIDENT3:2000-CLASSIFY — literal '15.00' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 1.0,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "BOIDENT3:2000-CLASSIFY — literal '15.00' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"score\":0.9192063751120164}],\"program\":\"FILE BOIDENT3.cbl LINES 11-30\\n0011:        01  FILLER                    PIC X(2) VALUE SPACES.\\n0012:        01  WS-PRINT-AREA.\\n0013:            05  WS-PRINT-LINE OCCURS 30 PIC X(30).\\n0014:        PROCEDURE DIVISION.\\n0015:        1000-MAIN.\\n0016:            ACCEPT WS-ENTITY-TYPE\\n0017:            ACCEPT WS-OWN-PCT\\n0018:            ACCEPT WS-CTRL-IND\\n0019:            PERFORM 2000-CLASSIFY\\n0020:            DISPLAY 'BO: ' WS-IS-BO\\n0021:            STOP RUN.\\n0022:        2000-CLASSIFY.\\n0023:            EVALUATE WS-ENTITY-TYPE\\n0024:              WHEN 'C'\\n0025:                IF WS-OWN-PCT > 15.00\\n0026:                   MOVE 'Y' TO WS-IS-BO\\n0027:                END-IF\\n0028:              WHEN 'P'\\n0029:                IF WS-OWN-PCT > 15.00 OR WS-CTRL-IND = 'Y'\\n0030:                   MOVE 'Y' TO WS-IS-BO\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The partnership branch visibly tests a 15.00 ownership threshold, directly contradicting the selected clause's strictly-greater-than-10-percent requirement.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_236339",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "BOIDENT3",
+                "paragraph": "2000-CLASSIFY",
+                "file": "BOIDENT3.cbl",
+                "line_span": [
+                  29,
+                  29
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ENTITY-TYPE",
+              "WS-OWN-PCT",
+              "WS-CTRL-IND",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "BOIDENT3",
+                "line": 29,
+                "file": "BOIDENT3.cbl"
+              }
+            ]
+          },
+          "rationale": "The selected clause defines the beneficial owner of a partnership firm using ownership of or entitlement to more than 10 percent of capital or profits. The partnership branch at line 29 instead requires WS-OWN-PCT > 15.00 (or a control indicator), so the visible ownership threshold is stale and excludes qualifying percentages above 10 and up to 15."
+        },
+        "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "15.00",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Finding: the partnership branch tests ownership greater than 15.00, whereas the cited obligation requires ownership or entitlement greater than 10 percent.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The partnership branch visibly tests a 15.00 ownership threshold, directly contradicting the selected clause's strictly-greater-than-10-percent requirement.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"BOIDENT3\",\"paragraph\":\"2000-CLASSIFY\",\"file\":\"BOIDENT3.cbl\",\"line_span\":[29,29]}],\"slice_vars\":[\"WS-ENTITY-TYPE\",\"WS-OWN-PCT\",\"WS-CTRL-IND\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"BOIDENT3\",\"line\":29,\"file\":\"BOIDENT3.cbl\"}]},\"rationale\":\"The selected clause defines the beneficial owner of a partnership firm using ownership of or entitlement to more than 10 percent of capital or profits. The partnership branch at line 29 instead requires WS-OWN-PCT > 15.00 (or a control indicator), so the visible ownership threshold is stale and excludes qualifying percentages above 10 and up to 15.\"},\"claim\":\"For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15.00\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Finding: the partnership branch tests ownership greater than 15.00, whereas the cited obligation requires ownership or entitlement greater than 10 percent.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "BOIDENT3:2000-CLASSIFY — literal '15.00' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 1.0,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "BOIDENT3:2000-CLASSIFY — literal '15.00' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_236339",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "5(iv)(b)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "current_value": {
+          "kind": "percentage",
+          "value": 10,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "BOIDENT3",
+            "paragraph": "2000-CLASSIFY",
+            "file": "BOIDENT3.cbl",
+            "line_span": [
+              29,
+              29
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-ENTITY-TYPE",
+          "WS-OWN-PCT",
+          "WS-CTRL-IND",
+          "WS-IS-BO"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "BOIDENT3",
+            "line": 29,
+            "file": "BOIDENT3.cbl"
+          }
+        ]
+      },
+      "rationale": "The selected clause defines the beneficial owner of a partnership firm using ownership of or entitlement to more than 10 percent of capital or profits. The partnership branch at line 29 instead requires WS-OWN-PCT > 15.00 (or a control indicator), so the visible ownership threshold is stale and excludes qualifying percentages above 10 and up to 15."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Finding: the partnership branch tests ownership greater than 15.00, whereas the cited obligation requires ownership or entitlement greater than 10 percent.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "6d5a831dc3b9f4141b570b5e3c2359a04cd48400e53baab115792c693e347789",
+  "run_key": "53396ad31231adc4ba80b51504a3e6f3aa68dc02ebfd1e4a7011d13bc99d1d10"
+}

@@ -1,0 +1,351 @@
+{
+  "instance_id": "drift_009658",
+  "gold": {
+    "instance_id": "drift_009658",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "11(6)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "activation_window": {
+            "kind": "duration_days",
+            "value": 30,
+            "comparator": "at_most",
+            "note": null
+          },
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "ACTIVAT1",
+          "paragraph": "2000-DECIDE",
+          "file": null,
+          "line_span": [
+            26,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-ISSUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "activation_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "ACTIVAT1",
+          "line": 26,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-1 changes '30' to '45' at ACTIVAT1:2000-DECIDE:26-26, producing D1_stale_threshold.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "ACTIVAT1.cbl",
+      "mutation": "MO-1; locus=ACTIVAT1:2000-DECIDE:26-26; old='30'; new='45'; validation=compiled; stale_source=grid_fallback; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_009658",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "11(6)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "activation_window": {
+            "kind": "duration_days",
+            "value": 30,
+            "comparator": "at_most",
+            "note": null
+          },
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "ACTIVAT1",
+          "paragraph": "2000-DECIDE",
+          "file": "ACTIVAT1.cbl",
+          "line_span": [
+            22,
+            34
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-ACTIVATED",
+        "WS-DAYS-SINCE-ISSUE",
+        "WS-ACTION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "activation_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "ACTIVAT1",
+          "line": 26,
+          "file": "ACTIVAT1.cbl"
+        }
+      ]
+    },
+    "rationale": "In ACTIVAT1.cbl, program ACTIVAT1 paragraph 2000-DECIDE keeps an unactivated card in WAIT unless WS-DAYS-SINCE-ISSUE > 45 (line 26), then selects SEEKOTP (line 30). The clause requires OTP-based consent when activation is not completed within 30 days. The visible 45-day gate is a stale activation threshold."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "ACTIVAT1:2000-DECIDE — literal '45' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 1.0,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "Tier-1 execution backing unavailable (cobc (GnuCOBOL) not found on PATH; run scripts/setup_cobc.sh (apt-get install -y gnucobol) or set the COBC environment variable)"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "ACTIVAT1:2000-DECIDE — literal '45' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"11(6)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"activation_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"FILE ACTIVAT1.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. ACTIVAT1.\\n0003:       * CARD ACTIVATION CONSENT WINDOW (30 DAYS -> OTP, 7WD CLOSE)\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-DAYS-SINCE-ISSUE       PIC 9(4) VALUE ZERO.\\n0008:        01  WS-ACTIVATED              PIC X(1) VALUE 'N'.\\n0009:        01  WS-CONSENT-DAYS           PIC 9(4) VALUE ZERO.\\n0010:        01  WS-ACTION                 PIC X(8) VALUE SPACES.\\n0011:        01  WS-RPT-HEADING            PIC X(2)\\n0012:            VALUE SPACES.\\n0013:        01  FILLER                    PIC X(3) VALUE SPACES.\\n0014:        PROCEDURE DIVISION.\\n0015:        1000-MAIN.\\n0016:            ACCEPT WS-DAYS-SINCE-ISSUE\\n0017:            ACCEPT WS-ACTIVATED\\n0018:            ACCEPT WS-CONSENT-DAYS\\n0019:            PERFORM 2000-DECIDE\\n0020:            DISPLAY 'ACTION: ' WS-ACTION\\nFILE ACTIVAT1.cbl LINES 21-35\\n0021:            STOP RUN.\\n0022:        2000-DECIDE.\\n0023:            IF WS-ACTIVATED = 'Y'\\n0024:               MOVE 'NONE' TO WS-ACTION\\n0025:            ELSE\\n0026:               IF WS-DAYS-SINCE-ISSUE > 45\\n0027:                  IF WS-CONSENT-DAYS > 7\\n0028:                     MOVE 'CLOSE' TO WS-ACTION\\n0029:                  ELSE\\n0030:                     MOVE 'SEEKOTP' TO WS-ACTION\\n0031:                  END-IF\\n0032:               ELSE\\n0033:                  MOVE 'WAIT' TO WS-ACTION\\n0034:               END-IF\\n0035:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The visible decision paragraph sets a 45-day activation gate even though the selected clause requires action after 30 days.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_009658",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "11(6)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "activation_window": {
+                  "kind": "duration_days",
+                  "value": 30,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": "ACTIVAT1.cbl",
+                "line_span": [
+                  22,
+                  34
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ACTIVATED",
+              "WS-DAYS-SINCE-ISSUE",
+              "WS-ACTION"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "activation_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "ACTIVAT1",
+                "line": 26,
+                "file": "ACTIVAT1.cbl"
+              }
+            ]
+          },
+          "rationale": "In ACTIVAT1.cbl, program ACTIVAT1 paragraph 2000-DECIDE keeps an unactivated card in WAIT unless WS-DAYS-SINCE-ISSUE > 45 (line 26), then selects SEEKOTP (line 30). The clause requires OTP-based consent when activation is not completed within 30 days. The visible 45-day gate is a stale activation threshold."
+        },
+        "claim": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; if consent is absent, the account must be closed without cost within 7 working days of seeking confirmation.",
+        "exec_probe": {
+          "stdin": "31\nN\n0\n",
+          "expect_substring": "ACTION: WAIT",
+          "description": "For an unactivated card at day 31 with no consent interval, the visible 45-day gate emits WAIT instead of initiating the clause's OTP step."
+        },
+        "static_claim": {
+          "literal": "45",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Finding D1_stale_threshold: ACTIVAT1 waits until WS-DAYS-SINCE-ISSUE > 45 before SEEKOTP, while the clause requires the OTP step after 30 days; the activation threshold is stale.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible decision paragraph sets a 45-day activation gate even though the selected clause requires action after 30 days.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"file\":\"ACTIVAT1.cbl\",\"line_span\":[22,34]}],\"slice_vars\":[\"WS-ACTIVATED\",\"WS-DAYS-SINCE-ISSUE\",\"WS-ACTION\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"activation_window\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"ACTIVAT1\",\"line\":26,\"file\":\"ACTIVAT1.cbl\"}]},\"rationale\":\"In ACTIVAT1.cbl, program ACTIVAT1 paragraph 2000-DECIDE keeps an unactivated card in WAIT unless WS-DAYS-SINCE-ISSUE > 45 (line 26), then selects SEEKOTP (line 30). The clause requires OTP-based consent when activation is not completed within 30 days. The visible 45-day gate is a stale activation threshold.\"},\"claim\":\"If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; if consent is absent, the account must be closed without cost within 7 working days of seeking confirmation.\",\"exec_probe\":{\"stdin\":\"31\\nN\\n0\\n\",\"expect_substring\":\"ACTION: WAIT\",\"description\":\"For an unactivated card at day 31 with no consent interval, the visible 45-day gate emits WAIT instead of initiating the clause's OTP step.\"},\"static_claim\":{\"literal\":\"45\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Finding D1_stale_threshold: ACTIVAT1 waits until WS-DAYS-SINCE-ISSUE > 45 before SEEKOTP, while the clause requires the OTP step after 30 days; the activation threshold is stale.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "ACTIVAT1:2000-DECIDE — literal '45' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 1.0,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "Tier-1 execution backing unavailable (cobc (GnuCOBOL) not found on PATH; run scripts/setup_cobc.sh (apt-get install -y gnucobol) or set the COBC environment variable)"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "ACTIVAT1:2000-DECIDE — literal '45' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_009658",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "11(6)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "activation_window": {
+              "kind": "duration_days",
+              "value": 30,
+              "comparator": "at_most",
+              "note": null
+            },
+            "closure_window": {
+              "kind": "duration_working_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "ACTIVAT1",
+            "paragraph": "2000-DECIDE",
+            "file": "ACTIVAT1.cbl",
+            "line_span": [
+              22,
+              34
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-ACTIVATED",
+          "WS-DAYS-SINCE-ISSUE",
+          "WS-ACTION"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": "activation_window",
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "ACTIVAT1",
+            "line": 26,
+            "file": "ACTIVAT1.cbl"
+          }
+        ]
+      },
+      "rationale": "In ACTIVAT1.cbl, program ACTIVAT1 paragraph 2000-DECIDE keeps an unactivated card in WAIT unless WS-DAYS-SINCE-ISSUE > 45 (line 26), then selects SEEKOTP (line 30). The clause requires OTP-based consent when activation is not completed within 30 days. The visible 45-day gate is a stale activation threshold."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Finding D1_stale_threshold: ACTIVAT1 waits until WS-DAYS-SINCE-ISSUE > 45 before SEEKOTP, while the clause requires the OTP step after 30 days; the activation threshold is stale.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "b32bef2b2fce72e548cc2013a67103a6f1e85da7ed88c142779be8eade19d5cb",
+  "run_key": "0e2f627cd9a0d905d82c08b226d47313b85525ea8b4c47a87ed63aaf105d0d9a"
+}

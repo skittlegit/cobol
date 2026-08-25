@@ -1,0 +1,108 @@
+{
+  "instance_id": "drift_389498",
+  "gold": {
+    "instance_id": "drift_389498",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSY208",
+          "paragraph": "2000-CHECK-SLA",
+          "file": null,
+          "line_span": [
+            22,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD",
+        "WS-SLA-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSY208",
+          "line": 22,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-2 removes the live seven-day SLA branch from KYCSY208:2000-CHECK-SLA:22-26. The remaining zero-day NEW-status special case is credible legacy classification logic but does not enforce CKYCR update within seven days, producing D2_missing_rule.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSY208.cbl",
+      "mutation": "MO-2; locus=KYCSY208:2000-CHECK-SLA:22-26; old=\"IF WS-DAYS-SINCE-UPD > 7 MOVE 'OVERDUE' TO WS-SLA-STATUS ELSE MOVE 'INSLA' TO WS-SLA-STATUS END-IF\"; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "task=T2.7; supersession_map=t2_7_plausibility.jsonl; plausibility=t2_7_plausibility.jsonl"
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"program\":\"FILE KYCSY208.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. KYCSY208.\\n0003:       * CKYCR STATUS HOST - ARCHIVE RUN\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-CUST-REC.\\n0008:            05  WS-CUST-ID            PIC X(10) VALUE SPACES.\\n0009:            05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\\n0010:        01  WS-FLAGS.\\n0011:            05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.\\n0012:        01  WS-REPORT-CONTROL.\\n0013:            05  WS-ARCHIVE-FLAG       PIC X VALUE 'N'.\\n0014:        PROCEDURE DIVISION.\\n0015:        1000-MAIN.\\n0016:            ACCEPT WS-CUST-ID\\n0017:            ACCEPT WS-DAYS-SINCE-UPD\\n0018:            PERFORM 2000-CHECK-SLA\\n0019:            DISPLAY 'SLA: ' WS-SLA-STATUS\\n0020:            STOP RUN.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible excerpt accepts inputs and performs 2000-CHECK-SLA, but does not show that paragraph's body or any update operation, so compliance cannot be classified.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Insufficient visible source evidence: the implementation of 2000-CHECK-SLA is not supplied.",
+        "final_answer": "Abstain: the visible excerpt does not show the KYC update logic or timing comparison, so no evidence-grounded classification is possible.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible excerpt accepts inputs and performs 2000-CHECK-SLA, but does not show that paragraph's body or any update operation, so compliance cannot be classified.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Insufficient visible source evidence: the implementation of 2000-CHECK-SLA is not supplied.\",\"final_answer\":\"Abstain: the visible excerpt does not show the KYC update logic or timing comparison, so no evidence-grounded classification is possible.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "Insufficient visible source evidence: the implementation of 2000-CHECK-SLA is not supplied.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain: the visible excerpt does not show the KYC update logic or timing comparison, so no evidence-grounded classification is possible.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "Insufficient visible source evidence: the implementation of 2000-CHECK-SLA is not supplied.",
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "0bdfb6cc34320834cf76d8fdc0fd4135d117c28b43957a87a9d92e6ab8c8de4f",
+  "run_key": "e97541d36e56e96a2783bcc33de3912891518568b37df429f112626925081ab3"
+}

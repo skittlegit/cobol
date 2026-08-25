@@ -1,0 +1,21 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BOC6D4.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-CAPITAL-SHARE        PIC 9(3)V99 VALUE ZERO.
+       01  WS-PROFIT-SHARE         PIC 9(3)V99 VALUE ZERO.
+       01  WS-OWNER-FLAG           PIC X VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-CAPITAL-SHARE
+           ACCEPT WS-PROFIT-SHARE
+           EVALUATE TRUE
+             WHEN WS-CAPITAL-SHARE > 15
+               MOVE 'Y' TO WS-OWNER-FLAG
+             WHEN WS-PROFIT-SHARE > 15
+               MOVE 'Y' TO WS-OWNER-FLAG
+             WHEN OTHER
+               CONTINUE
+           END-EVALUATE
+           DISPLAY WS-OWNER-FLAG
+           STOP RUN.

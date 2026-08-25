@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cobol-archaeologist.invalid/benchmark/t6-v2/review-response.schema.json",
+  "title": "T6-v2 blinded review response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["review_item_id", "reviewer_pseudonym", "completed_at", "review_response"],
+  "properties": {
+    "review_item_id": {"type": "string", "pattern": "^rvw-[0-9a-f]{8}$"},
+    "reviewer_pseudonym": {"type": "string", "minLength": 1},
+    "completed_at": {"type": "string", "format": "date-time"},
+    "review_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "drift_type", "line_level", "rationale", "uncertainty_notes"],
+      "properties": {
+        "decision": {"enum": ["include", "exclude", "needs_adjudication"]},
+        "drift_type": {
+          "oneOf": [
+            {"enum": ["D1_stale_threshold", "D2_missing_rule", "D3_contradictory", "D4_stale_reference_data", "D5_boundary_error", "D6_dead_code", "D7_conformant"]},
+            {"type": "null"}
+          ]
+        },
+        "line_level": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["program", "line", "source_alias"],
+            "properties": {
+              "program": {"type": "string", "minLength": 1},
+              "line": {"type": "integer", "minimum": 1},
+              "source_alias": {"type": "string", "pattern": "^src-[0-9a-f]{12}$"}
+            }
+          }
+        },
+        "rationale": {"type": "string", "minLength": 1},
+        "uncertainty_notes": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

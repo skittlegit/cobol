@@ -279,6 +279,7 @@ def _trajectory(
         budget=BASELINE_BUDGET,
         budget_exhausted=budget_exhausted,
         tokens_used=sum(item.token_count for item in responses),
+        token_usage_recorded=all(item.token_count_recorded for item in responses),
         contract_repairs=max(0, len(responses) - 1),
         final_answer=response.final_answer
         or (f"Abstained: {reason}" if abstained else verification.evidence),
@@ -311,7 +312,10 @@ def single_shot_record(
             transcript=[],
             max_repairs=BASELINE_BUDGET.max_contract_repairs,
             repair_allowed=lambda rejected: (
-                rejected.token_count <= BASELINE_BUDGET.max_tokens
+                (
+                    not rejected.token_count_recorded
+                    or rejected.token_count <= BASELINE_BUDGET.max_tokens
+                )
                 and time.monotonic() - started < BASELINE_BUDGET.wall_clock_timeout_s
             ),
         )
@@ -327,7 +331,11 @@ def single_shot_record(
 
     if (
         elapsed >= BASELINE_BUDGET.wall_clock_timeout_s
-        or sum(item.token_count for item in responses) > BASELINE_BUDGET.max_tokens
+        or (
+            all(item.token_count_recorded for item in responses)
+            and sum(item.token_count for item in responses)
+            > BASELINE_BUDGET.max_tokens
+        )
     ):
         reason = (
             "wall-clock budget exhausted"

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -17,8 +18,10 @@ from cobol_archaeologist.eval.codex_batch import (
     CodexBaselineEnvelope,
     CodexBatchEnvelope,
     CodexUsage,
+    ParsedCodexEvents,
     SubmittedResponse,
     allocate_tokens,
+    authorize_codex_event_stream,
     bind_submitted_response,
     finalize_agent_hunt,
     parse_codex_events,
@@ -74,7 +77,13 @@ def _provider_projection(response: dict) -> dict:
     projected = {
         key: value
         for key, value in response.items()
-        if key not in {"token_count", "raw_provider_text", "contract_error"}
+        if key
+        not in {
+            "token_count",
+            "raw_provider_text",
+            "contract_error",
+            "evidence_ledger",
+        }
     }
     prediction = projected.get("prediction")
     if prediction is not None:
@@ -100,6 +109,106 @@ def test_codex_environment_never_forwards_api_keys() -> None:
     assert "OPENAI_API_KEY" not in env
     assert "CODEX_API_KEY" not in env
     assert "AZURE_OPENAI_API_KEY" not in env
+
+
+def test_codex_environment_is_an_explicit_allowlist() -> None:
+    env = sanitized_codex_environment(
+        {"PATH": "safe", "UNEXPECTED_NEW_SECRET": "leak", "HOME": "/safe"}
+    )
+    assert env == {"PATH": "safe", "HOME": "/safe"}
+
+
+def _authorized_tool_events(command: str) -> ParsedCodexEvents:
+    summary = '{"program":"P"}'
+    output = json.dumps(
+        {
+            "tool": "read_program",
+            "sequence": 1,
+            "observation_summary": summary,
+            "observation_sha256": hashlib.sha256(summary.encode()).hexdigest(),
+            "observation_truncated": False,
+            "error": None,
+        }
+    )
+    return ParsedCodexEvents(
+        final_message='{"results":[]}',
+        usage={},
+        thread_id="thread",
+        events=[
+            {"type": "thread.started", "thread_id": "thread"},
+            {
+                "type": "item.started",
+                "item": {
+                    "id": "item_1",
+                    "type": "command_execution",
+                    "command": command,
+                },
+            },
+            {
+                "type": "item.completed",
+                "item": {
+                    "id": "item_1",
+                    "type": "command_execution",
+                    "command": command,
+                    "aggregated_output": output + "\n",
+                    "exit_code": 0,
+                    "status": "completed",
+                },
+            },
+            {"type": "turn.completed", "usage": {}},
+        ],
+    )
+
+
+def test_event_stream_reconstructs_logs_only_from_exact_bridge() -> None:
+    bridge = "/support/.venv/bin/python -m cobol_archaeologist.eval.codex_tool"
+    inner = (
+        bridge
+        + " drift_900000 D1_stale_threshold read_program "
+        + '--arguments \'{"program":"P"}\''
+    )
+    parsed = _authorized_tool_events(f'/bin/bash -lc "{inner}"')
+    logs, event_hash = authorize_codex_event_stream(
+        parsed,
+        tool_command=bridge,
+        allowed_aliases=["drift_900000"],
+        allowed_hunts=["D1_stale_threshold"],
+    )
+
+    assert len(logs) == 1
+    assert logs[0].arguments == {"program": "P"}
+    assert len(event_hash) == 64
+
+
+@pytest.mark.parametrize(
+    "item_type,command",
+    [
+        ("command_execution", '/bin/bash -lc "cat cases/drift_900000/P.cbl"'),
+        ("file_change", None),
+        ("mcp_tool_call", None),
+    ],
+)
+def test_event_stream_rejects_direct_file_command_and_other_tools(
+    item_type: str, command: str | None
+) -> None:
+    item = {"id": "item_1", "type": item_type}
+    if command is not None:
+        item["command"] = command
+    parsed = ParsedCodexEvents(
+        final_message="{}",
+        usage={},
+        thread_id="thread",
+        events=[{"type": "item.started", "item": item}],
+    )
+    with pytest.raises(ValueError, match="unauthorized|exact frozen"):
+        authorize_codex_event_stream(
+            parsed,
+            tool_command=(
+                "/support/.venv/bin/python -m cobol_archaeologist.eval.codex_tool"
+            ),
+            allowed_aliases=["drift_900000"],
+            allowed_hunts=["D1_stale_threshold"],
+        )
 
 
 def test_agent_batch_requires_exact_alias_and_hunt_parity() -> None:
@@ -535,6 +644,43 @@ def test_codex_tool_gives_each_hunt_an_independent_eight_call_cap(
             tool_factory=lambda source: FakeTools(),
         )
     assert len((tmp_path / "tool_log.jsonl").read_text().splitlines()) == 9
+
+
+def test_codex_tool_gives_adaptive_case_one_sixteen_call_cap(
+    tmp_path: Path,
+) -> None:
+    case_dir = tmp_path / "cases" / "drift_900000"
+    case_dir.mkdir(parents=True)
+    (tmp_path / "descriptor.json").write_text(
+        json.dumps({"aliases": {"drift_900000": {"source_dir": "cases/drift_900000"}}}),
+        encoding="utf-8",
+    )
+
+    class Observation(BaseModel):
+        value: str
+
+    class FakeTools:
+        def grep(self, pattern: str) -> Observation:
+            return Observation(value=pattern)
+
+    request = ToolRequest(
+        alias="drift_900000",
+        hunt="adaptive",
+        tool="grep",
+        arguments={"pattern": "LIMIT"},
+    )
+    for _ in range(16):
+        execute_tool_request(
+            request,
+            task_root=tmp_path,
+            tool_factory=lambda source: FakeTools(),
+        )
+    with pytest.raises(RuntimeError, match="maximum 16 calls"):
+        execute_tool_request(
+            request,
+            task_root=tmp_path,
+            tool_factory=lambda source: FakeTools(),
+        )
 
 
 def test_batched_finding_cannot_emit_around_policy_guard_or_verifier() -> None:
@@ -1003,19 +1149,29 @@ def test_codex_cli_arguments_pin_luna_low_and_chatgpt_safe_modes() -> None:
         reasoning_effort="low",
     )
 
-    assert args[:5] == [
+    assert args[:6] == [
         "env",
-        "-u",
-        "OPENAI_API_KEY",
-        "-u",
-        "CODEX_API_KEY",
+        "-i",
+        "HOME=/home/deepa",
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "LANG=C.UTF-8",
+        "TERM=dumb",
     ]
+    assert not any("API_KEY" in argument for argument in args)
     assert "--ephemeral" in args
     assert "--ignore-user-config" in args
     assert "--sandbox" in args
     assert "workspace-write" in args
     assert args[args.index("-m") + 1] == "gpt-5.6-luna"
     assert 'model_reasoning_effort="low"' in args
+    baseline = codex_exec_arguments(
+        codex_binary="/home/user/.local/bin/codex",
+        task_root="/home/user/tasks/task-2",
+        model_id="gpt-5.6-luna",
+        reasoning_effort="max",
+        allow_tool_bridge=False,
+    )
+    assert baseline[baseline.index("--sandbox") + 1] == "read-only"
 
 
 def test_codex_schema_requires_every_nullable_key_without_defaults() -> None:

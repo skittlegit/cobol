@@ -1,0 +1,119 @@
+{
+  "instance_id": "drift_023504",
+  "gold": {
+    "instance_id": "drift_023504",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "36",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 30,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CICROLL2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            7,
+            7
+          ]
+        },
+        {
+          "program": "CICROLL2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            16,
+            16
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CIC-UPDATE-FLAG",
+        "CIC-UPDATE-ON",
+        "WS-DAYS-SINCE-SETTLE",
+        "WS-CIC-ACTION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CICROLL2",
+          "line": 7,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-6 changes \"VALUE 'Y'\" to \"VALUE 'N'\" at CICROLL2:<source>:7-7+CICROLL2:1000-MAIN:16-16, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CICROLL2.cbl",
+      "mutation": "MO-6; locus=CICROLL2:<source>:7-7+CICROLL2:1000-MAIN:16-16; old=\"VALUE 'Y'\"; new=\"VALUE 'N'\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: RAG+reranker single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"36\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"score\":9.234448432922363},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":3.1608591079711914},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":2.3505825996398926},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"25\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a cardholder protests a bill, the issuer must provide an explanation (with documentary evidence where applicable) within a maximum of 30 days from the date of complaint.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"score\":1.2818572521209717},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"85\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a complainant does not get a satisfactory response within a maximum period of 30 days from lodging the complaint, they may approach the RBI Ombudsman.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"score\":1.2809556722640991}],\"program\":\"FILE CICROLL2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. CICROLL2.\\n0003:       * CIC SETTLEMENT-STATUS FEED AFTER THE THIRTY-DAY RULE ROLLOUT.\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-CIC-UPDATE-FLAG PIC X VALUE 'N'.\\n0008:            88  CIC-UPDATE-ON VALUE 'Y'.\\n0009:        01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.\\n0010:        01  WS-DISPUTE-OPEN      PIC X VALUE 'N'.\\n0011:        01  WS-CIC-ACTION        PIC X(8) VALUE 'PENDING'.\\n0012:        PROCEDURE DIVISION.\\n0013:        1000-MAIN.\\n0014:            ACCEPT WS-DAYS-SINCE-SETTLE\\n0015:            ACCEPT WS-DISPUTE-OPEN\\n0016:            IF CIC-UPDATE-ON\\n0017:               IF WS-DISPUTE-OPEN = 'Y'\\n0018:                  MOVE 'HOLD' TO WS-CIC-ACTION\\n0019:               ELSE\\n0020:                  IF WS-DAYS-SINCE-SETTLE <= 30\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible excerpt reaches the opening days-since-settlement condition but does not show the CIC status-update action or its completion path.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied source slice is insufficient to establish either a violation or conformance with the 30-day update obligation.",
+        "final_answer": "Abstain: the excerpt shows only the settlement/dispute gating and does not expose the required status-update operation.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible excerpt reaches the opening days-since-settlement condition but does not show the CIC status-update action or its completion path.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied source slice is insufficient to establish either a violation or conformance with the 30-day update obligation.\",\"final_answer\":\"Abstain: the excerpt shows only the settlement/dispute gating and does not expose the required status-update operation.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied source slice is insufficient to establish either a violation or conformance with the 30-day update obligation.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain: the excerpt shows only the settlement/dispute gating and does not expose the required status-update operation.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied source slice is insufficient to establish either a violation or conformance with the 30-day update obligation.",
+  "infrastructure_error": null,
+  "system_id": "rag_reranker",
+  "source_sha256": "3172932e6442e43761d6e01286ecc341bd1bf8e8ce3e9ee296721a90c86a2d7a",
+  "run_key": "371ecf02affbaecc5a62b904e419f02e62266536fb22005ade6a78b0178d5a35"
+}

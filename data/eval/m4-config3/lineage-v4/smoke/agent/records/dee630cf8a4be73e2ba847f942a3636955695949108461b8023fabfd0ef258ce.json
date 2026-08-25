@@ -1,0 +1,1130 @@
+{
+  "instance_id": "drift_023504",
+  "gold": {
+    "instance_id": "drift_023504",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "36",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 30,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CICROLL2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            7,
+            7
+          ]
+        },
+        {
+          "program": "CICROLL2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            16,
+            16
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CIC-UPDATE-FLAG",
+        "CIC-UPDATE-ON",
+        "WS-DAYS-SINCE-SETTLE",
+        "WS-CIC-ACTION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CICROLL2",
+          "line": 7,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-6 changes \"VALUE 'Y'\" to \"VALUE 'N'\" at CICROLL2:<source>:7-7+CICROLL2:1000-MAIN:16-16, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CICROLL2.cbl",
+      "mutation": "MO-6; locus=CICROLL2:<source>:7-7+CICROLL2:1000-MAIN:16-16; old=\"VALUE 'Y'\"; new=\"VALUE 'N'\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_023504",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "36",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 30,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CICROLL2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            17,
+            18
+          ]
+        },
+        {
+          "program": "CICROLL2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            20,
+            23
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-SETTLE",
+        "WS-DISPUTE-OPEN",
+        "WS-CIC-ACTION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "rationale": "The source holds the action when `WS-DISPUTE-OPEN = 'Y'`; otherwise it updates only when `WS-DAYS-SINCE-SETTLE <= 30`. These checks match the supplied dispute-settlement and at-most 30-day obligations, with no drift loci."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "literal '30' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']; comparator '<=' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']",
+    "citation_ok": true,
+    "entailment_probability": 0.9231,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "literal '30' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']; comparator '<=' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: CICROLL2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 36 (version 2025-11-28, effective 2025-11-28): If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "CICROLL2"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 30, \"line_start\": 13, \"name\": \"1000-MAIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\b371f8312466633765608ac915b5daf8e9c7ea80e3796c55708049603814ef0b\\\\cases\\\\drift_900000\\\\CICROLL2.cbl\", \"program\": \"CICROLL2\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "CICROLL2",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-DAYS-SINCE-SETTLE\\n           ACCEPT WS-DISPUTE-OPEN\\n           IF CIC-UPDATE-ON\\n              IF WS-DISPUTE-OPEN = 'Y'\\n                 MOVE 'HOLD' TO WS-CIC-ACTION\\n              ELSE\\n                 IF WS-DAYS-SINCE-SETTLE <= 30\\n                    MOVE 'UPDATE' TO WS-CIC-ACTION\\n                 ELSE\\n                    MOVE 'BREACH' TO WS-CIC-ACTION\\n                 END-IF\\n              END-IF\\n           ELSE\\n              MOVE 'DEFER' TO WS-CIC-ACTION\\n           END-IF\\n           DISPLAY 'CIC: ' WS-CIC-ACTION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 30, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"CICROLL2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-DISPUTE-OPEN"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 10, \"program\": \"CICROLL2\", \"text\": \"       01  WS-DISPUTE-OPEN      PIC X VALUE 'N'.\"}, {\"line\": 15, \"program\": \"CICROLL2\", \"text\": \"           ACCEPT WS-DISPUTE-OPEN\"}, {\"line\": 17, \"program\": \"CICROLL2\", \"text\": \"              IF WS-DISPUTE-OPEN = 'Y'\"}], \"pattern\": \"WS-DISPUTE-OPEN\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "Three bounded observations positively show dispute gating and the matching 30-day comparator.\n[policy telemetry: SourceLocus.file normalized; loci=2; line_refs=0]",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_023504",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "36",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 30,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CICROLL2",
+                "paragraph": "1000-MAIN",
+                "file": null,
+                "line_span": [
+                  17,
+                  18
+                ]
+              },
+              {
+                "program": "CICROLL2",
+                "paragraph": "1000-MAIN",
+                "file": null,
+                "line_span": [
+                  20,
+                  23
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-SETTLE",
+              "WS-DISPUTE-OPEN",
+              "WS-CIC-ACTION"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "The source holds the action when `WS-DISPUTE-OPEN = 'Y'`; otherwise it updates only when `WS-DAYS-SINCE-SETTLE <= 30`. These checks match the supplied dispute-settlement and at-most 30-day obligations, with no drift loci."
+        },
+        "claim": "The issuer must update the CIC within 30 days of settlement after disputes are settled, and default disclosure occurs only after disputes are settled.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "30",
+          "comparator": "<=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Conformant: disputed cases are held, and the update branch uses `<= 30`, matching the clause.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"Three bounded observations positively show dispute gating and the matching 30-day comparator.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"file\":\"CICROLL2.cbl\",\"line_span\":[17,18]},{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"file\":\"CICROLL2.cbl\",\"line_span\":[20,23]}],\"slice_vars\":[\"WS-DAYS-SINCE-SETTLE\",\"WS-DISPUTE-OPEN\",\"WS-CIC-ACTION\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[]},\"rationale\":\"The source holds the action when `WS-DISPUTE-OPEN = 'Y'`; otherwise it updates only when `WS-DAYS-SINCE-SETTLE <= 30`. These checks match the supplied dispute-settlement and at-most 30-day obligations, with no drift loci.\"},\"claim\":\"The issuer must update the CIC within 30 days of settlement after disputes are settled, and default disclosure occurs only after disputes are settled.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"30\",\"comparator\":\"<=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Conformant: disputed cases are held, and the update branch uses `<= 30`, matching the clause.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "literal '30' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']; comparator '<=' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']",
+      "citation_ok": true,
+      "entailment_probability": 0.9231,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "literal '30' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']; comparator '<=' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_023504",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "36",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+        "current_value": {
+          "kind": "duration_days",
+          "value": 30,
+          "comparator": "at_most",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "CICROLL2",
+            "paragraph": "1000-MAIN",
+            "file": null,
+            "line_span": [
+              17,
+              18
+            ]
+          },
+          {
+            "program": "CICROLL2",
+            "paragraph": "1000-MAIN",
+            "file": null,
+            "line_span": [
+              20,
+              23
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-DAYS-SINCE-SETTLE",
+          "WS-DISPUTE-OPEN",
+          "WS-CIC-ACTION"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D7_conformant",
+      "target_path": null,
+      "labels": {
+        "program_level": "conformant",
+        "paragraph_level": "conformant",
+        "line_level": []
+      },
+      "rationale": "The source holds the action when `WS-DISPUTE-OPEN = 'Y'`; otherwise it updates only when `WS-DAYS-SINCE-SETTLE <= 30`. These checks match the supplied dispute-settlement and at-most 30-day obligations, with no drift loci."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Conformant: disputed cases are held, and the update branch uses `<= 30`, matching the clause.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: CICROLL2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 36 (version 2025-11-28, effective 2025-11-28): If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CICROLL2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 30, \"line_start\": 13, \"name\": \"1000-MAIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\b371f8312466633765608ac915b5daf8e9c7ea80e3796c55708049603814ef0b\\\\cases\\\\drift_900000\\\\CICROLL2.cbl\", \"program\": \"CICROLL2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CICROLL2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-DAYS-SINCE-SETTLE\\n           ACCEPT WS-DISPUTE-OPEN\\n           IF CIC-UPDATE-ON\\n              IF WS-DISPUTE-OPEN = 'Y'\\n                 MOVE 'HOLD' TO WS-CIC-ACTION\\n              ELSE\\n                 IF WS-DAYS-SINCE-SETTLE <= 30\\n                    MOVE 'UPDATE' TO WS-CIC-ACTION\\n                 ELSE\\n                    MOVE 'BREACH' TO WS-CIC-ACTION\\n                 END-IF\\n              END-IF\\n           ELSE\\n              MOVE 'DEFER' TO WS-CIC-ACTION\\n           END-IF\\n           DISPLAY 'CIC: ' WS-CIC-ACTION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 30, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"CICROLL2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-DAYS-SINCE-SETTLE"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"CICROLL2\", \"text\": \"       01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.\"}, {\"line\": 14, \"program\": \"CICROLL2\", \"text\": \"           ACCEPT WS-DAYS-SINCE-SETTLE\"}, {\"line\": 20, \"program\": \"CICROLL2\", \"text\": \"                 IF WS-DAYS-SINCE-SETTLE <= 30\"}], \"pattern\": \"WS-DAYS-SINCE-SETTLE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "Three bounded observations locate the threshold check and its definition; the source value is current.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "CICROLL2 uses `WS-DAYS-SINCE-SETTLE <= 30`, matching the supplied 30-day at_most leaf; no stale threshold was found.",
+            "final_answer": "Abstain: the source threshold `<= 30` matches the clause's at-most 30-day requirement.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"Three bounded observations locate the threshold check and its definition; the source value is current.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"CICROLL2 uses `WS-DAYS-SINCE-SETTLE <= 30`, matching the supplied 30-day at_most leaf; no stale threshold was found.\",\"final_answer\":\"Abstain: the source threshold `<= 30` matches the clause's at-most 30-day requirement.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "CICROLL2 uses `WS-DAYS-SINCE-SETTLE <= 30`, matching the supplied 30-day at_most leaf; no stale threshold was found.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: CICROLL2 uses `WS-DAYS-SINCE-SETTLE <= 30`, matching the supplied 30-day at_most leaf; no stale threshold was found.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "CICROLL2 uses `WS-DAYS-SINCE-SETTLE <= 30`, matching the supplied 30-day at_most leaf; no stale threshold was found."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\nScope: CICROLL2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 36 (version 2025-11-28, effective 2025-11-28): If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-DAYS-SINCE-SETTLE"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"CICROLL2\", \"text\": \"       01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.\"}, {\"line\": 14, \"program\": \"CICROLL2\", \"text\": \"           ACCEPT WS-DAYS-SINCE-SETTLE\"}, {\"line\": 20, \"program\": \"CICROLL2\", \"text\": \"                 IF WS-DAYS-SINCE-SETTLE <= 30\"}], \"pattern\": \"WS-DAYS-SINCE-SETTLE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "CICROLL2",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "CICROLL2",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-DAYS-SINCE-SETTLE",
+              "program": "CICROLL2"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CICROLL2\"}], \"scoped_program\": \"CICROLL2\", \"statements\": [{\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"CICROLL2\"}, \"text\": \"01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 14, \"line_start\": 14, \"paragraph\": \"1000-MAIN\", \"program\": \"CICROLL2\"}, \"text\": \"ACCEPT WS-DAYS-SINCE-SETTLE\"}], \"variable\": \"WS-DAYS-SINCE-SETTLE\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The scoped grep and slice are positive, so D2's all-negative evidence contract is not met.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The regulated variable appears in grep and slice observations; the rule is not absent across all required scopes.",
+            "final_answer": "Abstain: the required rule evidence is present, so this is not a missing-rule finding.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The scoped grep and slice are positive, so D2's all-negative evidence contract is not met.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The regulated variable appears in grep and slice observations; the rule is not absent across all required scopes.\",\"final_answer\":\"Abstain: the required rule evidence is present, so this is not a missing-rule finding.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The regulated variable appears in grep and slice observations; the rule is not absent across all required scopes.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The regulated variable appears in grep and slice observations; the rule is not absent across all required scopes.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The regulated variable appears in grep and slice observations; the rule is not absent across all required scopes."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\nScope: CICROLL2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 36 (version 2025-11-28, effective 2025-11-28): If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CICROLL2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 30, \"line_start\": 13, \"name\": \"1000-MAIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\b371f8312466633765608ac915b5daf8e9c7ea80e3796c55708049603814ef0b\\\\cases\\\\drift_900000\\\\CICROLL2.cbl\", \"program\": \"CICROLL2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CICROLL2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-DAYS-SINCE-SETTLE\\n           ACCEPT WS-DISPUTE-OPEN\\n           IF CIC-UPDATE-ON\\n              IF WS-DISPUTE-OPEN = 'Y'\\n                 MOVE 'HOLD' TO WS-CIC-ACTION\\n              ELSE\\n                 IF WS-DAYS-SINCE-SETTLE <= 30\\n                    MOVE 'UPDATE' TO WS-CIC-ACTION\\n                 ELSE\\n                    MOVE 'BREACH' TO WS-CIC-ACTION\\n                 END-IF\\n              END-IF\\n           ELSE\\n              MOVE 'DEFER' TO WS-CIC-ACTION\\n           END-IF\\n           DISPLAY 'CIC: ' WS-CIC-ACTION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 30, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"CICROLL2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-CIC-ACTION"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 11, \"program\": \"CICROLL2\", \"text\": \"       01  WS-CIC-ACTION        PIC X(8) VALUE 'PENDING'.\"}, {\"line\": 18, \"program\": \"CICROLL2\", \"text\": \"                 MOVE 'HOLD' TO WS-CIC-ACTION\"}, {\"line\": 21, \"program\": \"CICROLL2\", \"text\": \"                    MOVE 'UPDATE' TO WS-CIC-ACTION\"}, {\"line\": 23, \"program\": \"CICROLL2\", \"text\": \"                    MOVE 'BREACH' TO WS-CIC-ACTION\"}, {\"line\": 27, \"program\": \"CICROLL2\", \"text\": \"              MOVE 'DEFER' TO WS-CIC-ACTION\"}, {\"line\": 29, \"program\": \"CICROLL2\", \"text\": \"           DISPLAY 'CIC: ' WS-CIC-ACTION\"}], \"pattern\": \"WS-CIC-ACTION\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The program exposes one paragraph with one threshold outcome; no conflicting typed loci were found.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No two loci produce conflicting outcomes for the same regulated condition.",
+            "final_answer": "Abstain: no contradiction is evidenced.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The program exposes one paragraph with one threshold outcome; no conflicting typed loci were found.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No two loci produce conflicting outcomes for the same regulated condition.\",\"final_answer\":\"Abstain: no contradiction is evidenced.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No two loci produce conflicting outcomes for the same regulated condition.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No two loci produce conflicting outcomes for the same regulated condition.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No two loci produce conflicting outcomes for the same regulated condition."
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: CICROLL2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 36 (version 2025-11-28, effective 2025-11-28): If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current value is a duration, not an enum_set reference collection.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only to enum_set reference collections; this clause supplies duration_days 30.",
+            "final_answer": "Abstain: D4 is inapplicable to the supplied duration value.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value is a duration, not an enum_set reference collection.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only to enum_set reference collections; this clause supplies duration_days 30.\",\"final_answer\":\"Abstain: D4 is inapplicable to the supplied duration value.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\nScope: CICROLL2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 36 (version 2025-11-28, effective 2025-11-28): If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CICROLL2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-DAYS-SINCE-SETTLE\\n           ACCEPT WS-DISPUTE-OPEN\\n           IF CIC-UPDATE-ON\\n              IF WS-DISPUTE-OPEN = 'Y'\\n                 MOVE 'HOLD' TO WS-CIC-ACTION\\n              ELSE\\n                 IF WS-DAYS-SINCE-SETTLE <= 30\\n                    MOVE 'UPDATE' TO WS-CIC-ACTION\\n                 ELSE\\n                    MOVE 'BREACH' TO WS-CIC-ACTION\\n                 END-IF\\n              END-IF\\n           ELSE\\n              MOVE 'DEFER' TO WS-CIC-ACTION\\n           END-IF\\n           DISPLAY 'CIC: ' WS-CIC-ACTION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 30, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"CICROLL2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-DAYS-SINCE-SETTLE"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"CICROLL2\", \"text\": \"       01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.\"}, {\"line\": 14, \"program\": \"CICROLL2\", \"text\": \"           ACCEPT WS-DAYS-SINCE-SETTLE\"}, {\"line\": 20, \"program\": \"CICROLL2\", \"text\": \"                 IF WS-DAYS-SINCE-SETTLE <= 30\"}], \"pattern\": \"WS-DAYS-SINCE-SETTLE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "WS-DAYS-SINCE-SETTLE",
+              "program": "CICROLL2"
+            },
+            "observation_summary": "{\"scoped_program\": \"CICROLL2\", \"sites\": [{\"excerpt\": \"01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.\", \"kind\": \"def\", \"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"CICROLL2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"ACCEPT WS-DAYS-SINCE-SETTLE\", \"kind\": \"def\", \"ref\": {\"line_end\": 14, \"line_start\": 14, \"paragraph\": \"1000-MAIN\", \"program\": \"CICROLL2\"}, \"statement_kind\": \"ACCEPT\"}, {\"excerpt\": \"ELSE\\n                 IF WS-DAYS-SINCE-SETTLE <= 30\", \"kind\": \"use\", \"ref\": {\"line_end\": 20, \"line_start\": 19, \"paragraph\": \"1000-MAIN\", \"program\": \"CICROLL2\"}, \"statement_kind\": \"ELSE_IF\"}], \"variable\": \"WS-DAYS-SINCE-SETTLE\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The typed source comparator and value match the supplied clause comparator and value.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The source uses `<= 30`, which matches at_most 30; no boundary error was found.",
+            "final_answer": "Abstain: the source boundary matches the clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The typed source comparator and value match the supplied clause comparator and value.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The source uses `<= 30`, which matches at_most 30; no boundary error was found.\",\"final_answer\":\"Abstain: the source boundary matches the clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The source uses `<= 30`, which matches at_most 30; no boundary error was found.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The source uses `<= 30`, which matches at_most 30; no boundary error was found.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The source uses `<= 30`, which matches at_most 30; no boundary error was found."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\nScope: CICROLL2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 36 (version 2025-11-28, effective 2025-11-28): If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CICROLL2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 30, \"line_start\": 13, \"name\": \"1000-MAIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\b371f8312466633765608ac915b5daf8e9c7ea80e3796c55708049603814ef0b\\\\cases\\\\drift_900000\\\\CICROLL2.cbl\", \"program\": \"CICROLL2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CICROLL2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-DAYS-SINCE-SETTLE\\n           ACCEPT WS-DISPUTE-OPEN\\n           IF CIC-UPDATE-ON\\n              IF WS-DISPUTE-OPEN = 'Y'\\n                 MOVE 'HOLD' TO WS-CIC-ACTION\\n              ELSE\\n                 IF WS-DAYS-SINCE-SETTLE <= 30\\n                    MOVE 'UPDATE' TO WS-CIC-ACTION\\n                 ELSE\\n                    MOVE 'BREACH' TO WS-CIC-ACTION\\n                 END-IF\\n              END-IF\\n           ELSE\\n              MOVE 'DEFER' TO WS-CIC-ACTION\\n           END-IF\\n           DISPLAY 'CIC: ' WS-CIC-ACTION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 30, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"CICROLL2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "DISPLAY"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 29, \"program\": \"CICROLL2\", \"text\": \"           DISPLAY 'CIC: ' WS-CIC-ACTION\"}], \"pattern\": \"DISPLAY\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The executable paragraph contains the compliance check; no dead compliance paragraph was established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No dead compliance paragraph is evidenced in CICROLL2.",
+            "final_answer": "Abstain: no dead compliance code was established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The executable paragraph contains the compliance check; no dead compliance paragraph was established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No dead compliance paragraph is evidenced in CICROLL2.\",\"final_answer\":\"Abstain: no dead compliance code was established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No dead compliance paragraph is evidenced in CICROLL2.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No dead compliance paragraph is evidenced in CICROLL2.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No dead compliance paragraph is evidenced in CICROLL2."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": true,
+      "finding": {
+        "instance_id": "drift_023504",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "36",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+          "current_value": {
+            "kind": "duration_days",
+            "value": 30,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "CICROLL2",
+              "paragraph": "1000-MAIN",
+              "file": null,
+              "line_span": [
+                17,
+                18
+              ]
+            },
+            {
+              "program": "CICROLL2",
+              "paragraph": "1000-MAIN",
+              "file": null,
+              "line_span": [
+                20,
+                23
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-DAYS-SINCE-SETTLE",
+            "WS-DISPUTE-OPEN",
+            "WS-CIC-ACTION"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D7_conformant",
+        "target_path": null,
+        "labels": {
+          "program_level": "conformant",
+          "paragraph_level": "conformant",
+          "line_level": []
+        },
+        "rationale": "The source holds the action when `WS-DISPUTE-OPEN = 'Y'`; otherwise it updates only when `WS-DAYS-SINCE-SETTLE <= 30`. These checks match the supplied dispute-settlement and at-most 30-day obligations, with no drift loci."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "literal '30' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']; comparator '<=' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']",
+        "citation_ok": true,
+        "entailment_probability": 0.9231,
+        "entailment_backend": "lexical_proxy_v1",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "literal '30' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']; comparator '<=' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: CICROLL2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 36 (version 2025-11-28, effective 2025-11-28): If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CICROLL2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 30, \"line_start\": 13, \"name\": \"1000-MAIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\b371f8312466633765608ac915b5daf8e9c7ea80e3796c55708049603814ef0b\\\\cases\\\\drift_900000\\\\CICROLL2.cbl\", \"program\": \"CICROLL2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CICROLL2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-DAYS-SINCE-SETTLE\\n           ACCEPT WS-DISPUTE-OPEN\\n           IF CIC-UPDATE-ON\\n              IF WS-DISPUTE-OPEN = 'Y'\\n                 MOVE 'HOLD' TO WS-CIC-ACTION\\n              ELSE\\n                 IF WS-DAYS-SINCE-SETTLE <= 30\\n                    MOVE 'UPDATE' TO WS-CIC-ACTION\\n                 ELSE\\n                    MOVE 'BREACH' TO WS-CIC-ACTION\\n                 END-IF\\n              END-IF\\n           ELSE\\n              MOVE 'DEFER' TO WS-CIC-ACTION\\n           END-IF\\n           DISPLAY 'CIC: ' WS-CIC-ACTION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 30, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"CICROLL2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-DISPUTE-OPEN"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 10, \"program\": \"CICROLL2\", \"text\": \"       01  WS-DISPUTE-OPEN      PIC X VALUE 'N'.\"}, {\"line\": 15, \"program\": \"CICROLL2\", \"text\": \"           ACCEPT WS-DISPUTE-OPEN\"}, {\"line\": 17, \"program\": \"CICROLL2\", \"text\": \"              IF WS-DISPUTE-OPEN = 'Y'\"}], \"pattern\": \"WS-DISPUTE-OPEN\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "Three bounded observations positively show dispute gating and the matching 30-day comparator.\n[policy telemetry: SourceLocus.file normalized; loci=2; line_refs=0]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_023504",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "36",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+                "current_value": {
+                  "kind": "duration_days",
+                  "value": 30,
+                  "comparator": "at_most",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "CICROLL2",
+                    "paragraph": "1000-MAIN",
+                    "file": null,
+                    "line_span": [
+                      17,
+                      18
+                    ]
+                  },
+                  {
+                    "program": "CICROLL2",
+                    "paragraph": "1000-MAIN",
+                    "file": null,
+                    "line_span": [
+                      20,
+                      23
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-DAYS-SINCE-SETTLE",
+                  "WS-DISPUTE-OPEN",
+                  "WS-CIC-ACTION"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D7_conformant",
+              "target_path": null,
+              "labels": {
+                "program_level": "conformant",
+                "paragraph_level": "conformant",
+                "line_level": []
+              },
+              "rationale": "The source holds the action when `WS-DISPUTE-OPEN = 'Y'`; otherwise it updates only when `WS-DAYS-SINCE-SETTLE <= 30`. These checks match the supplied dispute-settlement and at-most 30-day obligations, with no drift loci."
+            },
+            "claim": "The issuer must update the CIC within 30 days of settlement after disputes are settled, and default disclosure occurs only after disputes are settled.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "30",
+              "comparator": "<=",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "Conformant: disputed cases are held, and the update branch uses `<= 30`, matching the clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"Three bounded observations positively show dispute gating and the matching 30-day comparator.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"file\":\"CICROLL2.cbl\",\"line_span\":[17,18]},{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"file\":\"CICROLL2.cbl\",\"line_span\":[20,23]}],\"slice_vars\":[\"WS-DAYS-SINCE-SETTLE\",\"WS-DISPUTE-OPEN\",\"WS-CIC-ACTION\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[]},\"rationale\":\"The source holds the action when `WS-DISPUTE-OPEN = 'Y'`; otherwise it updates only when `WS-DAYS-SINCE-SETTLE <= 30`. These checks match the supplied dispute-settlement and at-most 30-day obligations, with no drift loci.\"},\"claim\":\"The issuer must update the CIC within 30 days of settlement after disputes are settled, and default disclosure occurs only after disputes are settled.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"30\",\"comparator\":\"<=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Conformant: disputed cases are held, and the update branch uses `<= 30`, matching the clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "literal '30' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']; comparator '<=' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']",
+          "citation_ok": true,
+          "entailment_probability": 0.9231,
+          "entailment_backend": "lexical_proxy_v1",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "literal '30' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']; comparator '<=' present in ['CICROLL2:1000-MAIN', 'CICROLL2:1000-MAIN']"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_023504",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "36",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 30,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CICROLL2",
+                "paragraph": "1000-MAIN",
+                "file": null,
+                "line_span": [
+                  17,
+                  18
+                ]
+              },
+              {
+                "program": "CICROLL2",
+                "paragraph": "1000-MAIN",
+                "file": null,
+                "line_span": [
+                  20,
+                  23
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-SETTLE",
+              "WS-DISPUTE-OPEN",
+              "WS-CIC-ACTION"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "The source holds the action when `WS-DISPUTE-OPEN = 'Y'`; otherwise it updates only when `WS-DAYS-SINCE-SETTLE <= 30`. These checks match the supplied dispute-settlement and at-most 30-day obligations, with no drift loci."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Conformant: disputed cases are held, and the update branch uses `<= 30`, matching the clause.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    }
+  ],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "3172932e6442e43761d6e01286ecc341bd1bf8e8ce3e9ee296721a90c86a2d7a",
+  "run_key": "dee630cf8a4be73e2ba847f942a3636955695949108461b8023fabfd0ef258ce"
+}

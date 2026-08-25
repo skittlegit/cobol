@@ -1,0 +1,16 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BOP7A1.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-CAPITAL-PCT           PIC 9(3)V99 VALUE ZERO.
+       01  WS-PROFIT-PCT            PIC 9(3)V99 VALUE ZERO.
+       01  WS-IS-BO                 PIC X VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-CAPITAL-PCT
+           ACCEPT WS-PROFIT-PCT
+           IF WS-CAPITAL-PCT > 15 OR WS-PROFIT-PCT > 15
+              MOVE 'Y' TO WS-IS-BO
+           END-IF
+           DISPLAY WS-IS-BO
+           STOP RUN.
