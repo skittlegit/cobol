@@ -100,6 +100,11 @@ class RunManifest(BaseModel):
     completed_run_keys: list[str] = Field(default_factory=list)
     infrastructure_failures: dict[str, str] = Field(default_factory=dict)
     validity: RunValidity | None = None
+    experiment_id: str | None = None
+    configuration_id: str | None = None
+    definition_sha256: str | None = None
+    panel_identity_sha256: str | None = None
+    panel_instance_ids: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _run_mode_shape(self) -> RunManifest:
@@ -124,6 +129,19 @@ class RunManifest(BaseModel):
             )
         if self.validity is not None and self.validity.completed_rows > self.total:
             raise ValueError("validity cannot report more rows than the manifest total")
+        experiment_fields = (
+            self.configuration_id,
+            self.definition_sha256,
+            self.panel_identity_sha256,
+        )
+        if self.experiment_id is None:
+            if any(value is not None for value in experiment_fields) or self.panel_instance_ids:
+                raise ValueError("supplemental identity requires experiment_id")
+        else:
+            if any(value is None for value in experiment_fields):
+                raise ValueError("supplemental manifests require complete identity fields")
+            if len(self.panel_instance_ids) != len(set(self.panel_instance_ids)):
+                raise ValueError("panel_instance_ids must be unique")
         return self
 
 

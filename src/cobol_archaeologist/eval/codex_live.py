@@ -581,10 +581,13 @@ def _stage_task(
     sources: Mapping[str, MaterializedSource],
     distro: str,
     task_base: str,
+    ablation_runtime: Mapping[str, Any] | None = None,
 ) -> str:
     task_id = uuid.uuid4().hex
     task_root = f"{task_base}/{task_id}"
     descriptor: dict[str, Any] = {"aliases": {}}
+    if ablation_runtime is not None:
+        descriptor["ablation_runtime"] = dict(ablation_runtime)
     files: dict[str, bytes] = {
         "prompt.txt": prompt.encode(),
         "output_schema.json": json.dumps(schema, sort_keys=True).encode(),
@@ -622,6 +625,7 @@ def execute_codex_task(
     model_id: str = MODEL_ID,
     reasoning_effort: str = REASONING_EFFORT,
     timeout_s: float = 900,
+    ablation_runtime: Mapping[str, Any] | None = None,
 ) -> CodexTaskExecution:
     """Stage and execute one isolated, replayable ChatGPT Codex task."""
 
@@ -631,6 +635,7 @@ def execute_codex_task(
         sources=sources,
         distro=distro,
         task_base=task_base,
+        ablation_runtime=ablation_runtime,
     )
     arguments = codex_exec_arguments(
         codex_binary=codex_binary,
@@ -1340,6 +1345,326 @@ def run_codex_system(
             if manifest.validity.status == "HALTED_CONTRACT_REJECTIONS":
                 break
     _write_manifest(manifest, records, manifest_path)
+    return records
+
+
+def run_codex_ablation(
+    configuration_id: str,
+    *,
+    mode: Literal["smoke", "full"],
+    distro: str = DEFAULT_WSL_DISTRO,
+    codex_binary: str = DEFAULT_CODEX_BINARY,
+) -> list[EvaluationRecord]:
+    """Run one committed T5.5A control/ablation on the frozen paired panel."""
+
+    # DECISION (T5.5A): this dedicated path reuses the frozen Codex prompt,
+    # staging, binding, policy, and record machinery while omitting M4's pilot
+    # gate. Its own committed panel/smoke identities fail closed below.
+
+    from cobol_archaeologist.eval.ablations import (
+        CONFIGURATIONS,
+        DEFINITION_PATH,
+        EXPERIMENT_ID,
+        OUTPUT_ROOT,
+        PANEL_SEED,
+        AblatedToolLayer,
+        assert_definition_committed,
+        assess_ablation_validity,
+        load_frozen_panel,
+        singleton_schema_retries,
+    )
+
+    if configuration_id not in CONFIGURATIONS:
+        raise ValueError(f"unknown T5.5A configuration {configuration_id!r}")
+    configuration = CONFIGURATIONS[configuration_id]
+    commit = assert_definition_committed()
+    panel = load_frozen_panel()
+    definition = json.loads(DEFINITION_PATH.read_text(encoding="utf-8"))
+    definition_identity = definition.pop("identity_sha256")
+    reproduced_definition_identity = hashlib.sha256(
+        json.dumps(
+            definition,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode()
+    ).hexdigest()
+    if definition_identity != reproduced_definition_identity:
+        raise ValueError("T5.5A definition identity hash mismatch")
+    by_id = {row.instance_id: row for row in load_split()}
+    missing = [instance_id for instance_id in panel.instance_ids if instance_id not in by_id]
+    if missing:
+        raise ValueError(f"T5.5A panel IDs missing from frozen v1: {missing}")
+    panel_rows = [by_id[instance_id] for instance_id in panel.instance_ids]
+    smoke_set = set(panel.smoke_instance_ids)
+    run_rows = (
+        [row for row in panel_rows if row.instance_id in smoke_set]
+        if mode == "smoke"
+        else panel_rows
+    )
+    if [row.instance_id for row in run_rows] != (
+        panel.smoke_instance_ids if mode == "smoke" else panel.instance_ids
+    ):
+        raise ValueError("T5.5A execution order differs from the frozen panel")
+
+    support_root = prepare_support_runtime(commit=commit, distro=distro)
+    login = _check_chatgpt_login(codex_binary=codex_binary, distro=distro)
+    version_result = _wsl([codex_binary, "--version"], distro=distro)
+    _require_ok(version_result, "read Codex CLI version")
+    cli_version = version_result.stdout.decode("utf-8", errors="replace").strip()
+    if "ChatGPT" not in login:
+        raise RuntimeError("ChatGPT Codex login check failed")
+
+    runtime_identity = configuration.model_dump(mode="json")
+    manifest = RunManifest(
+        system_id=configuration_id,
+        provider=PROVIDER_ID,
+        model_id=MODEL_ID,
+        decoding={
+            "reasoning_effort": REASONING_EFFORT,
+            "temperature_parameter": "not_exposed_by_codex_cli",
+            "seed": None,
+            "authentication": "ChatGPT",
+            "codex_cli_version": cli_version,
+            "batch_size": AGENT_BATCH_SIZE,
+            "min_successful_observations_by_drift_type": dict(EVIDENCE_MINIMUMS),
+            "ablation_runtime": runtime_identity,
+        },
+        budgets=AGENT_BUDGET.model_dump(mode="json"),
+        repository_commit=commit,
+        input_revision=INPUT_REVISION,
+        tool_version=f"{TOOL_VERSION}@{commit}:t5.5a:{configuration_id}",
+        prompt_version=PROMPT_VERSION,
+        split_path=SPLIT.relative_to(ROOT).as_posix(),
+        split_sha256=hashlib.sha256(SPLIT.read_bytes()).hexdigest(),
+        schema_version=SCHEMA_VERSION,
+        run_mode=mode,
+        smoke_rows=len(run_rows) if mode == "smoke" else None,
+        smoke_seed=PANEL_SEED,
+        smoke_instance_ids=list(panel.smoke_instance_ids),
+        total=len(run_rows),
+        experiment_id=EXPERIMENT_ID,
+        configuration_id=configuration_id,
+        definition_sha256=definition_identity,
+        panel_identity_sha256=panel.identity_sha256,
+        panel_instance_ids=list(panel.instance_ids),
+    )
+    configuration_root = OUTPUT_ROOT / configuration_id
+    artifact_dir = configuration_root / "smoke" if mode == "smoke" else configuration_root
+    records_path = artifact_dir / "agent.jsonl"
+    manifest_path = artifact_dir / "agent.manifest.json"
+
+    if mode == "full":
+        smoke_path = configuration_root / "smoke" / "agent.manifest.json"
+        if not smoke_path.exists():
+            raise RuntimeError(f"full T5.5A run requires smoke manifest {smoke_path}")
+        smoke_manifest = RunManifest.model_validate_json(
+            smoke_path.read_text(encoding="utf-8")
+        )
+        identity_fields = (
+            "system_id",
+            "provider",
+            "model_id",
+            "decoding",
+            "budgets",
+            "repository_commit",
+            "input_revision",
+            "tool_version",
+            "prompt_version",
+            "split_path",
+            "split_sha256",
+            "schema_version",
+            "smoke_seed",
+            "smoke_instance_ids",
+            "experiment_id",
+            "configuration_id",
+            "definition_sha256",
+            "panel_identity_sha256",
+            "panel_instance_ids",
+        )
+        mismatches = [
+            field
+            for field in identity_fields
+            if getattr(smoke_manifest, field) != getattr(manifest, field)
+        ]
+        if (
+            mismatches
+            or smoke_manifest.run_mode != "smoke"
+            or smoke_manifest.total != len(panel.smoke_instance_ids)
+            or smoke_manifest.validity is None
+            or smoke_manifest.validity.status != "VALID"
+        ):
+            raise RuntimeError(
+                "T5.5A full-run smoke prerequisite failed"
+                + (f": mismatched {mismatches}" if mismatches else "")
+            )
+
+    materialized = {row.instance_id: materialize(row) for row in run_rows}
+    regulation_search = RegulationSearch(mode=configuration.regulation_search_mode)
+    entailer = default_entailer()
+    existing = _load_existing(records_path)
+    records: list[EvaluationRecord] = []
+    pending: list[DriftInstance] = []
+    keys: dict[str, str] = {}
+    for row in run_rows:
+        source = materialized[row.instance_id]
+        key = run_key(
+            instance_id=row.instance_id,
+            source_sha256=source.source_sha256,
+            system_id=f"agent:{configuration_id}",
+            model_id=MODEL_ID,
+            budgets=manifest.budgets,
+            prompt_version=PROMPT_VERSION,
+            tool_version=manifest.tool_version,
+            commit=commit,
+            schema_version=SCHEMA_VERSION,
+        )
+        keys[row.instance_id] = key
+        if key in existing:
+            records.append(existing[key])
+        else:
+            pending.append(row)
+
+    def write_manifest() -> None:
+        records.sort(key=lambda record: panel.instance_ids.index(record.instance_id))
+        manifest.completed_run_keys = sorted(record.run_key for record in records)
+        manifest.infrastructure_failures = {
+            record.instance_id: record.infrastructure_error
+            for record in records
+            if record.infrastructure_error
+        }
+        manifest.validity = assess_ablation_validity(records, expected_rows=len(run_rows))
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        manifest_path.write_text(
+            manifest.model_dump_json(indent=2) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+
+    write_manifest()
+    records_path.parent.mkdir(parents=True, exist_ok=True)
+    with records_path.open("a", encoding="utf-8", newline="\n") as stream:
+        work_queue = [(batch, 0) for batch in _chunks(pending, AGENT_BATCH_SIZE)]
+        batch_index = 0
+        while work_queue:
+            batch, repair_attempt = work_queue.pop(0)
+            batch_index += 1
+            aliases = [f"drift_{900000 + index:06d}" for index in range(len(batch))]
+            alias_rows = dict(zip(aliases, batch, strict=True))
+            batch_records: list[EvaluationRecord] = []
+            try:
+                visible = [
+                    {
+                        "alias": alias,
+                        "program_scope": Path(row.provenance.base_program).stem,
+                        "clause": row.regulation_clause.model_dump(mode="json"),
+                    }
+                    for alias, row in alias_rows.items()
+                ]
+                tool_command = (
+                    f"{support_root}/.venv/bin/python -m "
+                    "cobol_archaeologist.eval.codex_tool"
+                )
+                execution = execute_codex_task(
+                    prompt=build_agent_prompt(visible, tool_command=tool_command),
+                    schema=strict_codex_schema(CodexBatchEnvelope),
+                    sources={
+                        alias: materialized[row.instance_id]
+                        for alias, row in alias_rows.items()
+                    },
+                    support_root=support_root,
+                    distro=distro,
+                    codex_binary=codex_binary,
+                    ablation_runtime=runtime_identity,
+                )
+                _persist_raw(
+                    execution,
+                    artifact_dir=artifact_dir,
+                    system_id="agent",
+                    batch_index=batch_index,
+                )
+                envelope = CodexBatchEnvelope.model_validate_json(execution.final_message)
+                validate_agent_envelope(envelope, aliases)
+                by_alias = {result.alias: result for result in envelope.results}
+                allocations = allocate_tokens(
+                    execution.parsed.usage.total_tokens,
+                    len(batch) * len(AGENT_HUNTS),
+                )
+                for row_index, (alias, row) in enumerate(alias_rows.items()):
+                    source = materialized[row.instance_id]
+                    with tempfile.TemporaryDirectory(prefix="t5.5a-codex-verify-") as temp:
+                        base_tools = _tool_layer(
+                            source,
+                            Path(temp),
+                            regulation_search,
+                        )
+                        tools = AblatedToolLayer(base_tools, configuration.disabled_tools)
+                        start = row_index * len(AGENT_HUNTS)
+                        outcome = finalize_agent_case(
+                            by_alias[alias],
+                            clause=row.regulation_clause,
+                            program_scope=Path(row.provenance.base_program).stem,
+                            instance_id=row.instance_id,
+                            logs=[log for log in execution.tool_logs if log.alias == alias],
+                            tools=tools,
+                            budget=AGENT_BUDGET,
+                            entailer=entailer,
+                            token_counts=allocations[start : start + len(AGENT_HUNTS)],
+                            min_successful_observations=(
+                                MIN_AGENT_ABSTENTION_OBSERVATIONS
+                            ),
+                            model_id=MODEL_ID,
+                            execution_verification=(
+                                configuration.execution_verification
+                            ),
+                            entailment_verification=(
+                                configuration.entailment_verification
+                            ),
+                        )
+                    batch_records.append(
+                        record_outcome(
+                            row,
+                            outcome,
+                            system_id=configuration_id,
+                            source_sha256=source.source_sha256,
+                            key=keys[row.instance_id],
+                        )
+                    )
+            except Exception as exc:  # noqa: BLE001
+                # Preserve the frozen M4 provider mechanism: a malformed or
+                # alias-incomplete multi-row envelope is retried as singleton
+                # batches. The scientific response is never repaired or
+                # rewritten; an invalid singleton remains infrastructure
+                # failure and stops a validity smoke.
+                retries = singleton_schema_retries(
+                    batch,
+                    repair_attempt=repair_attempt,
+                    max_repairs=AGENT_BUDGET.max_contract_repairs,
+                )
+                if retries is not None:
+                    work_queue = retries + work_queue
+                    continue
+                batch_records = [
+                    infrastructure_failure(
+                        row,
+                        system_id=configuration_id,
+                        source_sha256=materialized[row.instance_id].source_sha256,
+                        key=keys[row.instance_id],
+                        reason=f"T5.5A Codex batch failed: {type(exc).__name__}: {exc}",
+                    )
+                    for row in batch
+                ]
+            for record in batch_records:
+                stream.write(record.model_dump_json() + "\n")
+                stream.flush()
+                records.append(record)
+            write_manifest()
+            if mode == "smoke" and (
+                manifest.validity.infrastructure_failures
+                or manifest.validity.contract_rejections
+            ):
+                break
+    write_manifest()
     return records
 
 

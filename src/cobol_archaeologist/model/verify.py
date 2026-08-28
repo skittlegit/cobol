@@ -622,25 +622,44 @@ def verify(
     tools,
     *,
     entailer: Entailer | None = None,
+    execution_verification: bool = True,
+    entailment_verification: bool = True,
 ) -> VerificationResult:
     """Verify ``finding`` against ``tools`` (a ``ToolLayer``); see module docstring.
 
     ``entailer`` overrides the Tier-3 / citation backend (tests inject an offline
-    one); production uses :func:`default_entailer`."""
+    one); production uses :func:`default_entailer`. The two boolean switches are
+    frozen T5.5A seams: normal callers retain the exact historical behavior.
+    """
     fnd = _coerce(finding)
     clause = fnd.prediction.regulation_clause
-    entailer = entailer or default_entailer()
+    # DECISION (T5.5A): these are explicit component-presence switches, not
+    # threshold changes. Defaults preserve every historical verifier caller.
+    if entailment_verification:
+        entailer = entailer or default_entailer()
 
     # --- citation check (independent of tiering) ---
-    citation = entailer.entail(clause.text, fnd.claim)
-    citation_ok = citation.entailment
+    citation = (
+        entailer.entail(clause.text, fnd.claim)
+        if entailment_verification and entailer is not None
+        else None
+    )
+    citation_ok = citation.entailment if citation is not None else True
 
     # --- tier ladder: 1 -> 2 -> 3, stop at first success, record every attempt ---
     attempts: list[TierAttempt] = []
     verified_tier: VerificationTier | None = None
     evidence = ""
 
-    a1 = _tier1_executed(fnd, tools)
+    a1 = (
+        _tier1_executed(fnd, tools)
+        if execution_verification
+        else TierAttempt(
+            tier=VerificationTier.EXECUTED,
+            outcome=TierOutcome.UNAVAILABLE,
+            detail="Tier-1 execution disabled by frozen ablation",
+        )
+    )
     attempts.append(a1)
     if a1.outcome == TierOutcome.VERIFIED:
         verified_tier, evidence = VerificationTier.EXECUTED, a1.detail
@@ -650,10 +669,11 @@ def verify(
         if a2.outcome == TierOutcome.VERIFIED:
             verified_tier, evidence = VerificationTier.STATIC, a2.detail
         else:
-            a3 = _tier3_entailment(fnd, entailer)
-            attempts.append(a3)
-            if a3.outcome == TierOutcome.VERIFIED:
-                verified_tier, evidence = VerificationTier.ENTAILMENT, a3.detail
+            if entailment_verification:
+                a3 = _tier3_entailment(fnd, entailer)
+                attempts.append(a3)
+                if a3.outcome == TierOutcome.VERIFIED:
+                    verified_tier, evidence = VerificationTier.ENTAILMENT, a3.detail
 
     # --- combine: a passing tier is necessary; a supported citation is too ---
     if verified_tier is None:
@@ -662,8 +682,8 @@ def verify(
             tier=None,
             evidence="no tier could verify the claim; agent should abstain",
             citation_ok=citation_ok,
-            entailment_probability=citation.score,
-            entailment_backend=citation.backend,
+            entailment_probability=citation.score if citation is not None else None,
+            entailment_backend=citation.backend if citation is not None else None,
             rejected_reason="unverifiable: all three tiers failed",
             tier_attempts=attempts,
         )
@@ -673,8 +693,8 @@ def verify(
             tier=None,
             evidence=evidence,  # the code fact that DID pass — preserved for the trace
             citation_ok=False,
-            entailment_probability=citation.score,
-            entailment_backend=citation.backend,
+            entailment_probability=citation.score if citation is not None else None,
+            entailment_backend=citation.backend if citation is not None else None,
             rejected_reason=(
                 f"citation rejected: cited clause {clause.doc} {clause.clause_id} does not "
                 f"entail the claim (P={citation.score}, {citation.backend}) — a correct code "
@@ -687,8 +707,8 @@ def verify(
         tier=verified_tier,
         evidence=evidence,
         citation_ok=True,
-        entailment_probability=citation.score,
-        entailment_backend=citation.backend,
+        entailment_probability=citation.score if citation is not None else None,
+        entailment_backend=citation.backend if citation is not None else None,
         rejected_reason=None,
         tier_attempts=attempts,
     )
