@@ -798,6 +798,8 @@ def finalize_agent_hunt(
     min_successful_observations: int,
     model_id: str,
     token_count_recorded: bool = True,
+    execution_verification: bool = True,
+    entailment_verification: bool = True,
 ) -> HuntOutcome:
     """Apply the frozen policy guard and verifier to one batched hunt answer."""
 
@@ -878,7 +880,13 @@ def finalize_agent_hunt(
         }
     )
     try:
-        verification = verify(finding, tools, entailer=entailer)
+        verification = verify(
+            finding,
+            tools,
+            entailer=entailer,
+            execution_verification=execution_verification,
+            entailment_verification=entailment_verification,
+        )
     except Exception as exc:  # noqa: BLE001
         reason = (
             f"verification unavailable; refusing emission: {type(exc).__name__}: {exc}"
@@ -961,6 +969,8 @@ def finalize_agent_case(
     min_successful_observations: int,
     model_id: str,
     token_counts_recorded: bool = True,
+    execution_verification: bool = True,
+    entailment_verification: bool = True,
 ) -> HuntBatchOutcome:
     """Finalize seven guarded hunts and select the strongest verified finding."""
 
@@ -982,6 +992,8 @@ def finalize_agent_case(
             token_count_recorded=token_counts_recorded,
             min_successful_observations=min_successful_observations,
             model_id=model_id,
+            execution_verification=execution_verification,
+            entailment_verification=entailment_verification,
         )
         for hunt_name, token_count in zip(
             AGENT_HUNTS,

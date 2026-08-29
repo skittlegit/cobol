@@ -1,0 +1,97 @@
+{
+  "experiment_id": "t5.5a-core-ablation-supplement-v1",
+  "panel_identity_sha256": "7882a07d8fe656b227eae80fc861a14a84fb53a0a5e4bc4b9f5f62db510f52c2",
+  "panel_seed": 20260823,
+  "bootstrap": {
+    "seed": 550123,
+    "resamples": 10000,
+    "interval": "paired percentile 95%",
+    "delta": "F1(ablation) - F1(control)"
+  },
+  "provider_plan": {
+    "configurations": [
+      "control",
+      "no_slicing",
+      "no_execution",
+      "no_entailment",
+      "no_reranking"
+    ],
+    "smoke_rows_per_configuration": 7,
+    "full_rows_per_configuration": 71,
+    "maximum_provider_rows": 390,
+    "performance_is_not_a_smoke_gate": true
+  },
+  "configurations": {
+    "control": {
+      "configuration_id": "control",
+      "removed_component": null,
+      "disabled_tools": [],
+      "execution_verification": true,
+      "entailment_verification": true,
+      "regulation_search_mode": "hybrid_rerank"
+    },
+    "no_slicing": {
+      "configuration_id": "no_slicing",
+      "removed_component": "program_slicing",
+      "disabled_tools": [
+        "slice_on"
+      ],
+      "execution_verification": true,
+      "entailment_verification": true,
+      "regulation_search_mode": "hybrid_rerank"
+    },
+    "no_execution": {
+      "configuration_id": "no_execution",
+      "removed_component": "cobol_execution_grounding",
+      "disabled_tools": [
+        "run_cobol"
+      ],
+      "execution_verification": false,
+      "entailment_verification": true,
+      "regulation_search_mode": "hybrid_rerank"
+    },
+    "no_entailment": {
+      "configuration_id": "no_entailment",
+      "removed_component": "entailment_acceptance_gate",
+      "disabled_tools": [],
+      "execution_verification": true,
+      "entailment_verification": false,
+      "regulation_search_mode": "hybrid_rerank"
+    },
+    "no_reranking": {
+      "configuration_id": "no_reranking",
+      "removed_component": "cross_encoder_reranking",
+      "disabled_tools": [],
+      "execution_verification": true,
+      "entailment_verification": true,
+      "regulation_search_mode": "hybrid"
+    }
+  },
+  "versioning_disposition": {
+    "status": "NOT_INDEPENDENTLY_ABLATABLE",
+    "reason": "Temporal identity is embedded in the benchmark-supplied RegulationClause and prompt contract. The frozen T5.4 architecture has no independent runtime version/effective-date retrieval filter whose removal leaves all other components unchanged.",
+    "regulation_search_behavior": "RegulationSearch searches the complete corpus/index and maps chunk hits to clauses by (doc, clause_id); its API accepts no version or effective-date filter.",
+    "prompt_behavior": "build_hunt_prompt exposes clause.version and clause.effective_date from the exact benchmark-supplied RegulationClause.",
+    "excluded_substitutions": [
+      "Adding a filtered control would violate frozen T5.4 control identity.",
+      "Hiding temporal metadata would be a distinct prompt/input ablation and could violate the frozen RegulationClause contract."
+    ],
+    "claim_limit": "The contribution of version awareness is not experimentally estimated."
+  },
+  "output_paths": {
+    "control": "data/eval/m5/ablations/control/",
+    "no_slicing": "data/eval/m5/ablations/no_slicing/",
+    "no_execution": "data/eval/m5/ablations/no_execution/",
+    "no_entailment": "data/eval/m5/ablations/no_entailment/",
+    "no_reranking": "data/eval/m5/ablations/no_reranking/"
+  },
+  "frozen_control": {
+    "model_id": "gpt-5.6-luna",
+    "reasoning_effort": "low",
+    "prompt_version": "m4-live-codex-batch-v4",
+    "action_budget": "AGENT_BUDGET",
+    "schema_version": "3",
+    "provider_mechanism": "ChatGPT-authenticated Codex CLI"
+  },
+  "identity_sha256": "3003444ac51db26521b36e2f297aee896ad78b160146a29f05610a523bfcb00b"
+}

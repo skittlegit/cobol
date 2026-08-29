@@ -137,6 +137,13 @@ project invariant (`CLAUDE.md` §3).
   annotation shortcuts — annotators are explicitly instructed not to use
   git history, mtimes, formatting discontinuities, or comment freshness as
   evidence (`ANNOTATION.md` §Anti-gaming).
+- The six-feature probe is exactly balanced per feature: each feature has the
+  same sorted value multiset in its 50 drift and 50 MO-0 rows, so every
+  per-feature AUC is 0.5. The registered attacker consequently fits six zero
+  weights and zero bias and collapses to an all-drift prevalence predictor.
+  Its F1 0.8768 is retained as **null anti-gaming evidence**, not evidence of a
+  strong attacker. T5.3's old +0.10 agent-over-attacker floor is **VACATED**
+  and is not an M5 pass/fail requirement.
 - Base-program groups never cross train/dev/test.
 
 ## Recommended metrics
@@ -152,6 +159,48 @@ project invariant (`CLAUDE.md` §3).
 - Faithfulness/verification tier (1 executed / 2 static / 3 entailment-
   only) should always be reported alongside raw accuracy — see T4.4's
   Tier 1/2/3 faithfulness breakdown for the established methodology.
+
+## Frozen M5 evaluation findings and use constraints
+
+T5.4 evaluated nine systems on the same 196 ordered v1 test IDs with zero
+unresolved infrastructure failures. The canonical report is
+`data/eval/m5/report.{json,md}`; T5.5's deterministic audit and interpretation
+are `data/eval/m5/benchmark-first-analysis.{json,md}`.
+
+The headline result is negative and statistically supported. On all 36
+interprocedural rows, the frozen agent has T1 F1 0.4000 versus 0.6939 for
+RAG+reranker: delta -0.2939, paired bootstrap 95% CI
+[-0.4990, -0.1101], paired-randomization p=0.01175. The agent therefore
+significantly underperforms the strongest frozen non-agentic model baseline on
+this stratum. This must not be softened to "inconclusive."
+
+Coverage is central to that result. The agent answered 42/196 rows (0.2143)
+and abstained on 154/196 (0.7857), with full-coverage F1 0.3665. Its answered-
+subset accuracy must never be quoted without answer rate and full-coverage
+performance. Frozen error analysis records 93 coverage/abstention failures,
+61 insufficient-evidence outcomes, 25 evidence-verification failures, 22
+localization failures among 42 answered rows, and failures on 31/36
+interprocedural rows; categories overlap and do not by themselves establish a
+single causal mechanism.
+
+T6 is 1/9 (0.1111), exact 95% CI [0.0028, 0.4825]. It remains
+`NOT_EVALUABLE_FOR_BAR` because the declared minimum is 20 pairs. It is
+directional evidence only and cannot support a formal temporal-bar claim.
+
+M4 remains a valid `NO_GO`; the larger Phase-5 analysis does not retroactively
+reinterpret it. The benchmark contribution and detector result must be kept
+separate: v1 establishes a frozen, provenance-auditable, version-conditioned
+evaluation with leakage controls and reproducible stratified measurements.
+The current agent does not solve it. Poor detector performance alone proves
+neither benchmark novelty nor practical utility.
+
+Provider-backed findings are specific to ChatGPT-authenticated
+`gpt-5.6-luna` and the recorded prompts, budgets, and verifier. Agent,
+RAG+reranker, and oracle-slice artifacts combine source-identical M4 reuse with
+targeted Phase-5 reruns; they are descriptive paired comparisons, not
+controlled prompt or reasoning-effort ablations. Tokens and tool calls are
+reported from frozen trajectories, but no dollar cost is estimated because no
+metered billing record exists.
 
 ## Limitations
 
@@ -181,6 +230,23 @@ project invariant (`CLAUDE.md` §3).
   to solving the task, and conversely a method's poor score on this
   benchmark should not be read as proof the benchmark itself is
   miscalibrated — both readings require separate evidence.
+- **Scope and external validity are limited.** Only 43 test rows are
+  real-curated, regulatory coverage is confined to selected RBI card/debit-card
+  and KYC/AML clauses and versions, and COBOL coverage is dominated by
+  CardDemo-derived and repository-native programs. Systems consume
+  reconstructed/materialized source bundles rather than an unrestricted
+  production mainframe environment.
+- **Class/locus cells are sparse.** D2, D3, D4, D5, and D7 have fewer than ten
+  interprocedural rows. T5.4 marks these cells CI-fragile; their point estimates
+  are not broad class-level findings.
+- **The test distribution is drift-heavy.** There are 153 drift rows and 43
+  conformant rows. All-drift predictors therefore obtain F1 0.8768 while
+  balanced accuracy remains 0.5; raw F1 must be interpreted with prevalence
+  and balanced accuracy.
+- **Canonical hash governance is reconciled.** Phase-5 and the Track B-owned v1
+  manifest use canonical LF split identities. The test identity is
+  `bc9e775a727d82c7d5a30fd0495512bffde173bec2580e3d08664b8d98b2aed4`;
+  the metadata repair did not change benchmark content.
 
 ## Licensing
 

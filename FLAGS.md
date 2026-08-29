@@ -1,6 +1,6 @@
 # FLAGS - active cross-track inbox
 
-Last updated: **2026-08-29 13:28 IST**.
+Last updated: **2026-08-29 14:05 IST**.
 
 This file contains unresolved coordination items only. Resolved history belongs
 in the applicable work order or immutable artifact.
@@ -14,11 +14,10 @@ in the applicable work order or immutable artifact.
   sections. Stop launching work at 4:15, reserve 45 minutes for a clean
   checkpoint, and resume the same section if it is not terminal.
 - **UI remains deferred.** T7.4 is outside this release.
-- **Remote master freshness is unverified in this sandbox.** The locally cached
-  `origin/master` is an ancestor of `track-b` and already includes the two T5.4
-  commits, but fetch is blocked by `.git/FETCH_HEAD` permissions/network access.
-  Re-fetch before the final GitHub merge; keep this branch's newer files when a
-  remote conflict has no useful post-T5.4 change.
+- **Remote T5.5/T5.5A is integrated.** The benchmark-first closure, ablation
+  definitions, 71-row results, reports, code, and tests are retained. Their
+  historical decision does not delete or supersede the user-authorized R1/R2
+  successor path; R2.6 publishes the successor release addendum.
 - **The Windows full-suite parser gate is host-policy blocked.** Application
   Control rejects the generated Tree-sitter COBOL DLL with `WinError 4551`.
   Focused migration, configuration, Phase-5, archived-path, and Ruff gates are

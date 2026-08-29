@@ -1,6 +1,6 @@
 # STATUS - current project dashboard
 
-Last updated: **2026-08-29 13:28 IST**.
+Last updated: **2026-08-29 13:43 IST**.
 
 This is the authoritative current-state dashboard. Historical evidence remains
 in `docs/tasks/` and immutable evaluation artifacts.
@@ -52,15 +52,17 @@ in `docs/tasks/` and immutable evaluation artifacts.
   config-4 lineage-1 and the old 179 MB M4-v3 worker/cache tree were removed.
   Active `benchmark/v1` and `t6-v2` remain because sealed R1/R2 identities
   still require them.
-- **Test and T5.4 naming migrations are validated.** Current configuration-4
+- **Test and T5.5 naming migrations are validated.** Current configuration-4
   tests use plain `test_config_*` names; configuration-3 regression tests live
   under `tests/legacy/config3`. The remaining `phase5` and `t6_v2` test names
-  identify tasks/protocols rather than competing file revisions. The locally
-  cached master T5.4 commits are already ancestors of this branch, their full
-  15-test Phase-5 gate passes, and no T5.5 implementation commit exists in the
-  available history. T5.5 remains assigned to R2.6.
+  identify tasks/protocols rather than competing file revisions. Remote T5.5
+  and T5.5A are merged: the benchmark-first closure and five 71-row core
+  ablations are preserved under `data/eval/m5`. T5.5 closes the historical
+  configuration-1/T5.4 analysis; R2.6 still owes the successor detector,
+  migration, and release addendum without rewriting that evidence.
 - **Focused post-migration verification is green:** 65 configuration/transport
-  tests, 15 Phase-5 tests, four archived-artifact path tests, and Ruff all pass.
+  tests, 34 Phase-5/ablation tests, 95 runtime/schema/policy-hunt tests, and
+  Ruff all pass.
   A full-suite attempt reached 592 passed, 71 skipped, and 5 deselected; 107
   failures and 34 errors were dominated by Windows Application Control
   refusing the generated Tree-sitter COBOL DLL with `WinError 4551`. This is a
@@ -80,7 +82,7 @@ in `docs/tasks/` and immutable evaluation artifacts.
 | Config-3 smoke | terminal `NOT_EVALUABLE` for the candidate | 37/37 sealed tasks; 84/84 host-replayed evaluations; five systems VALID; adaptive 14/14 abstained | Preserve as configuration-3 evidence; repair only through the governed successor path |
 | Successor detector/full evaluation | active on train/dev | `docs/tasks/GOAL-R1-work-order.md`; hidden test remains unexecuted | Finish config-4 dev readiness, predeclare, pass fresh all-six smoke, then run the hidden test once |
 | T6.2-T6.4 migration | ready offline, live pending | Offline migration suite previously 30/30 green | Run after detector freeze |
-| M5/release record | pending | Historical T5.4 remains immutable | Integrate config-3 and migration results |
+| M5/release record | historical T5.5/T5.5A closed; successor addendum pending | `benchmark-first-analysis` and `ablations/report`; historical T5.4 remains immutable | Integrate configuration-4 and migration results in R2.6 |
 
 ## Next execution order
 
@@ -165,7 +167,8 @@ in `docs/tasks/` and immutable evaluation artifacts.
 | Tasks | State |
 |---|---|
 | T0.1-T5.4 | done; historical milestone artifacts retained |
-| T5.5 | pending configuration 3 and T6.4 |
+| T5.5 | done for frozen T5.4 benchmark-first analysis; successor release addendum remains in R2.6 |
+| T5.5A | done; five core ablations frozen at 71/71 rows each |
 | T6.1 | done; final T6-v2 is 20 pairs / 40 sides |
 | T6.2 | blocked on config-3 detector freeze |
 | T6.3 | blocked on T6.2 |
@@ -179,7 +182,7 @@ in `docs/tasks/` and immutable evaluation artifacts.
 | T8.3 | configuration-3 smoke complete at 37/37 tasks and 84/84 evaluations; adaptive gate `NOT_EVALUABLE`; full run not authorized |
 | T8.4 | queued in GOAL-R1 after a valid successor smoke/full run |
 | GOAL-R1 | quota-paused at config-4 dev 22/102; seven five-hour sections R1.1-R1.7 remain |
-| GOAL-R2 | blocked on R1.7; six five-hour sections R2.1-R2.6 cover T6.2-T6.4, T5.5/M5, and release close |
+| GOAL-R2 | blocked on R1.7; six five-hour sections R2.1-R2.6 cover T6.2-T6.4 and the successor release addendum/close |
 
 ## Update policy
 

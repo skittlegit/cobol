@@ -9,8 +9,8 @@
 ## Required outcome
 
 Run the isolated migration agent, validate every generated patch, publish
-separate detector-led and oracle-assisted results, and close T5.5/M5 and the
-release record without erasing prior M4 evidence.
+separate detector-led and oracle-assisted results, and publish the successor
+release addendum without erasing the closed T5.5/M5 or prior M4 evidence.
 
 ## Five-hour execution contract
 
@@ -108,11 +108,12 @@ green validator/integrity tests.
 **Handoff:** reconciled `data/migration/report.json` and
 `data/migration/report.md` with no pending validation state.
 
-## R2.6 - T5.5/M5 and release close
+## R2.6 - successor release addendum and close
 
 **Budget:** <= 5 hours. **Depends on:** R2.5.
 
-1. Complete T5.5/M5 and T7.5 from the frozen detector and migration decisions.
+1. Consume the closed T5.5/T5.5A evidence and complete the successor release
+   addendum and T7.5 from the frozen detector and migration decisions.
 2. Preserve configurations 1-4 as distinct auditable evidence.
 3. Update `DATASHEET.md`, `STATUS.md`, `FLAGS.md`, and the final release
    record; keep UI/T7.4 explicitly deferred.
@@ -123,9 +124,9 @@ green validator/integrity tests.
 5. Run focused and full deterministic tests, Ruff, artifact reconciliation,
    packaging checks, and a clean Git audit.
 
-**Completion:** T6.2-T6.4, T5.5/M5, and T7.5 are terminal and auditable; reports
-and manifests reconcile; every active non-UI flag is cleared or terminal; and
-the release record states exactly what is and is not supported.
+**Completion:** T6.2-T6.4, the successor addendum, and T7.5 are terminal and
+auditable; reports and manifests reconcile; every active non-UI flag is cleared
+or terminal; and the release record states exactly what is and is not supported.
 
 ## Naming and legacy rule
 

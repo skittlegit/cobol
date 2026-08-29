@@ -121,10 +121,12 @@ class RegulationSearch:
             self._hyde_generator = hyde_generator
         else:
             self._hyde_generator = None
-        if mode != "bm25" and embedder is None and reranker is None:
+        if mode != "bm25" and embedder is None:
             from cobol_archaeologist.rag.embed import DenseEmbedder, Reranker
 
-            embedder, reranker = DenseEmbedder(), Reranker()
+            embedder = DenseEmbedder()
+            if mode == "hybrid_rerank" and reranker is None:
+                reranker = Reranker()
         self._index = RegulationIndex.build(
             load_corpus(Path(chunks_path)), embedder=embedder, reranker=reranker
         )

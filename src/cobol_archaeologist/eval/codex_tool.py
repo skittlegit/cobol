@@ -56,9 +56,13 @@ class ToolLogEntry(BaseModel):
     latency_ms: float = Field(ge=0)
 
 
-def _source_dir(task_root: Path, alias: str) -> Path:
+def _descriptor(task_root: Path) -> dict[str, Any]:
     descriptor_path = task_root / DESCRIPTOR_NAME
-    descriptor = json.loads(descriptor_path.read_text(encoding="utf-8"))
+    return json.loads(descriptor_path.read_text(encoding="utf-8"))
+
+
+def _source_dir(task_root: Path, alias: str) -> Path:
+    descriptor = _descriptor(task_root)
     aliases = descriptor.get("aliases")
     if not isinstance(aliases, dict) or alias not in aliases:
         raise KeyError(f"unknown case alias {alias!r}")
@@ -90,10 +94,7 @@ def execute_tool_request(
     request: ToolRequest,
     *,
     task_root: Path,
-    tool_factory: Callable[[Path], ToolLayer] = lambda source: RealToolLayer(
-        corpus_root=source,
-        copybook_paths=[source],
-    ),
+    tool_factory: Callable[[Path], ToolLayer] | None = None,
 ) -> ToolLogEntry:
     """Execute one authorized call and append its complete bounded transcript."""
 
@@ -125,7 +126,17 @@ def execute_tool_request(
             f"tool budget exhausted for {request.alias}/{request.hunt}: "
             f"maximum {maximum} calls"
         )
-    tools = tool_factory(source)
+    runtime = _descriptor(task_root).get("ablation_runtime", {})
+    disabled_tools = frozenset(runtime.get("disabled_tools", ()))
+    search_mode = runtime.get("regulation_search_mode", "hybrid_rerank")
+    if tool_factory is None:
+        tools = RealToolLayer(corpus_root=source, copybook_paths=[source])
+        if request.tool == "search_regulations":
+            from cobol_archaeologist.rag.search import RegulationSearch
+
+            tools._reg_search = RegulationSearch(mode=search_mode)
+    else:
+        tools = tool_factory(source)
     arguments = dict(request.arguments)
     if request.tool == "run_cobol" and isinstance(arguments.get("inputs"), dict):
         arguments["inputs"] = RunInputs.model_validate(arguments["inputs"])
@@ -134,6 +145,10 @@ def execute_tool_request(
     observation: Any = None
     before = time.monotonic()
     try:
+        if request.tool in disabled_tools:
+            raise RuntimeError(
+                f"{request.tool} disabled by frozen T5.5A configuration"
+            )
         observation = getattr(tools, request.tool)(**arguments)
     except Exception as exc:  # noqa: BLE001
         error = f"{type(exc).__name__}: {exc}"
