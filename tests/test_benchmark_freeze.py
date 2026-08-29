@@ -18,7 +18,7 @@ from cobol_archaeologist.benchmark.freeze import (
 from cobol_archaeologist.schemas import DriftInstance, DriftPrediction
 
 ROOT = Path(__file__).resolve().parents[1]
-PRE = ROOT / "data" / "benchmark" / "v1-pre"
+PRE = ROOT / "data" / "benchmark" / "legacy" / "v1-pre"
 V1 = ROOT / "data" / "benchmark" / "v1"
 REAL = ROOT / "data" / "benchmark" / "seed" / "real_curated.jsonl"
 

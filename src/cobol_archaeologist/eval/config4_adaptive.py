@@ -60,9 +60,9 @@ from cobol_archaeologist.model.verify import Entailer, LexicalEntailer
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_EXPECTED_DEV_ROWS = 102
-RECORD_DIRECTORY_NAME = "adaptive-dev-records-v1"
-PROGRESS_NAME = "adaptive-dev-progress-v1.json"
-READINESS_NAME = "adaptive-dev-readiness-v1.json"
+RECORD_DIRECTORY_NAME = "adaptive-dev-records"
+PROGRESS_NAME = "adaptive-dev-progress.json"
+READINESS_NAME = "adaptive-dev-readiness.json"
 ZERO_HASH = "0" * 64
 
 

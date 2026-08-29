@@ -1,16 +1,28 @@
 # FLAGS - active cross-track inbox
 
-Last updated: **2026-08-25 18:03 IST**.
+Last updated: **2026-08-29 13:28 IST**.
 
 This file contains unresolved coordination items only. Resolved history belongs
 in the applicable work order or immutable artifact.
 
 ## Release-wide
 
-- **Quota cannot be observed from the sandbox.** The latest user-reported
-  reading was 20% remaining. GOAL-R1 is explicitly authorized to continue in
-  this prompt; do not claim an exact live balance.
+- **Live Luna execution is quota-blocked.** The provider reported availability
+  at 2026-08-31 11:52 local time. The sandbox cannot independently read the
+  meter. Resume only from the sealed 22/102 configuration-4 dev checkpoint.
+- **Five-hour window guard.** R1.1-R1.7 and R2.1-R2.6 are separate runnable
+  sections. Stop launching work at 4:15, reserve 45 minutes for a clean
+  checkpoint, and resume the same section if it is not terminal.
 - **UI remains deferred.** T7.4 is outside this release.
+- **Remote master freshness is unverified in this sandbox.** The locally cached
+  `origin/master` is an ancestor of `track-b` and already includes the two T5.4
+  commits, but fetch is blocked by `.git/FETCH_HEAD` permissions/network access.
+  Re-fetch before the final GitHub merge; keep this branch's newer files when a
+  remote conflict has no useful post-T5.4 change.
+- **The Windows full-suite parser gate is host-policy blocked.** Application
+  Control rejects the generated Tree-sitter COBOL DLL with `WinError 4551`.
+  Focused migration, configuration, Phase-5, archived-path, and Ruff gates are
+  green; rerun the full suite on a host that permits the local parser library.
 - **Historical evidence is immutable.** Configuration 1's `NO_GO`,
   configuration 2's smoke stop, and configuration 3's rejected/stale lineages
   must not be overwritten.
@@ -21,7 +33,7 @@ in the applicable work order or immutable artifact.
 
 - T6.2-T6.4 live migration is dependency-blocked, not implementation-blocked.
   T6.1 is complete and offline migration gates are green. Live patching waits
-  for the configuration-3 detector freeze.
+  for the configuration-4 detector freeze produced by R1.7.
 
 ## Track B - T6 review and promotion
 
@@ -55,19 +67,20 @@ in the applicable work order or immutable artifact.
   repair plus a fail-closed zero-success adaptive capture guard. These changes
   are not yet a frozen configuration or live result.
 - The bounded successor-development gate is 60 passed and Ruff clean; the
-  root-cause receipt is under `lineage-v4/diagnostics`. A fresh Luna/max
+  root-cause receipt is under
+  `data/eval/legacy/m4-config3/lineage-v4/diagnostics`. A fresh Luna/max
   train/dev trial and configuration-4 predeclaration remain for GOAL-R1.
-- GOAL-R1 is active in this prompt. The configuration-4 Luna/max dev trial is
-  at 13/102 host-replayed cases with three concurrent workers. Continue through
-  dev readiness, successor predeclaration, fresh smoke, one hidden-test run,
-  and T8.3/T8.4; self-heal active retries and validation failures without
-  weakening gates.
-- GOAL-R2 remains the later work order for migration and release close.
+- GOAL-R1 is quota-paused. The configuration-4 Luna/max dev trial is at 22/102
+  host-replayed cases with 80 pending and no active workers. R1.1 resumes the
+  frozen roster; R1.2 completes dev; R1.3-R1.7 cover repair/qualification,
+  smoke, the single hidden run, temporal evaluation, and T8.3/T8.4.
+- GOAL-R2 remains blocked until R1.7 and is split into R2.1-R2.6 for roster
+  freeze, generation, validation, reporting, and release close.
 
 ## Clear conditions
 
-- Clear the quota flag only when execution is complete or the user supplies a
-  newer quota instruction.
+- Clear the quota flag only after a successful post-reset Luna task or a newer
+  provider/user quota instruction.
 - Clear the adaptive-readiness flag only after GOAL-R1 freezes a valid
   all-six-system successor smoke. Configuration-3's `NOT_EVALUABLE` smoke
   remains immutable history.

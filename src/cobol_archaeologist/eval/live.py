@@ -71,7 +71,7 @@ from cobol_archaeologist.tools import RealToolLayer
 
 ROOT = Path(__file__).resolve().parents[3]
 SPLIT = ROOT / "data" / "benchmark" / "v1" / "test.jsonl"
-OUTPUT_DIR = ROOT / "data" / "eval" / "m4-v3"
+OUTPUT_DIR = ROOT / "data" / "eval" / "legacy" / "m4-v3"
 PROMPT_VERSIONS = {
     "ollama": "m4-live-ollama-v2",
     "openai": "m4-live-openai-v9",

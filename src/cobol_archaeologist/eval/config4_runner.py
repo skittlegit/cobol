@@ -70,9 +70,9 @@ from cobol_archaeologist.eval.materialize import MaterializedSource, materialize
 from cobol_archaeologist.rag.search import RegulationSearch
 from cobol_archaeologist.schemas import DriftInstance
 
-CONFIG4_REQUEST_DIRECTORY = "requests-v1"
-CONFIG4_STAGING_DIRECTORY = "task-staging-v1"
-CONFIG4_PREPARATION_NAME = "run-preparation-v1.json"
+CONFIG4_REQUEST_DIRECTORY = "requests"
+CONFIG4_STAGING_DIRECTORY = "task-staging"
+CONFIG4_PREPARATION_NAME = "run-preparation.json"
 CONFIG4_MAX_WORKERS = 3
 Config4ControlID = Literal[
     "agent", "plain_llm", "rag_dense", "rag_reranker", "oracle_slice"

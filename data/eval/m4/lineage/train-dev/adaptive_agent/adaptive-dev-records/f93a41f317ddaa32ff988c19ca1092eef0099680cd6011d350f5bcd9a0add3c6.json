@@ -1,0 +1,507 @@
+{
+  "instance_id": "drift_146817",
+  "gold": {
+    "instance_id": "drift_146817",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "11(6)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "activation_window": {
+            "kind": "duration_days",
+            "value": 30,
+            "comparator": "at_most",
+            "note": null
+          },
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "ACTIVAT1",
+          "paragraph": "2000-DECIDE",
+          "file": null,
+          "line_span": [
+            26,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-ISSUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": "activation_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "ACTIVAT1",
+          "line": 26,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-5 changes '>' to '>=' at ACTIVAT1:2000-DECIDE:26-26, producing D5_boundary_error.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "ACTIVAT1.cbl",
+      "mutation": "MO-5; locus=ACTIVAT1:2000-DECIDE:26-26; old='>'; new='>='; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_146817",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "11(6)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "activation_window": {
+            "kind": "duration_days",
+            "value": 30,
+            "comparator": "at_most",
+            "note": null
+          },
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "ACTIVAT1",
+          "paragraph": "2000-DECIDE",
+          "file": null,
+          "line_span": [
+            27,
+            27
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CONSENT-DAYS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": "closure_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "ACTIVAT1",
+          "line": 27,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "In ACTIVAT1 paragraph 2000-DECIDE line 27, the source literal is `7` and the source comparator is `>`. The clause resolves closure_window to at_most 7 working days, requiring closure no later than the seventh working day when consent is absent. Testing only `> 7` allows the seventh day to pass without CLOSE and therefore creates an off-by-one boundary error."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "ACTIVAT1:2000-DECIDE — literal '7' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 1.0,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "ACTIVAT1:2000-DECIDE — literal '7' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 only when the regulated check itself is absent and scoped grep,\n  caller graph, callee graph, and data slice all provide the required negative\n  evidence. Any positive observation from one of those four required tools\n  invalidates D2 for that investigation; do not repurpose positive context as\n  absence evidence. Do not invent an unstated date derivation, preprocessing\n  step, or implementation mechanism as a missing rule. If positive code\n  evidence matches the clause and no supported drift remains, consider D7.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"ACTIVAT1\",\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"11(6)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"activation_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program^": "ACTIVAT1^"
+        },
+        "observation_summary": "TypeError: RealToolLayer.read_program() got an unexpected keyword argument 'program^'",
+        "observation_truncated": false,
+        "error": "TypeError: RealToolLayer.read_program() got an unexpected keyword argument 'program^'",
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_program",
+        "arguments": {
+          "program": "ACTIVAT1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 21, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 35, \"line_start\": 22, \"name\": \"2000-DECIDE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config4\\\\lineage-v2\\\\train-dev\\\\adaptive_agent\\\\task-staging-v1\\\\f93a41f317ddaa32ff988c19ca1092eef0099680cd6011d350f5bcd9a0add3c6\\\\cases\\\\drift_900000\\\\ACTIVAT1.cbl\", \"program\": \"ACTIVAT1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 47.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "ACTIVAT1",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-DECIDE\", \"program\": \"ACTIVAT1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-DAYS-SINCE-ISSUE\\n           ACCEPT WS-ACTIVATED\\n           ACCEPT WS-CONSENT-DAYS\\n           PERFORM 2000-DECIDE\\n           DISPLAY 'ACTION: ' WS-ACTION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 21, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "ACTIVAT1",
+          "name": "2000-DECIDE"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}], \"code\": \"       2000-DECIDE.\\n           IF WS-ACTIVATED = 'Y'\\n              MOVE 'NONE' TO WS-ACTION\\n           ELSE\\n              IF WS-DAYS-SINCE-ISSUE >= 30\\n                 IF WS-CONSENT-DAYS > 7\\n                    MOVE 'CLOSE' TO WS-ACTION\\n                 ELSE\\n                    MOVE 'SEEKOTP' TO WS-ACTION\\n                 END-IF\\n              ELSE\\n                 MOVE 'WAIT' TO WS-ACTION\\n              END-IF\\n           END-IF.\", \"name\": \"2000-DECIDE\", \"ref\": {\"line_end\": 35, \"line_start\": 22, \"paragraph\": \"2000-DECIDE\", \"program\": \"ACTIVAT1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 5,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-DAYS-SINCE-ISSUE",
+          "program": "ACTIVAT1"
+        },
+        "observation_summary": "{\"scoped_program\": \"ACTIVAT1\", \"sites\": [{\"excerpt\": \"01  WS-DAYS-SINCE-ISSUE       PIC 9(4) VALUE ZERO.\", \"kind\": \"def\", \"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"ACCEPT WS-DAYS-SINCE-ISSUE\", \"kind\": \"def\", \"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"ACCEPT\"}, {\"excerpt\": \"ELSE\\n              IF WS-DAYS-SINCE-ISSUE >= 30\", \"kind\": \"use\", \"ref\": {\"line_end\": 26, \"line_start\": 25, \"paragraph\": \"2000-DECIDE\", \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"ELSE_IF\"}], \"variable\": \"WS-DAYS-SINCE-ISSUE\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 15.0
+      },
+      {
+        "step": 6,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-CONSENT-DAYS",
+          "program": "ACTIVAT1"
+        },
+        "observation_summary": "{\"scoped_program\": \"ACTIVAT1\", \"sites\": [{\"excerpt\": \"01  WS-CONSENT-DAYS           PIC 9(4) VALUE ZERO.\", \"kind\": \"def\", \"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"ACCEPT WS-CONSENT-DAYS\", \"kind\": \"def\", \"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"ACCEPT\"}, {\"excerpt\": \"IF WS-CONSENT-DAYS > 7\", \"kind\": \"use\", \"ref\": {\"line_end\": 27, \"line_start\": 27, \"paragraph\": \"2000-DECIDE\", \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-CONSENT-DAYS\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 7,
+        "tool": "run_cobol",
+        "arguments": {
+          "snippet": "ACTIVAT1",
+          "inputs": "30\\nN\\n7\\n"
+        },
+        "observation_summary": "AttributeError: 'str' object has no attribute 'files'",
+        "observation_truncated": false,
+        "error": "AttributeError: 'str' object has no attribute 'files'",
+        "latency_ms": 0.0
+      },
+      {
+        "step": 8,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-DAYS-SINCE-ISSUE",
+          "program": "ACTIVAT1"
+        },
+        "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}], \"scoped_program\": \"ACTIVAT1\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"ACTIVAT1\"}, \"text\": \"01  WS-DAYS-SINCE-ISSUE       PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}, \"text\": \"ACCEPT WS-DAYS-SINCE-ISSUE\"}], \"variable\": \"WS-DAYS-SINCE-ISSUE\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The reachable verifier implements both required checks, and the resolved closure window is at most 7 working days. The closure locus uses a strict > 7 comparator, delaying closure beyond the permitted boundary; D5 is the best-supported class.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_146817",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "11(6)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "activation_window": {
+                  "kind": "duration_days",
+                  "value": 30,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": null,
+                "line_span": [
+                  27,
+                  27
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CONSENT-DAYS"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "ACTIVAT1",
+                "line": 27,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "In ACTIVAT1 paragraph 2000-DECIDE line 27, the source literal is `7` and the source comparator is `>`. The clause resolves closure_window to at_most 7 working days, requiring closure no later than the seventh working day when consent is absent. Testing only `> 7` allows the seventh day to pass without CLOSE and therefore creates an off-by-one boundary error."
+        },
+        "claim": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; without that consent, the account must be closed at no cost within 7 working days of seeking confirmation.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "7",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D5 boundary error: the closure check uses > 7 instead of enforcing closure by the 7-working-day limit.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The reachable verifier implements both required checks, and the resolved closure window is at most 7 working days. The closure locus uses a strict > 7 comparator, delaying closure beyond the permitted boundary; D5 is the best-supported class.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"file\":null,\"line_span\":[27,27]}],\"slice_vars\":[\"WS-CONSENT-DAYS\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"closure_window\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"ACTIVAT1\",\"line\":27,\"file\":null}]},\"rationale\":\"In ACTIVAT1 paragraph 2000-DECIDE line 27, the source literal is `7` and the source comparator is `>`. The clause resolves closure_window to at_most 7 working days, requiring closure no later than the seventh working day when consent is absent. Testing only `> 7` allows the seventh day to pass without CLOSE and therefore creates an off-by-one boundary error.\"},\"claim\":\"If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; without that consent, the account must be closed at no cost within 7 working days of seeking confirmation.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"7\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"D5 boundary error: the closure check uses > 7 instead of enforcing closure by the 7-working-day limit.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 2,
+            "observation_sha256": "03bd9c02340850683c3dc35e98eface5caa4b249b248876888d44615c5bb613b",
+            "hypothesis": "D5_boundary_error",
+            "bearing": "context",
+            "rationale": "The program index identifies the reachable 1000-MAIN and 2000-DECIDE paragraphs, establishing the decision locus for boundary analysis."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "eb7b6dc3a6fa63ca4bde456bca0b0d601102ed918e2b942b764643d657df3dd1",
+            "hypothesis": "D6_dead_code",
+            "bearing": "refutes",
+            "rationale": "1000-MAIN performs 2000-DECIDE, so the compliance decision paragraph is reachable and is not dead code."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "ab348073e6ef1a8cb76d895d6f2eb2d644c2848acf6d04f31f422fdbc784f74c",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "refutes",
+            "rationale": "The paragraph contains explicit activation and consent-day checks with SEEKOTP and CLOSE actions, so the regulated rule is present."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "ab348073e6ef1a8cb76d895d6f2eb2d644c2848acf6d04f31f422fdbc784f74c",
+            "hypothesis": "D5_boundary_error",
+            "bearing": "supports",
+            "rationale": "The source contains the exact closure test `IF WS-CONSENT-DAYS > 7`; against the resolved at-most 7-working-day closure window, this strict comparator permits the deadline to be exceeded."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "ab348073e6ef1a8cb76d895d6f2eb2d644c2848acf6d04f31f422fdbc784f74c",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "context",
+            "rationale": "The observed rule uses numeric duration comparisons, not an enum_set reference collection, so D4 is not the applicable class."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "ab348073e6ef1a8cb76d895d6f2eb2d644c2848acf6d04f31f422fdbc784f74c",
+            "hypothesis": "D7_conformant",
+            "bearing": "refutes",
+            "rationale": "Although positive compliance code exists, the `> 7` closure comparator is not conformant with a maximum of 7 working days."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "c2e2859708aef63a9b2405166421cc24e32777ce720e7396e00be1f0733fc549",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "refutes",
+            "rationale": "The activation-day use is typed at the decision locus with literal 30, matching the resolved activation-window value; no stale threshold is shown there."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "8d97e813865e82c3e5bc2719ba3f21e04a0b9106fd2198642a098fdcc078c436",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "refutes",
+            "rationale": "The consent-day use is typed at line 27 with literal 7, matching the resolved closure-window value; the issue is comparator boundary, not a stale literal."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "8d97e813865e82c3e5bc2719ba3f21e04a0b9106fd2198642a098fdcc078c436",
+            "hypothesis": "D3_contradictory",
+            "bearing": "refutes",
+            "rationale": "The trace reports one typed consent-day use at the closure check and provides no second conflicting locus for the same regulated condition."
+          },
+          {
+            "observation_step": 8,
+            "observation_sha256": "9e8f2117b7f0cba197ed5a45b34cd29ca7708d3a8e0abc4d62bad8ed5694f920",
+            "hypothesis": "D5_boundary_error",
+            "bearing": "context",
+            "rationale": "The slice confirms WS-DAYS-SINCE-ISSUE is a numeric accepted input in the reachable main paragraph, supporting scalar threshold analysis."
+          }
+        ]
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "ACTIVAT1:2000-DECIDE — literal '7' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 1.0,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "ACTIVAT1:2000-DECIDE — literal '7' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_146817",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "11(6)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "activation_window": {
+              "kind": "duration_days",
+              "value": 30,
+              "comparator": "at_most",
+              "note": null
+            },
+            "closure_window": {
+              "kind": "duration_working_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "ACTIVAT1",
+            "paragraph": "2000-DECIDE",
+            "file": null,
+            "line_span": [
+              27,
+              27
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CONSENT-DAYS"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D5_boundary_error",
+      "target_path": "closure_window",
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "ACTIVAT1",
+            "line": 27,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "In ACTIVAT1 paragraph 2000-DECIDE line 27, the source literal is `7` and the source comparator is `>`. The clause resolves closure_window to at_most 7 working days, requiring closure no later than the seventh working day when consent is absent. Testing only `> 7` allows the seventh day to pass without CLOSE and therefore creates an off-by-one boundary error."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "D5 boundary error: the closure check uses > 7 instead of enforcing closure by the 7-working-day limit.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "08a3cbe5ffd1fbb7bc1a4f04e3ab398c62ac7ac812adcdf506382b931a492c12",
+  "run_key": "f93a41f317ddaa32ff988c19ca1092eef0099680cd6011d350f5bcd9a0add3c6"
+}

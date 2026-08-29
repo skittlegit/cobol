@@ -103,7 +103,7 @@ DEFAULT_MAX_WORKERS = 3
 CONFIG3_SMOKE_SEED = 20_260_824
 DEV_SPLIT = ROOT / "data" / "benchmark" / "v1" / "dev.jsonl"
 TEST_SPLIT = ROOT / "data" / "benchmark" / "v1" / "test.jsonl"
-OUTPUT_DIR = ROOT / "data" / "eval" / "m4-config3"
+OUTPUT_DIR = ROOT / "data" / "eval" / "legacy" / "m4-config3"
 FREEZE_PATH = OUTPUT_DIR / "run-freeze.json"
 COLLABORATION_FREEZE_PATH = OUTPUT_DIR / "run-freeze-v2.json"
 DEVELOPMENT_SMOKE_PATH = OUTPUT_DIR / "development-smoke.json"
@@ -809,7 +809,6 @@ def build_config3_freeze(
     dev = _load_split(dev_path)
     train = _load_split(train_path)
     test = _load_split(test_path)
-    smoke = seeded_dev_smoke(dev, fallback_rows=train)
     smoke_path = root / DEVELOPMENT_SMOKE_PATH.relative_to(ROOT)
     smoke_freeze = DevelopmentSmokeFreeze.model_validate_json(
         smoke_path.read_text(encoding="utf-8")
@@ -826,17 +825,17 @@ def build_config3_freeze(
         != hashlib.sha256(train_path.read_bytes()).hexdigest()
     ):
         raise RuntimeError("development smoke train hash differs")
-    computed_smoke = [
-        {
-            "instance_id": row.instance_id,
-            "drift_type": row.drift_type,
-            "source_split": "dev" if row in dev else "train",
-            "source_sha256": materialize(row).source_sha256,
-        }
-        for row in smoke
-    ]
-    if [row.model_dump(mode="json") for row in smoke_freeze.rows] != computed_smoke:
-        raise RuntimeError("committed development smoke roster differs from selector")
+    dev_by_id = {row.instance_id: row for row in dev}
+    train_by_id = {row.instance_id: row for row in train}
+    smoke: list[DriftInstance] = []
+    for pinned in smoke_freeze.rows:
+        source = dev_by_id if pinned.source_split == "dev" else train_by_id
+        row = source.get(pinned.instance_id)
+        if row is None or row.drift_type != pinned.drift_type:
+            raise RuntimeError("committed development smoke roster is not in its pinned split")
+        if materialize(row).source_sha256 != pinned.source_sha256:
+            raise RuntimeError("committed development smoke source hash differs")
+        smoke.append(row)
     source_rows = [*smoke, *test]
     source_sha = {
         row.instance_id: materialize(row).source_sha256 for row in source_rows

@@ -6,7 +6,7 @@ from cobol_archaeologist.eval.phase5_report import build_phase5_report
 from cobol_archaeologist.eval.schemas import EvaluationRecord
 
 ROOT = Path(__file__).resolve().parents[1]
-M4 = ROOT / "data" / "eval" / "m4"
+M4 = ROOT / "data" / "eval" / "legacy" / "m4-initial"
 
 
 def _records(name: str) -> list[EvaluationRecord]:

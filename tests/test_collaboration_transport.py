@@ -682,11 +682,13 @@ def test_partial_collaboration_bundle_resumes_only_with_identical_bytes(
 
 def test_collaboration_smoke_plan_matches_frozen_roster_and_batching() -> None:
     plan = json.loads(
-        (ROOT / "data/eval/m4-config3/collaboration-smoke-plan.json").read_text(
+        (
+            ROOT / "data/eval/legacy/m4-config3/collaboration-smoke-plan.json"
+        ).read_text(
             encoding="utf-8"
         )
     )
-    roster_path = ROOT / plan["development_smoke_path"]
+    roster_path = ROOT / "data/eval/legacy/m4-config3/development-smoke.json"
     roster = json.loads(roster_path.read_text(encoding="utf-8"))
     expected_batches = {
         system_id: (

@@ -49,11 +49,11 @@ DEFAULT_CASE_LIMIT = 14
 
 DEV_SPLIT_RELATIVE = Path("data/benchmark/v1/dev.jsonl")
 TRAIN_SPLIT_RELATIVE = Path("data/benchmark/v1/train.jsonl")
-OUTPUT_DIR = ROOT / "data/eval/m4-config4/lineage-v1/train-dev/adaptive_agent"
-FREEZE_NAME = "train-dev-freeze-v1.json"
-INDEX_NAME = "request-preparation-v1.json"
-REQUEST_DIRECTORY_NAME = "requests-v1"
-STAGING_DIRECTORY_NAME = "task-staging-v1"
+OUTPUT_DIR = ROOT / "data/eval/m4/lineage/train-dev/adaptive_agent"
+FREEZE_NAME = "train-dev-freeze.json"
+INDEX_NAME = "request-preparation.json"
+REQUEST_DIRECTORY_NAME = "requests"
+STAGING_DIRECTORY_NAME = "task-staging"
 GROUP_ID = "config4:train-dev:adaptive_agent"
 _TRIAL_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
 

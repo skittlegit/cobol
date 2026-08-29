@@ -80,6 +80,7 @@ def _provider_projection(response: dict) -> dict:
         if key
         not in {
             "token_count",
+            "token_count_recorded",
             "raw_provider_text",
             "contract_error",
             "evidence_ledger",
@@ -874,6 +875,7 @@ def test_malformed_static_claim_token_fails_before_batched_verifier(
         ROOT
         / "data"
         / "eval"
+        / "legacy"
         / "m4-config2"
         / "smoke-pre-amendment-e6a7762"
         / "agent.jsonl"

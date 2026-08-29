@@ -48,7 +48,7 @@ from cobol_archaeologist.schemas import DriftInstance, DriftPrediction
 from cobol_archaeologist.tools import RealToolLayer
 
 ROOT = Path(__file__).resolve().parents[1]
-SPLIT = ROOT / "data" / "benchmark" / "v1-pre" / "test.jsonl"
+SPLIT = ROOT / "data" / "benchmark" / "legacy" / "v1-pre" / "test.jsonl"
 DEV_SPLIT = ROOT / "data" / "benchmark" / "v1" / "dev.jsonl"
 PROGRAMS = ROOT / "data" / "benchmark" / "seed" / "programs"
 CLAUSES = ROOT / "data" / "regulations" / "clauses.jsonl"

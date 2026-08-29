@@ -20,7 +20,7 @@ from cobol_archaeologist.schemas import DriftInstance
 TARGET_ID = "drift_000021"
 M4_COMMIT = "357f4830b0cc64688bf957263f6c1af7217ffc28"
 FROZEN_TEST = ROOT / "data" / "benchmark" / "v1" / "test.jsonl"
-M4_DIR = ROOT / "data" / "eval" / "m4"
+M4_DIR = ROOT / "data" / "eval" / "legacy" / "m4-initial"
 M5_DIR = ROOT / "data" / "eval" / "m5"
 
 

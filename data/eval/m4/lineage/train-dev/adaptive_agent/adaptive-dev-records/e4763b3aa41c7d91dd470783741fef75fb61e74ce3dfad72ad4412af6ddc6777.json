@@ -1,0 +1,391 @@
+{
+  "instance_id": "drift_216049",
+  "gold": {
+    "instance_id": "drift_216049",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SANCBAT2",
+          "paragraph": null,
+          "file": "UNSCREG2.cpy",
+          "line_span": [
+            3,
+            3
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-BATCH-ROUTE",
+        "WS-RECORD-COUNT",
+        "WS-SCREEN-COUNT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SANCBAT2",
+          "line": 3,
+          "file": "UNSCREG2.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'S88' to '(deleted)' at SANCBAT2:UNSCREG2.cpy:3-3, producing D4_stale_reference_data. MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "SANCBAT2.cbl",
+      "mutation": "MO-4; locus=SANCBAT2:UNSCREG2.cpy:3-3; old='S88'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": {
+    "verified": false,
+    "tier": null,
+    "evidence": "SANCBAT2:UNSCREG2.cpy — literal \"'S67'\" present",
+    "citation_ok": false,
+    "entailment_probability": 0.3824,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": "citation rejected: cited clause RBI-KYC-Directions-2025 56(prevention) does not entail the claim (P=0.3824, lexical_proxy_v1) — a correct code fact attached to the wrong clause",
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "SANCBAT2:UNSCREG2.cpy — literal \"'S67'\" present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 only when the regulated check itself is absent and scoped grep,\n  caller graph, callee graph, and data slice all provide the required negative\n  evidence. Any positive observation from one of those four required tools\n  invalidates D2 for that investigation; do not repurpose positive context as\n  absence evidence. Do not invent an unstated date derivation, preprocessing\n  step, or implementation mechanism as a missing rule. If positive code\n  evidence matches the clause and no supported drift remains, consider D7.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"SANCBAT2\",\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"56(prevention)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"UNSC-ISIL-Daesh-AlQaida-1267-1989-2253\",\"UNSC-Taliban-1988\"],\"comparator\":null,\"note\":\"clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally\"}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "SANCBAT2"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 12, \"name\": \"1000-MAIN\"}, {\"line_end\": 25, \"line_start\": 19, \"name\": \"2000-ROUTE-FEED\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config4\\\\lineage-v2\\\\train-dev\\\\adaptive_agent\\\\task-staging-v1\\\\e4763b3aa41c7d91dd470783741fef75fb61e74ce3dfad72ad4412af6ddc6777\\\\cases\\\\drift_900000\\\\SANCBAT2.cbl\", \"program\": \"SANCBAT2\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "SANCBAT2",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-LIST-SOURCE\\n           ACCEPT WS-RECORD-COUNT\\n           PERFORM 2000-ROUTE-FEED\\n           DISPLAY 'ROUTE: ' WS-BATCH-ROUTE\\n           DISPLAY 'SCREENED: ' WS-SCREEN-COUNT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "SANCBAT2",
+          "name": "2000-ROUTE-FEED"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"SANCBAT2\"}], \"code\": \"       2000-ROUTE-FEED.\\n           IF MANDATED-SANCTIONS-FEED\\n              MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\\n              MOVE 'SCREEN' TO WS-BATCH-ROUTE\\n           ELSE\\n              MOVE 'HOLD' TO WS-BATCH-ROUTE\\n           END-IF.\", \"name\": \"2000-ROUTE-FEED\", \"ref\": {\"line_end\": 25, \"line_start\": 19, \"paragraph\": \"2000-ROUTE-FEED\", \"program\": \"SANCBAT2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 4,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "MANDATED-SANCTIONS-FEED",
+          "program": "SANCBAT2"
+        },
+        "observation_summary": "{\"scoped_program\": \"SANCBAT2\", \"sites\": [], \"variable\": \"MANDATED-SANCTIONS-FEED\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 5,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "UNSC"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 3, \"program\": \"SANCBAT2\", \"text\": \"      * SANCTIONS-FEED INTAKE FOR THE TWO MANDATED UNSC SOURCES.\"}, {\"line\": 7, \"program\": \"SANCBAT2\", \"text\": \"       COPY UNSCREG2.\"}, {\"line\": 1, \"program\": \"UNSCREG2\", \"text\": \"      * MANDATED UNSC LIST SOURCES: 1267/1989/2253 AND TALIBAN 1988.\"}], \"pattern\": \"UNSC\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 6,
+        "tool": "resolve_copybook",
+        "arguments": {
+          "name": "UNSCREG2"
+        },
+        "observation_summary": "{\"line_map\": [{\"expanded_end\": 3, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config4\\\\lineage-v2\\\\train-dev\\\\adaptive_agent\\\\task-staging-v1\\\\e4763b3aa41c7d91dd470783741fef75fb61e74ce3dfad72ad4412af6ddc6777\\\\cases\\\\drift_900000\\\\UNSCREG2.cpy\", \"source_line_start\": 1}], \"name\": \"UNSCREG2\", \"text\": \"      * MANDATED UNSC LIST SOURCES: 1267/1989/2253 AND TALIBAN 1988.\\n       01  WS-LIST-SOURCE PIC X(3) VALUE 'S67'.\\n           88  MANDATED-SANCTIONS-FEED VALUES 'S67' ''.\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 7,
+        "tool": "get_data_layout",
+        "arguments": {
+          "record": "WS-LIST-SOURCE"
+        },
+        "observation_summary": "{\"record\": \"WS-LIST-SOURCE\", \"root\": {\"children\": [{\"children\": [], \"level\": 88, \"name\": \"MANDATED-SANCTIONS-FEED\", \"pic\": null, \"redefines\": null}], \"level\": 1, \"name\": \"WS-LIST-SOURCE\", \"pic\": \"X(3)\", \"redefines\": null}, \"source\": {\"line_end\": 3, \"line_start\": 2, \"paragraph\": null, \"program\": \"UNSCREG2\"}}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 8,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "LIST"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 13, \"program\": \"SANCBAT2\", \"text\": \"           ACCEPT WS-LIST-SOURCE\"}, {\"line\": 1, \"program\": \"UNSCREG2\", \"text\": \"      * MANDATED UNSC LIST SOURCES: 1267/1989/2253 AND TALIBAN 1988.\"}, {\"line\": 2, \"program\": \"UNSCREG2\", \"text\": \"       01  WS-LIST-SOURCE PIC X(3) VALUE 'S67'.\"}], \"pattern\": \"LIST\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 9,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253"
+        },
+        "observation_summary": "{\"matches\": [], \"pattern\": \"UNSC-ISIL-Daesh-AlQaida-1267-1989-2253\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 10,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "UNSC-Taliban-1988"
+        },
+        "observation_summary": "{\"matches\": [], \"pattern\": \"UNSC-Taliban-1988\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The trusted clause current value is an enum_set reference collection. The reachable UNSCREG2 copybook hardcodes S67 and blank instead of the two canonical list identities, so D4 is the supported class.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_216049",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "56(prevention)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+            "current_value": {
+              "kind": "enum_set",
+              "value": [
+                "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+                "UNSC-Taliban-1988"
+              ],
+              "comparator": null,
+              "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "SANCBAT2",
+                "paragraph": null,
+                "file": "UNSCREG2.cpy",
+                "line_span": [
+                  3,
+                  3
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-LIST-SOURCE",
+              "MANDATED-SANCTIONS-FEED"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D4_stale_reference_data",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "SANCBAT2",
+                "line": 3,
+                "file": "UNSCREG2.cpy"
+              }
+            ]
+          },
+          "rationale": "The clause current_value is an enum_set of UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. The typed copybook locus defines VALUES 'S67' '', and exact searches find neither canonical member. The complete canonical member UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 is therefore missing from the hardcoded reference enumeration."
+        },
+        "claim": "Under RBI-KYC-Directions-2025 clause 56(prevention), a regulated entity must not maintain any account in the name of an individual or entity appearing in the UNSC-approved and periodically circulated lists of individuals and entities suspected of terrorist links, including UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "'S67'",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D4 stale reference data: the reachable UNSCREG2.cpy enumeration uses S67 and blank instead of the two mandated UNSC list identities.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The trusted clause current value is an enum_set reference collection. The reachable UNSCREG2 copybook hardcodes S67 and blank instead of the two canonical list identities, so D4 is the supported class.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"SANCBAT2\",\"paragraph\":null,\"file\":\"UNSCREG2.cpy\",\"line_span\":[3,3]}],\"slice_vars\":[\"WS-LIST-SOURCE\",\"MANDATED-SANCTIONS-FEED\"],\"is_interprocedural\":false},\"drift_type\":\"D4_stale_reference_data\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"SANCBAT2\",\"line\":3,\"file\":\"UNSCREG2.cpy\"}]},\"rationale\":\"The clause current_value is an enum_set of UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. The typed copybook locus defines VALUES 'S67' '', and exact searches find neither canonical member. The complete canonical member UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 is therefore missing from the hardcoded reference enumeration.\"},\"claim\":\"Under RBI-KYC-Directions-2025 clause 56(prevention), a regulated entity must not maintain any account in the name of an individual or entity appearing in the UNSC-approved and periodically circulated lists of individuals and entities suspected of terrorist links, including UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"'S67'\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"D4 stale reference data: the reachable UNSCREG2.cpy enumeration uses S67 and blank instead of the two mandated UNSC list identities.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 1,
+            "observation_sha256": "3daff56a0aa0646bba2a568517260ae2c580cbb12e45888778dab08d435c28a5",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "context",
+            "rationale": "The SANCBAT2 paragraph index bounds the reachable source investigation to 1000-MAIN and 2000-ROUTE-FEED."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "9b61dba5d512d12240dbc57cbca5cce3b64b85659c9d941888fa25a4922200c0",
+            "hypothesis": "D6_dead_code",
+            "bearing": "refutes",
+            "rationale": "1000-MAIN performs 2000-ROUTE-FEED, establishing that the compliance route is reachable rather than dead."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "1cb155081f03b49a6e8a51ab86fd8e50aa4aa662d18c93cc655cd3795df6cb5c",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "supports",
+            "rationale": "The reachable route branches on MANDATED-SANCTIONS-FEED and uses the source-feed result, identifying the reference-data decision locus."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "31f4a17262ccb5b58fa27e74138c9e6c91a9169f99320664c646b920d177c4a7",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "context",
+            "rationale": "The in-program variable trace has no sites; because the condition is supplied through a copybook, this observation alone cannot establish rule absence."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "38994fa5786d8930e7e297e8346c70d4c02602e5d44e4cea41a93e4041cb7a5b",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "refutes",
+            "rationale": "Scoped grep positively finds the UNSC reference and COPY UNSCREG2, so the required positive context invalidates a D2 absence conclusion."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "d8d8532c73b9a316d7d6af6e5ea2a3d17df79ae7280b4e360322d6eca32a48a3",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "supports",
+            "rationale": "UNSCREG2.cpy defines the hardcoded 88-level enumeration VALUES 'S67' '', while its comment identifies the two mandated UNSC sources; this is the typed reference-data locus."
+          },
+          {
+            "observation_step": 7,
+            "observation_sha256": "83c5fb936d2f4c91b893b5ba91ee76d88d3beb6071278fd7b67d142b50fcbae7",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "supports",
+            "rationale": "The data layout confirms MANDATED-SANCTIONS-FEED is an 88-level child of WS-LIST-SOURCE in UNSCREG2, providing the typed enumeration structure."
+          },
+          {
+            "observation_step": 8,
+            "observation_sha256": "1e8040535bd394b3f32216afce8dcda41dca66668afdd18b666e1f947f560f8b",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "supports",
+            "rationale": "The only list source literal exposed in the copybook is 'S67'; the source contains no canonical clause-member spelling."
+          },
+          {
+            "observation_step": 9,
+            "observation_sha256": "cc108f443d82aaa31d5e57c8c3648b3571ccdf79d5bccc2cd8bfa0f03489d6ea",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "supports",
+            "rationale": "Scoped grep finds no exact UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 member, establishing a missing canonical enum entry."
+          },
+          {
+            "observation_step": 10,
+            "observation_sha256": "fec4a83fbc6cba11763d61ab23f0b2ea2da0cf44f2776a3fdc72ce9805bfca2e",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "supports",
+            "rationale": "Scoped grep finds no exact UNSC-Taliban-1988 member, confirming the hardcoded reference collection omits the second canonical entry as well."
+          }
+        ]
+      }
+    ],
+    "verification": {
+      "verified": false,
+      "tier": null,
+      "evidence": "SANCBAT2:UNSCREG2.cpy — literal \"'S67'\" present",
+      "citation_ok": false,
+      "entailment_probability": 0.3824,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": "citation rejected: cited clause RBI-KYC-Directions-2025 56(prevention) does not entail the claim (P=0.3824, lexical_proxy_v1) — a correct code fact attached to the wrong clause",
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "SANCBAT2:UNSCREG2.cpy — literal \"'S67'\" present"
+        }
+      ]
+    },
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "citation rejected: cited clause RBI-KYC-Directions-2025 56(prevention) does not entail the claim (P=0.3824, lexical_proxy_v1) — a correct code fact attached to the wrong clause",
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: citation rejected: cited clause RBI-KYC-Directions-2025 56(prevention) does not entail the claim (P=0.3824, lexical_proxy_v1) — a correct code fact attached to the wrong clause",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "citation rejected: cited clause RBI-KYC-Directions-2025 56(prevention) does not entail the claim (P=0.3824, lexical_proxy_v1) — a correct code fact attached to the wrong clause",
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "37c0577d9dd2ed0c40fdcca2f6c5c3d97aaa520060a03bcdf4afa4f679107545",
+  "run_key": "e4763b3aa41c7d91dd470783741fef75fb61e74ce3dfad72ad4412af6ddc6777"
+}

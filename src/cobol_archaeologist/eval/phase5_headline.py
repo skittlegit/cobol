@@ -56,6 +56,7 @@ CI_FRAGILE_THRESHOLD = 10
 PRIMARY_SEED = 20260823
 
 M5 = ROOT / "data" / "eval" / "m5"
+M4_INITIAL = ROOT / "data" / "eval" / "legacy" / "m4-initial"
 FROZEN_TEST = ROOT / "data" / "benchmark" / "v1" / "test.jsonl"
 BENCHMARK_MANIFEST = ROOT / "data" / "benchmark" / "v1" / "manifest.json"
 ANNOTATION_PATHS = {
@@ -112,13 +113,17 @@ BINARY_PATHS = {
     for name in BINARY_SYSTEMS
 }
 PROJECTION_SOURCE_MANIFESTS = (
-    ROOT / "data" / "eval" / "m4" / "agent.manifest.json",
-    ROOT / "data" / "eval" / "m4" / "dense_rag.manifest.json",
-    ROOT / "data" / "eval" / "m4" / "oracle_slice.manifest.json",
+    M4_INITIAL / "agent.manifest.json",
+    M4_INITIAL / "dense_rag.manifest.json",
+    M4_INITIAL / "oracle_slice.manifest.json",
     M5 / "agent-rerun" / "full" / "agent.manifest.json",
     M5 / "rag_reranker-rerun" / "full" / "rag_reranker.manifest.json",
     M5 / "oracle_slice-rerun" / "full" / "oracle_slice.manifest.json",
 )
+LEGACY_M4_PATHS = {
+    f"data/eval/m4/{name}.manifest.json": M4_INITIAL / f"{name}.manifest.json"
+    for name in ("agent", "dense_rag", "oracle_slice")
+}
 FROZEN_INPUT_PATHS = tuple(
     [FROZEN_TEST, BENCHMARK_MANIFEST, *ANNOTATION_PATHS.values()]
     + [path for pair in STRUCTURED_PATHS.values() for path in pair]
@@ -254,9 +259,8 @@ def _validate_projection(
     sources: dict[str, Any] = {}
     for kind in ("reuse", "rerun"):
         entry = manifest[kind]
-        manifest_path = (
-            ROOT / entry["historical_manifest" if kind == "reuse" else "manifest"]
-        )
+        recorded_path = entry["historical_manifest" if kind == "reuse" else "manifest"]
+        manifest_path = LEGACY_M4_PATHS.get(recorded_path, ROOT / recorded_path)
         expected_hash = entry[
             "historical_manifest_sha256" if kind == "reuse" else "manifest_sha256"
         ]

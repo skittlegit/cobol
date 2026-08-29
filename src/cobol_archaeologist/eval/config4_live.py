@@ -25,7 +25,7 @@ from cobol_archaeologist.eval.config3_live import (
 )
 
 CONFIG4_PROMPT_VERSION = "m4-config4-adaptive-v1"
-CONFIG4_OUTPUT_DIR = ROOT / "data" / "eval" / "m4-config4"
+CONFIG4_OUTPUT_DIR = ROOT / "data" / "eval" / "m4"
 CONFIG4_FREEZE_PATH = CONFIG4_OUTPUT_DIR / "run-freeze.json"
 CONFIG4_PREDECLARATION_PATH = CONFIG4_OUTPUT_DIR / "predeclaration.json"
 CONFIG4_SMOKE_DIRECTORY = "smoke"
@@ -86,7 +86,9 @@ def _resolve_path(path: Path | str, *, root: Path = ROOT) -> Path:
 
 
 def _is_config3_output(path: Path | str, *, root: Path = ROOT) -> bool:
-    historical = (Path(root) / "data" / "eval" / "m4-config3").resolve()
+    historical = (
+        Path(root) / "data" / "eval" / "legacy" / "m4-config3"
+    ).resolve()
     candidate = _resolve_path(path, root=root)
     return candidate == historical or historical in candidate.parents
 
@@ -189,9 +191,9 @@ class Config4RunFreeze(BaseModel):
     t6_source_inputs: dict[str, FinalizedArtifactPin]
     source_sha256: dict[str, str]
     hidden_test_roster_sha256: str = Field(pattern=_HASH_PATTERN)
-    output_root: str = "data/eval/m4-config4"
-    smoke_output_dir: str = "data/eval/m4-config4/smoke"
-    full_output_dir: str = "data/eval/m4-config4/full"
+    output_root: str = "data/eval/m4"
+    smoke_output_dir: str = "data/eval/m4/smoke"
+    full_output_dir: str = "data/eval/m4/full"
     smoke_gate_required: Literal[True] = True
 
     @model_validator(mode="after")

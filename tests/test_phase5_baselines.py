@@ -15,7 +15,7 @@ from cobol_archaeologist.eval.phase5 import (
 from cobol_archaeologist.schemas import DriftInstance
 
 ROOT = Path(__file__).resolve().parents[1]
-PRE = ROOT / "data" / "benchmark" / "v1-pre"
+PRE = ROOT / "data" / "benchmark" / "legacy" / "v1-pre"
 V1 = ROOT / "data" / "benchmark" / "v1"
 BASELINES = ROOT / "data" / "eval" / "m5" / "baselines"
 PROBE = ROOT / "data" / "benchmark" / "probes" / "t2.2_surface_probe.jsonl"

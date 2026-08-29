@@ -46,6 +46,13 @@ LOCK_NAME = ".host-tool-log.lock"
 _RUN_KEY_RE = re.compile(r"^[0-9a-f]{64}$")
 _ALIAS_RE = re.compile(r"^drift_9\d{5}$")
 _ZERO_HASH = "0" * 64
+_ROOT = Path(__file__).resolve().parents[3]
+_FROZEN_CONFIG4_STAGING = Path(
+    "data/eval/m4-config4/lineage-v2/train-dev/adaptive_agent/task-staging-v1"
+)
+_CANONICAL_CONFIG4_STAGING = Path(
+    "data/eval/m4/lineage/train-dev/adaptive_agent/task-staging"
+)
 
 
 def _canonical_bytes(value: Any) -> bytes:
@@ -87,6 +94,29 @@ def _task_root(staging_base: Path, run_key: str) -> Path:
     if resolved_target == base or base not in resolved_target.parents:
         raise ValueError("collaboration staging task root escapes staging base")
     return target
+
+
+def _resolve_cli_staging_base(staging_base: Path, *, root: Path = _ROOT) -> Path:
+    """Map the one frozen config-4 prompt path after canonical promotion.
+
+    The 102 already-signed Luna requests must keep their exact prompt bytes.
+    Their tool command names the pre-promotion staging directory, so the CLI
+    accepts only that exact missing path and redirects it to the canonical M4
+    tree. All other paths retain the ordinary fail-closed behavior.
+    """
+
+    root = Path(root).resolve()
+    supplied = Path(staging_base).resolve()
+    if supplied.exists():
+        return supplied
+    try:
+        relative = supplied.relative_to(root)
+    except ValueError:
+        return supplied
+    if relative.as_posix().lower() != _FROZEN_CONFIG4_STAGING.as_posix().lower():
+        return supplied
+    canonical = (root / _CANONICAL_CONFIG4_STAGING).resolve()
+    return canonical if canonical.is_dir() else supplied
 
 
 class StagedFile(BaseModel):
@@ -620,7 +650,7 @@ def main() -> int:
         )
         record = execute_staged_tool_request(
             request,
-            staging_base=Path(args.staging_base),
+            staging_base=_resolve_cli_staging_base(Path(args.staging_base)),
             run_key=args.run_key,
             expected_staging_sha256=args.staging_sha256,
         )

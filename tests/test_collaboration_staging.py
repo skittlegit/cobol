@@ -9,6 +9,7 @@ import pytest
 from cobol_archaeologist.eval.codex_tool import ToolRequest
 from cobol_archaeologist.eval.collaboration_staging import (
     TOOL_LOG_NAME,
+    _resolve_cli_staging_base,
     execute_staged_tool_request,
     load_staged_tool_logs,
     load_staged_tool_records,
@@ -81,6 +82,19 @@ def test_staging_is_deterministic_and_command_is_task_keyed(tmp_path: Path) -> N
     assert (first.task_root / "descriptor.json").read_bytes() == (
         second.task_root / "descriptor.json"
     ).read_bytes()
+
+
+def test_frozen_config4_cli_path_maps_only_to_canonical_m4(tmp_path: Path) -> None:
+    old = (
+        tmp_path
+        / "data/eval/m4-config4/lineage-v2/train-dev/adaptive_agent/task-staging-v1"
+    )
+    current = tmp_path / "data/eval/m4/lineage/train-dev/adaptive_agent/task-staging"
+    current.mkdir(parents=True)
+
+    assert _resolve_cli_staging_base(old, root=tmp_path) == current.resolve()
+    unrelated = tmp_path / "data/eval/m4-config4/not-the-frozen-path"
+    assert _resolve_cli_staging_base(unrelated, root=tmp_path) == unrelated.resolve()
 
 
 def test_identical_resume_succeeds_and_nonidentical_resume_fails_closed(

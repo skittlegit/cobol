@@ -93,7 +93,7 @@ def main() -> None:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("data/eval/m4-config3/lineage-v4"),
+        default=Path("data/eval/legacy/m4-config3/lineage-v4"),
     )
     args = parser.parse_args()
     root = args.root.resolve()

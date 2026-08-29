@@ -1,136 +1,203 @@
-# GOAL-R1 work order - adaptive recovery and detector freeze
+# GOAL-R1 work order - finish detector evaluation
 
-**Owner:** Track C  
-**State:** first recovery tranche complete; ready for the remaining `/goal` run  
-**Projected remaining usage:** approximately 40 weekly-quota percentage points  
-**Depends on:** immutable configuration-3 `lineage-v4` smoke evidence and T6.1  
-**Canonical outputs:** a new numbered candidate freeze, its sealed smoke/full
-artifacts, the T8.3 report, and the T8.4 performance profile
+**Owner:** Track C
+**State:** active; resume from the sealed configuration-4 dev checkpoint
+**Windowing:** run one numbered section per Codex five-hour window
+**Depends on:** immutable configuration-3 smoke evidence and promoted T6-v2
+**Excludes:** UI/T7.4 and all GOAL-R2 migration work
 
-## Outcome
+## Required outcome
 
-Recover the proper adaptive detector on train/dev without weakening evidence
-or verification, freeze the repaired method as a new numbered configuration,
-pass a fresh all-six-system smoke, run the still-unread hidden test exactly
-once, and freeze the detector and performance decisions consumed by migration.
+Finish the configuration-4 adaptive train/dev qualification, freeze the
+successful method, pass a fresh all-six-system smoke, execute the still-unread
+hidden test exactly once, and publish T8.3/T8.4 with one auditable detector
+decision.
 
-Configuration 3 is historical evidence, not a result to rewrite. Its official
-smoke completed all 37 tasks / 84 evaluations, but the adaptive system ended
-`NOT_EVALUABLE`: 14/14 rows abstained and the global smoke-readiness artifact
-could not be issued. The other five systems are `VALID` at 14/14 each. No
-hidden-test row has been executed, so the existing hidden test remains
-untouched.
+## Starting checkpoint
 
-## Why this is a successor configuration
+Do not repeat completed work.
 
-T8.2 froze the configuration-3 method before the official smoke and requires a
-new numbered configuration after any method, prompt, budget, verifier,
-threshold, or sample change. Therefore:
+- Configuration-3 `lineage-v4` is immutable historical evidence under
+  `data/eval/legacy/m4-config3`: 37/37 tasks and 84/84 evaluations replayed;
+  five systems are `VALID`; adaptive is `NOT_EVALUABLE`; no hidden-test row
+  was executed.
+- T6.1 promotion and both model reviews/adjudication are complete at 20 pairs /
+  40 sides. No human-primary review remains a release requirement.
+- Configuration-4 infrastructure, materialization, replay, and runner work is
+  implemented; the focused provider-free gate was 95 tests plus Ruff.
+- The active dev package is
+  `data/eval/m4/lineage/train-dev/adaptive_agent`, freeze SHA-256
+  `4403a6a0e36534ecc80f533490fe7cb7c3dfb35b8205f619b6efebbb54958729`.
+- The 102 signed prompts keep their original tool-command bytes. The host's
+  exact frozen-path compatibility mapping redirects only that historical
+  staging path to the canonical plain tree; migration replay is 26/26 green.
+- Durable replay is 22/102 rows, 80 pending, zero infrastructure failures,
+  zero recorded contract rejections, and zero unverified emissions. Provisional
+  metrics are F1 0.7826, balanced accuracy 0.4017, answer rate 0.5000, and
+  answered accuracy 0.9091.
+- Ordinal 11 / `drift_108519` has an unsealed malformed 65-character evidence
+  hash and must be retried from its unchanged frozen request. The later
+  quota-limited attempt produced no countable result.
+- The most recent provider response reported the restored usage limit and an
+  availability time of 2026-08-31 11:52 local time. Recheck the live meter
+  before starting R1.1.
 
-- preserve `data/eval/m4-config3/lineage-v4/` byte-for-byte;
-- use an additive transport-only lineage only for a proven transport repair
-  that leaves model-visible and verifier behavior identical;
-- otherwise predeclare configuration 4, including method identity, prompt,
-  schema, tool policy, verifier identity, budgets, seeds, source/runtime
-  hashes, systems, gates, and the unchanged hidden-test roster; and
-- never relabel configuration-3 outputs as configuration 4.
+## Five-hour execution contract
 
-## Completed approximately 20-point recovery tranche
+Each section targets 4 hours 15 minutes of execution and reserves 45 minutes
+for sealing, replay, tests, documentation, and a clean handoff. Run at most
+three isolated Luna/max evaluator tasks concurrently. Never batch adaptive
+cases into one model context.
 
-The 2026-08-25 continuation used the user-authorized tranche to classify all
-14 adaptive abstentions and implement the first bounded repairs:
+At 4:15, stop launching new provider tasks. Finish or isolate active attempts,
+seal valid finals, replay all sealed keys, run the section checks, and update
+`STATUS.md` and `FLAGS.md`. A section is not complete merely because five
+hours elapsed. If a blocker remains, resume the same section in the next
+window; do not advance to the next section.
 
-- clarified that `claim` must be a clause-grounded regulatory proposition and
-  that implementation facts belong in prediction rationale;
-- added D1/D3 and D2/D7 arbitration, complete canonical D4-member guidance,
-  exact ledger-hash preflight, and command-invocation retry guidance;
-- preserved the lexical verifier threshold and every evidence guard;
-- made adaptive collaboration sealing fail closed when a capture has zero
-  successful staged observations, while preserving baseline no-tool captures
-  and evidence-based explicit abstentions; and
-- added focused prompt, lexical-claim, and transport regression tests.
+Every section must self-heal infrastructure, schema, hash, staging, replay,
+and deterministic-test failures before it is marked complete. Self-healing
+must not edit a model final, weaken a verifier or threshold, discard a measured
+failure, inspect hidden labels, or tune after hidden execution starts.
 
-The root-cause record is
-`data/eval/m4-config3/lineage-v4/diagnostics/adaptive-smoke-root-cause-v1.json`.
-The combined focused successor-development gate is 60 passed and Ruff clean.
+Use this prompt for each window:
 
-This is un-frozen train/dev engineering for configuration 4. No successor
-provider trial, official smoke, hidden-test call, or migration call occurred.
+> Execute only section R1.N from
+> `docs/tasks/GOAL-R1-work-order.md`. Resume its durable checkpoint, use up to
+> three isolated Luna/max workers, self-heal permitted failures, update project
+> records, and stop at that section's terminal handoff. Do not start R1.N+1.
 
-## Estimated remaining 40-point allocation
+## R1.1 - dev replay from 22 to at least 60 rows
 
-| Phase | Planning points | Required result |
-|---|---:|---|
-| Finish train/dev adaptive trials | 8 | Readiness thresholds pass without verifier relaxation |
-| Configuration-4 freeze and transport qualification | 8 | Immutable identities and clean exact-final capture |
-| Fresh all-six smoke | 8 | Global smoke readiness is hash-bound and green |
-| One-time full evaluation | 12 | Detector and temporal decisions are frozen |
-| T8.4 performance profile and handoff | 4 | Claims re-hash to sealed events |
+**Budget:** <= 5 hours.
 
-The allocation is an estimate, not a termination rule.
+1. Verify the 22-row replay checkpoint and exact pending roster.
+2. Retry `drift_108519` from the unchanged frozen request with a fresh task
+   identity; preserve its malformed prior final as diagnostic evidence.
+3. Keep three one-case Luna/max workers saturated and process immutable pending
+   run keys in frozen order.
+4. Seal exact finals without editing, host-replay after small waves, and retain
+   invalid/interrupted attempts under diagnostic identities.
+5. Stop only after at least 60/102 rows are replayed, or after sealing every
+   result obtainable before the 4:15 checkpoint rule.
 
-## Execution
+**Handoff:** exact completed/pending run keys, metrics, failure maps, live
+readiness JSON, and green replay/integrity tests.
 
-1. Reconcile the configuration-3 terminal artifacts before further changes.
-   Confirm 37/37 sealed tasks, 84/84 replayed evaluations, five `VALID`
-   systems, adaptive `NOT_EVALUABLE`, zero pending run keys, and preservation
-   of every invalid attempt under diagnostics.
-2. Retain the completed root-cause reproductions on unit fixtures and
-   train/dev only:
-   missing successful staging observations, lexical citation rejections,
-   incomplete D2 negative-evidence paths, D4 enum rationale rejection, and
-   ledger observation-hash mismatch. Determine whether each is transport,
-   orchestration, method, or verifier behavior. Do not inspect hidden-test
-   rows, labels, scores, or T6-v2 evaluation answers.
-3. Extend the regression tests before each additional fix. Repair staging identity/logging and
-   exact-final capture as infrastructure. For method-affecting changes, create
-   the numbered successor predeclaration; do not relax verification,
-   evidence thresholds, bounded tools, row isolation, or anti-shortcut rules.
-4. Iterate Luna/max engineering trials only on train/dev until a complete
-   trial has zero infrastructure/contract failures, zero unverified emissions,
-   answer rate at least 0.60, full-coverage F1 at least 0.70, balanced accuracy
-   at least 0.65, and answered accuracy at least 0.80. Retain failed trials as
-   non-headline diagnostics.
-5. Freeze all identities before the next official call. Prove exact request,
-   source, tool-log, event, final, schema, and replay binding in an isolated
-   qualification. Record provider usage/timing as `not_recorded` where the
-   in-product transport does not expose it; never infer or zero-fill it.
-6. Run the fresh 14-row, all-six-system smoke with ChatGPT-authenticated
-   `gpt-5.6-luna`, `max`, one case per adaptive task, and at most three
-   independent tasks concurrently. Seal/replay every accepted result. The
-   gate requires 14/14 exact rows per system, zero infrastructure failures,
-   zero counted contract-rejection repairs, at least one non-null verified
-   candidate from both agent systems, no unverified emissions, and a frozen
-   global readiness artifact.
-7. Only after that gate is green, run the frozen hidden test once. Resume only
-   immutable run keys after infrastructure or quota interruptions. Once the
-   hidden run begins, do not tune, resample, change thresholds, replace
-   failures, or rerun for a better score.
-8. Produce T8.3's full validity/quality report and T8.4's performance profile.
-   Include the 20-pair / 40-side T6-v2 temporal evaluation, historical
-   configurations 1-3, missing telemetry, fragile cells, retries, and exact
-   artifact hashes. Freeze one `GO`, `NO_GO`, or `NOT_EVALUABLE` detector
-   decision from the measured evidence.
+## R1.2 - complete the 102-row dev trial
 
-## Self-healing and stop rules
+**Budget:** <= 5 hours. **Depends on:** R1.1.
 
-- Checkpoint after every sealed run key; resume instead of restarting.
-- A malformed or interrupted model attempt is isolated under a new diagnostic
-  identity and retried fresh before the official result is counted.
-- A failed test, hash, staging, replay, or report gate must be diagnosed,
-  repaired within the permitted development boundary, rerun, and validated.
-- If a repair would change a frozen method, create the required successor
-  configuration rather than mutating the freeze.
-- The projected 50 points do not stop an in-progress repair, retry, replay, or
-  validation. Stop only at a clean terminal checkpoint with no broken staging
-  state and a frozen detector decision.
-- Self-healing never means tuning against the hidden test, weakening a gate,
-  discarding a measured failure, or converting missing evidence into a pass.
+1. Resume the frozen pending roster with three isolated workers.
+2. Reach 102/102 terminal host-replayed rows.
+3. Recompute all readiness gates: zero infrastructure failures, zero contract
+   rejections, zero unverified emissions, answer rate >= 0.60, full-coverage F1
+   >= 0.70, balanced accuracy >= 0.65, and answered accuracy >= 0.80.
+4. Freeze the complete dev result as passing evidence or a non-headline failed
+   trial. Do not make a release decision from a partial sample.
 
-## Completion handoff
+**Handoff:** a complete readiness artifact, immutable records and hashes, and
+one explicit branch: `PASS_TO_FREEZE` or `REPAIR_REQUIRED`.
 
-This order is complete when the detector decision, full report, performance
-profile, manifests, hashes, raw evidence, and resume state reconcile; T7.2 and
-T7.3 are closed or explicitly accounted for; `STATUS.md`, `FLAGS.md`, and
-`DATASHEET.md` name the new evidence; and GOAL-R2 can consume a single frozen
-detector roster. UI/T7.4 remains excluded.
+## R1.3 - bounded repair and qualification
+
+**Budget:** <= 5 hours. **Depends on:** R1.2.
+
+If R1.2 passes, audit reproducibility and skip method changes. If it fails:
+
+1. Diagnose failures only from train/dev evidence.
+2. Add regression tests before repair. Keep evidence guards, row isolation,
+   bounded tools, anti-shortcut rules, and readiness thresholds unchanged.
+3. Before any method-visible change, move the failed lineage under
+   `data/eval/legacy/` with its explicit historical identity. Build a fresh
+   numbered qualification lineage; never rewrite archived evidence or the
+   existing canonical checkpoint.
+4. Run a complete or statistically sufficient predeclared qualification within
+   this window. If the repair cannot be fully qualified, checkpoint and resume
+   R1.3 rather than advancing.
+5. Require the same readiness thresholds and zero-failure gates as R1.2.
+
+**Handoff:** one passing, reproducible method identity plus its exact runtime,
+prompt, schema, verifier, source, and qualification hashes.
+
+## R1.4 - predeclare configuration 4 and pass fresh smoke
+
+**Budget:** <= 5 hours. **Depends on:** R1.3.
+
+1. Freeze configuration 4 before any official call: method, prompt, schema,
+   tool policy, verifier, budgets, seeds, source/runtime hashes, systems,
+   thresholds, and unchanged hidden roster.
+2. Prove one isolated exact-final qualification.
+3. Run the fresh 14-row all-six-system smoke. Adaptive remains one case per
+   task; provider-free controls may use their already-tested batching.
+4. Seal and replay every result. Require 14/14 rows per system, zero
+   infrastructure failures, zero counted repair substitutions, at least one
+   verified non-null candidate from both agent systems, no unverified
+   emissions, and a hash-bound global readiness artifact.
+
+**Handoff:** immutable configuration freeze and green global smoke readiness.
+If smoke fails, repair only within the permitted pre-hidden boundary and repeat
+R1.4 under a new numbered freeze when required.
+
+## R1.5 - begin the one-time hidden evaluation
+
+**Budget:** <= 5 hours. **Depends on:** green R1.4.
+
+1. Revalidate the freeze and prove the hidden roster is still unread.
+2. Create one official hidden-run identity and immutable run-key order.
+3. Execute the first deterministic half of pending run keys across all six
+   systems with at most three workers. This is one run, not a pilot.
+4. Checkpoint after every sealed key and replay in waves.
+5. Once the run begins, do not tune, resample, change thresholds, replace
+   measured failures, or restart for a better score.
+
+**Handoff:** the same official run remains resumable, every attempted key is
+terminal or explicitly interrupted, and no method state changed.
+
+## R1.6 - finish hidden evaluation and temporal evaluation
+
+**Budget:** <= 5 hours. **Depends on:** R1.5.
+
+1. Resume only the remaining immutable official run keys.
+2. Reach terminal all-six-system hidden coverage; preserve failures and
+   unavailable telemetry as measured.
+3. Run the frozen 20-pair / 40-side T6-v2 temporal evaluation required by T8.3.
+4. Reconcile denominators, retries, resource telemetry, validity, quality, and
+   fragile cells without pooling systems or rerunning for improvement.
+
+**Handoff:** sealed full-run and temporal artifacts with complete replay and no
+pending official keys.
+
+## R1.7 - T8.3/T8.4 reports and detector freeze
+
+**Budget:** <= 5 hours. **Depends on:** R1.6.
+
+1. Produce T8.3's validity/quality report covering historical configurations
+   1-3, configuration 4, all six systems, T6-v2, retries, missing telemetry,
+   fragile cells, and exact hashes.
+2. Produce T8.4's performance profile and re-hash every narrative claim to
+   machine-readable evidence.
+3. Freeze exactly one detector decision: `GO`, `NO_GO`, or
+   `NOT_EVALUABLE`.
+4. Close or explicitly account for T7.2/T7.3; keep UI/T7.4 deferred.
+5. Update `DATASHEET.md`, `STATUS.md`, `FLAGS.md`, and the GOAL-R2 input
+   roster.
+6. Verify that the completed evaluation remains canonical at the plain
+   `data/eval/m4` path and that the exact frozen-path compatibility test for
+   the 102 signed dev requests remains green.
+7. Run focused tests, Ruff, artifact reconciliation, and a clean Git audit.
+
+**Completion:** GOAL-R1 is complete only when reports, manifests, hashes, raw
+evidence, resume state, and the detector decision reconcile and GOAL-R2 can
+consume one frozen detector roster.
+
+## Naming and legacy rule
+
+Completed artifacts and human-facing outputs use unversioned filesystem names.
+An in-progress hash-bound execution tree may keep its frozen name only until
+its terminal promotion step. Before replacement, move superseded evidence
+under the nearest `legacy/` directory. Protocol and schema version values
+embedded inside sealed records remain unchanged because they identify formats.
+
+Current configuration tests likewise use plain `tests/test_config_*.py` names;
+configuration-3 regression coverage lives under `tests/legacy/config3/`.

@@ -852,7 +852,7 @@ def load_reusable_baseline_contexts(
     system_id: SystemID,
     *,
     source_shas: Mapping[str, str],
-    artifact_dir: Path = ROOT / "data" / "eval" / "m4",
+    artifact_dir: Path = ROOT / "data" / "eval" / "legacy" / "m4-initial",
 ) -> dict[str, dict[str, Any]]:
     """Reuse only deterministic, source-hash-matched contexts from API runs."""
 

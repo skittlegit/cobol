@@ -24,8 +24,8 @@ from cobol_archaeologist.eval.config3_live import (
     canonical_sha256,
     ensure_frozen_identity,
     run_config3_adaptive,
-    seeded_dev_smoke,
 )
+from cobol_archaeologist.eval.materialize import materialize
 from cobol_archaeologist.eval.run import repository_commit
 from cobol_archaeologist.model.verify import LexicalEntailer
 from cobol_archaeologist.schemas import DriftInstance
@@ -93,6 +93,8 @@ class CollaborationSmokePlan(BaseModel):
                     else "requests"
                 )
             )
+            # Sealed configuration-3 plans retain their original path text;
+            # filesystem access is redirected by resolve_config3_artifact_path.
             expected_directory = (
                 "data/eval/m4-config3/lineage-v4/smoke/"
                 f"{item.system_id}/{request_directory}"
@@ -141,6 +143,22 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def resolve_config3_artifact_path(value: str, *, root: Path = ROOT) -> Path:
+    """Resolve an archived config-3 path without rewriting sealed manifests."""
+
+    root = Path(root).resolve()
+    path = (root / value).resolve()
+    if path.exists():
+        return path
+    historical = (root / "data/eval/m4-config3").resolve()
+    try:
+        relative = path.relative_to(historical)
+    except ValueError:
+        return path
+    archived = (root / "data/eval/legacy/m4-config3" / relative).resolve()
+    return archived if archived.exists() else path
+
+
 def load_collaboration_smoke_plan(
     *, root: Path = ROOT, plan_path: Path | None = None
 ) -> tuple[CollaborationSmokePlan, Path]:
@@ -151,7 +169,9 @@ def load_collaboration_smoke_plan(
         else root / PLAN_PATH.relative_to(ROOT)
     )
     plan = CollaborationSmokePlan.model_validate_json(path.read_text(encoding="utf-8"))
-    development = (root / plan.development_smoke_path).resolve()
+    development = resolve_config3_artifact_path(
+        plan.development_smoke_path, root=root
+    )
     if (
         not development.is_relative_to(root)
         or _sha(development) != plan.development_smoke_sha256
@@ -195,9 +215,16 @@ def build_collaboration_smoke_freeze(
 def _smoke_rows(freeze: Config3RunFreeze, *, root: Path) -> list[DriftInstance]:
     dev = _load_split(root / freeze.dev_split_path)
     train = _load_split(root / freeze.train_split_path)
-    rows = seeded_dev_smoke(dev, fallback_rows=train, seed=freeze.smoke_seed)
-    if tuple(row.instance_id for row in rows) != freeze.smoke_instance_ids:
-        raise RuntimeError("selected smoke rows differ from run freeze")
+    by_id = {row.instance_id: row for row in [*dev, *train]}
+    try:
+        rows = [by_id[instance_id] for instance_id in freeze.smoke_instance_ids]
+    except KeyError as exc:
+        raise RuntimeError("frozen smoke row is absent from its pinned splits") from exc
+    if any(
+        materialize(row).source_sha256 != freeze.source_sha256.get(row.instance_id)
+        for row in rows
+    ):
+        raise RuntimeError("frozen smoke source identity differs")
     return rows
 
 
@@ -226,7 +253,9 @@ def write_smoke_request_preparation(
     pins: list[SmokeRequestPin] = []
     run_keys: set[str] = set()
     for item in plan.systems:
-        request_dir = (root / item.request_artifact_directory).resolve()
+        request_dir = resolve_config3_artifact_path(
+            item.request_artifact_directory, root=root
+        )
         if not request_dir.is_relative_to(root):
             raise ValueError("collaboration request directory leaves the repository")
         request_paths = sorted(request_dir.glob("*.json"))

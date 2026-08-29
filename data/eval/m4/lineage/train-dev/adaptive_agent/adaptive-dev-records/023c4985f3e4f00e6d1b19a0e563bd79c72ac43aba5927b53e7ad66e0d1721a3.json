@@ -1,0 +1,306 @@
+{
+  "instance_id": "drift_162066",
+  "gold": {
+    "instance_id": "drift_162066",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT3",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            11,
+            11
+          ]
+        },
+        {
+          "program": "BOIDENT3",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            13,
+            13
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-OWN-PCT",
+        "WS-CTRL-IND",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at BOIDENT3:<source>:11-11+BOIDENT3:<source>:13-13; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "BOIDENT3.cbl",
+      "mutation": "MO-0; locus=BOIDENT3:<source>:11-11+BOIDENT3:<source>:13-13; old='01  FILLER                    PIC X(2) VALUE SPACES.'; new='01  FILLER                    PIC X(5) VALUE SPACES.'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 only when the regulated check itself is absent and scoped grep,\n  caller graph, callee graph, and data slice all provide the required negative\n  evidence. Any positive observation from one of those four required tools\n  invalidates D2 for that investigation; do not repurpose positive context as\n  absence evidence. Do not invent an unstated date derivation, preprocessing\n  step, or implementation mechanism as a missing rule. If positive code\n  evidence matches the clause and no supported drift remains, consider D7.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"BOIDENT3\",\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "BOIDENT3"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 21, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 34, \"line_start\": 22, \"name\": \"2000-CLASSIFY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config4\\\\lineage-v2\\\\train-dev\\\\adaptive_agent\\\\task-staging-v1\\\\023c4985f3e4f00e6d1b19a0e563bd79c72ac43aba5927b53e7ad66e0d1721a3\\\\cases\\\\drift_900000\\\\BOIDENT3.cbl\", \"program\": \"BOIDENT3\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "BOIDENT3",
+          "name": "2000-CLASSIFY"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT3\"}], \"code\": \"       2000-CLASSIFY.\\n           EVALUATE WS-ENTITY-TYPE\\n             WHEN 'C'\\n               IF WS-OWN-PCT > 10.00\\n                  MOVE 'Y' TO WS-IS-BO\\n               END-IF\\n             WHEN 'P'\\n               IF WS-OWN-PCT > 10.00 OR WS-CTRL-IND = 'Y'\\n                  MOVE 'Y' TO WS-IS-BO\\n               END-IF\\n             WHEN OTHER\\n               IF WS-OWN-PCT > 15.00 MOVE 'Y' TO WS-IS-BO END-IF\\n           END-EVALUATE.\", \"name\": \"2000-CLASSIFY\", \"ref\": {\"line_end\": 34, \"line_start\": 22, \"paragraph\": \"2000-CLASSIFY\", \"program\": \"BOIDENT3\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "BOIDENT3",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-CLASSIFY\", \"program\": \"BOIDENT3\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-ENTITY-TYPE\\n           ACCEPT WS-OWN-PCT\\n           ACCEPT WS-CTRL-IND\\n           PERFORM 2000-CLASSIFY\\n           DISPLAY 'BO: ' WS-IS-BO\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 21, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT3\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "run_cobol",
+        "arguments": {
+          "snippet": "BOIDENT3",
+          "inputs": "P\n5\nY\n"
+        },
+        "observation_summary": "AttributeError: 'str' object has no attribute 'files'",
+        "observation_truncated": false,
+        "error": "AttributeError: 'str' object has no attribute 'files'",
+        "latency_ms": 0.0
+      },
+      {
+        "step": 5,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-OWN-PCT"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 8, \"program\": \"BOIDENT3\", \"text\": \"       01  WS-OWN-PCT                PIC 9(3)V99 VALUE ZERO.\"}, {\"line\": 17, \"program\": \"BOIDENT3\", \"text\": \"           ACCEPT WS-OWN-PCT\"}, {\"line\": 25, \"program\": \"BOIDENT3\", \"text\": \"               IF WS-OWN-PCT > 10.00\"}, {\"line\": 29, \"program\": \"BOIDENT3\", \"text\": \"               IF WS-OWN-PCT > 10.00 OR WS-CTRL-IND = 'Y'\"}, {\"line\": 33, \"program\": \"BOIDENT3\", \"text\": \"               IF WS-OWN-PCT > 15.00 MOVE 'Y' TO WS-IS-BO END-IF\"}], \"pattern\": \"WS-OWN-PCT\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 6,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-OWN-PCT",
+          "program": "BOIDENT3"
+        },
+        "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT3\"}], \"scoped_program\": \"BOIDENT3\", \"statements\": [{\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"BOIDENT3\"}, \"text\": \"01  WS-OWN-PCT                PIC 9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT3\"}, \"text\": \"ACCEPT WS-OWN-PCT\"}], \"variable\": \"WS-OWN-PCT\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 7,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-OWN-PCT",
+          "program": "BOIDENT3"
+        },
+        "observation_summary": "{\"scoped_program\": \"BOIDENT3\", \"sites\": [{\"excerpt\": \"01  WS-OWN-PCT                PIC 9(3)V99 VALUE ZERO.\", \"kind\": \"def\", \"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"BOIDENT3\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"ACCEPT WS-OWN-PCT\", \"kind\": \"def\", \"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT3\"}, \"statement_kind\": \"ACCEPT\"}, {\"excerpt\": \"IF WS-OWN-PCT > 10.00\", \"kind\": \"use\", \"ref\": {\"line_end\": 25, \"line_start\": 25, \"paragraph\": \"2000-CLASSIFY\", \"program\": \"BOIDENT3\"}, \"statement_kind\": \"IF\"}, {\"excerpt\": \"IF WS-OWN-PCT > 10.00 OR WS-CTRL-IND = 'Y'\", \"kind\": \"use\", \"ref\": {\"line_end\": 29, \"line_start\": 29, \"paragraph\": \"2000-CLASSIFY\", \"program\": \"BOIDENT3\"}, \"statement_kind\": \"IF\"}, {\"excerpt\": \"IF WS-OWN-PCT > 15.00 MOVE 'Y' TO WS-IS-BO END-IF\", \"kind\": \"use\", \"ref\": {\"line_end\": 33, \"line_start\": 33, \"paragraph\": \"2000-CLASSIFY\", \"program\": \"BOIDENT3\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-OWN-PCT\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The reachable partnership branch positively checks the current strictly-greater 10 percent threshold. The 15.00 comparison belongs to WHEN OTHER and is not a partnership locus.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_162066",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "BOIDENT3",
+                "paragraph": "2000-CLASSIFY",
+                "file": null,
+                "line_span": [
+                  29,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ENTITY-TYPE",
+              "WS-OWN-PCT",
+              "WS-CTRL-IND",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "In 2000-CLASSIFY's WHEN 'P' branch, the source tests WS-OWN-PCT > 10.00 and moves 'Y' to WS-IS-BO. The literal 10.00 and comparator > match the cited partnership threshold; the 15.00 literal is confined to WHEN OTHER."
+        },
+        "claim": "For partnership firms, the beneficial owner is the natural person who owns or is entitled to strictly more than 10 percent of the firm's capital or profits.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "10.00",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Conformant: the partnership beneficial-owner threshold is checked as strictly greater than 10 percent.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The reachable partnership branch positively checks the current strictly-greater 10 percent threshold. The 15.00 comparison belongs to WHEN OTHER and is not a partnership locus.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"BOIDENT3\",\"paragraph\":\"2000-CLASSIFY\",\"file\":null,\"line_span\":[29,30]}],\"slice_vars\":[\"WS-ENTITY-TYPE\",\"WS-OWN-PCT\",\"WS-CTRL-IND\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[]},\"rationale\":\"In 2000-CLASSIFY's WHEN 'P' branch, the source tests WS-OWN-PCT > 10.00 and moves 'Y' to WS-IS-BO. The literal 10.00 and comparator > match the cited partnership threshold; the 15.00 literal is confined to WHEN OTHER.\"},\"claim\":\"For partnership firms, the beneficial owner is the natural person who owns or is entitled to strictly more than 10 percent of the firm's capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"10.00\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Conformant: the partnership beneficial-owner threshold is checked as strictly greater than 10 percent.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 1,
+            "observation_sha256": "cac7855c9485d3bb3172bebd4bbb861b891a7fd510ac45e9323a69acc0b6f995",
+            "hypothesis": "D7_conformant",
+            "bearing": "context",
+            "rationale": "The bounded paragraph index identifies 2000-CLASSIFY as the classification locus to inspect for the partnership rule."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "68a9e971f2f1f1658ef48de558c4712e0b8bd7834cc3d68d48e64a65a5c0211d",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "The reachable WHEN 'P' branch positively checks WS-OWN-PCT > 10.00 and sets the beneficial-owner flag."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "68a9e971f2f1f1658ef48de558c4712e0b8bd7834cc3d68d48e64a65a5c0211d",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "refutes",
+            "rationale": "The partnership branch uses the current 10.00 threshold; the separate 15.00 literal is under WHEN OTHER, not WHEN 'P'."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "68a9e971f2f1f1658ef48de558c4712e0b8bd7834cc3d68d48e64a65a5c0211d",
+            "hypothesis": "D5_boundary_error",
+            "bearing": "refutes",
+            "rationale": "The partnership source comparator is >, matching the clause's strictly-greater comparator."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "68a9e971f2f1f1658ef48de558c4712e0b8bd7834cc3d68d48e64a65a5c0211d",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "context",
+            "rationale": "The observed partnership rule is a scalar percentage comparison, not an enum_set reference collection."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "2daeb33e8486d5dce43524083acce7ea3bce06e940b6d9fb67d58ba43798c428",
+            "hypothesis": "D6_dead_code",
+            "bearing": "refutes",
+            "rationale": "1000-MAIN calls 2000-CLASSIFY, so the cited classification paragraph is reachable."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "1256c4d96610e28d237e2858b9bf22f65680872896a9d024cfe6e5d4b13c3be1",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "refutes",
+            "rationale": "Scoped grep returns positive threshold checks, including the partnership check at line 29; the regulated check is not absent."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "57564bb66d97a134580561ee474f89f235014379984e3a00f69d964c8adf4397",
+            "hypothesis": "D7_conformant",
+            "bearing": "context",
+            "rationale": "The data slice shows WS-OWN-PCT is accepted in 1000-MAIN before classification, supporting the input flow to the check."
+          },
+          {
+            "observation_step": 7,
+            "observation_sha256": "d81d046c41b734a40b33bb3ec63cf8dc3be4aea1744c8b397c6c1fcb7a319500",
+            "hypothesis": "D3_contradictory",
+            "bearing": "refutes",
+            "rationale": "The variable trace enumerates the threshold uses, while the cited paragraph shows only one WHEN 'P' locus; no two conflicting partnership outcomes are evidenced."
+          }
+        ]
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "adaptive evidence ledger: ledger step 2 observation hash differs; ledger step 2 observation hash differs; ledger step 2 observation hash differs; ledger step 2 observation hash differs",
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: adaptive evidence ledger: ledger step 2 observation hash differs; ledger step 2 observation hash differs; ledger step 2 observation hash differs; ledger step 2 observation hash differs",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "adaptive evidence ledger: ledger step 2 observation hash differs; ledger step 2 observation hash differs; ledger step 2 observation hash differs; ledger step 2 observation hash differs",
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "88d47e154157b3f91845c7cef615e8943114d38d8b88a7c4a3b7d6337b409875",
+  "run_key": "023c4985f3e4f00e6d1b19a0e563bd79c72ac43aba5927b53e7ad66e0d1721a3"
+}

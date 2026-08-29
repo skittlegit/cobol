@@ -1,86 +1,136 @@
-# GOAL-R2 work order - migration evaluation and M5 release close
+# GOAL-R2 work order - migration evaluation and release close
 
-**Owners:** Track A / Track C  
-**State:** ready after GOAL-R1 freezes the detector decision  
-**Projected remaining usage:** approximately 40 weekly-quota percentage points  
-**Depends on:** GOAL-R1, T6.1, and the implemented T6.2-T6.4 offline gates  
-**Canonical outputs:** sealed migration runs, validation ledger,
-`data/migration/report.{json,md}`, T5.5/M5 analysis, and final release records
+**Owners:** Track A / Track C
+**State:** blocked until GOAL-R1 freezes one detector decision and roster
+**Windowing:** run one numbered section per Codex five-hour window
+**Depends on:** GOAL-R1, promoted T6-v2, and the existing offline migration gates
+**Excludes:** UI/T7.4
 
-## Outcome
+## Required outcome
 
-Run the isolated migration agent, validate every generated patch, publish the
-non-pooled detector-led and oracle-assisted results, and close T5.5/M5 and the
-release record without erasing any prior M4 evidence. UI/T7.4 remains deferred.
+Run the isolated migration agent, validate every generated patch, publish
+separate detector-led and oracle-assisted results, and close T5.5/M5 and the
+release record without erasing prior M4 evidence.
 
-## Estimated remaining 40-point allocation
+## Five-hour execution contract
 
-| Phase | Planning points | Required result |
-|---|---:|---|
-| Freeze eligible rosters and requests | 6 | Detector/oracle identities and denominators reconcile |
-| T6.2 live migration generation | 13 | Every eligible case has a sealed patch or abstention |
-| T6.3 equivalence and safety validation | 11 | Every patch has a fail-closed terminal verdict |
-| T6.4 migration report | 6 | Machine and narrative reports reconcile |
-| T5.5/M5 and release close | 4 | Final decision and project records are frozen |
+Each section targets 4 hours 15 minutes of execution and reserves 45 minutes
+for sealing, deterministic checks, reports, and a clean handoff. At 4:15, stop
+launching new provider tasks and close the current checkpoint. If a section is
+not terminal, resume that same section in the next five-hour window.
 
-The allocation is an estimate, not a termination rule.
+Use at most three isolated Luna/max tasks concurrently. Checkpoint every case.
+Self-heal staging, schema, hash, apply, validator, replay, and report defects
+within the same section before marking it complete. Do not manually improve a
+model patch, erase a failed patch or abstention, pool detector and oracle
+tracks, fabricate compiler/provider evidence, or weaken safety gates.
 
-## Execution
+Use this prompt for each window:
 
-1. Validate the GOAL-R1 detector freeze, T6-v2 20-pair / 40-side manifest, and
-   migration runtime snapshot. Freeze two disjointly labeled rosters:
-   detector-led cases from verified detector findings and oracle-assisted
-   cases from frozen oracle findings. Never pool them.
-2. Materialize exact one-case Luna/max requests in per-case staging
-   directories. Prompts expose only the authorized source, verified finding,
-   allowed patch scope, and required output contract; no gold label, mutation
-   provenance, hidden result, unrelated case, credentials, or git history is
-   model-visible.
-3. Run T6.2 with at most three independent tasks concurrently. Each eligible
-   case must end in one exact sealed patch proposal or one explicit abstention.
-   Preserve source inputs, request/final hashes, task events, tool logs, usage
-   limitations, and interruption/resume evidence.
-4. Apply proposals only to disposable per-case staging copies. T6.3 must check
-   source scope, parser integrity, call graph/dataflow/slice consistency,
-   intended behavior, unaffected regressions, copybook fan-out, and clean
-   application to the frozen source hash. Use pinned GnuCOBOL compile/execution
-   for supported batch cases when an authorized runtime provides it. If the
-   compiler remains unavailable, report that capability gap; never convert it
-   to a pass. Keep CICS limitations explicit.
-5. A generated patch that fails validation remains a measured failure. Repair
-   orchestration, staging, validator, or reproducibility defects and replay;
-   do not manually improve the model patch or discard the case. Detector-led
-   execution occurs only when the detector utility gate permits it;
-   oracle-assisted evaluation still runs as a separately labeled upper bound.
-6. Build T6.4 with exact eligible/evaluated denominators and patch,
-   abstention, apply, parse, compile, intended-test, regression, affected-line,
-   class, stratum, and capability results. Re-hash every narrative claim to
-   machine-readable evidence and report unavailable Luna telemetry as
-   `not_recorded`.
-7. Complete T5.5/M5 and T7.5 from the frozen detector and migration decisions.
-   Update `DATASHEET.md`, `STATUS.md`, `FLAGS.md`, and the final release record.
-   Preserve configuration 1's `NO_GO`, configuration 2's smoke stop,
-   configuration 3's smoke outcome, and the successor result as distinct
-   auditable evidence.
+> Execute only section R2.N from
+> `docs/tasks/GOAL-R2-work-order.md`. Resume its durable checkpoint, use up to
+> three isolated Luna/max workers, self-heal permitted failures, update project
+> records, and stop at that section's terminal handoff. Do not start R2.N+1.
 
-## Self-healing and stop rules
+## R2.1 - freeze rosters, runtime, and requests
 
-- Checkpoint and replay after every sealed case; resume incomplete run keys.
-- Isolate malformed finals and interrupted attempts, retry them with fresh
-  identities, and never count an unvalidated replacement.
-- Diagnose and repair failed infrastructure, schema, hash, apply, validator,
-  report, or reconciliation gates; rerun the affected deterministic checks
-  before handoff.
-- The projected 50 points do not stop an in-progress repair, retry,
-  validation, or report reconciliation. Stop only when the work order has a
-  clean terminal outcome and no broken staging state.
-- Self-healing does not erase abstentions or failed patches, relax safety
-  gates, merge detector and oracle results, fabricate compiler/provider
-  evidence, or change the measured detector decision.
+**Budget:** <= 5 hours.
 
-## Completion handoff
+1. Validate GOAL-R1's frozen detector decision and its exact eligible findings.
+2. Validate the promoted T6-v2 20-pair / 40-side manifest and migration runtime
+   snapshot.
+3. Freeze two non-pooled rosters: detector-led verified findings and
+   oracle-assisted frozen findings.
+4. Materialize one-case Luna/max requests with only authorized source,
+   verified finding, patch scope, and output contract.
+5. Prove source, request, staging, schema, runtime, validator, and run-key
+   binding with provider-free tests and one isolated qualification.
 
-This order is complete when T6.2-T6.4, T5.5/M5, and T7.5 each have a terminal
-auditable state; all reports and manifests reconcile; all active non-UI flags
-are cleared or explicitly terminal; and the release record states what is and
-is not supported. No UI work is authorized by this order.
+**Handoff:** immutable rosters and requests, exact denominators, zero hidden
+cross-track leakage, and green preflight tests.
+
+## R2.2 - T6.2 migration generation, first half
+
+**Budget:** <= 5 hours. **Depends on:** R2.1.
+
+1. Execute the first deterministic half of each frozen roster, keeping tracks
+   separately labeled.
+2. Each case ends in one exact sealed patch proposal or explicit abstention.
+3. Preserve request/final hashes, events, tool logs, unavailable telemetry,
+   interruptions, and resume evidence.
+4. Isolate malformed finals under diagnostic identities and retry unchanged
+   requests without counting an unvalidated replacement.
+
+**Handoff:** all first-half run keys terminal and replayable, with no broken
+staging state.
+
+## R2.3 - T6.2 migration generation, second half
+
+**Budget:** <= 5 hours. **Depends on:** R2.2.
+
+1. Resume the same frozen run and process every remaining run key.
+2. Reconcile proposals, abstentions, malformed attempts, interruptions, and
+   exact eligible/evaluated denominators for both tracks.
+3. Freeze the complete T6.2 generation ledger. Do not advance with pending keys.
+
+**Handoff:** complete sealed patch/abstention coverage and one immutable
+validation input roster.
+
+## R2.4 - T6.3 validation, first half
+
+**Budget:** <= 5 hours. **Depends on:** R2.3.
+
+1. Apply proposals only to disposable per-case staging copies.
+2. Validate the first deterministic half for patch scope, clean application,
+   parser integrity, call graph/dataflow/slice consistency, intended behavior,
+   unaffected regressions, copybook fan-out, and source-hash binding.
+3. Use pinned GnuCOBOL compile/execution for supported batch cases when the
+   authorized runtime provides it. Record unavailable compiler/CICS capability;
+   never convert it to a pass.
+4. A failed generated patch remains a measured failure.
+
+**Handoff:** first-half terminal validation records, reproducible staging, and
+green validator/integrity tests.
+
+## R2.5 - finish validation and publish T6.4
+
+**Budget:** <= 5 hours. **Depends on:** R2.4.
+
+1. Validate every remaining proposal under the identical frozen validator.
+2. Reach terminal verdicts for all proposals and abstentions.
+3. Build T6.4 with exact patch, abstention, apply, parse, compile,
+   intended-test, regression, affected-line, class, stratum, and capability
+   results.
+4. Keep detector-led and oracle-assisted results separate in every table and
+   narrative. Re-hash claims to machine evidence and report unavailable Luna
+   telemetry as `not_recorded`.
+
+**Handoff:** reconciled `data/migration/report.json` and
+`data/migration/report.md` with no pending validation state.
+
+## R2.6 - T5.5/M5 and release close
+
+**Budget:** <= 5 hours. **Depends on:** R2.5.
+
+1. Complete T5.5/M5 and T7.5 from the frozen detector and migration decisions.
+2. Preserve configurations 1-4 as distinct auditable evidence.
+3. Update `DATASHEET.md`, `STATUS.md`, `FLAGS.md`, and the final release
+   record; keep UI/T7.4 explicitly deferred.
+4. Apply the repository naming rule: current human-facing outputs are
+   unversioned; superseded human-facing outputs move under `legacy/`;
+   hash-bound protocol identities remain immutable and are selected by an
+   unversioned manifest/dashboard.
+5. Run focused and full deterministic tests, Ruff, artifact reconciliation,
+   packaging checks, and a clean Git audit.
+
+**Completion:** T6.2-T6.4, T5.5/M5, and T7.5 are terminal and auditable; reports
+and manifests reconcile; every active non-UI flag is cleared or terminal; and
+the release record states exactly what is and is not supported.
+
+## Naming and legacy rule
+
+Completed artifacts and human-facing outputs use unversioned filesystem names.
+An in-progress hash-bound execution tree may keep its frozen name only until
+its terminal promotion step. Before replacement, move superseded evidence
+under the nearest `legacy/` directory. Protocol and schema version values
+embedded inside sealed records remain unchanged because they identify formats.
