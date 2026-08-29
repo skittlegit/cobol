@@ -1,6 +1,6 @@
 # STATUS - current project dashboard
 
-Last updated: **2026-08-29 14:04 IST**.
+Last updated: **2026-08-29 14:07 IST**.
 
 This is the authoritative current-state dashboard. Historical evidence remains
 in `docs/tasks/` and immutable evaluation artifacts.
@@ -63,7 +63,7 @@ in `docs/tasks/` and immutable evaluation artifacts.
 - **Focused post-migration verification is green:** 65 configuration/transport
   tests, 34 Phase-5/ablation tests, 95 runtime/schema/policy-hunt tests, and
   105 T6 tests all pass, with repository-wide Ruff clean. The exact CI command
-  `python -m pytest tests/ -x -q` is green at **753 passed, 71 skipped, and 5
+  `python -m pytest tests/ -x -q` is green at **754 passed, 71 skipped, and 5
   deselected**. Pytest now uses the ignored repository-local `.pytest_tmp`
   root required by fail-closed evidence-path tests, and legacy CRLF T6 pins
   validate consistently on LF GitHub checkouts without accepting content

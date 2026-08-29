@@ -13,6 +13,7 @@ from cobol_archaeologist.benchmark.t6_review import (
     ReviewResponse,
     SequentialDeliveryAuditEntry,
     T6ReviewPromotionReport,
+    _hash_matches,
     build_controlled_review_prompt,
     build_t6_review_promotion,
     propose_t6_finalized_manifest,
@@ -38,6 +39,15 @@ def _sha(path: Path) -> str:
 
 def _relative(path: Path) -> str:
     return path.resolve().relative_to(ROOT.resolve()).as_posix()
+
+
+def test_review_pin_accepts_lf_checkout_of_legacy_crlf_hash(tmp_path: Path) -> None:
+    artifact = tmp_path / "packet.jsonl"
+    artifact.write_bytes(b'{"review_item_id":"rvw-1"}\n')
+    legacy_crlf = artifact.read_bytes().replace(b"\n", b"\r\n")
+
+    assert _hash_matches(artifact, hashlib.sha256(legacy_crlf).hexdigest())
+    assert not _hash_matches(artifact, hashlib.sha256(b"changed\r\n").hexdigest())
 
 
 def _proposal_labels() -> dict[str, tuple[str, list[dict[str, object]]]]:
