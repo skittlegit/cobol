@@ -21,7 +21,7 @@ from cobol_archaeologist.benchmark.t6_pair_correction import (
     validate_pair_correction_bridge,
 )
 from cobol_archaeologist.benchmark.t6_review import BlindedReviewRecord
-from cobol_archaeologist.benchmark.t6_v2 import ArtifactPin
+from cobol_archaeologist.benchmark.t6_v2 import ArtifactPin, artifact_sha256_matches
 
 
 def _sha_bytes(value: bytes) -> str:
@@ -87,7 +87,9 @@ def build(
         ):
             raise ValueError("correction transcript identity differs from plan")
         prompt_path = root / coordinator_call["prompt"]["path"]
-        if _sha(prompt_path) != coordinator_call["prompt"]["sha256"]:
+        if not artifact_sha256_matches(
+            prompt_path, coordinator_call["prompt"]["sha256"]
+        ):
             raise ValueError("correction prompt pin changed")
         prompt = prompt_path.read_bytes()
         final = call["final_message"].encode("utf-8")

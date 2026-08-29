@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from cobol_archaeologist.benchmark.t6_pair_correction import CorrectionPairID
 from cobol_archaeologist.benchmark.t6_review import ReviewResponse
-from cobol_archaeologist.benchmark.t6_v2 import ArtifactPin
+from cobol_archaeologist.benchmark.t6_v2 import ArtifactPin, artifact_sha256_matches
 from cobol_archaeologist.schemas import CodeLocus, RegulationClause
 
 ReplacementID = Literal[
@@ -370,7 +370,7 @@ def _check_pin(root: Path, pin: ArtifactPin, *, label: str) -> Path:
     path = (root / pin.path).resolve()
     if not path.is_relative_to(root.resolve()) or not path.is_file():
         raise ValueError(f"{label} leaves repository or is missing")
-    if source_sha256(path) != pin.sha256:
+    if not artifact_sha256_matches(path, pin.sha256):
         raise ValueError(f"{label} pin changed")
     return path
 

@@ -17,7 +17,7 @@ from cobol_archaeologist.benchmark.t6_replacement import (
     replacement_envelope,
     validate_replacement_batch_ledger,
 )
-from cobol_archaeologist.benchmark.t6_v2 import ArtifactPin
+from cobol_archaeologist.benchmark.t6_v2 import ArtifactPin, artifact_sha256_matches
 
 
 def _sha(value: bytes) -> str:
@@ -83,7 +83,7 @@ def build(
             raise ValueError("replacement ledger transcript uses wrong call identity")
         prompt_path = root / frozen["prompt"]["path"]
         prompt = prompt_path.read_bytes()
-        if _sha(prompt) != frozen["prompt"]["sha256"]:
+        if not artifact_sha256_matches(prompt_path, frozen["prompt"]["sha256"]):
             raise ValueError("replacement ledger prompt pin changed")
         final = call["final_message"].encode("utf-8")
         outcome, _ = classify_replacement_final(plan=plan, final=final)

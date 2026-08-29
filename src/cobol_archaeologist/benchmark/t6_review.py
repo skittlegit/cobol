@@ -35,6 +35,7 @@ from cobol_archaeologist.benchmark.t6_v2 import (
     PrimaryReviewIdentityProtocol,
     SequentialReleasePolicy,
     T6V2Manifest,
+    artifact_sha256_matches,
     load_blinded_review_packet,
     load_candidate_pair_proposals,
     load_t6_v2_manifest,
@@ -689,20 +690,6 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _hash_matches(path: Path, expected: str) -> bool:
-    """Match frozen text pins across Git's LF/CRLF checkout normalization."""
-
-    data = path.read_bytes()
-    candidates = {hashlib.sha256(data).hexdigest()}
-    if path.suffix.lower() in {".cbl", ".cpy", ".json", ".jsonl", ".md", ".txt"}:
-        lf_data = data.replace(b"\r\n", b"\n")
-        candidates.add(hashlib.sha256(lf_data).hexdigest())
-        candidates.add(
-            hashlib.sha256(lf_data.replace(b"\n", b"\r\n")).hexdigest()
-        )
-    return expected in candidates
-
-
 def _repo_path(root: Path, relative: str) -> Path:
     resolved_root = root.resolve()
     resolved = (resolved_root / relative).resolve()
@@ -739,7 +726,7 @@ def _load_identity_protocol(
     *, root: Path, pin: ArtifactPin
 ) -> PrimaryReviewIdentityProtocol:
     path = _repo_path(root, pin.path)
-    if not path.is_file() or not _hash_matches(path, pin.sha256):
+    if not path.is_file() or not artifact_sha256_matches(path, pin.sha256):
         raise ValueError("primary identity protocol pin changed")
     protocol = PrimaryReviewIdentityProtocol.model_validate_json(
         path.read_text(encoding="utf-8")
@@ -760,7 +747,7 @@ def _load_delivery_audit(
     *, root: Path, metadata: ReviewArtifactMetadata
 ) -> list[SequentialDeliveryAuditEntry]:
     path = _repo_path(root, metadata.sequential_delivery_audit.path)
-    if not path.is_file() or not _hash_matches(
+    if not path.is_file() or not artifact_sha256_matches(
         path, metadata.sequential_delivery_audit.sha256
     ):
         raise ValueError("sequential delivery audit pin changed")
@@ -781,7 +768,7 @@ def _load_delivery_audit(
 
 def _check_pin(root: Path, pin: ArtifactPin, *, label: str) -> Path:
     path = _repo_path(root, pin.path)
-    if not path.is_file() or not _hash_matches(path, pin.sha256):
+    if not path.is_file() or not artifact_sha256_matches(path, pin.sha256):
         raise ValueError(f"{label} pin changed: {pin.path}")
     return path
 
@@ -1153,7 +1140,7 @@ def _load_pinned_metadata(
     *, root: Path, pin: PinnedReviewMetadata
 ) -> ReviewArtifactMetadata:
     path = _repo_path(root, pin.path)
-    if not path.is_file() or not _hash_matches(path, pin.sha256):
+    if not path.is_file() or not artifact_sha256_matches(path, pin.sha256):
         raise ValueError(f"review metadata pin changed: {pin.path}")
     return ReviewArtifactMetadata.model_validate_json(path.read_text(encoding="utf-8"))
 
@@ -1167,7 +1154,7 @@ def _load_external_verification(
     identity_protocol_pin: ArtifactPin,
 ) -> ExternalPrimaryReviewVerification:
     path = _repo_path(root, pin.path)
-    if not path.is_file() or not _hash_matches(path, pin.sha256):
+    if not path.is_file() or not artifact_sha256_matches(path, pin.sha256):
         raise ValueError("external human-primary verification pin changed")
     verification = ExternalPrimaryReviewVerification.model_validate_json(
         path.read_text(encoding="utf-8")
@@ -1201,7 +1188,9 @@ def _load_response_rows(
     *, root: Path, metadata: ReviewArtifactMetadata
 ) -> list[BlindedReviewRecord]:
     path = _repo_path(root, metadata.responses.path)
-    if not path.is_file() or not _hash_matches(path, metadata.responses.sha256):
+    if not path.is_file() or not artifact_sha256_matches(
+        path, metadata.responses.sha256
+    ):
         raise ValueError(f"review response pin changed: {metadata.responses.path}")
     rows: list[BlindedReviewRecord] = []
     for line_number, raw in enumerate(
@@ -1345,7 +1334,9 @@ def validate_review_evidence(
 ) -> _ValidatedReviewEvidence:
     """Validate both blind passes before any proposal key may be loaded."""
 
-    if not packet_path.is_file() or not _hash_matches(packet_path, packet_sha256):
+    if not packet_path.is_file() or not artifact_sha256_matches(
+        packet_path, packet_sha256
+    ):
         raise ValueError("blinded packet pin changed")
     packet = load_blinded_review_packet(packet_path)
     if len(packet) != 22:
@@ -1356,7 +1347,7 @@ def validate_review_evidence(
     packet_by_id = {item.review_item_id: item for item in packet}
     if (
         not release_policy_path.is_file()
-        or not _hash_matches(release_policy_path, release_policy_sha256)
+        or not artifact_sha256_matches(release_policy_path, release_policy_sha256)
     ):
         raise ValueError("sequential release policy pin changed")
     release_policy = SequentialReleasePolicy.model_validate_json(
@@ -1375,12 +1366,14 @@ def validate_review_evidence(
     for meta in (primary_meta, verifier_meta):
         if (
             _repo_path(root, meta.packet.path) != expected_packet_path
-            or meta.packet.sha256 != packet_sha256
+            or not artifact_sha256_matches(packet_path, meta.packet.sha256)
         ):
             raise ValueError(f"{meta.review_role} metadata pins a different packet")
         if (
             _repo_path(root, meta.release_policy.path) != release_policy_path.resolve()
-            or meta.release_policy.sha256 != release_policy_sha256
+            or not artifact_sha256_matches(
+                release_policy_path, meta.release_policy.sha256
+            )
         ):
             raise ValueError(
                 f"{meta.review_role} metadata pins a different release policy"
@@ -1457,13 +1450,17 @@ def validate_review_evidence(
             raise ValueError("adjudicator must be distinct from both reviewers")
         if (
             _repo_path(root, adjudicator_meta.packet.path) != expected_packet_path
-            or adjudicator_meta.packet.sha256 != packet_sha256
+            or not artifact_sha256_matches(
+                packet_path, adjudicator_meta.packet.sha256
+            )
         ):
             raise ValueError("adjudicator metadata pins a different packet")
         if (
             _repo_path(root, adjudicator_meta.release_policy.path)
             != release_policy_path.resolve()
-            or adjudicator_meta.release_policy.sha256 != release_policy_sha256
+            or not artifact_sha256_matches(
+                release_policy_path, adjudicator_meta.release_policy.sha256
+            )
         ):
             raise ValueError("adjudicator metadata pins a different release policy")
         rows = _load_response_rows(root=root, metadata=adjudicator_meta)
@@ -2136,7 +2133,7 @@ def propose_t6_finalized_manifest(
     ]
     for pin in (item for item in required_pins if item is not None):
         path = _repo_path(root, pin.path)
-        if not path.is_file() or not _hash_matches(path, pin.sha256):
+        if not path.is_file() or not artifact_sha256_matches(path, pin.sha256):
             raise ValueError(f"finalization artifact pin changed: {pin.path}")
     pinned_report = T6ReviewPromotionReport.model_validate_json(
         _repo_path(root, promotion_report.path).read_text(encoding="utf-8")

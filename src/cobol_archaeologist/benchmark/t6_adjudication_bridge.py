@@ -21,6 +21,7 @@ from cobol_archaeologist.benchmark.t6_review import (
 from cobol_archaeologist.benchmark.t6_v2 import (
     ArtifactPin,
     SequentialReleasePolicy,
+    artifact_sha256_matches,
     load_blinded_review_packet,
 )
 
@@ -88,7 +89,7 @@ def _pin(root: Path, path: Path) -> ArtifactPin:
 
 def _check_pin(root: Path, pin: ArtifactPin, *, label: str) -> Path:
     path = _repo_path(root, pin.path)
-    if not path.is_file() or _sha(path) != pin.sha256:
+    if not path.is_file() or not artifact_sha256_matches(path, pin.sha256):
         raise ValueError(f"{label} pin changed")
     return path
 

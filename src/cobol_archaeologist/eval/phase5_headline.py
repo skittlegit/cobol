@@ -545,7 +545,7 @@ def load_frozen_inputs() -> FrozenInputs:
         "annotation_evidence": {
             name: {
                 "path": _relative(path),
-                "canonical_lf_sha256": _sha256(path),
+                "canonical_lf_sha256": _lf_sha256(path),
                 "manifest_crlf_sha256": _crlf_sha256(path),
                 "manifest_crlf_identity_matches": (
                     _crlf_sha256(path)

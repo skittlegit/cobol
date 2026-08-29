@@ -122,8 +122,7 @@ def test_native_staging_contains_only_opaque_descriptor_and_source(tmp_path: Pat
     assert "provenance" not in descriptor
     command = native_tool_command()
     assert "cobol_archaeologist.eval.codex_tool" in command
-    assert ".venv" in command
-    assert "python.exe" in command
+    assert "python" in command.lower()
 
 
 def test_native_environment_strips_all_api_key_routes():

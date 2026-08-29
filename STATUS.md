@@ -1,6 +1,6 @@
 # STATUS - current project dashboard
 
-Last updated: **2026-08-29 14:07 IST**.
+Last updated: **2026-08-29 14:28 IST**.
 
 This is the authoritative current-state dashboard. Historical evidence remains
 in `docs/tasks/` and immutable evaluation artifacts.
@@ -67,7 +67,8 @@ in `docs/tasks/` and immutable evaluation artifacts.
   deselected**. Pytest now uses the ignored repository-local `.pytest_tmp`
   root required by fail-closed evidence-path tests, and legacy CRLF T6 pins
   validate consistently on LF GitHub checkouts without accepting content
-  changes.
+  changes. A separate index export using Git's exact LF blobs passes at **642
+  passed, 183 platform-skipped, and 5 deselected**.
 - **UI/T7.4 remains deferred.**
 
 ## Live release path
