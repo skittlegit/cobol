@@ -31,9 +31,9 @@ POLICY = ROOT / "data/benchmark/t6-v2/review/release-policy.json"
 SCHEMA = ROOT / "data/benchmark/t6-v2/review/response.schema.json"
 
 
-def _pin(path: Path) -> ArtifactPin:
+def _pin(path: Path, *, root: Path = ROOT) -> ArtifactPin:
     return ArtifactPin(
-        path=path.resolve().relative_to(ROOT).as_posix(),
+        path=path.resolve().relative_to(root.resolve()).as_posix(),
         sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
     )
 
@@ -41,7 +41,16 @@ def _pin(path: Path) -> ArtifactPin:
 def test_ai_adjudication_bridge_projects_exact_promotion_evidence(
     tmp_path: Path, monkeypatch
 ) -> None:
-    item = load_blinded_review_packet(PACKET)[0]
+    test_root = tmp_path / "repo"
+    test_root.mkdir()
+    packet = test_root / "packet.jsonl"
+    policy = test_root / "release-policy.json"
+    schema = test_root / "response.schema.json"
+    packet.write_bytes(PACKET.read_bytes())
+    policy.write_bytes(POLICY.read_bytes())
+    schema.write_bytes(SCHEMA.read_bytes())
+
+    item = load_blinded_review_packet(packet)[0]
     response = ReviewResponse(
         decision="include",
         drift_type="D7_conformant",
@@ -75,7 +84,7 @@ def test_ai_adjudication_bridge_projects_exact_promotion_evidence(
     )
     final = response.model_dump_json().encode("utf-8")
     task = "/root/test/adjudicate-o01"
-    source_responses = tmp_path / "responses.jsonl"
+    source_responses = test_root / "responses.jsonl"
     source_responses.write_text(
         AIAdjudicationResponseRecord(
             schema_version="1",
@@ -119,12 +128,12 @@ def test_ai_adjudication_bridge_projects_exact_promotion_evidence(
         finalized=True,
         review_role="ai_adjudicator",
         reviewer_pseudonym="luna-max-ai-adjudicator",
-        comparison_report=_pin(PACKET),
-        packet=_pin(PACKET),
-        response_schema=_pin(SCHEMA),
-        primary_responses=_pin(PACKET),
-        independent_responses=_pin(PACKET),
-        responses=_pin(source_responses),
+        comparison_report=_pin(packet, root=test_root),
+        packet=_pin(packet, root=test_root),
+        response_schema=_pin(schema, root=test_root),
+        primary_responses=_pin(packet, root=test_root),
+        independent_responses=_pin(packet, root=test_root),
+        responses=_pin(source_responses, root=test_root),
         provider="chatgpt-codex-collaboration",
         model_id="gpt-5.6-luna",
         reasoning_effort="max",
@@ -157,7 +166,7 @@ def test_ai_adjudication_bridge_projects_exact_promotion_evidence(
             )
         ],
     )
-    audit_path = tmp_path / "audit.json"
+    audit_path = test_root / "audit.json"
     audit_path.write_text(audit.model_dump_json(indent=2), encoding="utf-8")
     monkeypatch.setattr(
         "cobol_archaeologist.benchmark.t6_adjudication_bridge.validate_ai_adjudication_audit",
@@ -165,20 +174,20 @@ def test_ai_adjudication_bridge_projects_exact_promotion_evidence(
     )
 
     bridge = build_ai_adjudication_promotion_bridge(
-        root=ROOT,
+        root=test_root,
         audit_manifest_path=audit_path,
-        release_policy_path=POLICY,
-        output_dir=tmp_path / "bridge",
+        release_policy_path=policy,
+        output_dir=test_root / "bridge",
     )
     validated = validate_ai_adjudication_promotion_bridge(
-        root=ROOT,
-        bridge_path=tmp_path / "bridge/promotion-bridge-manifest.json",
+        root=test_root,
+        bridge_path=test_root / "bridge/promotion-bridge-manifest.json",
     )
     metadata = ReviewArtifactMetadata.model_validate_json(
-        (ROOT / bridge.adjudication_metadata.path).read_text(encoding="utf-8")
+        (test_root / bridge.adjudication_metadata.path).read_text(encoding="utf-8")
     )
     delivery = SequentialDeliveryAuditEntry.model_validate_json(
-        (ROOT / bridge.sequential_delivery_audit.path).read_text(encoding="utf-8")
+        (test_root / bridge.sequential_delivery_audit.path).read_text(encoding="utf-8")
     )
 
     assert validated == bridge

@@ -24,6 +24,7 @@ from cobol_archaeologist.agent.adaptive import (
 )
 from cobol_archaeologist.agent.policy import confidence_for_tier, get_hunt
 from cobol_archaeologist.agent.trajectory import BudgetSpec, ToolCall, Trajectory
+from cobol_archaeologist.benchmark.t6_v2 import artifact_sha256_matches
 from cobol_archaeologist.eval.codex_batch import (
     AGENT_HUNTS,
     CodexBaselineEnvelope,
@@ -338,7 +339,7 @@ def _validate_finalized_pin(root: Path, pin: FinalizedArtifactPin) -> Path:
     path = (root / pin.path).resolve()
     if root != path and root not in path.parents:
         raise ValueError("finalized T6 artifact pin escapes the repository")
-    if hashlib.sha256(path.read_bytes()).hexdigest() != pin.sha256:
+    if not artifact_sha256_matches(path, pin.sha256):
         raise ValueError(f"finalized T6 artifact pin changed: {pin.path}")
     return path
 
@@ -504,7 +505,7 @@ def materialize_finalized_t6_row(
     if pin is None:
         raise ValueError(f"no finalized T6 source input for {row.instance_id}")
     source_path = (Path(root).resolve() / pin.path).resolve()
-    if hashlib.sha256(source_path.read_bytes()).hexdigest() != pin.sha256:
+    if not artifact_sha256_matches(source_path, pin.sha256):
         raise ValueError(f"finalized T6 source input changed for {row.instance_id}")
     return materialize_base(row, programs_root=source_path.parent)
 

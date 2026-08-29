@@ -17,7 +17,11 @@ from cobol_archaeologist.benchmark.t6_review import (
     build_t6_review_promotion,
     propose_t6_finalized_manifest,
 )
-from cobol_archaeologist.benchmark.t6_v2 import ArtifactPin, BlindedReviewItem
+from cobol_archaeologist.benchmark.t6_v2 import (
+    ArtifactPin,
+    BlindedReviewItem,
+    artifact_sha256_matches,
+)
 from cobol_archaeologist.eval.codex_batch import strict_codex_schema
 from cobol_archaeologist.eval.config3_live import (
     canonical_sha256,
@@ -38,6 +42,19 @@ def _sha(path: Path) -> str:
 
 def _relative(path: Path) -> str:
     return path.resolve().relative_to(ROOT.resolve()).as_posix()
+
+
+def test_review_pin_accepts_lf_checkout_of_legacy_crlf_hash(tmp_path: Path) -> None:
+    artifact = tmp_path / "packet.jsonl"
+    artifact.write_bytes(b'{"review_item_id":"rvw-1"}\n')
+    legacy_crlf = artifact.read_bytes().replace(b"\n", b"\r\n")
+
+    assert artifact_sha256_matches(
+        artifact, hashlib.sha256(legacy_crlf).hexdigest()
+    )
+    assert not artifact_sha256_matches(
+        artifact, hashlib.sha256(b"changed\r\n").hexdigest()
+    )
 
 
 def _proposal_labels() -> dict[str, tuple[str, list[dict[str, object]]]]:

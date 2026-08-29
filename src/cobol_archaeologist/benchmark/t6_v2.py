@@ -356,6 +356,20 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def artifact_sha256_matches(path: Path, expected: str) -> bool:
+    """Match text pins across Git's LF/CRLF checkout normalization."""
+
+    data = path.read_bytes()
+    candidates = {hashlib.sha256(data).hexdigest()}
+    if path.suffix.lower() in {".cbl", ".cpy", ".json", ".jsonl", ".md", ".txt"}:
+        lf_data = data.replace(b"\r\n", b"\n")
+        candidates.add(hashlib.sha256(lf_data).hexdigest())
+        candidates.add(
+            hashlib.sha256(lf_data.replace(b"\n", b"\r\n")).hexdigest()
+        )
+    return expected in candidates
+
+
 def _row_sha256(raw_line: str) -> str:
     return hashlib.sha256(raw_line.encode("utf-8")).hexdigest()
 
@@ -435,7 +449,9 @@ def validate_candidate_artifacts(
         ):
             raise ValueError(f"fixture differs from manifest pin: {pair.pair_id}")
         code_path = _repo_path(root, pair.code_input_path)
-        if not code_path.is_file() or _sha256(code_path) != pair.code_sha256:
+        if not code_path.is_file() or not artifact_sha256_matches(
+            code_path, pair.code_sha256
+        ):
             raise ValueError(f"candidate code pin changed: {pair.pair_id}")
         source_lines = code_path.read_text(encoding="utf-8").splitlines()
 
@@ -508,7 +524,7 @@ def _validate_pin(root: Path, pin: ArtifactPin) -> None:
     path = _repo_path(root, pin.path)
     if not path.is_file():
         raise ValueError(f"pinned artifact does not exist: {pin.path}")
-    if _sha256(path) != pin.sha256:
+    if not artifact_sha256_matches(path, pin.sha256):
         raise ValueError(f"pinned artifact hash changed: {pin.path}")
 
 
@@ -602,7 +618,7 @@ def validate_t6_v2(*, root: Path, manifest_path: Path) -> T6V2ValidationReport:
         expected_program = Path(pair.code_input_path).name
         if any(row.provenance.base_program != expected_program for row in rows):
             raise ValueError(f"carried pair code input changed: {pair.pair_id}")
-        if _sha256(code_path) != pair.code_sha256:
+        if not artifact_sha256_matches(code_path, pair.code_sha256):
             raise ValueError(f"carried code hash changed: {pair.pair_id}")
 
     for candidate in manifest.candidate_pair_specs:

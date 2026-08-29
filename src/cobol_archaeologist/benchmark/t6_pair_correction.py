@@ -18,6 +18,7 @@ from cobol_archaeologist.benchmark.t6_review import (
 from cobol_archaeologist.benchmark.t6_v2 import (
     ArtifactPin,
     BlindedReviewItem,
+    artifact_sha256_matches,
     load_blinded_review_packet,
 )
 from cobol_archaeologist.schemas import RegulationClause
@@ -211,7 +212,7 @@ def _check_pin(root: Path, pin: ArtifactPin, *, label: str) -> Path:
     path = (root / pin.path).resolve()
     if not path.is_relative_to(root.resolve()) or not path.is_file():
         raise ValueError(f"{label} leaves repository or is missing")
-    if _sha(path) != pin.sha256:
+    if not artifact_sha256_matches(path, pin.sha256):
         raise ValueError(f"{label} pin changed")
     return path
 

@@ -26,6 +26,7 @@ from cobol_archaeologist.benchmark.t6_v2 import (
     AIPrimaryReviewPolicy,
     ArtifactPin,
     BlindedReviewItem,
+    artifact_sha256_matches,
     load_blinded_review_packet,
     load_sequential_release_policy,
     load_t6_v2_manifest,
@@ -100,9 +101,9 @@ def _load_pinned_queue(
 ) -> list[BlindedReviewItem]:
     packet_path = (root / state.packet.path).resolve()
     policy_path = (root / state.release_policy.path).resolve()
-    if _sha(packet_path) != state.packet.sha256:
+    if not artifact_sha256_matches(packet_path, state.packet.sha256):
         raise ValueError("blinded queue changed after coordinator initialization")
-    if _sha(policy_path) != state.release_policy.sha256:
+    if not artifact_sha256_matches(policy_path, state.release_policy.sha256):
         raise ValueError("release policy changed after coordinator initialization")
     policy = load_sequential_release_policy(policy_path)
     if policy.max_active_items != 1 or not policy.full_packet_distribution_prohibited:
@@ -125,13 +126,13 @@ def initialize(
     manifest = load_t6_v2_manifest(manifest_path)
     packet_path = (root / manifest.blinded_review_packet.path).resolve()
     policy_path = (root / manifest.blind_release_policy.path).resolve()
-    if _sha(packet_path) != manifest.blinded_review_packet.sha256:
+    if not artifact_sha256_matches(packet_path, manifest.blinded_review_packet.sha256):
         raise ValueError("manifest packet pin changed")
-    if _sha(policy_path) != manifest.blind_release_policy.sha256:
+    if not artifact_sha256_matches(policy_path, manifest.blind_release_policy.sha256):
         raise ValueError("manifest release-policy pin changed")
     ai_policy = manifest.ai_primary_review_policy
     policy_path = (root / ai_policy.path).resolve()
-    if _sha(policy_path) != ai_policy.sha256:
+    if not artifact_sha256_matches(policy_path, ai_policy.sha256):
         raise ValueError("AI-primary review policy pin changed")
     AIPrimaryReviewPolicy.model_validate_json(policy_path.read_text(encoding="utf-8"))
     workspace.mkdir(parents=True)

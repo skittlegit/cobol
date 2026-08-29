@@ -20,6 +20,7 @@ from cobol_archaeologist.benchmark.t6_replacement import (
 )
 from cobol_archaeologist.benchmark.t6_v2 import (
     ArtifactPin,
+    artifact_sha256_matches,
     load_candidate_pair_proposals,
 )
 from cobol_archaeologist.schemas import CodeLocus, SourceLocus
@@ -75,7 +76,9 @@ def prepare(
         diagnostic = json.loads(diagnostic_path.read_text(encoding="utf-8"))
         diagnostic_prompt = root / diagnostic["prompt"]["path"]
         if (
-            source_sha256(diagnostic_prompt) != diagnostic["prompt"]["sha256"]
+            not artifact_sha256_matches(
+                diagnostic_prompt, diagnostic["prompt"]["sha256"]
+            )
             or diagnostic["status"] != "rejected_protocol_semantics_ambiguous"
         ):
             raise ValueError("v3 protocol lineage diagnostic pin changed")

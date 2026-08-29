@@ -6,6 +6,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+import sys
 import uuid
 from collections.abc import Mapping, Sequence
 from pathlib import Path, PurePath
@@ -67,11 +68,15 @@ def native_tool_command(
     repository_root: Path | None = None,
 ) -> str:
     root = Path(repository_root or Path(__file__).resolve().parents[3]).resolve()
-    python = (
-        Path(python_executable)
-        if python_executable
-        else root / ".venv" / "Scripts" / "python.exe"
-    )
+    if python_executable:
+        python = Path(python_executable)
+    else:
+        candidates = (
+            root / ".venv" / "Scripts" / "python.exe",
+            root / ".venv" / "bin" / "python",
+            Path(sys.executable),
+        )
+        python = next((candidate for candidate in candidates if candidate.is_file()), candidates[-1])
     if not python.is_file():
         raise RuntimeError(f"frozen native Python does not exist: {python}")
     return subprocess.list2cmdline(

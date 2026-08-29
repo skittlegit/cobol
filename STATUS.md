@@ -1,6 +1,6 @@
 # STATUS - current project dashboard
 
-Last updated: **2026-08-29 13:43 IST**.
+Last updated: **2026-08-29 14:28 IST**.
 
 This is the authoritative current-state dashboard. Historical evidence remains
 in `docs/tasks/` and immutable evaluation artifacts.
@@ -62,11 +62,13 @@ in `docs/tasks/` and immutable evaluation artifacts.
   migration, and release addendum without rewriting that evidence.
 - **Focused post-migration verification is green:** 65 configuration/transport
   tests, 34 Phase-5/ablation tests, 95 runtime/schema/policy-hunt tests, and
-  Ruff all pass.
-  A full-suite attempt reached 592 passed, 71 skipped, and 5 deselected; 107
-  failures and 34 errors were dominated by Windows Application Control
-  refusing the generated Tree-sitter COBOL DLL with `WinError 4551`. This is a
-  host-policy limitation, not recorded as a green full-suite gate.
+  105 T6 tests all pass, with repository-wide Ruff clean. The exact CI command
+  `python -m pytest tests/ -x -q` is green at **754 passed, 71 skipped, and 5
+  deselected**. Pytest now uses the ignored repository-local `.pytest_tmp`
+  root required by fail-closed evidence-path tests, and legacy CRLF T6 pins
+  validate consistently on LF GitHub checkouts without accepting content
+  changes. A separate index export using Git's exact LF blobs passes at **642
+  passed, 183 platform-skipped, and 5 deselected**.
 - **UI/T7.4 remains deferred.**
 
 ## Live release path
