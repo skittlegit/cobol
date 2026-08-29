@@ -37,8 +37,10 @@ from cobol_archaeologist.eval.config3_live import (
     Config3RunFreeze,
     Config3TemporalScore,
     DevelopmentSmokeFreeze,
+    FinalizedArtifactPin,
     SubmittedAdaptiveCase,
     TemporalPairScore,
+    _validate_finalized_pin,
     bounded_provider_map,
     build_adaptive_codex_prompt,
     build_config3_freeze,
@@ -68,6 +70,24 @@ CORPUS = FIX / "corpus"
 
 def _rows(case: str) -> list[dict]:
     return json.loads(CACHE.read_text(encoding="utf-8"))[case]
+
+
+def test_finalized_text_pin_accepts_lf_checkout_of_legacy_crlf_hash(
+    tmp_path: Path,
+):
+    artifact = tmp_path / "evidence.json"
+    artifact.write_bytes(b'{\n  "status": "sealed"\n}\n')
+    legacy_crlf = artifact.read_bytes().replace(b"\n", b"\r\n")
+    pin = FinalizedArtifactPin(
+        path="evidence.json",
+        sha256=hashlib.sha256(legacy_crlf).hexdigest(),
+    )
+
+    assert _validate_finalized_pin(tmp_path.resolve(), pin) == artifact.resolve()
+
+    artifact.write_bytes(b'{\n  "status": "changed"\n}\n')
+    with pytest.raises(ValueError, match="finalized T6 artifact pin changed"):
+        _validate_finalized_pin(tmp_path.resolve(), pin)
 
 
 def _provider_response(response: AgentResponse) -> SubmittedResponse:

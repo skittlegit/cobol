@@ -338,7 +338,13 @@ def _validate_finalized_pin(root: Path, pin: FinalizedArtifactPin) -> Path:
     path = (root / pin.path).resolve()
     if root != path and root not in path.parents:
         raise ValueError("finalized T6 artifact pin escapes the repository")
-    if hashlib.sha256(path.read_bytes()).hexdigest() != pin.sha256:
+    data = path.read_bytes()
+    hashes = {hashlib.sha256(data).hexdigest()}
+    if path.suffix.lower() in {".cbl", ".cpy", ".json", ".jsonl", ".md", ".txt"}:
+        lf_data = data.replace(b"\r\n", b"\n")
+        hashes.add(hashlib.sha256(lf_data).hexdigest())
+        hashes.add(hashlib.sha256(lf_data.replace(b"\n", b"\r\n")).hexdigest())
+    if pin.sha256 not in hashes:
         raise ValueError(f"finalized T6 artifact pin changed: {pin.path}")
     return path
 
