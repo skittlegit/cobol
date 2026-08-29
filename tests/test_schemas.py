@@ -315,7 +315,12 @@ def test_gold_shape_is_unchanged_and_prediction_omits_gold_only_fields():
 
 def test_committed_m4_payload_projects_to_prediction_not_gold():
     artifact = (
-        Path(__file__).resolve().parents[1] / "data" / "eval" / "m4" / "dense_rag.jsonl"
+        Path(__file__).resolve().parents[1]
+        / "data"
+        / "eval"
+        / "legacy"
+        / "m4-initial"
+        / "dense_rag.jsonl"
     )
     row = next(
         json.loads(line)

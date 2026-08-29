@@ -1,426 +1,191 @@
-# STATUS
+# STATUS - current project dashboard
 
-Authoritative task-state ledger. Each task has one entry with its state, owner,
-artifact, and durable gate evidence.
+Last updated: **2026-08-29 13:43 IST**.
 
-## Completed milestones
+This is the authoritative current-state dashboard. Historical evidence remains
+in `docs/tasks/` and immutable evaluation artifacts.
 
-Milestones are cross-task gates, not roadmap phases. Roadmap phases span all
-three tracks; a task's numeric prefix does not identify its phase.
+## Current outcome
 
-- **M0 (Spike & Decisions): COMPLETE** — parser bake-off and AST decision
-  landed; T0.1–T0.6 are done.
-- **M1 (Slicing Validated): PASSED 2026-07-12** — `slice_on` matches 10
-  hand-built slices.
-- **M2 (Synthetic v1 + Seed Started): PASSED 2026-07-17 — RE-EVIDENCED** — the
-  594-row compiled catalogue, current Luna judge/drop evidence, 562-row accepted
-  set, 21 real-curated seeds, and purpose-valid 583-row v1-pre splits are aligned.
-  Track C may consume the corrected IDs and begin headline evaluation.
-- **M3 (Agent Grounded): COMPLETE 2026-07-24** — T3.3 HyDE and T3.6 D1–D7
-  policy hunts were independently reviewed and merged in PR #67; verified
-  emission, D6 delegation, anti-shortcut policy, and the real/stub seam stand.
-- **M4 (Narrow End-to-End): CLOSED — NO_GO 2026-07-26** — all three canonical
-  Luna-Codex systems completed 204/204 frozen rows at commit `357f483` with
-  valid, paired, zero-infrastructure artifacts. The frozen report is evaluable
-  with zero blocking issues: agent T1 F1 0.3665, interprocedural delta versus
-  dense-RAG -0.3030 (95% CI [-0.4929, -0.1252], p=0.00635), and T6 2/20.
-  This valid NO_GO closes the Week-10 checkpoint.
-  **Established:** the agent trails dense-RAG interprocedurally; the CI
-  excludes zero and the predeclared GO bars fail.
-  **NOT established:** the oracle-slice deconfounder is INCONCLUSIVE — delta
-  -0.1964, 95% CI [-0.4330, +0.0348], crossing zero. The T4.5 reframing rule
-  triggers on the agent failing to beat oracle-slice; that comparison did not
-  resolve, so the rule has NOT fired. A slicer-first framing is an open
-  option, not a finding, and must not be adopted by default.
-  Decision, diagnosis, config-2 record, and final corrective work:
-  `docs/tasks/T4.5-work-order.md`.
-- **M5 (Benchmark Scale + Headline): CLOSED 2026-08-23** — T5.1-T5.5 are
-  complete. Benchmark v1 remains frozen at 196 test rows with 43 real-curated
-  rows and nine intact T6 pairs. The T5.4 report is `EVALUABLE`; on 36
-  interprocedural rows the agent significantly underperforms RAG+reranker
-  (F1 0.4000 versus 0.6939, delta -0.2939, paired 95% CI
-  [-0.4990, -0.1101], p=0.01175). Agent coverage is 42/196. T6 is 1/9 and
-  `NOT_EVALUABLE_FOR_BAR`. T5.5's fail-closed audit and benchmark-first
-  interpretation are `data/eval/m5/benchmark-first-analysis.{json,md}`. The
-  T2.2 attacker is null anti-gaming evidence with six zero weights and zero
-  bias; its +0.10 floor remains `VACATED`. M5 closure records this negative
-  measurement, preserves M4's valid `NO_GO`, and does not activate M8.
-- **Phase 6 (T6.1-T6.4, migration): CUT 2026-07-26** — playbook Part 5 names
-  migration as the first scope cut. The M4 NO_GO removes its value as a
-  showcase: an equivalence demo built on a detector with ~23% coverage
-  demonstrates little. Effort redirects to T5.1/T5.2 (benchmark scale, freeze,
-  datasheet), T5.3's three missing baselines (static/keyword, RAG+reranker,
-  single-shot LLM), and T7.5. T7.4 (UI) also cut per the same ordering.
-  Migration and UI may be reconsidered only in post-release M8 under new,
-  predeclared utility gates; they are not current release requirements.
+- **T6.1 is complete.** The promoted T6-v2 benchmark is frozen at exactly 20
+  pairs / 40 sides.
+- **Configuration-3 transport repair is complete locally.** The corrected
+  additive `lineage-v4` package contains all **37/37** self-contained smoke
+  requests for **84 evaluations**. Preparation performed **zero provider calls**.
+- **The repaired transport/staging gate is green:** **44 passed** across the
+  collaboration transport, staging, preparation, controls, and live-runner
+  tests; the same focused files pass Ruff.
+- **Controlled `lineage-v4` smoke execution is complete:** **37/37 sealed
+  tasks and 84/84 host-replayed evaluations**, with zero pending run keys.
+  `agent`, `plain_llm`, `rag_dense`, `rag_reranker`, and `oracle_slice` are
+  VALID at 14/14 each. Invalid model finals are preserved as diagnostics and
+  never counted.
+- **The adaptive smoke gate is `NOT_EVALUABLE`, not `NO_GO`.** All 14 adaptive
+  rows reached a terminal host replay, but all 14 abstained; therefore the
+  global all-six-system readiness artifact was not issued and no hidden-test
+  evaluation is authorized. No test-set row has been executed.
+- **Configuration-4 train/dev infrastructure is green.** The governed freeze,
+  complete-dev materializer, replay/readiness scorer, and provider-free
+  smoke/full runner pass a combined **95-test** gate with Ruff clean. All
+  **102/102** dev rows now materialize; an earlier 94-row package is retained
+  only as a superseded diagnostic.
+- **The controlled Luna/max configuration-4 dev trial is live.** The canonical
+  `data/eval/m4/lineage` tree
+  contains exactly **102 requests / 102 staging trees**, with zero preparation
+  provider calls and zero hidden-test rows. At this checkpoint **22/102** cases
+  are sealed and host-replayed, **80** are pending, and there are zero
+  infrastructure failures, zero contract rejections, and zero unverified
+  emissions. Partial metrics are answer rate **0.5000**, full-coverage F1
+  **0.7826**, balanced accuracy **0.4017**, and answered accuracy **0.9091**.
+  The sample is incomplete and has no readiness verdict.
+- **Live Luna work is quota-blocked.** The provider reported that usage becomes
+  available again at **2026-08-31 11:52 local time**. No active evaluator task
+  remains. R1 resumes from the 22-row checkpoint after the live meter permits.
+- **R1 and R2 are divided into five-hour windows.** R1 has seven sequential
+  sections and R2 has six; each reserves the final 45 minutes for a clean
+  replay/documentation handoff and must resume the same section if incomplete.
+- **Artifact naming and cleanup are reconciled.** Active configuration 4 now
+  uses `data/eval/m4/lineage` and plain operational filenames. Its frozen-path
+  compatibility replay preserved exactly 22 completed / 80 pending rows, the
+  same freeze hash and metrics, and zero infrastructure/contract failures.
+  The pre-freeze benchmark is under `data/benchmark/legacy/v1-pre`; unused
+  config-4 lineage-1 and the old 179 MB M4-v3 worker/cache tree were removed.
+  Active `benchmark/v1` and `t6-v2` remain because sealed R1/R2 identities
+  still require them.
+- **Test and T5.5 naming migrations are validated.** Current configuration-4
+  tests use plain `test_config_*` names; configuration-3 regression tests live
+  under `tests/legacy/config3`. The remaining `phase5` and `t6_v2` test names
+  identify tasks/protocols rather than competing file revisions. Remote T5.5
+  and T5.5A are merged: the benchmark-first closure and five 71-row core
+  ablations are preserved under `data/eval/m5`. T5.5 closes the historical
+  configuration-1/T5.4 analysis; R2.6 still owes the successor detector,
+  migration, and release addendum without rewriting that evidence.
+- **Focused post-migration verification is green:** 65 configuration/transport
+  tests, 34 Phase-5/ablation tests, 95 runtime/schema/policy-hunt tests, and
+  Ruff all pass.
+  A full-suite attempt reached 592 passed, 71 skipped, and 5 deselected; 107
+  failures and 34 errors were dominated by Windows Application Control
+  refusing the generated Tree-sitter COBOL DLL with `WinError 4551`. This is a
+  host-policy limitation, not recorded as a green full-suite gate.
+- **UI/T7.4 remains deferred.**
 
-## Planned post-release milestone
+## Live release path
 
-- **M8 (Post-release Improvements): PLANNED — NOT ACTIVE** — begins only after
-  M7 submission and release is complete. M8 does not block M5 or M7, and it
-  does not reopen or replace M4's valid configuration-1 NO_GO. Its candidate
-  scope and activation rules live in `BACKLOG.md`. Before execution, each
-  accepted workstream requires its own canonical `T8.x` work order with a
-  frozen hypothesis, gates, ownership, and budget.
+| Gate | State | Evidence | Remaining work |
+|---|---|---|---|
+| Successor adaptive recovery | quota-paused configuration-4 dev trial; 22/102 replayed | `m4/lineage`; 102/102 materializable; 95-test provider-free gate; partial F1 0.7826 | Run R1.1 after reset; complete the remaining 80 dev cases across R1.1-R1.2 |
+| Sol/max AI-primary T6 review | sealed | 22 accepted responses; invalid first attempts retained | None |
+| Luna/max independent T6 review | sealed | 22/22 accepted | None |
+| T6 comparison and adjudication | sealed | 12 disputes adjudicated; replacement ledgers replayed | None |
+| T6 promotion | done | Final manifest validates 20 pairs / 40 sides | None |
+| Config-3 transport repair | ready | Additive `lineage-v4`; 37/37 requests; 44 focused tests pass | No implementation blocker remains before smoke |
+| Config-3 smoke | terminal `NOT_EVALUABLE` for the candidate | 37/37 sealed tasks; 84/84 host-replayed evaluations; five systems VALID; adaptive 14/14 abstained | Preserve as configuration-3 evidence; repair only through the governed successor path |
+| Successor detector/full evaluation | active on train/dev | `docs/tasks/GOAL-R1-work-order.md`; hidden test remains unexecuted | Finish config-4 dev readiness, predeclare, pass fresh all-six smoke, then run the hidden test once |
+| T6.2-T6.4 migration | ready offline, live pending | Offline migration suite previously 30/30 green | Run after detector freeze |
+| M5/release record | historical T5.5/T5.5A closed; successor addendum pending | `benchmark-first-analysis` and `ablations/report`; historical T5.4 remains immutable | Integrate configuration-4 and migration results in R2.6 |
 
-## Task ledger
+## Next execution order
 
-- **T0.1** | done | B | `data/manifest.json` v1.1: CC Directions widening;
-  CardDemo pinned at `59cc6c2`.
-- **T0.2** | done | B | `docs/tasks/T0.2-work-order.md` fit: card-conduct
-  + KYC union. Anchor RE-ANCHORED at T2.1 (2026-07-09) to the 2025 Commercial
-  Banks CC/DC Directions (2022 MD repealed 2025-11-28); KYC bridge is 2025 para
-  90. See the T2.1 work order.
-- **T0.3** | done | C | Schema v3 adds `DriftPrediction`; `DriftInstance` gold
-  remains unchanged. CONTRACT v1.4 makes provenance and `gold_rationale`
-  gold-only. Reviewed 2026-07-26: 29 gates green, DriftPrediction carries no
-  provenance, gold still requires it. Provider repair, seven-hunt replay, and
-  paid-run guards offline-gated; no provider spend.
-- **T0.4** | done | C | `docs/tasks/T0.4-work-order.md` +
-  `docs/CONTRACT.md` v1.4. Ratified amendments and sign-offs stand.
-- **T0.5** | done | A | `docs/tasks/T0.5-work-order.md`.
-- **T0.6** | done | C | `docs/tasks/T0.6-work-order.md` — novelty sentence
-  locked; cell 1-5 related-work skeleton for T7.5. Empty cell verified by live
-  search 2026-07-07; key citations re-verified at landing.
-- **T1.0** | done | A | `pyproject.toml` + `src/cobol_archaeologist/` skeleton +
-  `vendor/tree-sitter-cobol/` (pinned `e99dbdc`) + `scripts/fetch_corpora.sh` +
-  `tests/test_scaffold.py` (gate green on Python 3.12 / tree_sitter 0.21.3).
-- **T1.1** | done | A | `src/cobol_archaeologist/ingest/cleaner.py` +
-  `src/cobol_archaeologist/parser/{paragraphs,copybooks}.py` +
-  `tests/test_{cleaner,copybooks,paragraphs}.py` + golden fixtures
-  `tests/fixtures/paragraphs/*.json` (10 CardDemo programs, zero ERROR nodes,
-  hand-verified nesting). New preprocessor rules (`NOT=` glued, continued
-  literal splice) recorded in `docs/tasks/T1.1-work-order.md`.
-- **T1.2** | done | A | `src/cobol_archaeologist/static_analysis/call_graph.py`
-  (`build_call_graph` → PERFORM/THRU/GO TO + cross-program CALL/LINK/XCTL edges,
-  `unresolved`, `callers`/`callees`/`reachable_from`/`entry_points`) + D1
-  taxonomy (`GOTO`/`CALL`/`dynamic` in `parser/paragraphs.py`, plus opt-in
-  `include_preamble` for batch main-driver roots). The integrated reachability
-  correction separates the single true `entry_points` root from
-  `forest_roots`, traverses internal fall-through in `reachable_from`, and
-  keeps fall-through out of caller/callee results. Gate
-  `tests/test_call_graph.py` + hand-verified graph fixtures and synthetic
-  `DEADEX.cbl`/`DEADISO.cbl`/`FALLTHRU.cbl` cases.
-- **T1.3** | done | A | `src/cobol_archaeologist/static_analysis/dataflow.py`
-  (`trace_variable(var, programs, call_graph, program=None)` → AST-based def/use
-  per the normative table; qualified/bare/ambiguous name resolution, REDEFINES-
-  alias + 88→parent, VALUE-clause decl sites, LineMap-resolved copybook refs).
-  Gate `tests/test_dataflow.py` + fixtures `tests/fixtures/dataflow/*.json`
-  (10 variables over 4 programs, hand-verified).
-- **T1.4** | done | A | `src/cobol_archaeologist/static_analysis/slicer.py`
-  (`slice_on(var, programs, call_graph, program=None)` → backward slice over
-  data + control dependence, VALUE-clause decls, interprocedural PERFORM/GO TO
-  glue). Gate `tests/test_slicer.py` + fixtures `tests/fixtures/slices/*.json`
-  (10 hand-verified slices). Fixed a latent T1.3 refmod/subref index
-  over-extraction bug in `dataflow.py` (indices now untracked per the
-  documented limitation; T1.3 gate stays green).
-- **T1.5** | done | A | `src/cobol_archaeologist/model/run_cobol.py`
-  (`compile_check` syntax oracle → `CompileResult`; `run_cobol` /
-  `run_cobol_with_files` sandboxed compile+execute → `RunResult`; temp-dir +
-  5s timeout + minimal self-configuring env) + `scripts/setup_cobc.sh`. Gate
-  `tests/test_run_cobol.py` (verified on GnuCOBOL 3.2.0; BL-9 supports
-  `>=3.1.2,<4`; skipped without `cobc`). CBACT04C is compile-only because its
-  JCL-called `PROCEDURE DIVISION USING` cannot link as `-x`; full run on the
-  trivial program.
-- **T1.6** | done | A | `src/cobol_archaeologist/tools.py` (`RealToolLayer`:
-  all 11 ToolLayer methods over T1.1–T1.5, parse-on-first-touch cache +
-  one-shot call graph; `get_data_layout` is new logic — data-division field
-  tree, VALUE text guaranteed original-source via LineMap) + the consumer
-  semantics register in `docs/tasks/T1.6-work-order.md` +
-  `scripts/smoke_tools.py` + gate `tests/test_tools.py` (23 tests, incl.
-  `isinstance(_, ToolLayer)`) + fixture `tests/fixtures/smoke/acct_curr_bal.json`.
-  The obsolete `search_regulations` stub assertion is retired; its gate now
-  pins offline delegation and typed-list semantics for Track C's live service.
-  D0 review fixes landed with regression tests: F5 (`dataflow.py`
-  case-insensitive qualified names), F6 (`cleaner.py` `PreprocessError` on
-  unterminated EXEC/COPY at EOF), F10 (`fetch_corpora.sh` verifies CardDemo
-  HEAD == pin).
-- **T2.1** | done | B | `data/regulations/clauses.jsonl` (19 clauses,
-  schema-gated by `tests/test_clauses.py`) anchored to the 2025 Commercial Banks
-  CC/DC Directions + KYC 2025; 2025 para numbers primary-confirmed at T2.5 +
-  `docs/tasks/T2.1-work-order.md`.
-- **T2.2** | done | B | `src/cobol_archaeologist/benchmark/{mutate,surface}.py`
-  + `tests/test_mutate.py` (**gates A–D green; 10 validated anchor instances
-  cover MO-0…MO-6 plus MO-1×/MO-3×/MO-6×; compiler gate verified with
-  GnuCOBOL 3.2.0**) + `data/benchmark/probes/t2.2_surface_probe.jsonl` (100
-  balanced records; AUC 0.50, bootstrap 95% CI [0.50, 0.50]).
-- **T2.3** | done | B | Corrective catalogue at
-  `data/benchmark/drift_instances.jsonl`: **594 compiled rows** with D1–D6
-  distinct semantic counts **13/6/5/4/12/7**, zero class/operator/distinct
-  shortfalls, and artifact-only Gate E **0.51765 [0.4382, 0.5952]**. The judged
-  accepted artifact contains **562** synthetic rows. Manifest schema 2 carries
-  BL-9 compiler provenance; the legacy catalogue banner is marked unavailable.
-- **T2.4** | done | B | Current-catalogue `gpt-5.6-luna`/OpenAI/high evidence:
-  canonical sample **50/50 plausible (100%, 0 unsure)**; full raw gate
-  **557/594 (93.77%)**, passed. Five full-set `unsure` rows were human-accepted;
-  final drop policy is **562 accepted / 32 implausible / 0 unsure**, override
-  rate **5/594 (0.84%)**. The prescribed review agrees **15/15 (100%)**. See
-  `data/benchmark/{judgements.sample50,judgements,human_review.sample15}.jsonl`.
-- **T2.5** | done | B | `data/benchmark/seed/real_curated.jsonl` (**21
-  instances, 5 intact verdict-flipping T6 pairs, zero degraded pairs, gates
-  green**) + pinned primary-source archive.
-- **T2.6** | done | B | Corrected `data/benchmark/v1-pre/` +
-  `distribution.md`: train/dev/test = **297/106/180**, zero base overlap,
-  train/dev synthetic shares = **52.8%/18.9%**, test-interprocedural = **36**
-  (MO-1×/MO-3×/MO-6× = **12/8/12**), every D1–D7 test-local floor passes,
-  D4/D5 interprocedural shortfalls are named, and **23** cells are CI-fragile.
-- **T2.7** | done | B | Phase-2 M4 inputs repaired: **204/204** test rows
-  materialize, the real-curated seed has **51 rows / 20 intact T6 pairs**, and
-  v1-pre is re-frozen at **307/102/204**. SHA-256 train/dev/test =
-  `4b333851b97629083bfb753cbed28a0c47a5cbe5376d270731b7eb47ab982763` /
-  `31842be32741d00c970e4d1f50d9a38e22774e3455cb9300922bc642a1b0ffef` /
-  `5e8fb3676aab8ff2f886d72c6faab2c1a4b60f2595a3374eaa400e35f3d31d58`.
-  All T2.5/T2.6/T2.7 gates pass; 41 seed bases and eight materialized
-  replacements compile under **GnuCOBOL 3.2.0**.
-- **T3.1** | done | C | `src/cobol_archaeologist/rag/{schemas,
-  pdf_loader,chunker}.py` + `tests/test_chunker.py` + promoted 10-boundary
-  golden fixture. Gates A (19/19 join), B (hand-checked anchor boundaries), and
-  C green; BL-13 nested-definition regression keeps KYC OVD `5(xiv)` distinct
-  from the second definition group's Regulated Entities `(xiv)`.
-- **T3.2** | done | C | `src/cobol_archaeologist/rag/{index,embed}.py` +
-  `tests/test_retrieval.py` + the evidence block in
-  `docs/tasks/T3.2-work-order.md`. Gate B table REFRESHED on the T2.5-expanded
-  2,361-chunk/8-document fixture; bar held (`hybrid_rerank` mrr@5 0.744 >
-  `dense` 0.588, ≥ on hit@1/hit@3). Findings vs the 7-doc run are in the work
-  order's refresh section — note that the reranker is no longer a near-wash
-  over `hybrid`; it is what absorbs the added distractors.
-- **T3.3** | done | C | Part A:
-  `src/cobol_archaeologist/rag/search.py` + `tools.py`
-  (`search_regulations` live) + `tests/test_search_regulations.py`, merged in
-  PR #61. Part B: `src/cobol_archaeologist/rag/hyde.py` +
-  `tests/fixtures/retrieval/hyde_cache.json` + `tests/test_hyde.py`.
-  Pinned-model 24-query gate: dense mrr@5 0.588→0.722, hybrid-rerank
-  0.744→0.793; q23 improves from absent in all modes to ranks 1/1/1/2.
-  Both parts reviewed; final merge PR #67.
-- **T3.4** | done | C | `src/cobol_archaeologist/model/verify.py` +
-  `tests/test_verify.py` + `tests/fixtures/verify/`. Reviewed 2026-07-24;
-  16 gates green. The 55-row offline cache now uses the pinned DeBERTa neural
-  backend. All 50 independently supplied labels are recorded: 49/50 correct
-  (98.0%), 21 TP, 28 TN, 1 FP (`acc_neg_04`), 0 FN; false-accept rate
-  1/29 = 3.45%, below the frozen 10% ceiling. The accuracy gate is now hard
-  green (`17 passed, 1 skipped`; GnuCOBOL unavailable locally).
-- **T3.5** | done | C | `src/cobol_archaeologist/agent/{loop,stub_tools,
-  trajectory}.py` + tests + golden late-fee trajectory. Reviewed 2026-07-24;
-  17 gates green, seam purity + no-unverified-emission confirmed.
-- **T3.6** | done | C | Approved with 17 gates green. Registered D1–D7 hunts
-  retain all trajectories, prohibit edit-artifact shortcuts, require positive
-  D7 evidence, and delegate D6 reachability to the T3.4 verifier. M3 closed.
-- **T4.1** | done | C | Canonical ChatGPT-authenticated Codex
-  `gpt-5.6-luna`/high artifacts at `357f483`: agent, dense-RAG, and
-  oracle-slice each 204/204, exact frozen order, manifest/run-key matched,
-  `VALID`, zero infrastructure and contract failures. Agent retained 47
-  verified predictions and 4,570 successful tool observations (mean 22.40);
-  no unverified emission exists. One timed-out operational shard attempt is
-  preserved outside the canonical artifact; its unchanged 68-row retry was
-  clean.
-- **T4.2** | done | C | Frozen 10,000-resample scoring completed. T1 F1:
-  agent 0.3665, dense-RAG 0.7279, oracle-slice 0.5714. Agent T6 is evaluable at
-  2/20 (0.1000), exact 95% CI [0.0123, 0.3170].
-- **T4.3** | done | C | 204 trajectory assessments persisted: 204 replayable,
-  204 shortcut-free, 190 budget-consistent, 47 complete selected evidence
-  paths, and 20 gold-typed grounded code facts.
-- **T4.4** | done | C | Agent coverage 47/204 (0.2304), answered accuracy
-  0.8936, aggregate faithfulness 0.4255; Tier 1/2/3 faithfulness =
-  0.1667/0.7200/0.0625. Brier 0.1816, ECE 0.1713.
-- **T4.5** | M4 done — NO_GO; config-2 stopped at final smoke (0/7) | C |
-  `data/eval/m4/report.{json,md}` has zero blocking issues. Agent trails
-  dense-RAG interprocedurally by 0.3030 (95% CI [-0.4929, -0.1252],
-  p=0.00635); the oracle-slice comparison is inconclusive because its CI
-  crosses zero. M4 remains closed and the framing is benchmark-first.
-  Integrated diagnosis in `docs/tasks/T4.5-work-order.md`: F1 cleared Track A
-  after 47/49 program filenames were misbound as copybooks; F2 found the
-  interprocedural gap coverage-driven. X1/X1b/X2/X3′/X4 landed at `7cc1740`
-  with 439 passed, 71 skipped, 5 deselected and Ruff clean. The first
-  config-2 smoke at `0e3c1d0` completed 5/5 with no infrastructure/contract
-  failures but zero predictions; its first-N sample contained three D7 null-
-  value rows although only 8/204 split rows have null values. Final corrective
-  phase X5–X7 is now implemented: seed `20260726` reproducibly pins one row
-  per D1–D7 class and persists all seven IDs before execution; value
-  requirements are scoped to D1/D4/D5; and a first-turn finding is re-prompted
-  until one successful bounded observation exists. Offline gates are **448
-  passed, 71 skipped, 5 deselected**, with Ruff clean. No provider run was
-  performed in the implementation commit. That implementation-only state was
-  superseded by the final representative smoke recorded below; the binding
-  hard stop ended configuration 2 without a paired run. Final Amendment 3
-  keeps X3′ and the verifier unchanged, requires source-exact static-claim
-  tokens, and fails malformed hooks closed before verification without
-  rewriting or re-prompting.
-  The pre-amendment 0/7 evidence is archived at
-  `data/eval/m4-config2/smoke-pre-amendment-e6a7762/`. Implementation gates:
-  **450 passed, 71 skipped, 5 deselected**, Ruff clean, verifier SHA-256
-  `698eb8e…c019d17`. No provider spend occurred in the implementation commit;
-  M4 remains closed as NO_GO. The final smoke from committed source `20b6885`
-  completed 7/7 with 101 tool calls, 99 successful observations (mean 14.14),
-  zero contract/infrastructure failures, and **0 verified predictions**.
-  Gold-class reasons were two invalid `target_path='value'` host-binding
-  rejections, four evidence-minimum failures, and one substantive D2
-  abstention. Across all 49 hunts: 27 substantive/model abstentions, 19
-  evidence-minimum failures, 2 host-binding failures, and 1 distinct
-  static-token-validator rejection. The final hard stop fired: no paired
-  config-2 run and no further fix cycle; proceed to Phase 5 benchmark-first.
-- **T5.1** | done | B | `ANNOTATION.md` freezes the human-primary plus Claude-
-  verification annotation workflow, final review, leakage-control, D1-D7,
-  localization, and agreement-reporting protocol. Two 51-row review passes
-  (`data/benchmark/annotation/pass_1_Human-Primary.jsonl`,
-  `pass_2_Claude-Verification.jsonl`) are locked, timestamped, and schema-
-  valid. The primary labels and final include/exclude decisions were made by a
-  human; Claude performed the separate verification pass. Pre-final-review
-  inclusion agreement is 94.1% (Cohen's kappa 0.807), and class agreement is
-  95% on 40 comparable rows (kappa 0.927, Krippendorff's alpha 0.928).
-  All 13 needs_adjudication/disagreement candidates (7 P1 old-side
-  day-basis-ambiguous per ANNOTATION.md's own rule, 5 genuine cross-pass
-  disagreements, 1 upstream-evidence gap resolved by cross-referencing a
-  sibling candidate) carry an immutable `adjudication_log.jsonl` record
-  resolving to include/exclude; zero unresolved `needs_adjudication`
-  remains. The resolved set (`real_curated_resolved_v1.jsonl`) round-trips
-  `DriftInstance` at **43/51 rows** (8 excluded per-protocol: 7 for the
-  ANNOTATION.md P1 calendar/working-day ambiguity with no decisive primary
-  authority found, 1 for unresolved clause-scope uncertainty in a T6KYC
-  pair member). T5.2's originally-ratified gate 4 assumed all 51 candidates
-  would survive cleanly; it is amended (see T5.2 below) to match this actual
-  outcome.
-- **T5.2** | done | B | `data/benchmark/v1/{train,dev,test}.jsonl`
-  + `manifest.json` + `DATASHEET.md`. Frozen 307/102/196 = **605 rows**
-  (amended from the originally planned 613 — see below), all round-trip
-  `DriftInstance`. Test carries **43** real-curated rows and **9** intact
-  T6 pairs (amended from 51/20 in `docs/tasks/T5.2-work-order.md`'s
-  2026-07-28 amendment note, matching T5.1's actual protocol-correct
-  outcome rather than the pre-annotation assumption). `manifest.json`
-  records detector-visible code-locus refinements on all 43 surviving
-  real-curated rows, the 8 `excluded_candidate_ids`, and annotation-evidence
-  hashes for both passes, the final-review log, and the resolved-real
-  artifact. Reuse audit found one shared source-bundle change
-  (`drift_000021`) and oracle-slice input changes on all 43 real rows:
-  agent/RAG+reranker require a targeted rerun of `drift_000021`, while
-  oracle-slice requires rerunning the 43 real rows. `freeze.py` gained explicit,
-  regression-tested support for the partial-exclusion path; T2.6/T2.7
-  purpose gates and the T2.2 artifact-only surface probe are untouched.
-  Full offline suite 470 passed / 71 skipped / 5 deselected, Ruff clean.
-  `DATASHEET.md` records the human-primary, Claude-verification workflow.
-- **T5.3** | done | C | Seven baselines are frozen in
-  `docs/tasks/T5.3-work-order.md`; its predeclared +0.10 agent-over-attacker F1
-  floor is **VACATED** by the ratified Amendment — Finding A resolution
-  (option (c), 2026-08-11). Four deterministic no-provider baselines,
-  explicit gold-hidden provider contexts, registered six-feature attacker
-  coefficients, and fail-closed Phase-5 reporting are implemented. T5.2 is
-  complete, so final offline artifacts and the plain-LLM/explicit dense-RAG
-  provider runs are now unblocked. Reuse the 195 source-identical
-  agent/RAG+reranker rows only after identity checks, rerun their
-  `drift_000021` row, and rerun oracle-slice on all 43 real-curated rows.
-  **Deterministic portion DONE 2026-08-09**: the four no-provider baselines are
-  frozen at `data/eval/m5/baselines/` (196 rows each, answer rate 1.0). Binary
-  T1 F1 = train-majority 0.8768, prevalence-random 0.7331, static/keyword
-  0.7040, attacker-with-bases 0.8768. All four are per-instance identical under
-  a reordered test file, and the 8 excluded candidate IDs appear in no artifact
-  (both gated by `tests/test_phase5_baselines.py`).
-  **Hashes re-pinned to LF 2026-08-11**: `.gitattributes` forces `data/**`,
-  `*.jsonl`, and `*.json` to LF (`*.pdf binary` exempts the 8 pinned PDFs), and
-  the manifests were regenerated from the LF working tree. Canonical test-split
-  SHA-256 is `bc9e775a…98b2aed4` and the T2.2 probe hash is `f1ca5191…930e128b`;
-  the previously recorded `b1150d5…e7e3a78c` / `83b3a2a…9b9e5f6c` were CRLF
-  checkout artifacts. All four prediction `.jsonl` files and
-  `offline-summary.json` are byte-identical across the regeneration; only
-  `split_sha256` and `source_probe_sha256` changed. Gated by
-  `test_recorded_hashes_are_lf_normalized`. **Track B follow-up:** T5.2's
-  `data/benchmark/v1/manifest.json` and T2.7's entry above still record the
-  CRLF train/test hashes and need re-freezing; Track B owns those artifacts.
-  **Finding A is RESOLVED — option (c) ratified**, no longer an open decision:
-  the fitted attacker is degenerate (the T2.2 probe is exactly balanced per
-  feature, so all six weights and the bias fit to 0.0 and it predicts drift
-  everywhere, numerically identical to train-majority). The +0.10 surface floor
-  is vacated for T5.4, `attacker_with_bases` is retained as null anti-gaming
-  evidence, the paired agent-minus-attacker delta is dropped from the headline,
-  and T4.5 §8.4 forbids any probe/fit/threshold change from here. See
-  `docs/tasks/T5.3-work-order.md` Amendment — Finding A resolution.
-  **Amendment 1 — provider-runner extension (2026-08-11) is RATIFIED and
-  IMPLEMENTED**; unratified provider smokes are the next scope. It extends
-  `SystemID` to
-  `{agent, plain_llm, rag_dense, rag_reranker, oracle_slice}`, retiring
-  `dense_rag` as a runner identity and relabeling the historical M4 artifact
-  `rag_reranker` only once `search.mode == "hybrid_rerank"` is confirmed against
-  its manifest; registers dense/reranker context aliases over
-  `RetrievedRAGContext`; extends `build_baseline_prompt` and
-  `validate_baseline_envelope` to the new IDs; and keeps `BASELINE_BUDGET`
-  shared across all four non-agent IDs. A paid stratified seven-row smoke gates
-  each of `plain_llm`, `rag_dense`, and `rag_reranker` before any full run, and
-  a failing smoke stops that system without authorizing prompt, budget, or
-  verifier changes. Landed in `eval/{baselines,live,codex_live,codex_batch}.py`
-  with `tests/test_provider_runner.py` (23 gates): the shared registry in
-  `eval.live` now exposes `SYSTEM_IDS` and `BASELINE_SYSTEM_IDS`,
-  `RAGDenseContext`/`RAGRerankerContext` are pinned subclasses of
-  `RetrievedRAGContext` fed by `rag_baseline_context` (which delegates to
-  `retrieved_rag_context` and refuses a search whose mode disagrees), and
-  `validate_baseline_envelope` now takes a required `system_id` and enforces
-  the clause-index contract on findings. The committed M4 artifacts under
-  `data/eval/m4*/` are untouched and were NOT relabeled; `DenseRAGContext` and
-  `dense_rag_context` are deliberately retained as the historical M4 context
-  shape so T5.4 reuse can still read them, and `eval/report.py` keeps the M4
-  `dense_rag` naming. The deterministic portion above remains **DONE** and is
-  unaffected by the extension. **COMPLETE 2026-08-17:** all three paid smokes
-  passed 7/7 with zero infrastructure/contract failures and verifier passes on
-  every non-abstained row. New 196-row `plain_llm` and `rag_dense` artifacts
-  are `VALID`. Fail-closed projections combine 195 M4 rows plus the targeted
-  `drift_000021` rerun for agent and RAG+reranker, and 153 M4 synthetic rows
-  plus 43 real-curated reruns for oracle-slice; all three projections are
-  196/196, frozen-order, and `VALID`. Amendment 2 proves the historical
-  reranker's omitted `search.mode` from immutable M4 source and records, rather
-  than hides, mixed M4-high/v3 and rerun-low/v4 provenance. The `EVALUABLE`
-  10,000-resample result is `data/eval/m5/t5.3-completion-summary.{json,md}`.
-  T1 F1: agent 0.3665, plain LLM 0.7023, dense RAG 0.7259, RAG+reranker
-  0.7410, oracle-slice 0.6024, train-majority/attacker 0.8768,
-  prevalence-random 0.7331, static/keyword 0.7040. Finding A remains `VACATED`.
-- **T5.4** | done | C | `data/eval/m5/report.{json,md}` and
-  `error-analysis.{json,md}` are frozen and `EVALUABLE` over the same 196
-  canonical-LF v1 IDs for all nine systems, with zero identity or
-  infrastructure issues and zero new provider runs. The 36-row headline
-  interprocedural result is agent F1 0.4000 versus RAG+reranker 0.6939:
-  delta F1 **-0.2939**, 10,000-resample paired 95% CI
-  **[-0.4990, -0.1101]**, 20,000-sample paired p=**0.01175**. Agent coverage
-  is 42/196; T6 is 1/9 and `NOT_EVALUABLE_FOR_BAR`. The attacker floor remains
-  **VACATED** and non-gating. Focused gates: 19 passed; full suite: 391 passed,
-  183 skipped, 5 deselected; Ruff and `git diff --check` clean. Durable
-  evidence: `docs/tasks/T5.4-work-order.md` section 19.
-- **T5.5** | done | C | `data/eval/m5/benchmark-first-analysis.{json,md}` and
-  `docs/tasks/T5.5-work-order.md`. The deterministic audit reproduces the
-  frozen T5.4 report/error analysis, validates all nine 196-ID artifact and
-  provenance boundaries, preserves M4 `NO_GO`, records the significant
-  negative T5.4 result and 42/196 agent coverage, keeps T6 1/9
-  `NOT_EVALUABLE_FOR_BAR`, consumes the T2.2/T5.2 Track C flags, and separates
-  benchmark contribution from detector performance. Focused gates: 6 passed;
-  full suite: 398 passed, 183 skipped, 5 deselected. Ruff and
-  `git diff --check` clean. M5 is closed; M8 remains inactive.
-- **T5.5A** | done | C | Late supplemental core-ablation evidence at
-  `data/eval/m5/ablations/report.{json,md}`; M4 and M5 remain closed. Seed
-  `20260823` freezes 71 paired rows (36 interprocedural plus five local per
-  D1-D7). Identity-matched control, no-slicing, no-execution, no-entailment,
-  and no-reranking smokes and full runs are all `VALID`, 71/71, with zero
-  infrastructure failures and zero contract rejections. Overall F1 is
-  0.3421 / 0.3200 / 0.2286 / 0.3467 / 0.3684 respectively. No-execution has
-  the largest directional overall decrease (-0.1135; paired 95% CI
-  [-0.2462, 0.0206]), but every overall interval includes zero. Versioning is
-  `NOT_INDEPENDENTLY_ABLATABLE` and was not run. Focused gates: 13 passed;
-  full suite: 411 passed, 183 skipped, 5 deselected; Ruff and
-  `git diff --check` clean. Durable evidence is section 23 of
-  `docs/tasks/T5.5A-work-order.md`.
-- **T5.6** | todo — optional; work order required | C | HyDE ablation is the
-  next optional Track C task. It must receive a ratified frozen definition
-  before any provider execution and does not reopen M4 or M5.
-- **T7.1** | done | A | `src/cobol_archaeologist/mcp_server/server.py` exposes
-  all eleven frozen `ToolLayer` methods through the official MCP SDK v1 over
-  stdio. Exact registry parity, structured delegation, `RunInputs` binding,
-  and fail-closed configuration are gated in `tests/test_mcp_server.py`;
-  canonical scope and exclusions are in `docs/tasks/T7.1-work-order.md`.
-- **T7.2** | todo — unblocked | A | Air-gapped/on-prem deployment bundle and
-  guide; canonical scope and offline gates are in
-  `docs/tasks/T7.2-work-order.md`.
-- **T7.3** | todo — unblocked | B |
-  Benchmark/release packaging, checksums, licensing, and validation;
-  `docs/tasks/T7.3-work-order.md`.
-- **T7.5** | todo — final-claims work remains otherwise unblocked; completion
-  waits on T7.2/T7.3 and the optional T5.6 disposition
-  | C | Paper and submission package under
-  `docs/tasks/T7.5-work-order.md`. Final claims consume the frozen T5.4/T5.5
-  result; the reproducibility statement and final package still require the
-  T7.2/T7.3 release artifacts. T5.6 is Track C's next optional task.
-  T6.1-T6.4 and T7.4 are cut above. M8 is post-release backlog scope and is
-  excluded from the active task count until ratified `T8.x` work orders exist.
+1. After quota availability, run R1.1 through R1.7 sequentially from
+   `docs/tasks/GOAL-R1-work-order.md`, one section per five-hour window. Do not
+   start the next section until the current handoff is terminal.
+2. After R1.7 freezes the detector roster, run R2.1 through R2.6 sequentially
+   from `docs/tasks/GOAL-R2-work-order.md` under the same window rule.
+3. Keep UI/T7.4 deferred.
+
+## Configuration-3 evidence pins
+
+- Repaired canonical freeze:
+  `data/eval/legacy/m4-config3/lineage-v4/run-freeze-v2.json`
+  - artifact SHA-256:
+    `18cf584cf5adebbafa35ba52bf4cf1ddfa718f38186a8db5af2080142bd1aead`
+  - canonical freeze SHA-256:
+    `7c20cf2a49dccc731b5630a6a76b6fe7ef06ccd166a3ca25b137064398a95aea`
+- Repaired smoke plan:
+  `data/eval/legacy/m4-config3/collaboration-smoke-plan-v2.json`
+  - SHA-256:
+    `74058d19a84fb9706d5f488a14cc4681e9737d3fbf9badbb6726700dbc9e5948`
+- Preparation receipt:
+  `data/eval/legacy/m4-config3/lineage-v4/smoke-request-preparation-v2.json`
+  - SHA-256:
+    `251f8155f2c8c8a03142afb8e32803fee8a4cb6aba38f78ddaec1a52dee39e07`
+  - 14 benchmark rows, 37 tasks, 84 planned evaluations, zero provider calls
+  - request counts: agent 7, adaptive agent 14, plain LLM 3, dense RAG 3,
+    reranker RAG 3, oracle slice 7
+- The receipt's literal status is
+  `MODEL_PROMPTS_READY_TRANSCRIPT_PROTOCOL_PENDING`; it is a prompt-preparation
+  receipt, not the transport readiness verdict. Capture/staging readiness is
+  established separately by the 43-test gate. The frozen receipt is not
+  rewritten after the fact.
+- Earlier v1, partial/stale v2, and three sealed v3 plain-LLM outputs remain
+  preserved diagnostics. They are not valid v4 smoke results.
+- Final system progress is stored under
+  `data/eval/legacy/m4-config3/lineage-v4/smoke/*/progress.json`. Five systems are
+  `VALID`; `adaptive_agent/progress.json` is `NOT_EVALUABLE` with 14 completed
+  keys, zero pending IDs, and zero interruptions.
+
+## Other evidence pins
+
+- Final T6-v2 manifest:
+  `data/benchmark/t6-v2/final/manifest.json` - SHA-256
+  `290d69d1732011895bb0d198c8d0a1dd23536f00c635e6f2da5a868f4e2838f`.
+- AI-primary audit:
+  `data/benchmark/t6-v2/review/ai-primary-collaboration/audit-manifest.json` -
+  SHA-256
+  `5a5fd809b7126f36e5523abba3ebef351978381afe943598503bd3c9385484d4`.
+- Independent Luna audit:
+  `data/benchmark/t6-v2/review/evidence/luna-independent-collaboration-subagent/audit-manifest.json`
+  - SHA-256
+  `c9cd7338402ba5c1b9ad621bdcca1be52e5222293bd22d82f3050008a998d2d1`.
+- Final primary-vs-Luna comparison:
+  `data/benchmark/t6-v2/review/evidence/comparison/primary-vs-luna.final.json`
+  - SHA-256
+  `da6cffee8f067f30b0f13aa3a75ea0e5d5681173b2ebbe958d87e1fcd36543b2`.
+- Adaptive smoke root-cause record:
+  `data/eval/legacy/m4-config3/lineage-v4/diagnostics/adaptive-smoke-root-cause-v1.json`.
+  It reconciles all 14 abstentions, records the unchanged integrity gates,
+  reports 60 focused tests passing plus Ruff, and confirms zero hidden-test
+  rows and zero successor provider calls.
+
+## Constraints and decisions
+
+- AI-primary and adjudicator evidence is explicitly non-human. No artifact may
+  represent model review as human review.
+- The controlled evaluation path is `collaboration_subagent` with
+  `gpt-5.6-luna` at `max` reasoning.
+- Native ChatGPT OAuth and WSL are optional legacy transports, not release
+  requirements.
+- Promotion, smoke readiness, full-run readiness, migration, and release
+  reporting fail closed when required hashes or replay evidence are missing.
+- Configuration 1's valid `NO_GO` and configuration 2's smoke stop remain
+  immutable historical evidence.
+- Do not report a synthetic overall completion percentage. Report exact task,
+  evaluation, and gate counts.
+
+## Compact task ledger
+
+| Tasks | State |
+|---|---|
+| T0.1-T5.4 | done; historical milestone artifacts retained |
+| T5.5 | done for frozen T5.4 benchmark-first analysis; successor release addendum remains in R2.6 |
+| T5.5A | done; five core ablations frozen at 71/71 rows each |
+| T6.1 | done; final T6-v2 is 20 pairs / 40 sides |
+| T6.2 | blocked on config-3 detector freeze |
+| T6.3 | blocked on T6.2 |
+| T6.4 | blocked on T6.3 |
+| T7.1 | done |
+| T7.2-T7.3 | pending |
+| T7.4 | deferred |
+| T7.5 | pending M5 |
+| T8.1 | done for additive `lineage-v4` transport/request preparation |
+| T8.2 | done offline |
+| T8.3 | configuration-3 smoke complete at 37/37 tasks and 84/84 evaluations; adaptive gate `NOT_EVALUABLE`; full run not authorized |
+| T8.4 | queued in GOAL-R1 after a valid successor smoke/full run |
+| GOAL-R1 | quota-paused at config-4 dev 22/102; seven five-hour sections R1.1-R1.7 remain |
+| GOAL-R2 | blocked on R1.7; six five-hour sections R2.1-R2.6 cover T6.2-T6.4 and the successor release addendum/close |
+
+## Update policy
+
+Update this file whenever a live gate changes, a persisted count changes, an
+evidence hash is frozen, the quota guard changes state, or a release decision is
+made. Never advance live counts until host replay validates the artifacts.

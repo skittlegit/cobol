@@ -243,12 +243,10 @@ metered billing record exists.
   conformant rows. All-drift predictors therefore obtain F1 0.8768 while
   balanced accuracy remains 0.5; raw F1 must be interpreted with prevalence
   and balanced accuracy.
-- **Canonical hash governance remains split across tracks.** Phase-5 uses the
-  canonical LF test identity
-  `bc9e775a727d82c7d5a30fd0495512bffde173bec2580e3d08664b8d98b2aed4`.
-  The Track B-owned v1 manifest still carries stale CRLF split hashes pending a
-  separate re-freeze. This is a known metadata defect, not a benchmark-content
-  change, and T5.5 does not silently edit that artifact.
+- **Canonical hash governance is reconciled.** Phase-5 and the Track B-owned v1
+  manifest use canonical LF split identities. The test identity is
+  `bc9e775a727d82c7d5a30fd0495512bffde173bec2580e3d08664b8d98b2aed4`;
+  the metadata repair did not change benchmark content.
 
 ## Licensing
 

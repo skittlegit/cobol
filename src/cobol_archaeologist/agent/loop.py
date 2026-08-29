@@ -53,6 +53,14 @@ class InvestigationLoop:
         entailer: Entailer | None = None,
         clock: Callable[[], float] = time.monotonic,
         min_successful_observations_before_abstention: int = 1,
+        system_prompt: str = SYSTEM_PROMPT,
+        finding_guard: (
+            Callable[[AgentResponse, list[dict[str, Any]]], list[str]] | None
+        ) = None,
+        response_guard: (
+            Callable[[AgentResponse, list[dict[str, Any]]], list[str]] | None
+        ) = None,
+        state_renderer: Callable[[list[AgentResponse]], str] | None = None,
     ) -> None:
         if min_successful_observations_before_abstention < 1:
             raise ValueError(
@@ -66,6 +74,10 @@ class InvestigationLoop:
         self.min_successful_observations_before_abstention = (
             min_successful_observations_before_abstention
         )
+        self.system_prompt = system_prompt
+        self.finding_guard = finding_guard
+        self.response_guard = response_guard
+        self.state_renderer = state_renderer
 
     def run(self, question: str) -> Trajectory:
         started = self.clock()
@@ -133,11 +145,16 @@ class InvestigationLoop:
                 }
                 for call in steps
             ]
+            turn_question = model_question
+            if self.state_renderer is not None:
+                rendered_state = self.state_renderer(responses).strip()
+                if rendered_state:
+                    turn_question = f"{turn_question}\n\n{rendered_state}"
             try:
                 response, attempts = respond_with_contract_repair(
                     self.model,
-                    system_prompt=SYSTEM_PROMPT,
-                    question=model_question,
+                    system_prompt=self.system_prompt,
+                    question=turn_question,
                     transcript=transcript,
                     max_repairs=self.budget.max_contract_repairs - contract_repairs,
                     repair_allowed=repair_allowed,
@@ -160,6 +177,19 @@ class InvestigationLoop:
                 return exhausted("token budget exhausted")
             if self.clock() - started >= self.budget.wall_clock_timeout_s:
                 return exhausted("wall-clock budget exhausted")
+
+            if self.response_guard is not None:
+                response_errors = self.response_guard(response, transcript)
+                if response_errors:
+                    model_question = (
+                        f"{question}\n\n"
+                        "Your response cannot be accepted because its "
+                        "case-local state is invalid: "
+                        + "; ".join(response_errors)
+                        + ". Return a corrected next action with a complete, "
+                        "observation-linked state."
+                    )
+                    continue
 
             if response.kind == "abstain":
                 reason = response.abstention_reason or "model abstained"
@@ -232,6 +262,23 @@ class InvestigationLoop:
                     f"Call one authorized tool: {available}."
                 )
                 continue
+
+            if self.finding_guard is not None:
+                guard_errors = self.finding_guard(response, transcript)
+                if guard_errors:
+                    available = ", ".join(sorted(_TOOLS))
+                    model_question = (
+                        f"{question}\n\n"
+                        "Your candidate finding cannot be accepted yet. "
+                        "The evidence guard reported: "
+                        + "; ".join(guard_errors)
+                        + ". Continue the same case investigation, revise or "
+                        "reject the hypothesis as warranted, and obtain the "
+                        "missing bounded evidence. Do not emit the same "
+                        "unsupported finding again. Call one authorized tool "
+                        f"when further evidence is available: {available}."
+                    )
+                    continue
 
             # DECISION: build through Finding.from_prediction so verifier hooks
             # stay outside the frozen DriftInstance contract, exactly as T3.4

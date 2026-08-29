@@ -40,7 +40,9 @@ from cobol_archaeologist.eval.codex_batch import (
     CodexBatchEnvelope,
     ParsedCodexEvents,
     allocate_tokens,
+    authorize_codex_event_stream,
     bind_submitted_response,
+    codex_environment_sha256,
     finalize_agent_case,
     parse_codex_events,
     sanitized_codex_environment,
@@ -169,6 +171,60 @@ class CodexTaskExecution(BaseModel):
     stderr: str
     final_message: str
     tool_logs: list[ToolLogEntry]
+    request_sha256: str
+    event_stream_sha256: str
+    tool_logs_sha256: str
+
+
+def _canonical_hash(value: Any) -> str:
+    return hashlib.sha256(
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def codex_request_sha256(
+    *,
+    prompt: str,
+    schema: Mapping[str, Any],
+    sources: Mapping[str, MaterializedSource],
+    model_id: str,
+    reasoning_effort: str,
+    cli_arguments: Sequence[str],
+    runtime_source_sha256: str,
+    transport: Literal["wsl", "native"],
+    authentication_identity_sha256: str,
+    authorized_hunts: Sequence[str],
+    task_root: str,
+) -> str:
+    """Bind the immutable request identity used by raw bundle markers."""
+
+    return _canonical_hash(
+        {
+            "provider": "chatgpt-codex",
+            "authentication": "ChatGPT",
+            "authentication_identity_sha256": authentication_identity_sha256,
+            "model_id": model_id,
+            "reasoning_effort": reasoning_effort,
+            "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
+            "schema_sha256": _canonical_hash(schema),
+            "source_sha256": {
+                alias: source.source_sha256 for alias, source in sorted(sources.items())
+            },
+            "cli_arguments": [
+                argument.replace(str(task_root), "<TASK_ROOT>")
+                for argument in cli_arguments
+            ],
+            "environment_sha256": codex_environment_sha256(),
+            "runtime_source_sha256": runtime_source_sha256,
+            "transport": transport,
+            "authorized_hunts": list(authorized_hunts),
+        }
+    )
 
 
 class _ReplayDecisionModel:
@@ -259,6 +315,60 @@ def _stage_archive(
     _require_ok(extracted, f"stage WSL directory {root}")
 
 
+def _support_runtime_files() -> dict[str, bytes]:
+    files: dict[str, bytes] = {
+        "pyproject.toml": (ROOT / "pyproject.toml").read_bytes(),
+    }
+    for path in (ROOT / "src").rglob("*.py"):
+        files[path.relative_to(ROOT).as_posix()] = path.read_bytes()
+    for path in (ROOT / "vendor" / "tree-sitter-cobol").rglob("*"):
+        if path.is_file():
+            files[path.relative_to(ROOT).as_posix()] = path.read_bytes()
+    return files
+
+
+def _support_runtime_manifest(identity: str) -> bytes:
+    files = _support_runtime_files()
+    return json.dumps(
+        {
+            "schema_version": "1",
+            "identity": identity,
+            "files": {
+                name: hashlib.sha256(payload).hexdigest()
+                for name, payload in sorted(files.items())
+            },
+        },
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+
+
+def _verify_support_runtime(
+    *, support_root: str, expected_identity: str, distro: str
+) -> None:
+    script = (
+        "import hashlib,json,pathlib,sys;"
+        "r=pathlib.Path(sys.argv[1]);b=(r/'.runtime-manifest.json').read_bytes();"
+        "assert hashlib.sha256(b).hexdigest()==sys.argv[3];m=json.loads(b);"
+        "assert m['identity']==sys.argv[2];"
+        "assert all(hashlib.sha256((r/p).read_bytes()).hexdigest()==h "
+        "for p,h in m['files'].items())"
+    )
+    verified = _wsl(
+        [
+            "python3",
+            "-c",
+            script,
+            support_root,
+            expected_identity,
+            hashlib.sha256(_support_runtime_manifest(expected_identity)).hexdigest(),
+        ],
+        distro=distro,
+    )
+    _require_ok(verified, "verify pinned WSL support runtime")
+
+
 def prepare_support_runtime(
     *,
     commit: str,
@@ -270,19 +380,16 @@ def prepare_support_runtime(
     if not commit or any(character not in "0123456789abcdef" for character in commit):
         raise ValueError("support runtime commit must be lowercase hexadecimal")
     support_root = f"{support_base}/{commit}"
+    files = _support_runtime_files()
+    manifest = _support_runtime_manifest(commit)
+    files[".runtime-manifest.json"] = manifest
     marker = f"{support_root}/.ready"
     ready = _wsl(["test", "-f", marker], distro=distro)
     if ready.returncode == 0:
+        _verify_support_runtime(
+            support_root=support_root, expected_identity=commit, distro=distro
+        )
         return support_root
-
-    files: dict[str, bytes] = {
-        "pyproject.toml": (ROOT / "pyproject.toml").read_bytes(),
-    }
-    for path in (ROOT / "src").rglob("*.py"):
-        files[path.relative_to(ROOT).as_posix()] = path.read_bytes()
-    for path in (ROOT / "vendor" / "tree-sitter-cobol").rglob("*"):
-        if path.is_file():
-            files[path.relative_to(ROOT).as_posix()] = path.read_bytes()
     _stage_archive(support_root, files, distro=distro)
 
     uv = "/home/deepa/.local/bin/uv"
@@ -330,6 +437,9 @@ def prepare_support_runtime(
     _require_ok(grammar, "build pinned WSL COBOL grammar")
     marked = _wsl(["touch", marker], distro=distro)
     _require_ok(marked, "mark WSL support runtime ready")
+    _verify_support_runtime(
+        support_root=support_root, expected_identity=commit, distro=distro
+    )
     return support_root
 
 
@@ -339,19 +449,17 @@ def codex_exec_arguments(
     task_root: str,
     model_id: str,
     reasoning_effort: str,
+    allow_tool_bridge: bool = True,
 ) -> list[str]:
     """Return the auditable no-API-key Codex invocation."""
 
     return [
         "env",
-        "-u",
-        "OPENAI_API_KEY",
-        "-u",
-        "CODEX_API_KEY",
-        "-u",
-        "AZURE_OPENAI_API_KEY",
-        "-u",
-        "ANTHROPIC_API_KEY",
+        "-i",
+        "HOME=/home/deepa",
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "LANG=C.UTF-8",
+        "TERM=dumb",
         codex_binary,
         "exec",
         "--json",
@@ -360,7 +468,7 @@ def codex_exec_arguments(
         "--ignore-rules",
         "--skip-git-repo-check",
         "--sandbox",
-        "workspace-write",
+        "workspace-write" if allow_tool_bridge else "read-only",
         "-m",
         model_id,
         "-c",
@@ -395,6 +503,27 @@ def _check_chatgpt_login(
             "Codex must be logged in through ChatGPT; API-key auth is refused"
         )
     return status
+
+
+def _wsl_chatgpt_account_sha256(*, distro: str) -> str:
+    """Return only a hash of the account-specific id in WSL Codex auth state."""
+
+    script = (
+        "import hashlib,json,os,pathlib;"
+        "p=pathlib.Path(os.environ.get('CODEX_HOME',pathlib.Path.home()/'.codex'))/"
+        "'auth.json';d=json.loads(p.read_text());"
+        "a=d.get('tokens',{}).get('account_id');"
+        "assert d.get('auth_mode')=='chatgpt' and isinstance(a,str) and a;"
+        "print(hashlib.sha256(a.encode()).hexdigest())"
+    )
+    result = _wsl(["python3", "-c", script], distro=distro)
+    _require_ok(result, "read account-specific WSL ChatGPT identity")
+    identity = result.stdout.decode("utf-8", errors="replace").strip()
+    if len(identity) != 64 or any(
+        character not in "0123456789abcdef" for character in identity
+    ):
+        raise RuntimeError("WSL ChatGPT account identity is malformed")
+    return identity
 
 
 def build_agent_prompt(
@@ -481,8 +610,7 @@ def build_baseline_prompt(
 ) -> str:
     if system_id not in BASELINE_SYSTEM_IDS:
         raise ValueError(
-            "baseline prompt requires one of "
-            f"{', '.join(BASELINE_SYSTEM_IDS)}"
+            f"baseline prompt requires one of {', '.join(BASELINE_SYSTEM_IDS)}"
         )
     clause_selection = (
         "For a finding, set clause_index to the zero-based index of the "
@@ -625,6 +753,9 @@ def execute_codex_task(
     model_id: str = MODEL_ID,
     reasoning_effort: str = REASONING_EFFORT,
     timeout_s: float = 900,
+    runtime_source_sha256: str | None = None,
+    authentication_identity_sha256: str | None = None,
+    authorized_hunts: Sequence[str] = AGENT_HUNTS,
     ablation_runtime: Mapping[str, Any] | None = None,
 ) -> CodexTaskExecution:
     """Stage and execute one isolated, replayable ChatGPT Codex task."""
@@ -642,7 +773,32 @@ def execute_codex_task(
         task_root=task_root,
         model_id=model_id,
         reasoning_effort=reasoning_effort,
+        allow_tool_bridge=bool(sources),
     )
+    runtime_identity = runtime_source_sha256 or Path(support_root).name
+    _verify_support_runtime(
+        support_root=support_root, expected_identity=runtime_identity, distro=distro
+    )
+    request_hash = codex_request_sha256(
+        prompt=prompt,
+        schema=schema,
+        sources=sources,
+        model_id=model_id,
+        reasoning_effort=reasoning_effort,
+        cli_arguments=arguments,
+        runtime_source_sha256=runtime_identity,
+        transport="wsl",
+        authentication_identity_sha256=(
+            authentication_identity_sha256
+            or hashlib.sha256(b"ChatGPT-status-not-supplied").hexdigest()
+        ),
+        authorized_hunts=authorized_hunts,
+        task_root=task_root,
+    )
+    if authentication_identity_sha256 is None:
+        raise RuntimeError("Codex task requires a frozen ChatGPT account identity")
+    if _wsl_chatgpt_account_sha256(distro=distro) != authentication_identity_sha256:
+        raise RuntimeError("ChatGPT account changed before WSL provider invocation")
     result = _wsl(
         arguments,
         distro=distro,
@@ -658,29 +814,35 @@ def execute_codex_task(
         )
     stdout = result.stdout.decode("utf-8", errors="replace")
     parsed = parse_codex_events(stdout)
-    final_message = _read_wsl_file(
-        f"{task_root}/final.json",
-        distro=distro,
-    ).strip()
-    if not final_message:
-        final_message = parsed.final_message
-    log_text = _read_wsl_file(
-        f"{task_root}/tool_log.jsonl",
-        distro=distro,
-        required=False,
+    tool_command = (
+        f"{support_root}/.venv/bin/python -m cobol_archaeologist.eval.codex_tool"
+        if sources
+        else None
     )
-    tool_logs = [
-        ToolLogEntry.model_validate_json(line)
-        for line in log_text.splitlines()
-        if line.strip()
-    ]
-    return CodexTaskExecution(
+    tool_logs, event_hash = authorize_codex_event_stream(
+        parsed,
+        tool_command=tool_command,
+        allowed_aliases=sources,
+        allowed_hunts=authorized_hunts,
+    )
+    execution = CodexTaskExecution(
         task_root=task_root,
         parsed=parsed,
         stderr=stderr,
-        final_message=final_message,
+        final_message=parsed.final_message,
         tool_logs=tool_logs,
+        request_sha256=request_hash,
+        event_stream_sha256=event_hash,
+        tool_logs_sha256=_canonical_hash(
+            [entry.model_dump(mode="json") for entry in tool_logs]
+        ),
     )
+    normalized_base = task_base.rstrip("/") + "/"
+    if not task_root.startswith(normalized_base) or task_root == task_base.rstrip("/"):
+        raise RuntimeError("refusing to clean an unexpected WSL task directory")
+    cleaned = _wsl(["rm", "-rf", "--", task_root], distro=distro)
+    _require_ok(cleaned, f"clean WSL task directory {task_root}")
+    return execution
 
 
 def _extract_context(question: str) -> dict[str, Any]:
@@ -695,7 +857,7 @@ def load_reusable_baseline_contexts(
     system_id: SystemID,
     *,
     source_shas: Mapping[str, str],
-    artifact_dir: Path = ROOT / "data" / "eval" / "m4",
+    artifact_dir: Path = ROOT / "data" / "eval" / "legacy" / "m4-initial",
 ) -> dict[str, dict[str, Any]]:
     """Reuse only deterministic, source-hash-matched contexts from API runs."""
 
@@ -993,6 +1155,7 @@ def run_codex_system(
     commit = repository_commit(ROOT)
     support_root = prepare_support_runtime(commit=commit, distro=distro)
     login = _check_chatgpt_login(codex_binary=codex_binary, distro=distro)
+    account_identity = _wsl_chatgpt_account_sha256(distro=distro)
     version_result = _wsl([codex_binary, "--version"], distro=distro)
     _require_ok(version_result, "read Codex CLI version")
     cli_version = version_result.stdout.decode("utf-8", errors="replace").strip()
@@ -1120,6 +1283,8 @@ def run_codex_system(
                         support_root=support_root,
                         distro=distro,
                         codex_binary=codex_binary,
+                        runtime_source_sha256=commit,
+                        authentication_identity_sha256=account_identity,
                     )
                     _persist_raw(
                         execution,
@@ -1194,6 +1359,8 @@ def run_codex_system(
                         support_root=support_root,
                         distro=distro,
                         codex_binary=codex_binary,
+                        runtime_source_sha256=commit,
+                        authentication_identity_sha256=account_identity,
                     )
                     _persist_raw(
                         execution,
@@ -1409,6 +1576,7 @@ def run_codex_ablation(
 
     support_root = prepare_support_runtime(commit=commit, distro=distro)
     login = _check_chatgpt_login(codex_binary=codex_binary, distro=distro)
+    account_identity = _wsl_chatgpt_account_sha256(distro=distro)
     version_result = _wsl([codex_binary, "--version"], distro=distro)
     _require_ok(version_result, "read Codex CLI version")
     cli_version = version_result.stdout.decode("utf-8", errors="replace").strip()
@@ -1575,6 +1743,8 @@ def run_codex_ablation(
                     support_root=support_root,
                     distro=distro,
                     codex_binary=codex_binary,
+                    runtime_source_sha256=commit,
+                    authentication_identity_sha256=account_identity,
                     ablation_runtime=runtime_identity,
                 )
                 _persist_raw(

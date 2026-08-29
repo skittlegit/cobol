@@ -16,7 +16,7 @@ from cobol_archaeologist.benchmark.surface import (
 from cobol_archaeologist.eval.live import ROOT
 from cobol_archaeologist.eval.phase5_headline import build_headline_outputs
 
-M4_REPORT = ROOT / "data" / "eval" / "m4" / "report.json"
+M4_REPORT = ROOT / "data" / "eval" / "legacy" / "m4-initial" / "report.json"
 M5 = ROOT / "data" / "eval" / "m5"
 T53_SUMMARY = M5 / "t5.3-completion-summary.json"
 T54_REPORT = M5 / "report.json"
@@ -103,11 +103,6 @@ THREATS_TO_VALIDITY = (
         "kind": "limitation",
         "statement": "The test set is drift-heavy (153/196), inflating raw binary F1 for all-drift predictors and making balanced accuracy essential context.",
     },
-    {
-        "name": "track_b_crlf_manifest",
-        "kind": "known_cross_track_defect",
-        "statement": "Track B's benchmark manifest still records stale CRLF split hashes; Phase-5 uses the ratified canonical LF identities without editing the Track B artifact.",
-    },
 )
 
 
@@ -123,6 +118,23 @@ def _lf_sha256(path: Path) -> str:
 def _require(condition: bool, issue: str) -> None:
     if not condition:
         raise ValueError(issue)
+
+
+def _without_reconciled_identity_metadata(payload: dict[str, Any]) -> dict[str, Any]:
+    """Remove only metadata superseded by Track B's LF identity repair."""
+
+    normalized = json.loads(json.dumps(payload))
+    benchmark = normalized["benchmark"]
+    for key in (
+        "canonical_lf_identity_used",
+        "manifest_identity_matches_canonical",
+        "manifest_split_sha256",
+        "stale_manifest_crlf_hash_ignored",
+    ):
+        benchmark.pop(key, None)
+    for evidence in benchmark["annotation_evidence"].values():
+        evidence.pop("canonical_lf_sha256", None)
+    return normalized
 
 
 def _source_hashes() -> dict[str, str]:
@@ -225,7 +237,11 @@ def build_m5_close() -> dict[str, Any]:
     regenerated_report, regenerated_errors = build_headline_outputs()
     regenerated_report = json.loads(json.dumps(regenerated_report))
     regenerated_errors = json.loads(json.dumps(regenerated_errors))
-    _require(regenerated_report == report, "committed T5.4 report does not reproduce")
+    _require(
+        _without_reconciled_identity_metadata(regenerated_report)
+        == _without_reconciled_identity_metadata(report),
+        "committed T5.4 report differs beyond reconciled identity metadata",
+    )
     _require(
         regenerated_errors == errors, "committed T5.4 error analysis does not reproduce"
     )
@@ -259,19 +275,20 @@ def build_m5_close() -> dict[str, Any]:
         "unresolved infrastructure failure",
     )
     _require(
-        report["benchmark"]["canonical_lf_identity_used"],
+        regenerated_report["benchmark"]["canonical_lf_identity_used"],
         "canonical LF benchmark identity is not active",
     )
     _require(
-        report["benchmark"]["excluded_ids_present"] == [],
+        regenerated_report["benchmark"]["excluded_ids_present"] == [],
         "excluded benchmark IDs appear in evaluation",
     )
     _require(
-        len(report["benchmark"]["excluded_candidate_ids"]) == 8,
+        len(regenerated_report["benchmark"]["excluded_candidate_ids"]) == 8,
         "excluded-ID accounting changed",
     )
     _require(
-        report["benchmark"]["real_curated_rows"] == 43, "real-curated row count changed"
+        regenerated_report["benchmark"]["real_curated_rows"] == 43,
+        "real-curated row count changed",
     )
     _require(
         benchmark_manifest["annotation_sample_size"] == 51,
@@ -340,14 +357,14 @@ def build_m5_close() -> dict[str, Any]:
         "provider_runs_performed": False,
         "source_hashes": _source_hashes(),
         "audit_gates": audit_gates,
-        "benchmark": report["benchmark"],
+        "benchmark": regenerated_report["benchmark"],
         "annotation_provenance": {
             "reviewed_candidates": 51,
             "frozen_real_curated_rows": 43,
             "excluded_candidates": 8,
             "workflow": ["Human-Primary", "Claude-Verification", "Human-Final-Review"],
             "agreement_is_inter_human": False,
-            "evidence": report["benchmark"]["annotation_evidence"],
+            "evidence": regenerated_report["benchmark"]["annotation_evidence"],
         },
         "m4_result_of_record": {
             "status": "NO_GO",

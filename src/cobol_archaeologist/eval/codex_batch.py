@@ -9,8 +9,11 @@ the user's ChatGPT Codex login.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import re
+import shlex
 from collections.abc import Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -58,12 +61,28 @@ AGENT_HUNTS: tuple[DriftType, ...] = (
     "D7_conformant",
 )
 MAX_BATCH_CASES = 5
-_SECRET_ENV_NAMES = frozenset(
+# The provider subprocess receives only the process plumbing required by the
+# native executable/WSL launcher and the user's ChatGPT credential store.  An
+# exclusion list is not fail-closed because new credential variables can be
+# added without this runner noticing them.
+_CODEX_ENV_ALLOWLIST = frozenset(
     {
-        "OPENAI_API_KEY",
-        "CODEX_API_KEY",
-        "AZURE_OPENAI_API_KEY",
-        "ANTHROPIC_API_KEY",
+        "APPDATA",
+        "CODEX_HOME",
+        "COMSPEC",
+        "HOME",
+        "LANG",
+        "LC_ALL",
+        "LOCALAPPDATA",
+        "PATH",
+        "PATHEXT",
+        "SYSTEMDRIVE",
+        "SYSTEMROOT",
+        "TEMP",
+        "TERM",
+        "TMP",
+        "USERPROFILE",
+        "WINDIR",
     }
 )
 
@@ -131,7 +150,12 @@ class SubmittedResponse(BaseModel):
     kind: Literal["finding", "abstain"]
     thought: str
     prediction: SubmittedPrediction | None
-    claim: str | None
+    claim: str | None = Field(
+        description=(
+            "Clause-grounded regulatory proposition entailed by the cited "
+            "clause; never a COBOL implementation or drift assertion."
+        )
+    )
     exec_probe: ExecProbe | None
     static_claim: StaticClaim | None
     abstention_reason: str | None
@@ -234,14 +258,26 @@ class ParsedCodexEvents(BaseModel):
 def sanitized_codex_environment(
     source: Mapping[str, str] | None = None,
 ) -> dict[str, str]:
-    """Copy an environment while stripping every supported API-key route."""
+    """Build the minimal explicit environment allowed for Codex execution."""
 
     source = os.environ if source is None else source
     return {
         name: value
         for name, value in source.items()
-        if name.upper() not in _SECRET_ENV_NAMES
+        if name.upper() in _CODEX_ENV_ALLOWLIST
     }
+
+
+def codex_environment_sha256(source: Mapping[str, str] | None = None) -> str:
+    """Hash the exact allowlisted environment without persisting its values."""
+
+    payload = json.dumps(
+        sanitized_codex_environment(source),
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def strict_codex_schema(model: type[BaseModel]) -> dict[str, Any]:
@@ -359,8 +395,7 @@ def validate_baseline_envelope(
         for result in findings:
             if result.clause_index is not None:
                 raise ValueError(
-                    f"{system_id} finding {result.alias} must not carry a "
-                    "clause_index"
+                    f"{system_id} finding {result.alias} must not carry a clause_index"
                 )
     elif system_id in RAG_RETRIEVAL_MODES:
         counts = retrieved_counts or {}
@@ -427,12 +462,177 @@ def parse_codex_events(stdout: str) -> ParsedCodexEvents:
     )
 
 
+_PASSIVE_ITEM_TYPES = frozenset({"agent_message", "reasoning"})
+_PASSIVE_EVENT_TYPES = frozenset({"thread.started", "turn.started", "turn.completed"})
+_ALIAS_PATTERN = re.compile(r"^drift_9\d{5}$")
+
+
+def _split_command(command: str) -> list[str]:
+    """Decode the two command renderings emitted by supported Codex CLIs."""
+
+    bash_prefix = '/bin/bash -lc "'
+    if command.startswith(bash_prefix) and command.endswith('"'):
+        return shlex.split(command[len(bash_prefix) : -1], posix=True)
+    # Native Codex uses Windows command-line quoting.  ``shlex`` with
+    # ``posix=False`` preserves the quoted executable as one token.
+    return [part.strip('"') for part in shlex.split(command, posix=False)]
+
+
+def _bridge_prefix_tokens(tool_command: str) -> list[str]:
+    tokens = [part.strip('"') for part in shlex.split(tool_command, posix=False)]
+    if len(tokens) < 3 or tokens[-2:] != [
+        "-m",
+        "cobol_archaeologist.eval.codex_tool",
+    ]:
+        raise ValueError("allowed bridge must be an explicit Python -m invocation")
+    return tokens
+
+
+def _parse_authorized_bridge_command(
+    command: str,
+    *,
+    tool_command: str,
+    allowed_aliases: frozenset[str],
+    allowed_hunts: frozenset[str],
+) -> tuple[str, str, str, dict[str, Any]]:
+    tokens = _split_command(command)
+    prefix = _bridge_prefix_tokens(tool_command)
+    if tokens[: len(prefix)] != prefix:
+        raise ValueError("Codex command is not the exact frozen tool bridge")
+    suffix = tokens[len(prefix) :]
+    if len(suffix) != 5 or suffix[3] != "--arguments":
+        raise ValueError("Codex bridge invocation has an unexpected argument shape")
+    alias, hunt, tool, _, raw_arguments = suffix
+    if not _ALIAS_PATTERN.fullmatch(alias) or alias not in allowed_aliases:
+        raise ValueError(f"Codex bridge invocation uses unauthorized alias {alias!r}")
+    if hunt not in allowed_hunts:
+        raise ValueError(f"Codex bridge invocation uses unauthorized hunt {hunt!r}")
+    raw_arguments = raw_arguments.strip("'\"")
+    try:
+        arguments = json.loads(raw_arguments)
+    except json.JSONDecodeError as exc:
+        raise ValueError("Codex bridge arguments are not one JSON object") from exc
+    if not isinstance(arguments, dict):
+        raise TypeError("Codex bridge arguments must be one JSON object")
+    return alias, hunt, tool, arguments
+
+
+def _one_bridge_output(text: str) -> dict[str, Any]:
+    lines = [line for line in text.splitlines() if line.strip()]
+    if len(lines) != 1:
+        raise ValueError("authorized bridge output must be exactly one JSON line")
+    try:
+        payload = json.loads(lines[0])
+    except json.JSONDecodeError as exc:
+        raise ValueError("authorized bridge output is not JSON") from exc
+    if not isinstance(payload, dict) or "infrastructure_error" in payload:
+        raise ValueError("authorized bridge did not return a successful tool record")
+    required = {
+        "tool",
+        "sequence",
+        "observation_summary",
+        "observation_sha256",
+        "observation_truncated",
+        "error",
+    }
+    if set(payload) != required:
+        raise ValueError("authorized bridge output has an unexpected schema")
+    summary = payload.get("observation_summary")
+    if not isinstance(summary, str) or hashlib.sha256(summary.encode()).hexdigest() != (
+        payload.get("observation_sha256")
+    ):
+        raise ValueError("authorized bridge observation hash mismatch")
+    return payload
+
+
+def authorize_codex_event_stream(
+    parsed: ParsedCodexEvents,
+    *,
+    tool_command: str | None,
+    allowed_aliases: Iterable[str] = (),
+    allowed_hunts: Iterable[str] = (),
+) -> tuple[list[ToolLogEntry], str]:
+    """Fail closed over every Codex event and reconstruct host-trusted logs.
+
+    The task-local ``tool_log.jsonl`` is deliberately ignored: it lives in the
+    model workspace and is therefore not evidence.  Instead, each tool record
+    is reconstructed from a completed, exact bridge command and its hash-bound
+    stdout event.  Any other command, file change, MCP call, web search, or
+    future unknown event invalidates the whole execution.
+    """
+
+    from cobol_archaeologist.eval.codex_tool import ToolLogEntry
+
+    aliases = frozenset(allowed_aliases)
+    hunts = frozenset(allowed_hunts)
+    started: dict[str, str] = {}
+    logs: list[ToolLogEntry] = []
+    for event in parsed.events:
+        event_type = event.get("type")
+        if event_type in _PASSIVE_EVENT_TYPES:
+            continue
+        if event_type not in {"item.started", "item.completed"}:
+            raise ValueError(f"unauthorized Codex event type {event_type!r}")
+        item = event.get("item")
+        if not isinstance(item, dict):
+            raise TypeError("Codex item event has no object item")
+        item_type = item.get("type")
+        if item_type in _PASSIVE_ITEM_TYPES:
+            continue
+        if item_type != "command_execution":
+            raise ValueError(f"unauthorized Codex item type {item_type!r}")
+        if tool_command is None:
+            raise ValueError("this task does not authorize command execution")
+        item_id = item.get("id")
+        command = item.get("command")
+        if not isinstance(item_id, str) or not isinstance(command, str):
+            raise TypeError("Codex command event lacks a stable id/command")
+        alias, hunt, tool, arguments = _parse_authorized_bridge_command(
+            command,
+            tool_command=tool_command,
+            allowed_aliases=aliases,
+            allowed_hunts=hunts,
+        )
+        if event_type == "item.started":
+            if item_id in started:
+                raise ValueError("Codex command started more than once")
+            started[item_id] = command
+            continue
+        if started.pop(item_id, None) != command:
+            raise ValueError("Codex completed command has no exact started event")
+        if item.get("status") != "completed" or item.get("exit_code") != 0:
+            raise ValueError("authorized Codex bridge command did not complete")
+        payload = _one_bridge_output(str(item.get("aggregated_output", "")))
+        if payload["tool"] != tool:
+            raise ValueError("authorized bridge output names a different tool")
+        logs.append(
+            ToolLogEntry(
+                alias=alias,
+                hunt=hunt,
+                sequence=payload["sequence"],
+                tool=tool,
+                arguments=arguments,
+                observation_summary=payload["observation_summary"],
+                observation_truncated=payload["observation_truncated"],
+                error=payload["error"],
+                latency_ms=0.0,
+            )
+        )
+    if started:
+        raise ValueError("Codex event stream ended with incomplete bridge commands")
+    event_bytes = json.dumps(
+        parsed.events, ensure_ascii=False, separators=(",", ":"), sort_keys=True
+    ).encode("utf-8")
+    return logs, hashlib.sha256(event_bytes).hexdigest()
+
+
 def bind_submitted_response(
     submitted: SubmittedResponse,
     *,
     instance_id: str,
     clause: RegulationClause,
     token_count: int,
+    token_count_recorded: bool = True,
     prebinding_error: str | None = None,
 ) -> AgentResponse:
     """Attach trusted inputs, abstaining when model fields cannot bind to them."""
@@ -461,6 +661,7 @@ def bind_submitted_response(
             abstention_reason=reason,
             final_answer=f"Abstained: {reason}",
             token_count=token_count,
+            token_count_recorded=token_count_recorded,
             raw_provider_text=raw_provider_text,
         )
 
@@ -478,6 +679,7 @@ def bind_submitted_response(
             abstention_reason=submitted.abstention_reason,
             final_answer=final_answer,
             token_count=token_count,
+            token_count_recorded=token_count_recorded,
             raw_provider_text=raw_provider_text,
         )
 
@@ -500,6 +702,7 @@ def bind_submitted_response(
         abstention_reason=submitted.abstention_reason,
         final_answer=final_answer,
         token_count=token_count,
+        token_count_recorded=token_count_recorded,
         raw_provider_text=raw_provider_text,
     )
 
@@ -562,6 +765,7 @@ def _abstained_hunt(
         budget=budget,
         budget_exhausted=False,
         tokens_used=response.token_count,
+        token_usage_recorded=response.token_count_recorded,
         contract_repairs=0,
         final_answer=f"Abstained: {reason}",
         model_id=model_id,
@@ -593,6 +797,7 @@ def finalize_agent_hunt(
     token_count: int,
     min_successful_observations: int,
     model_id: str,
+    token_count_recorded: bool = True,
     execution_verification: bool = True,
     entailment_verification: bool = True,
 ) -> HuntOutcome:
@@ -607,6 +812,7 @@ def finalize_agent_hunt(
         instance_id=instance_id,
         clause=clause,
         token_count=token_count,
+        token_count_recorded=token_count_recorded,
     )
     locus_count = (
         len(response.prediction.code_locus.loci)
@@ -718,6 +924,7 @@ def finalize_agent_hunt(
         budget=budget,
         budget_exhausted=False,
         tokens_used=response.token_count,
+        token_usage_recorded=response.token_count_recorded,
         contract_repairs=0,
         final_answer=response.final_answer or verification.evidence,
         model_id=model_id,
@@ -761,6 +968,7 @@ def finalize_agent_case(
     token_counts: Sequence[int],
     min_successful_observations: int,
     model_id: str,
+    token_counts_recorded: bool = True,
     execution_verification: bool = True,
     entailment_verification: bool = True,
 ) -> HuntBatchOutcome:
@@ -781,6 +989,7 @@ def finalize_agent_case(
             budget=budget,
             entailer=entailer,
             token_count=token_count,
+            token_count_recorded=token_counts_recorded,
             min_successful_observations=min_successful_observations,
             model_id=model_id,
             execution_verification=execution_verification,

@@ -1,0 +1,473 @@
+{
+  "schema_version": "configuration-3-collaboration-request-v2",
+  "transport": "collaboration_subagent",
+  "provider": "collaboration_subagent",
+  "authentication": "in_product_orchestration",
+  "model_id": "gpt-5.6-luna",
+  "reasoning_effort": "max",
+  "run_key": "6cf26d9cabbec6acb5d04978cd6bd96016c611530bda0bba40ea49246e4fb95f",
+  "request_sha256": "b7f977bc89814416adf8ca07025e89b2645a08d571ecf29101661d291312b556",
+  "prompt": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  C:\\Users\\deepa\\Github\\cobol\\.venv\\Scripts\\python.exe -m cobol_archaeologist.eval.collaboration_staging --staging-base C:\\Users\\deepa\\Github\\cobol\\data\\eval\\m4-config3\\lineage-v4\\smoke\\adaptive_agent\\task-staging-v1 --run-key 6cf26d9cabbec6acb5d04978cd6bd96016c611530bda0bba40ea49246e4fb95f --staging-sha256 7ec27d2e5867bf1ee4c73259df14b135d7c8b11f4edaf5295777a64e7ddce66e drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"LATEFEE2\",\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}}}\n\n\nSTRICT RESPONSE CONTRACT (part of this frozen model-visible prompt):\nReturn exactly one JSON object matching the JSON Schema below. Do not wrap it in Markdown and do not include any text before or after it.\nJSON Schema (canonical JSON):\n{\"$defs\":{\"EvidenceLedgerNote\":{\"additionalProperties\":false,\"description\":\"Model-authored claim tied to one exact, case-local observation.\",\"properties\":{\"bearing\":{\"enum\":[\"supports\",\"refutes\",\"context\"],\"title\":\"Bearing\",\"type\":\"string\"},\"hypothesis\":{\"enum\":[\"D1_stale_threshold\",\"D2_missing_rule\",\"D3_contradictory\",\"D4_stale_reference_data\",\"D5_boundary_error\",\"D6_dead_code\",\"D7_conformant\"],\"title\":\"Hypothesis\",\"type\":\"string\"},\"observation_sha256\":{\"title\":\"Observation Sha256\",\"type\":\"string\"},\"observation_step\":{\"title\":\"Observation Step\",\"type\":\"integer\"},\"rationale\":{\"title\":\"Rationale\",\"type\":\"string\"}},\"required\":[\"observation_step\",\"observation_sha256\",\"hypothesis\",\"bearing\",\"rationale\"],\"title\":\"EvidenceLedgerNote\",\"type\":\"object\"},\"ExecProbe\":{\"additionalProperties\":false,\"description\":\"A Tier-1 execution probe: feed ``stdin`` to the compiled locus program and\\nrequire ``expect_substring`` in stdout for the claim to hold.\",\"properties\":{\"description\":{\"title\":\"Description\",\"type\":\"string\"},\"expect_substring\":{\"title\":\"Expect Substring\",\"type\":\"string\"},\"stdin\":{\"title\":\"Stdin\",\"type\":\"string\"}},\"required\":[\"stdin\",\"expect_substring\",\"description\"],\"title\":\"ExecProbe\",\"type\":\"object\"},\"Labels\":{\"additionalProperties\":false,\"properties\":{\"line_level\":{\"items\":{\"$ref\":\"#/$defs/SourceLineRef\"},\"title\":\"Line Level\",\"type\":\"array\"},\"paragraph_level\":{\"enum\":[\"drift\",\"conformant\"],\"title\":\"Paragraph Level\",\"type\":\"string\"},\"program_level\":{\"enum\":[\"drift\",\"conformant\"],\"title\":\"Program Level\",\"type\":\"string\"}},\"required\":[\"program_level\",\"paragraph_level\",\"line_level\"],\"title\":\"Labels\",\"type\":\"object\"},\"SourceLineRef\":{\"additionalProperties\":false,\"properties\":{\"file\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"File\"},\"line\":{\"title\":\"Line\",\"type\":\"integer\"},\"program\":{\"title\":\"Program\",\"type\":\"string\"}},\"required\":[\"program\",\"line\",\"file\"],\"title\":\"SourceLineRef\",\"type\":\"object\"},\"SourceLocus\":{\"additionalProperties\":false,\"properties\":{\"file\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"File\"},\"line_span\":{\"items\":{\"type\":\"integer\"},\"title\":\"Line Span\",\"type\":\"array\"},\"paragraph\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Paragraph\"},\"program\":{\"title\":\"Program\",\"type\":\"string\"}},\"required\":[\"program\",\"paragraph\",\"file\",\"line_span\"],\"title\":\"SourceLocus\",\"type\":\"object\"},\"StaticClaim\":{\"additionalProperties\":false,\"description\":\"A Tier-2 static assertion about the locus, checked against tool facts.\\n\\nAny subset may be given; the attempt verifies iff *all* provided sub-claims\\nhold. ``dead_paragraph`` routes to call-graph reachability (D6).\",\"properties\":{\"comparator\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Comparator\"},\"dead_paragraph\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Dead Paragraph\"},\"literal\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Literal\"}},\"required\":[\"literal\",\"comparator\",\"dead_paragraph\"],\"title\":\"StaticClaim\",\"type\":\"object\"},\"SubmittedAdaptiveCase\":{\"additionalProperties\":false,\"description\":\"One final case-local decision; trusted identity and clause are omitted.\",\"properties\":{\"alias\":{\"title\":\"Alias\",\"type\":\"string\"},\"evidence_ledger\":{\"items\":{\"$ref\":\"#/$defs/EvidenceLedgerNote\"},\"title\":\"Evidence Ledger\",\"type\":\"array\"},\"response\":{\"$ref\":\"#/$defs/SubmittedResponse\"}},\"required\":[\"alias\",\"evidence_ledger\",\"response\"],\"title\":\"SubmittedAdaptiveCase\",\"type\":\"object\"},\"SubmittedCodeLocus\":{\"additionalProperties\":false,\"description\":\"Provider-authored locus before host-side semantic validation.\\n\\nJSON-schema structured output cannot express the cross-field rule that\\nmulti-program loci require ``is_interprocedural=True``. Keep the submitted\\nvalue intact here, then let ``DriftPrediction`` validate it during trusted\\ninput binding. A violation therefore abstains only that hunt instead of\\ninvalidating every row in the provider batch.\",\"properties\":{\"is_interprocedural\":{\"title\":\"Is Interprocedural\",\"type\":\"boolean\"},\"loci\":{\"items\":{\"$ref\":\"#/$defs/SourceLocus\"},\"title\":\"Loci\",\"type\":\"array\"},\"slice_vars\":{\"items\":{\"type\":\"string\"},\"title\":\"Slice Vars\",\"type\":\"array\"}},\"required\":[\"loci\",\"slice_vars\",\"is_interprocedural\"],\"title\":\"SubmittedCodeLocus\",\"type\":\"object\"},\"SubmittedPrediction\":{\"additionalProperties\":false,\"description\":\"Provider-authored prediction fields; trusted inputs are host-attached.\",\"properties\":{\"code_locus\":{\"$ref\":\"#/$defs/SubmittedCodeLocus\"},\"drift_type\":{\"enum\":[\"D1_stale_threshold\",\"D2_missing_rule\",\"D3_contradictory\",\"D4_stale_reference_data\",\"D5_boundary_error\",\"D6_dead_code\",\"D7_conformant\"],\"title\":\"Drift Type\",\"type\":\"string\"},\"labels\":{\"$ref\":\"#/$defs/Labels\"},\"rationale\":{\"title\":\"Rationale\",\"type\":\"string\"},\"target_path\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Target Path\"}},\"required\":[\"code_locus\",\"drift_type\",\"target_path\",\"labels\",\"rationale\"],\"title\":\"SubmittedPrediction\",\"type\":\"object\"},\"SubmittedResponse\":{\"additionalProperties\":false,\"description\":\"Provider-facing final answer without provider-owned telemetry.\",\"properties\":{\"abstention_reason\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Abstention Reason\"},\"claim\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Claim\"},\"exec_probe\":{\"anyOf\":[{\"$ref\":\"#/$defs/ExecProbe\"},{\"type\":\"null\"}]},\"final_answer\":{\"title\":\"Final Answer\",\"type\":\"string\"},\"kind\":{\"enum\":[\"finding\",\"abstain\"],\"title\":\"Kind\",\"type\":\"string\"},\"prediction\":{\"anyOf\":[{\"$ref\":\"#/$defs/SubmittedPrediction\"},{\"type\":\"null\"}]},\"static_claim\":{\"anyOf\":[{\"$ref\":\"#/$defs/StaticClaim\"},{\"type\":\"null\"}]},\"thought\":{\"title\":\"Thought\",\"type\":\"string\"}},\"required\":[\"kind\",\"thought\",\"prediction\",\"claim\",\"exec_probe\",\"static_claim\",\"abstention_reason\",\"final_answer\"],\"title\":\"SubmittedResponse\",\"type\":\"object\"}},\"additionalProperties\":false,\"description\":\"Batch-size-one wire contract for the proper adaptive agent.\",\"properties\":{\"results\":{\"items\":{\"$ref\":\"#/$defs/SubmittedAdaptiveCase\"},\"title\":\"Results\",\"type\":\"array\"}},\"required\":[\"results\"],\"title\":\"CodexAdaptiveEnvelope\",\"type\":\"object\"}",
+  "prompt_sha256": "d0e81e9e4634c17d46f26ad8670d484d1ceb347facfbde3708ad97733850232c",
+  "response_schema": {
+    "$defs": {
+      "EvidenceLedgerNote": {
+        "additionalProperties": false,
+        "description": "Model-authored claim tied to one exact, case-local observation.",
+        "properties": {
+          "observation_step": {
+            "title": "Observation Step",
+            "type": "integer"
+          },
+          "observation_sha256": {
+            "title": "Observation Sha256",
+            "type": "string"
+          },
+          "hypothesis": {
+            "enum": [
+              "D1_stale_threshold",
+              "D2_missing_rule",
+              "D3_contradictory",
+              "D4_stale_reference_data",
+              "D5_boundary_error",
+              "D6_dead_code",
+              "D7_conformant"
+            ],
+            "title": "Hypothesis",
+            "type": "string"
+          },
+          "bearing": {
+            "enum": [
+              "supports",
+              "refutes",
+              "context"
+            ],
+            "title": "Bearing",
+            "type": "string"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "observation_step",
+          "observation_sha256",
+          "hypothesis",
+          "bearing",
+          "rationale"
+        ],
+        "title": "EvidenceLedgerNote",
+        "type": "object"
+      },
+      "ExecProbe": {
+        "additionalProperties": false,
+        "description": "A Tier-1 execution probe: feed ``stdin`` to the compiled locus program and\nrequire ``expect_substring`` in stdout for the claim to hold.",
+        "properties": {
+          "stdin": {
+            "title": "Stdin",
+            "type": "string"
+          },
+          "expect_substring": {
+            "title": "Expect Substring",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stdin",
+          "expect_substring",
+          "description"
+        ],
+        "title": "ExecProbe",
+        "type": "object"
+      },
+      "Labels": {
+        "additionalProperties": false,
+        "properties": {
+          "program_level": {
+            "enum": [
+              "drift",
+              "conformant"
+            ],
+            "title": "Program Level",
+            "type": "string"
+          },
+          "paragraph_level": {
+            "enum": [
+              "drift",
+              "conformant"
+            ],
+            "title": "Paragraph Level",
+            "type": "string"
+          },
+          "line_level": {
+            "items": {
+              "$ref": "#/$defs/SourceLineRef"
+            },
+            "title": "Line Level",
+            "type": "array"
+          }
+        },
+        "required": [
+          "program_level",
+          "paragraph_level",
+          "line_level"
+        ],
+        "title": "Labels",
+        "type": "object"
+      },
+      "SourceLineRef": {
+        "additionalProperties": false,
+        "properties": {
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "line": {
+            "title": "Line",
+            "type": "integer"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          }
+        },
+        "required": [
+          "program",
+          "line",
+          "file"
+        ],
+        "title": "SourceLineRef",
+        "type": "object"
+      },
+      "SourceLocus": {
+        "additionalProperties": false,
+        "properties": {
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paragraph"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "line_span": {
+            "title": "Line Span",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "program",
+          "paragraph",
+          "file",
+          "line_span"
+        ],
+        "title": "SourceLocus",
+        "type": "object"
+      },
+      "StaticClaim": {
+        "additionalProperties": false,
+        "description": "A Tier-2 static assertion about the locus, checked against tool facts.\n\nAny subset may be given; the attempt verifies iff *all* provided sub-claims\nhold. ``dead_paragraph`` routes to call-graph reachability (D6).",
+        "properties": {
+          "literal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Literal"
+          },
+          "comparator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparator"
+          },
+          "dead_paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dead Paragraph"
+          }
+        },
+        "title": "StaticClaim",
+        "type": "object",
+        "required": [
+          "literal",
+          "comparator",
+          "dead_paragraph"
+        ]
+      },
+      "SubmittedAdaptiveCase": {
+        "additionalProperties": false,
+        "description": "One final case-local decision; trusted identity and clause are omitted.",
+        "properties": {
+          "alias": {
+            "title": "Alias",
+            "type": "string"
+          },
+          "evidence_ledger": {
+            "items": {
+              "$ref": "#/$defs/EvidenceLedgerNote"
+            },
+            "title": "Evidence Ledger",
+            "type": "array"
+          },
+          "response": {
+            "$ref": "#/$defs/SubmittedResponse"
+          }
+        },
+        "required": [
+          "alias",
+          "evidence_ledger",
+          "response"
+        ],
+        "title": "SubmittedAdaptiveCase",
+        "type": "object"
+      },
+      "SubmittedCodeLocus": {
+        "additionalProperties": false,
+        "description": "Provider-authored locus before host-side semantic validation.\n\nJSON-schema structured output cannot express the cross-field rule that\nmulti-program loci require ``is_interprocedural=True``. Keep the submitted\nvalue intact here, then let ``DriftPrediction`` validate it during trusted\ninput binding. A violation therefore abstains only that hunt instead of\ninvalidating every row in the provider batch.",
+        "properties": {
+          "loci": {
+            "items": {
+              "$ref": "#/$defs/SourceLocus"
+            },
+            "title": "Loci",
+            "type": "array"
+          },
+          "slice_vars": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Slice Vars",
+            "type": "array"
+          },
+          "is_interprocedural": {
+            "title": "Is Interprocedural",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "loci",
+          "slice_vars",
+          "is_interprocedural"
+        ],
+        "title": "SubmittedCodeLocus",
+        "type": "object"
+      },
+      "SubmittedPrediction": {
+        "additionalProperties": false,
+        "description": "Provider-authored prediction fields; trusted inputs are host-attached.",
+        "properties": {
+          "code_locus": {
+            "$ref": "#/$defs/SubmittedCodeLocus"
+          },
+          "drift_type": {
+            "enum": [
+              "D1_stale_threshold",
+              "D2_missing_rule",
+              "D3_contradictory",
+              "D4_stale_reference_data",
+              "D5_boundary_error",
+              "D6_dead_code",
+              "D7_conformant"
+            ],
+            "title": "Drift Type",
+            "type": "string"
+          },
+          "target_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Path"
+          },
+          "labels": {
+            "$ref": "#/$defs/Labels"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code_locus",
+          "drift_type",
+          "target_path",
+          "labels",
+          "rationale"
+        ],
+        "title": "SubmittedPrediction",
+        "type": "object"
+      },
+      "SubmittedResponse": {
+        "additionalProperties": false,
+        "description": "Provider-facing final answer without provider-owned telemetry.",
+        "properties": {
+          "kind": {
+            "enum": [
+              "finding",
+              "abstain"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "thought": {
+            "title": "Thought",
+            "type": "string"
+          },
+          "prediction": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SubmittedPrediction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claim"
+          },
+          "exec_probe": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ExecProbe"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "static_claim": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/StaticClaim"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "abstention_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstention Reason"
+          },
+          "final_answer": {
+            "title": "Final Answer",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "thought",
+          "prediction",
+          "claim",
+          "exec_probe",
+          "static_claim",
+          "abstention_reason",
+          "final_answer"
+        ],
+        "title": "SubmittedResponse",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Batch-size-one wire contract for the proper adaptive agent.",
+    "properties": {
+      "results": {
+        "items": {
+          "$ref": "#/$defs/SubmittedAdaptiveCase"
+        },
+        "title": "Results",
+        "type": "array"
+      }
+    },
+    "required": [
+      "results"
+    ],
+    "title": "CodexAdaptiveEnvelope",
+    "type": "object"
+  },
+  "schema_sha256": "97a74848d40012a8754897a89b5a201141a1f32bae89841ae401ab8eeba9aa79",
+  "source_sha256": {
+    "drift_900000": "9f887a8eab0b7bc351e8e61858742c24947102798aa0eb4eaf28252ff080dfcf"
+  },
+  "runtime_source_sha256": "9367860de165aa899577ab6b5d42eee305db9c7db78053a9a040b8fc14178e43",
+  "authorized_hunts": [
+    "adaptive"
+  ],
+  "visible_cases": 1,
+  "prior_case_context_included": false,
+  "group": {
+    "group_id": "config3:smoke:adaptive_agent",
+    "mode": "concurrent",
+    "ordinal": 5,
+    "size": 14
+  }
+}

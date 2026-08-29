@@ -45,6 +45,8 @@ def test_frozen_headline_preflight_and_supports_reconcile():
     assert report["issues"] == []
     assert report["benchmark"]["sha256"] == CANONICAL_TEST_SHA256
     assert report["benchmark"]["canonical_lf_identity_used"] is True
+    assert report["benchmark"]["manifest_split_sha256"] == CANONICAL_TEST_SHA256
+    assert report["benchmark"]["manifest_identity_matches_canonical"] is True
     assert report["benchmark"]["row_count"] == 196
     assert report["benchmark"]["excluded_ids_present"] == []
     assert set(report["benchmark"]["excluded_candidate_ids"]) == EXCLUDED_IDS

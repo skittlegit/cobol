@@ -51,7 +51,14 @@ VERIFIED_CASES = {
     for drift_type, case in POSITIVE_CASES.items()
     if drift_type not in {"D2_missing_rule", "D4_stale_reference_data"}
 }
-M4_AGENT = Path(__file__).resolve().parents[1] / "data" / "eval" / "m4" / "agent.jsonl"
+M4_AGENT = (
+    Path(__file__).resolve().parents[1]
+    / "data"
+    / "eval"
+    / "legacy"
+    / "m4-initial"
+    / "agent.jsonl"
+)
 
 
 @pytest.fixture()

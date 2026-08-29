@@ -17,7 +17,7 @@ from cobol_archaeologist.eval.statistics import (
 from cobol_archaeologist.schemas import DriftInstance, DriftPrediction
 
 ROOT = Path(__file__).resolve().parents[1]
-SPLIT = ROOT / "data" / "benchmark" / "v1-pre" / "test.jsonl"
+SPLIT = ROOT / "data" / "benchmark" / "legacy" / "v1-pre" / "test.jsonl"
 SEED = ROOT / "data" / "benchmark" / "seed" / "real_curated.jsonl"
 GOLDEN = ROOT / "tests" / "fixtures" / "agent" / "golden_late_fee_trajectory.json"
 

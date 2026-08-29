@@ -96,8 +96,8 @@ def test_t5_5_governance_consumes_amendments_and_preserves_track_b_flag():
     assert "benchmark-first-analysis.{json,md}" in work_order
     assert "significantly underperforms" in datasheet
     assert "NOT_EVALUABLE_FOR_BAR" in datasheet
-    assert "## Track C inbox\n\n_No open flags._" in flags
-    assert "ACTION NEEDED: re-freeze the split" in flags
-    assert "**M5 (Benchmark Scale + Headline): CLOSED" in status
-    assert "**T5.5** | done | C" in status
-    assert "M8 remains inactive" in status
+    assert "Remote T5.5/T5.5A is integrated" in flags
+    assert "ACTION NEEDED: re-freeze the split" not in flags
+    assert "historical T5.5/T5.5A closed; successor addendum pending" in status
+    assert "T5.5 | done for frozen T5.4 benchmark-first analysis" in status
+    assert "UI/T7.4 remains deferred" in status

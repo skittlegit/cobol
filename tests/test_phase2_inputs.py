@@ -15,9 +15,10 @@ ROOT = Path(__file__).resolve().parents[1]
 BENCHMARK = ROOT / "data" / "benchmark"
 SEED = BENCHMARK / "seed"
 PROGRAMS = SEED / "programs"
-TEST_SPLIT = BENCHMARK / "v1-pre" / "test.jsonl"
+TEST_SPLIT = BENCHMARK / "legacy" / "v1-pre" / "test.jsonl"
 SPLIT_FILES = tuple(
-    BENCHMARK / "v1-pre" / f"{split}.jsonl" for split in ("train", "dev", "test")
+    BENCHMARK / "legacy" / "v1-pre" / f"{split}.jsonl"
+    for split in ("train", "dev", "test")
 )
 
 SUPERSEDED_IDS = {

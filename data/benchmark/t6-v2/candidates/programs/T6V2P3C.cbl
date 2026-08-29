@@ -1,0 +1,37 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. T6V2P3C.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-COMPLAINT-DATE        PIC 9(8).
+       01  WS-DUE-DATE              PIC 9(8).
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-COMPLAINT-DATE
+           CALL 'T6V2CAL' USING WS-COMPLAINT-DATE WS-DUE-DATE
+           DISPLAY WS-DUE-DATE
+           STOP RUN.
+       END PROGRAM T6V2P3C.
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. T6V2CAL.
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01  LK-FROM-DATE.
+           05 LK-FROM-YEAR          PIC 9(4).
+           05 LK-FROM-MONTH         PIC 99.
+           05 LK-FROM-DAY           PIC 99.
+       01  LK-DUE-DATE.
+           05 LK-DUE-YEAR           PIC 9(4).
+           05 LK-DUE-MONTH          PIC 99.
+           05 LK-DUE-DAY            PIC 99.
+       PROCEDURE DIVISION USING LK-FROM-DATE LK-DUE-DATE.
+       2000-ADD-CALENDAR-MONTH.
+           MOVE LK-FROM-YEAR TO LK-DUE-YEAR
+           COMPUTE LK-DUE-MONTH = LK-FROM-MONTH + 1
+           IF LK-DUE-MONTH > 12
+              MOVE 1 TO LK-DUE-MONTH
+              ADD 1 TO LK-DUE-YEAR
+           END-IF
+           MOVE LK-FROM-DAY TO LK-DUE-DAY
+           GOBACK.
+       END PROGRAM T6V2CAL.

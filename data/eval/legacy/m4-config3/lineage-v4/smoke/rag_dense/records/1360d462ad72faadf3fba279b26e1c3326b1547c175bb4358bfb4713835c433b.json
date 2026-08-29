@@ -1,0 +1,124 @@
+{
+  "instance_id": "drift_620215",
+  "gold": {
+    "instance_id": "drift_620215",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "past_due_grace": {
+            "kind": "duration_days",
+            "value": 3,
+            "comparator": "strictly_greater",
+            "note": null
+          },
+          "charge_base": {
+            "kind": "enum_set",
+            "value": [
+              "outstanding_after_due_date"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "LATEFEE2",
+          "paragraph": "2000-FEE",
+          "file": null,
+          "line_span": [
+            21,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-PAST-DUE",
+        "WS-OUTSTANDING",
+        "WS-CHARGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": "past_due_grace",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "LATEFEE2",
+          "line": 21,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-3 changes 'IF WS-DAYS-PAST-DUE > 3' to 'IF WS-DAYS-PAST-DUE > ZERO' at LATEFEE2:2000-FEE:21-21, producing D3_contradictory.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "LATEFEE2.cbl",
+      "mutation": "MO-3; locus=LATEFEE2:2000-FEE:21-21; old='IF WS-DAYS-PAST-DUE > 3'; new='IF WS-DAYS-PAST-DUE > ZERO'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.9374571802566889},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(6)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Interest shall be levied only on the outstanding amount, adjusted for payments, refunds and reversed transactions.\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"interest_base=outstanding_adjusted\"],\"comparator\":null,\"note\":null}},\"score\":0.7707558053135566},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(2)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"no_capitalization_of_unpaid_charges\",\"comparator\":null,\"note\":null}},\"score\":0.7408079488027739},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"24\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Bills must be sent without delay and the customer must have at least one fortnight for payment before interest begins to be charged.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":15,\"comparator\":\"at_least\",\"note\":\"fortnight\"}},\"score\":0.7377726124190135},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"36\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"score\":0.7323122478381885}],\"program\":\"FILE LATEFEE2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. LATEFEE2.\\n0003:       * LATE CHARGE ON OUTSTANDING AFTER DUE DATE (3-DAY GRACE)\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.\\n0008:        01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\\n0009:        01  WS-CHARGE                 PIC 9(7)V99 VALUE ZERO.\\n0010:        01  WS-RPT-HEADING            PIC X(10)\\n0011:            VALUE SPACES.\\n0012:        01  FILLER                    PIC X(2) VALUE SPACES.\\n0013:        PROCEDURE DIVISION.\\n0014:        1000-MAIN.\\n0015:            ACCEPT WS-OUTSTANDING\\n0016:            ACCEPT WS-DAYS-PAST-DUE\\n0017:            PERFORM 2000-FEE\\n0018:            DISPLAY 'CHARGE: ' WS-CHARGE\\n0019:            STOP RUN.\\n0020:        2000-FEE.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible excerpt accepts the outstanding balance and days-past-due and calls 2000-FEE, but its body is not supplied; the selected clause's grace-period and charge-base tests therefore cannot be established.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Insufficient visible implementation: LATEFEE2.cbl ends at the 2000-FEE paragraph header, so no calculation or comparison can be checked against the clause.",
+        "final_answer": "Abstain. Program LATEFEE2 in LATEFEE2.cbl accepts WS-OUTSTANDING and WS-DAYS-PAST-DUE and PERFORMs 2000-FEE at lines 15-20, but the supplied code does not show whether charges wait more than three days or use only the outstanding amount after the due date; the clause comparison is indeterminate.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible excerpt accepts the outstanding balance and days-past-due and calls 2000-FEE, but its body is not supplied; the selected clause's grace-period and charge-base tests therefore cannot be established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Insufficient visible implementation: LATEFEE2.cbl ends at the 2000-FEE paragraph header, so no calculation or comparison can be checked against the clause.\",\"final_answer\":\"Abstain. Program LATEFEE2 in LATEFEE2.cbl accepts WS-OUTSTANDING and WS-DAYS-PAST-DUE and PERFORMs 2000-FEE at lines 15-20, but the supplied code does not show whether charges wait more than three days or use only the outstanding amount after the due date; the clause comparison is indeterminate.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "Insufficient visible implementation: LATEFEE2.cbl ends at the 2000-FEE paragraph header, so no calculation or comparison can be checked against the clause.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain. Program LATEFEE2 in LATEFEE2.cbl accepts WS-OUTSTANDING and WS-DAYS-PAST-DUE and PERFORMs 2000-FEE at lines 15-20, but the supplied code does not show whether charges wait more than three days or use only the outstanding amount after the due date; the clause comparison is indeterminate.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "Insufficient visible implementation: LATEFEE2.cbl ends at the 2000-FEE paragraph header, so no calculation or comparison can be checked against the clause.",
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "9f887a8eab0b7bc351e8e61858742c24947102798aa0eb4eaf28252ff080dfcf",
+  "run_key": "1360d462ad72faadf3fba279b26e1c3326b1547c175bb4358bfb4713835c433b"
+}

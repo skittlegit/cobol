@@ -1,0 +1,142 @@
+[
+  {
+    "prediction": {
+      "instance_id": "drift_900000",
+      "verdict": "D5",
+      "clause_index": null,
+      "target_path": "activation_window",
+      "rationale": "The clause requires OTP consent no later than 30 days after issuance and closure without cost no later than 7 working days after seeking confirmation when consent is absent. In program ACTIVAT1, paragraph 2000-DECIDE waits for WS-DAYS-SINCE-ISSUE > 45 before taking either action (lines 22-33), and its only closure branch requires WS-CONSENT-DAYS > 7 (lines 26-30). Both visible thresholds are later than the selected clause permits.",
+      "loci": [
+        {
+          "program": "ACTIVAT1",
+          "file": "ACTIVAT1.cbl",
+          "line_start": 22,
+          "line_end": 33,
+          "excerpt": "2000-DECIDE: IF WS-ACTIVATED = 'Y' ... IF WS-DAYS-SINCE-ISSUE > 45 ... IF WS-CONSENT-DAYS > 7 ... MOVE 'CLOSE' ... ELSE MOVE 'SEEKOTP'"
+        }
+      ],
+      "verifier_hooks": [
+        {
+          "kind": "source_check",
+          "pattern": "WS-DAYS-SINCE-ISSUE > 45",
+          "purpose": "Confirm the visible activation cutoff and check for any alternate 30-day path."
+        },
+        {
+          "kind": "source_check",
+          "pattern": "WS-CONSENT-DAYS > 7",
+          "purpose": "Confirm the visible closure timing and check whether a compliant at-most-seven-working-days path exists."
+        }
+      ]
+    },
+    "claim": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+    "final_answer": "ACTIVAT1 visibly delays the OTP decision until more than 45 days and closes only after more than 7 consent-days, so the shown logic does not meet the clause's 30-day and at-most-7-working-day windows."
+  },
+  {
+    "prediction": {
+      "instance_id": "drift_900001",
+      "verdict": "D1",
+      "clause_index": null,
+      "target_path": null,
+      "rationale": "The clause sets the partnership-firm beneficial-owner threshold at ownership of or entitlement to more than 10 percent of capital or profits. In program BOIDENT3, the WHEN 'P' branch instead tests WS-OWN-PCT > 15.00 and also permits WS-CTRL-IND = 'Y' (lines 28-30). The visible ownership threshold therefore does not match the clause.",
+      "loci": [
+        {
+          "program": "BOIDENT3",
+          "file": "BOIDENT3.cbl",
+          "line_start": 28,
+          "line_end": 30,
+          "excerpt": "WHEN 'P' ... IF WS-OWN-PCT > 15.00 OR WS-CTRL-IND = 'Y' MOVE 'Y' TO WS-IS-BO"
+        }
+      ],
+      "verifier_hooks": [
+        {
+          "kind": "source_check",
+          "pattern": "WHEN 'P'",
+          "purpose": "Confirm the partnership branch's effective ownership cutoff and any alternate classification route."
+        }
+      ]
+    },
+    "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+    "final_answer": "BOIDENT3 uses a greater-than-15-percent partnership threshold, plus a control-indicator route, while the clause requires more than 10 percent ownership or entitlement."
+  },
+  {
+    "prediction": {
+      "instance_id": "drift_900002",
+      "verdict": "ABSTAIN",
+      "clause_index": null,
+      "target_path": null,
+      "rationale": "The visible source accepts the customer identifier and elapsed days, then PERFORMs 2000-CHECK-SLA and displays a status (lines 15-20), but the implementation of that paragraph and any Central KYC Records Registry update are not present. The excerpt is insufficient to establish either conformance or a violation of the seven-day obligation.",
+      "loci": [
+        {
+          "program": "KYCSY208",
+          "file": "KYCSY208.cbl",
+          "line_start": 15,
+          "line_end": 20,
+          "excerpt": "ACCEPT WS-CUST-ID; ACCEPT WS-DAYS-SINCE-UPD; PERFORM 2000-CHECK-SLA; DISPLAY 'SLA: ' WS-SLA-STATUS; STOP RUN"
+        }
+      ],
+      "verifier_hooks": [
+        {
+          "kind": "source_check",
+          "pattern": "2000-CHECK-SLA",
+          "purpose": "Inspect the omitted paragraph for the CKYCR update operation and its seven-day comparison."
+        }
+      ]
+    },
+    "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+    "final_answer": "Only the caller for 2000-CHECK-SLA is visible; its body and any registry-update timing are absent, so this excerpt cannot support a compliance classification."
+  },
+  {
+    "prediction": {
+      "instance_id": "drift_900003",
+      "verdict": "ABSTAIN",
+      "clause_index": null,
+      "target_path": null,
+      "rationale": "The visible source accepts the customer identifier and elapsed days, then PERFORMs 2000-CHECK-SLA and displays a status (lines 15-20), but the implementation of that paragraph and any Central KYC Records Registry update are not present. The excerpt is insufficient to establish either conformance or a violation of the seven-day obligation.",
+      "loci": [
+        {
+          "program": "KYCSY206",
+          "file": "KYCSY206.cbl",
+          "line_start": 15,
+          "line_end": 20,
+          "excerpt": "ACCEPT WS-CUST-ID; ACCEPT WS-DAYS-SINCE-UPD; PERFORM 2000-CHECK-SLA; DISPLAY 'SLA: ' WS-SLA-STATUS; STOP RUN"
+        }
+      ],
+      "verifier_hooks": [
+        {
+          "kind": "source_check",
+          "pattern": "2000-CHECK-SLA",
+          "purpose": "Inspect the omitted paragraph for the CKYCR update operation and its seven-day comparison."
+        }
+      ]
+    },
+    "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+    "final_answer": "Only the caller for 2000-CHECK-SLA is visible; its body and any registry-update timing are absent, so this excerpt cannot support a compliance classification."
+  },
+  {
+    "prediction": {
+      "instance_id": "drift_900004",
+      "verdict": "ABSTAIN",
+      "clause_index": null,
+      "target_path": null,
+      "rationale": "The visible source accepts outstanding amount and days past due, then PERFORMs 2000-FEE (lines 14-20), but the fee-computation paragraph is not shown. The excerpt therefore does not establish whether the more-than-three-day condition or the outstanding-after-due-date charge base is implemented.",
+      "loci": [
+        {
+          "program": "LATEFEE2",
+          "file": "LATEFEE2.cbl",
+          "line_start": 14,
+          "line_end": 20,
+          "excerpt": "ACCEPT WS-OUTSTANDING; ACCEPT WS-DAYS-PAST-DUE; PERFORM 2000-FEE; DISPLAY 'CHARGE: ' WS-CHARGE; STOP RUN"
+        }
+      ],
+      "verifier_hooks": [
+        {
+          "kind": "source_check",
+          "pattern": "2000-FEE",
+          "purpose": "Inspect the omitted fee paragraph for the three-day comparison, due-date basis, and charge-base selection."
+        }
+      ]
+    },
+    "claim": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days, and late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+    "final_answer": "The shown code only invokes 2000-FEE; without that paragraph, the visible excerpt cannot verify either the three-day grace rule or the permitted charge base."
+  }
+]

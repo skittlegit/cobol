@@ -1,0 +1,1172 @@
+{
+  "instance_id": "drift_389498",
+  "gold": {
+    "instance_id": "drift_389498",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSY208",
+          "paragraph": "2000-CHECK-SLA",
+          "file": null,
+          "line_span": [
+            22,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD",
+        "WS-SLA-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSY208",
+          "line": 22,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-2 removes the live seven-day SLA branch from KYCSY208:2000-CHECK-SLA:22-26. The remaining zero-day NEW-status special case is credible legacy classification logic but does not enforce CKYCR update within seven days, producing D2_missing_rule.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSY208.cbl",
+      "mutation": "MO-2; locus=KYCSY208:2000-CHECK-SLA:22-26; old=\"IF WS-DAYS-SINCE-UPD > 7 MOVE 'OVERDUE' TO WS-SLA-STATUS ELSE MOVE 'INSLA' TO WS-SLA-STATUS END-IF\"; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "task=T2.7; supersession_map=t2_7_plausibility.jsonl; plausibility=t2_7_plausibility.jsonl"
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_389498",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSY208",
+          "paragraph": "2000-CHECK-SLA",
+          "file": null,
+          "line_span": [
+            27,
+            27
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSY208",
+          "line": 27,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The clause resolves to value 7 days with comparator at_most, while the cited source line uses the literal ZERO in IF WS-DAYS-SINCE-UPD = ZERO. ZERO represents 0 rather than the required 7-day value."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "KYCSY208:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present",
+    "citation_ok": true,
+    "entailment_probability": 1.0,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "KYCSY208:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: KYCSY208.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "KYCSY208"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 20, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 21, \"name\": \"2000-CHECK-SLA\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\57d8c9a95098fa176f53a1a42143d5c4b2552a9ad066ee0a80eba31c2ab84844\\\\cases\\\\drift_900000\\\\KYCSY208.cbl\", \"program\": \"KYCSY208\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "KYCSY208",
+          "name": "2000-CHECK-SLA"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}], \"code\": \"       2000-CHECK-SLA.\\n\\n\\n\\n\\n\\n           IF WS-DAYS-SINCE-UPD = ZERO\\n              MOVE 'NEW' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 29, \"line_start\": 21, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "KYCSY208",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUST-ID\\n           ACCEPT WS-DAYS-SINCE-UPD\\n           PERFORM 2000-CHECK-SLA\\n           DISPLAY 'SLA: ' WS-SLA-STATUS\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "ZERO"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"KYCSY208\", \"text\": \"           05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"line\": 27, \"program\": \"KYCSY208\", \"text\": \"           IF WS-DAYS-SINCE-UPD = ZERO\"}], \"pattern\": \"ZERO\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "Bounded observations locate source literal ZERO at line 27 of 2000-CHECK-SLA. The supplied duration leaf is 7 days with comparator at_most, so the source threshold is stale.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=1]",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_389498",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "65(8)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSY208",
+                "paragraph": "2000-CHECK-SLA",
+                "file": null,
+                "line_span": [
+                  27,
+                  27
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-UPD"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSY208",
+                "line": 27,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The clause resolves to value 7 days with comparator at_most, while the cited source line uses the literal ZERO in IF WS-DAYS-SINCE-UPD = ZERO. ZERO represents 0 rather than the required 7-day value."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": "=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Finding: line 27 compares WS-DAYS-SINCE-UPD with ZERO, not the required 7-day value.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"Bounded observations locate source literal ZERO at line 27 of 2000-CHECK-SLA. The supplied duration leaf is 7 days with comparator at_most, so the source threshold is stale.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSY208\",\"paragraph\":\"2000-CHECK-SLA\",\"file\":\"KYCSY208.cbl\",\"line_span\":[27,27]}],\"slice_vars\":[\"WS-DAYS-SINCE-UPD\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"KYCSY208\",\"line\":27,\"file\":\"KYCSY208.cbl\"}]},\"rationale\":\"The clause resolves to value 7 days with comparator at_most, while the cited source line uses the literal ZERO in IF WS-DAYS-SINCE-UPD = ZERO. ZERO represents 0 rather than the required 7-day value.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"ZERO\",\"comparator\":\"=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Finding: line 27 compares WS-DAYS-SINCE-UPD with ZERO, not the required 7-day value.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "KYCSY208:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present",
+      "citation_ok": true,
+      "entailment_probability": 1.0,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "KYCSY208:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_389498",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "65(8)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "current_value": {
+          "kind": "duration_days",
+          "value": 7,
+          "comparator": "at_most",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "KYCSY208",
+            "paragraph": "2000-CHECK-SLA",
+            "file": null,
+            "line_span": [
+              27,
+              27
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-DAYS-SINCE-UPD"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "KYCSY208",
+            "line": 27,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The clause resolves to value 7 days with comparator at_most, while the cited source line uses the literal ZERO in IF WS-DAYS-SINCE-UPD = ZERO. ZERO represents 0 rather than the required 7-day value."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Finding: line 27 compares WS-DAYS-SINCE-UPD with ZERO, not the required 7-day value.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": {
+        "instance_id": "drift_389498",
+        "regulation_clause": {
+          "doc": "RBI-KYC-Directions-2025",
+          "clause_id": "65(8)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+          "current_value": {
+            "kind": "duration_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "KYCSY208",
+              "paragraph": "2000-CHECK-SLA",
+              "file": null,
+              "line_span": [
+                27,
+                27
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-DAYS-SINCE-UPD"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D1_stale_threshold",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "KYCSY208",
+              "line": 27,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "The clause resolves to value 7 days with comparator at_most, while the cited source line uses the literal ZERO in IF WS-DAYS-SINCE-UPD = ZERO. ZERO represents 0 rather than the required 7-day value."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "KYCSY208:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present",
+        "citation_ok": true,
+        "entailment_probability": 1.0,
+        "entailment_backend": "lexical_proxy_v1",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "KYCSY208:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: KYCSY208.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSY208"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 20, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 21, \"name\": \"2000-CHECK-SLA\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\57d8c9a95098fa176f53a1a42143d5c4b2552a9ad066ee0a80eba31c2ab84844\\\\cases\\\\drift_900000\\\\KYCSY208.cbl\", \"program\": \"KYCSY208\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSY208",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}], \"code\": \"       2000-CHECK-SLA.\\n\\n\\n\\n\\n\\n           IF WS-DAYS-SINCE-UPD = ZERO\\n              MOVE 'NEW' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 29, \"line_start\": 21, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSY208",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUST-ID\\n           ACCEPT WS-DAYS-SINCE-UPD\\n           PERFORM 2000-CHECK-SLA\\n           DISPLAY 'SLA: ' WS-SLA-STATUS\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "ZERO"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"KYCSY208\", \"text\": \"           05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"line\": 27, \"program\": \"KYCSY208\", \"text\": \"           IF WS-DAYS-SINCE-UPD = ZERO\"}], \"pattern\": \"ZERO\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "Bounded observations locate source literal ZERO at line 27 of 2000-CHECK-SLA. The supplied duration leaf is 7 days with comparator at_most, so the source threshold is stale.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=1]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_389498",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "65(8)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+                "current_value": {
+                  "kind": "duration_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "KYCSY208",
+                    "paragraph": "2000-CHECK-SLA",
+                    "file": null,
+                    "line_span": [
+                      27,
+                      27
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-DAYS-SINCE-UPD"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D1_stale_threshold",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "KYCSY208",
+                    "line": 27,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The clause resolves to value 7 days with comparator at_most, while the cited source line uses the literal ZERO in IF WS-DAYS-SINCE-UPD = ZERO. ZERO represents 0 rather than the required 7-day value."
+            },
+            "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "ZERO",
+              "comparator": "=",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "Finding: line 27 compares WS-DAYS-SINCE-UPD with ZERO, not the required 7-day value.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"Bounded observations locate source literal ZERO at line 27 of 2000-CHECK-SLA. The supplied duration leaf is 7 days with comparator at_most, so the source threshold is stale.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSY208\",\"paragraph\":\"2000-CHECK-SLA\",\"file\":\"KYCSY208.cbl\",\"line_span\":[27,27]}],\"slice_vars\":[\"WS-DAYS-SINCE-UPD\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"KYCSY208\",\"line\":27,\"file\":\"KYCSY208.cbl\"}]},\"rationale\":\"The clause resolves to value 7 days with comparator at_most, while the cited source line uses the literal ZERO in IF WS-DAYS-SINCE-UPD = ZERO. ZERO represents 0 rather than the required 7-day value.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"ZERO\",\"comparator\":\"=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Finding: line 27 compares WS-DAYS-SINCE-UPD with ZERO, not the required 7-day value.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "KYCSY208:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present",
+          "citation_ok": true,
+          "entailment_probability": 1.0,
+          "entailment_backend": "lexical_proxy_v1",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "KYCSY208:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_389498",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "65(8)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSY208",
+                "paragraph": "2000-CHECK-SLA",
+                "file": null,
+                "line_span": [
+                  27,
+                  27
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-UPD"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSY208",
+                "line": 27,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The clause resolves to value 7 days with comparator at_most, while the cited source line uses the literal ZERO in IF WS-DAYS-SINCE-UPD = ZERO. ZERO represents 0 rather than the required 7-day value."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Finding: line 27 compares WS-DAYS-SINCE-UPD with ZERO, not the required 7-day value.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\nScope: KYCSY208.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "7"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"7\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "KYCSY208",
+              "para": "2000-CHECK-SLA"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "KYCSY208",
+              "para": "2000-CHECK-SLA"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-DAYS-SINCE-UPD",
+              "program": "KYCSY208"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}], \"scoped_program\": \"KYCSY208\", \"statements\": [{\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"KYCSY208\"}, \"text\": \"05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}, \"text\": \"ACCEPT WS-DAYS-SINCE-UPD\"}], \"variable\": \"WS-DAYS-SINCE-UPD\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 5,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-DAYS-SINCE-UPD"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"KYCSY208\", \"text\": \"           05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"line\": 17, \"program\": \"KYCSY208\", \"text\": \"           ACCEPT WS-DAYS-SINCE-UPD\"}, {\"line\": 27, \"program\": \"KYCSY208\", \"text\": \"           IF WS-DAYS-SINCE-UPD = ZERO\"}], \"pattern\": \"WS-DAYS-SINCE-UPD\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 6,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "KYCSY208",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The scoped grep finds no 7, but the source contains a reachable WS-DAYS-SINCE-UPD check and the data slice reaches it; strict four-way absence evidence is incomplete.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D2 requires negative caller, callee, and data-slice observations for an absent rule; an existing reachable checker and variable slice prevent that conclusion.",
+            "final_answer": "Abstain: an existing reachable check is present, so the strict missing-rule contract is not met.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The scoped grep finds no 7, but the source contains a reachable WS-DAYS-SINCE-UPD check and the data slice reaches it; strict four-way absence evidence is incomplete.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D2 requires negative caller, callee, and data-slice observations for an absent rule; an existing reachable checker and variable slice prevent that conclusion.\",\"final_answer\":\"Abstain: an existing reachable check is present, so the strict missing-rule contract is not met.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D2 requires negative caller, callee, and data-slice observations for an absent rule; an existing reachable checker and variable slice prevent that conclusion.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D2 requires negative caller, callee, and data-slice observations for an absent rule; an existing reachable checker and variable slice prevent that conclusion.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D2 requires negative caller, callee, and data-slice observations for an absent rule; an existing reachable checker and variable slice prevent that conclusion."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\nScope: KYCSY208.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSY208"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 20, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 21, \"name\": \"2000-CHECK-SLA\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\57d8c9a95098fa176f53a1a42143d5c4b2552a9ad066ee0a80eba31c2ab84844\\\\cases\\\\drift_900000\\\\KYCSY208.cbl\", \"program\": \"KYCSY208\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSY208",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUST-ID\\n           ACCEPT WS-DAYS-SINCE-UPD\\n           PERFORM 2000-CHECK-SLA\\n           DISPLAY 'SLA: ' WS-SLA-STATUS\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSY208",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}], \"code\": \"       2000-CHECK-SLA.\\n\\n\\n\\n\\n\\n           IF WS-DAYS-SINCE-UPD = ZERO\\n              MOVE 'NEW' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 29, \"line_start\": 21, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The two paragraphs provide one consistent zero comparison and no conflicting outcomes.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No two typed loci with conflicting outcomes were observed.",
+            "final_answer": "Abstain: no contradictory compliance outcomes are present.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The two paragraphs provide one consistent zero comparison and no conflicting outcomes.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No two typed loci with conflicting outcomes were observed.\",\"final_answer\":\"Abstain: no contradictory compliance outcomes are present.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No two typed loci with conflicting outcomes were observed.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No two typed loci with conflicting outcomes were observed.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No two typed loci with conflicting outcomes were observed."
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: KYCSY208.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSY208"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 20, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 21, \"name\": \"2000-CHECK-SLA\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\57d8c9a95098fa176f53a1a42143d5c4b2552a9ad066ee0a80eba31c2ab84844\\\\cases\\\\drift_900000\\\\KYCSY208.cbl\", \"program\": \"KYCSY208\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "VALUE"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 8, \"program\": \"KYCSY208\", \"text\": \"           05  WS-CUST-ID            PIC X(10) VALUE SPACES.\"}, {\"line\": 9, \"program\": \"KYCSY208\", \"text\": \"           05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"line\": 11, \"program\": \"KYCSY208\", \"text\": \"           05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.\"}, {\"line\": 13, \"program\": \"KYCSY208\", \"text\": \"           05  WS-ARCHIVE-FLAG       PIC X VALUE 'N'.\"}], \"pattern\": \"VALUE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSY208",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}], \"code\": \"       2000-CHECK-SLA.\\n\\n\\n\\n\\n\\n           IF WS-DAYS-SINCE-UPD = ZERO\\n              MOVE 'NEW' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 29, \"line_start\": 21, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current value is a duration_days object, not an enum_set reference collection.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only to enum_set current values; this clause has a duration leaf.",
+            "final_answer": "Abstain: stale enum-reference analysis is inapplicable.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value is a duration_days object, not an enum_set reference collection.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only to enum_set current values; this clause has a duration leaf.\",\"final_answer\":\"Abstain: stale enum-reference analysis is inapplicable.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D4 applies only to enum_set current values; this clause has a duration leaf.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D4 applies only to enum_set current values; this clause has a duration leaf.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D4 applies only to enum_set current values; this clause has a duration leaf."
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\nScope: KYCSY208.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSY208",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}], \"code\": \"       2000-CHECK-SLA.\\n\\n\\n\\n\\n\\n           IF WS-DAYS-SINCE-UPD = ZERO\\n              MOVE 'NEW' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 29, \"line_start\": 21, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSY208"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 20, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 21, \"name\": \"2000-CHECK-SLA\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\57d8c9a95098fa176f53a1a42143d5c4b2552a9ad066ee0a80eba31c2ab84844\\\\cases\\\\drift_900000\\\\KYCSY208.cbl\", \"program\": \"KYCSY208\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "="
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 27, \"program\": \"KYCSY208\", \"text\": \"           IF WS-DAYS-SINCE-UPD = ZERO\"}], \"pattern\": \"=\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The only comparator is the zero-status equality check; no comparator is shown at a resolved 7-day compliance leaf.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Class-specific boundary evidence at the resolved current-value leaf is incomplete.",
+            "final_answer": "Abstain: the source equality is against ZERO, not a typed 7-day boundary comparator.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The only comparator is the zero-status equality check; no comparator is shown at a resolved 7-day compliance leaf.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Class-specific boundary evidence at the resolved current-value leaf is incomplete.\",\"final_answer\":\"Abstain: the source equality is against ZERO, not a typed 7-day boundary comparator.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "Class-specific boundary evidence at the resolved current-value leaf is incomplete.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: Class-specific boundary evidence at the resolved current-value leaf is incomplete.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "Class-specific boundary evidence at the resolved current-value leaf is incomplete."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\nScope: KYCSY208.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSY208",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUST-ID\\n           ACCEPT WS-DAYS-SINCE-UPD\\n           PERFORM 2000-CHECK-SLA\\n           DISPLAY 'SLA: ' WS-SLA-STATUS\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSY208",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}], \"code\": \"       2000-CHECK-SLA.\\n\\n\\n\\n\\n\\n           IF WS-DAYS-SINCE-UPD = ZERO\\n              MOVE 'NEW' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 29, \"line_start\": 21, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSY208"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 20, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 21, \"name\": \"2000-CHECK-SLA\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\57d8c9a95098fa176f53a1a42143d5c4b2552a9ad066ee0a80eba31c2ab84844\\\\cases\\\\drift_900000\\\\KYCSY208.cbl\", \"program\": \"KYCSY208\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The checker paragraph is statically reached from 1000-MAIN, so no dead-paragraph claim is supported.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No positive dead_paragraph evidence was observed.",
+            "final_answer": "Abstain: 2000-CHECK-SLA is called by 1000-MAIN.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The checker paragraph is statically reached from 1000-MAIN, so no dead-paragraph claim is supported.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No positive dead_paragraph evidence was observed.\",\"final_answer\":\"Abstain: 2000-CHECK-SLA is called by 1000-MAIN.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No positive dead_paragraph evidence was observed.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No positive dead_paragraph evidence was observed.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No positive dead_paragraph evidence was observed."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: KYCSY208.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSY208"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 20, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 21, \"name\": \"2000-CHECK-SLA\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config3\\\\lineage-v4\\\\smoke\\\\agent\\\\task-staging-v1\\\\57d8c9a95098fa176f53a1a42143d5c4b2552a9ad066ee0a80eba31c2ab84844\\\\cases\\\\drift_900000\\\\KYCSY208.cbl\", \"program\": \"KYCSY208\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSY208",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSY208\"}], \"code\": \"       2000-CHECK-SLA.\\n\\n\\n\\n\\n\\n           IF WS-DAYS-SINCE-UPD = ZERO\\n              MOVE 'NEW' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 29, \"line_start\": 21, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSY208\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-DAYS-SINCE-UPD"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"KYCSY208\", \"text\": \"           05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"line\": 17, \"program\": \"KYCSY208\", \"text\": \"           ACCEPT WS-DAYS-SINCE-UPD\"}, {\"line\": 27, \"program\": \"KYCSY208\", \"text\": \"           IF WS-DAYS-SINCE-UPD = ZERO\"}], \"pattern\": \"WS-DAYS-SINCE-UPD\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The source has no positive check matching the clause's 7-day obligation.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Conformance requires positive matching literal and comparator evidence, which is absent.",
+            "final_answer": "Abstain: absence of a matching 7-day check cannot establish conformance.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source has no positive check matching the clause's 7-day obligation.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Conformance requires positive matching literal and comparator evidence, which is absent.\",\"final_answer\":\"Abstain: absence of a matching 7-day check cannot establish conformance.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "Conformance requires positive matching literal and comparator evidence, which is absent.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: Conformance requires positive matching literal and comparator evidence, which is absent.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "Conformance requires positive matching literal and comparator evidence, which is absent."
+    }
+  ],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "0bdfb6cc34320834cf76d8fdc0fd4135d117c28b43957a87a9d92e6ab8c8de4f",
+  "run_key": "4af65cb98377fee25af3c260901a98a900f89d00bd9b7528c31faf7d1b135e63"
+}

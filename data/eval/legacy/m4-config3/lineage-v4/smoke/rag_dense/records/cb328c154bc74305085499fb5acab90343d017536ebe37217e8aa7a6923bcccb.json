@@ -1,0 +1,119 @@
+{
+  "instance_id": "drift_023504",
+  "gold": {
+    "instance_id": "drift_023504",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "36",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 30,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CICROLL2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            7,
+            7
+          ]
+        },
+        {
+          "program": "CICROLL2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            16,
+            16
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CIC-UPDATE-FLAG",
+        "CIC-UPDATE-ON",
+        "WS-DAYS-SINCE-SETTLE",
+        "WS-CIC-ACTION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CICROLL2",
+          "line": 7,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-6 changes \"VALUE 'Y'\" to \"VALUE 'N'\" at CICROLL2:<source>:7-7+CICROLL2:1000-MAIN:16-16, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CICROLL2.cbl",
+      "mutation": "MO-6; locus=CICROLL2:<source>:7-7+CICROLL2:1000-MAIN:16-16; old=\"VALUE 'Y'\"; new=\"VALUE 'N'\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"36\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"score\":0.9369448003330879},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"25\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a cardholder protests a bill, the issuer must provide an explanation (with documentary evidence where applicable) within a maximum of 30 days from the date of complaint.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"score\":0.7677694393169794},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.7403680663851905},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.7396370729926333},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"20\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a card is unused for more than one year, initiate closure after intimating the cardholder; if no reply within 30 days, close the account (subject to dues) and update the CIC within 30 days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"inactivity_threshold\":{\"kind\":\"duration_years\",\"value\":1,\"comparator\":\"strictly_greater\",\"note\":\"Trigger: closure workflow fires when unused for MORE THAN one year. Stale side is UP (later closure of dormant accounts = laxer).\"},\"reply_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"cic_update_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.7372362284927262}],\"program\":\"FILE CICROLL2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. CICROLL2.\\n0003:       * CIC SETTLEMENT-STATUS FEED AFTER THE THIRTY-DAY RULE ROLLOUT.\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-CIC-UPDATE-FLAG PIC X VALUE 'N'.\\n0008:            88  CIC-UPDATE-ON VALUE 'Y'.\\n0009:        01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.\\n0010:        01  WS-DISPUTE-OPEN      PIC X VALUE 'N'.\\n0011:        01  WS-CIC-ACTION        PIC X(8) VALUE 'PENDING'.\\n0012:        PROCEDURE DIVISION.\\n0013:        1000-MAIN.\\n0014:            ACCEPT WS-DAYS-SINCE-SETTLE\\n0015:            ACCEPT WS-DISPUTE-OPEN\\n0016:            IF CIC-UPDATE-ON\\n0017:               IF WS-DISPUTE-OPEN = 'Y'\\n0018:                  MOVE 'HOLD' TO WS-CIC-ACTION\\n0019:               ELSE\\n0020:                  IF WS-DAYS-SINCE-SETTLE <= 30\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible source reaches a dispute gate and begins a <= 30 check, but the action after that incomplete condition is not present. It is insufficient to establish an update or a violation.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied excerpt ends at line 20 before the <=30 branch action, so it cannot show whether the CIC update occurs within the required window or is withheld until disputes settle.",
+        "final_answer": "Abstain: CICROLL2.cbl lines 16-20 show the dispute check and start the 30-day test, but omit the branch outcome; compliance cannot be determined from the visible evidence.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible source reaches a dispute gate and begins a <= 30 check, but the action after that incomplete condition is not present. It is insufficient to establish an update or a violation.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied excerpt ends at line 20 before the <=30 branch action, so it cannot show whether the CIC update occurs within the required window or is withheld until disputes settle.\",\"final_answer\":\"Abstain: CICROLL2.cbl lines 16-20 show the dispute check and start the 30-day test, but omit the branch outcome; compliance cannot be determined from the visible evidence.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied excerpt ends at line 20 before the <=30 branch action, so it cannot show whether the CIC update occurs within the required window or is withheld until disputes settle.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain: CICROLL2.cbl lines 16-20 show the dispute check and start the 30-day test, but omit the branch outcome; compliance cannot be determined from the visible evidence.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied excerpt ends at line 20 before the <=30 branch action, so it cannot show whether the CIC update occurs within the required window or is withheld until disputes settle.",
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "3172932e6442e43761d6e01286ecc341bd1bf8e8ce3e9ee296721a90c86a2d7a",
+  "run_key": "cb328c154bc74305085499fb5acab90343d017536ebe37217e8aa7a6923bcccb"
+}

@@ -9,11 +9,12 @@ outer runner a replayable transcript for policy guards and verification.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import time
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -24,10 +25,12 @@ from cobol_archaeologist.schemas import DriftType
 from cobol_archaeologist.tool_types import RunInputs, ToolLayer
 from cobol_archaeologist.tools import RealToolLayer
 
-HuntName = DriftType
+ADAPTIVE_HUNT = "adaptive"
+HuntName = DriftType | Literal["adaptive"]
 DESCRIPTOR_NAME = "descriptor.json"
 LOG_NAME = "tool_log.jsonl"
 MAX_TOOL_CALLS_PER_HUNT = 8
+MAX_ADAPTIVE_TOOL_CALLS = 16
 
 
 class ToolRequest(BaseModel):
@@ -107,13 +110,21 @@ def execute_tool_request(
         if log_path.exists()
         else []
     )
-    if sum(
-        entry.alias == request.alias and entry.hunt == request.hunt
-        for entry in prior_calls
-    ) >= (MAX_TOOL_CALLS_PER_HUNT):
+    maximum = (
+        MAX_ADAPTIVE_TOOL_CALLS
+        if request.hunt == ADAPTIVE_HUNT
+        else MAX_TOOL_CALLS_PER_HUNT
+    )
+    if (
+        sum(
+            entry.alias == request.alias and entry.hunt == request.hunt
+            for entry in prior_calls
+        )
+        >= maximum
+    ):
         raise RuntimeError(
             f"tool budget exhausted for {request.alias}/{request.hunt}: "
-            f"maximum {MAX_TOOL_CALLS_PER_HUNT} calls"
+            f"maximum {maximum} calls"
         )
     runtime = _descriptor(task_root).get("ablation_runtime", {})
     disabled_tools = frozenset(runtime.get("disabled_tools", ()))
@@ -166,7 +177,7 @@ def execute_tool_request(
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("alias")
-    parser.add_argument("hunt", choices=AGENT_HUNTS)
+    parser.add_argument("hunt", choices=(*AGENT_HUNTS, ADAPTIVE_HUNT))
     parser.add_argument("tool")
     parser.add_argument("--arguments", required=True)
     return parser.parse_args()
@@ -197,7 +208,11 @@ def main() -> int:
         json.dumps(
             {
                 "tool": entry.tool,
+                "sequence": entry.sequence,
                 "observation_summary": entry.observation_summary,
+                "observation_sha256": hashlib.sha256(
+                    entry.observation_summary.encode("utf-8")
+                ).hexdigest(),
                 "observation_truncated": entry.observation_truncated,
                 "error": entry.error,
             },

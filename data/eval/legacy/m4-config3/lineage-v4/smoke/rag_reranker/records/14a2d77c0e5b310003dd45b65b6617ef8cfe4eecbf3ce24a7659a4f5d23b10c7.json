@@ -1,0 +1,112 @@
+{
+  "instance_id": "drift_274886",
+  "gold": {
+    "instance_id": "drift_274886",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SANCBAT2",
+          "paragraph": null,
+          "file": "UNSCREG2.cpy",
+          "line_span": [
+            3,
+            3
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-BATCH-ROUTE",
+        "WS-RECORD-COUNT",
+        "WS-SCREEN-COUNT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SANCBAT2",
+          "line": 3,
+          "file": "UNSCREG2.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'S88' to '(deleted)' at SANCBAT2:UNSCREG2.cpy:3-3, producing D4_stale_reference_data. MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "SANCBAT2.cbl",
+      "mutation": "MO-4; locus=SANCBAT2:UNSCREG2.cpy:3-3; old='S88'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: RAG+reranker single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"56(prevention)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"UNSC-ISIL-Daesh-AlQaida-1267-1989-2253\",\"UNSC-Taliban-1988\"],\"comparator\":null,\"note\":\"clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally\"}},\"score\":9.705252647399902}],\"program\":\"FILE SANCBAT2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. SANCBAT2.\\n0003:       * SANCTIONS-FEED INTAKE FOR THE TWO MANDATED UNSC SOURCES.\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        COPY UNSCREG2.\\n0008:        01  WS-RECORD-COUNT PIC 9(6) VALUE ZERO.\\n0009:        01  WS-BATCH-ROUTE  PIC X(6) VALUE 'HOLD'.\\n0010:        01  WS-SCREEN-COUNT PIC 9(6) VALUE ZERO.\\n0011:        PROCEDURE DIVISION.\\n0012:        1000-MAIN.\\n0013:            ACCEPT WS-LIST-SOURCE\\n0014:            ACCEPT WS-RECORD-COUNT\\n0015:            PERFORM 2000-ROUTE-FEED\\n0016:            DISPLAY 'ROUTE: ' WS-BATCH-ROUTE\\n0017:            DISPLAY 'SCREENED: ' WS-SCREEN-COUNT\\n0018:            STOP RUN.\\n0019:        2000-ROUTE-FEED.\\n0020:            IF MANDATED-SANCTIONS-FEED\\nFILE UNSCREG2.cpy LINES 1-3\\n0001:       * MANDATED UNSC LIST SOURCES: 1267/1989/2253 AND TALIBAN 1988.\\n0002:        01  WS-LIST-SOURCE PIC X(3) VALUE 'S67'.\\n0003:            88  MANDATED-SANCTIONS-FEED VALUES 'S67' ''.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible source accepts a sanctions-feed marker and begins an IF, but shows no account-name screening or list-membership action. The marker's mapping and omitted procedure behavior cannot be inferred.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied excerpt lacks executable evidence of either compliance or a violation of the account prohibition.",
+        "final_answer": "Abstain: the source excerpt shows feed intake only; it does not establish how accounts are checked against the mandated lists.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible source accepts a sanctions-feed marker and begins an IF, but shows no account-name screening or list-membership action. The marker's mapping and omitted procedure behavior cannot be inferred.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied excerpt lacks executable evidence of either compliance or a violation of the account prohibition.\",\"final_answer\":\"Abstain: the source excerpt shows feed intake only; it does not establish how accounts are checked against the mandated lists.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied excerpt lacks executable evidence of either compliance or a violation of the account prohibition.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain: the source excerpt shows feed intake only; it does not establish how accounts are checked against the mandated lists.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied excerpt lacks executable evidence of either compliance or a violation of the account prohibition.",
+  "infrastructure_error": null,
+  "system_id": "rag_reranker",
+  "source_sha256": "37c0577d9dd2ed0c40fdcca2f6c5c3d97aaa520060a03bcdf4afa4f679107545",
+  "run_key": "14a2d77c0e5b310003dd45b65b6617ef8cfe4eecbf3ce24a7659a4f5d23b10c7"
+}

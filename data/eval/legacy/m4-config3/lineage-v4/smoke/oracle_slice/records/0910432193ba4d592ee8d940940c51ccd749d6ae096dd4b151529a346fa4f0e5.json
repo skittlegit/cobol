@@ -1,0 +1,382 @@
+{
+  "instance_id": "drift_325621",
+  "gold": {
+    "instance_id": "drift_325621",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "11(6)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "activation_window": {
+            "kind": "duration_days",
+            "value": 30,
+            "comparator": "at_most",
+            "note": null
+          },
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "ACTIVAT1",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            13,
+            13
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-ISSUE",
+        "WS-CONSENT-DAYS",
+        "WS-ACTION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": "activation_window",
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at ACTIVAT1:<source>:13-13; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "ACTIVAT1.cbl",
+      "mutation": "MO-0; locus=ACTIVAT1:<source>:13-13; old='01  FILLER                    PIC X(3) VALUE SPACES.'; new='01  FILLER                    PIC X(7) VALUE SPACES.'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_325621",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "11(6)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "activation_window": {
+            "kind": "duration_days",
+            "value": 30,
+            "comparator": "at_most",
+            "note": null
+          },
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "ACTIVAT1",
+          "paragraph": "2000-DECIDE",
+          "file": null,
+          "line_span": [
+            27,
+            28
+          ]
+        },
+        {
+          "program": "ACTIVAT1",
+          "paragraph": "2000-DECIDE",
+          "file": null,
+          "line_span": [
+            30,
+            30
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CONSENT-DAYS",
+        "WS-ACTION"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": "closure_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "ACTIVAT1",
+          "line": 27,
+          "file": null
+        },
+        {
+          "program": "ACTIVAT1",
+          "line": 30,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "Clause 11(6) requires closure without cost within 7 working days of seeking confirmation when consent is absent. In ACTIVAT1 paragraph 2000-DECIDE, line 27 tests WS-CONSENT-DAYS > 7, while line 30 sends SEEKOTP for the <=7 branch. Thus at the boundary value 7 the code still seeks consent instead of closing; the threshold literal is current but its boundary handling is wrong."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "literal '7' present in ['ACTIVAT1:2000-DECIDE', 'ACTIVAT1:2000-DECIDE']; comparator '>' present in ['ACTIVAT1:2000-DECIDE', 'ACTIVAT1:2000-DECIDE']",
+    "citation_ok": true,
+    "entailment_probability": 1.0,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "literal '7' present in ['ACTIVAT1:2000-DECIDE', 'ACTIVAT1:2000-DECIDE']; comparator '>' present in ['ACTIVAT1:2000-DECIDE', 'ACTIVAT1:2000-DECIDE']"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"11(6)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"activation_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"ACTIVAT1\",\"slices\":[{\"variable\":\"WS-DAYS-SINCE-ISSUE\",\"scoped_program\":\"ACTIVAT1\",\"statements\":[{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-DAYS-SINCE-ISSUE       PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":16},\"text\":\"ACCEPT WS-DAYS-SINCE-ISSUE\"}],\"paragraphs\":[{\"program\":\"ACTIVAT1\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-CONSENT-DAYS\",\"scoped_program\":\"ACTIVAT1\",\"statements\":[{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-CONSENT-DAYS           PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"ACCEPT WS-CONSENT-DAYS\"}],\"paragraphs\":[{\"program\":\"ACTIVAT1\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-ACTION\",\"scoped_program\":\"ACTIVAT1\",\"statements\":[{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-DAYS-SINCE-ISSUE       PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-ACTIVATED              PIC X(1) VALUE 'N'.\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-CONSENT-DAYS           PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":null,\"line_start\":10,\"line_end\":10},\"text\":\"01  WS-ACTION                 PIC X(8) VALUE SPACES.\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":16},\"text\":\"ACCEPT WS-DAYS-SINCE-ISSUE\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"1000-MAIN\",\"line_start\":17,\"line_end\":17},\"text\":\"ACCEPT WS-ACTIVATED\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"ACCEPT WS-CONSENT-DAYS\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"PERFORM 2000-DECIDE\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"line_start\":23,\"line_end\":24},\"text\":\"IF WS-ACTIVATED = 'Y'\\n              MOVE 'NONE' TO WS-ACTION\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"line_start\":24,\"line_end\":24},\"text\":\"MOVE 'NONE' TO WS-ACTION\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"line_start\":25,\"line_end\":33},\"text\":\"ELSE\\n              IF WS-DAYS-SINCE-ISSUE > 30\\n                 IF WS-CONSENT-DAYS > 7\\n                    MOVE 'CLOSE' TO WS-ACTION\\n                 ELSE\\n                    MOVE 'SEEKOTP' TO WS-ACTION\\n                 END-IF\\n              ELSE\\n                 MOVE 'WAIT' TO WS-ACTION\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"line_start\":27,\"line_end\":28},\"text\":\"IF WS-CONSENT-DAYS > 7\\n                    MOVE 'CLOSE' TO WS-ACTION\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"line_start\":28,\"line_end\":28},\"text\":\"MOVE 'CLOSE' TO WS-ACTION\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"line_start\":30,\"line_end\":30},\"text\":\"MOVE 'SEEKOTP' TO WS-ACTION\"},{\"ref\":{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"line_start\":33,\"line_end\":33},\"text\":\"MOVE 'WAIT' TO WS-ACTION\"}],\"paragraphs\":[{\"program\":\"ACTIVAT1\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The visible decision branch uses a strict greater-than test for the seven-day consent boundary. At exactly seven days it takes the SEEKOTP branch, so the closure deadline is missed.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_325621",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "11(6)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "activation_window": {
+                  "kind": "duration_days",
+                  "value": 30,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": null,
+                "line_span": [
+                  27,
+                  28
+                ]
+              },
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": null,
+                "line_span": [
+                  30,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CONSENT-DAYS",
+              "WS-ACTION"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "ACTIVAT1",
+                "line": 27,
+                "file": null
+              },
+              {
+                "program": "ACTIVAT1",
+                "line": 30,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "Clause 11(6) requires closure without cost within 7 working days of seeking confirmation when consent is absent. In ACTIVAT1 paragraph 2000-DECIDE, line 27 tests WS-CONSENT-DAYS > 7, while line 30 sends SEEKOTP for the <=7 branch. Thus at the boundary value 7 the code still seeks consent instead of closing; the threshold literal is current but its boundary handling is wrong."
+        },
+        "claim": "Absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "7",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The clause requires cost-free closure within 7 working days without consent, but ACTIVAT1 line 27 closes only when WS-CONSENT-DAYS > 7 and line 30 selects SEEKOTP through day 7. This is a D5 boundary error at closure_window.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible decision branch uses a strict greater-than test for the seven-day consent boundary. At exactly seven days it takes the SEEKOTP branch, so the closure deadline is missed.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"file\":null,\"line_span\":[27,28]},{\"program\":\"ACTIVAT1\",\"paragraph\":\"2000-DECIDE\",\"file\":null,\"line_span\":[30,30]}],\"slice_vars\":[\"WS-CONSENT-DAYS\",\"WS-ACTION\"],\"is_interprocedural\":true},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"closure_window\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"ACTIVAT1\",\"line\":27,\"file\":null},{\"program\":\"ACTIVAT1\",\"line\":30,\"file\":null}]},\"rationale\":\"Clause 11(6) requires closure without cost within 7 working days of seeking confirmation when consent is absent. In ACTIVAT1 paragraph 2000-DECIDE, line 27 tests WS-CONSENT-DAYS > 7, while line 30 sends SEEKOTP for the <=7 branch. Thus at the boundary value 7 the code still seeks consent instead of closing; the threshold literal is current but its boundary handling is wrong.\"},\"claim\":\"Absent consent, the account must be closed without cost within 7 working days of seeking confirmation.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"7\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause requires cost-free closure within 7 working days without consent, but ACTIVAT1 line 27 closes only when WS-CONSENT-DAYS > 7 and line 30 selects SEEKOTP through day 7. This is a D5 boundary error at closure_window.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "literal '7' present in ['ACTIVAT1:2000-DECIDE', 'ACTIVAT1:2000-DECIDE']; comparator '>' present in ['ACTIVAT1:2000-DECIDE', 'ACTIVAT1:2000-DECIDE']",
+      "citation_ok": true,
+      "entailment_probability": 1.0,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "literal '7' present in ['ACTIVAT1:2000-DECIDE', 'ACTIVAT1:2000-DECIDE']; comparator '>' present in ['ACTIVAT1:2000-DECIDE', 'ACTIVAT1:2000-DECIDE']"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_325621",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "11(6)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "activation_window": {
+              "kind": "duration_days",
+              "value": 30,
+              "comparator": "at_most",
+              "note": null
+            },
+            "closure_window": {
+              "kind": "duration_working_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "ACTIVAT1",
+            "paragraph": "2000-DECIDE",
+            "file": null,
+            "line_span": [
+              27,
+              28
+            ]
+          },
+          {
+            "program": "ACTIVAT1",
+            "paragraph": "2000-DECIDE",
+            "file": null,
+            "line_span": [
+              30,
+              30
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CONSENT-DAYS",
+          "WS-ACTION"
+        ],
+        "is_interprocedural": true
+      },
+      "drift_type": "D5_boundary_error",
+      "target_path": "closure_window",
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "ACTIVAT1",
+            "line": 27,
+            "file": null
+          },
+          {
+            "program": "ACTIVAT1",
+            "line": 30,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "Clause 11(6) requires closure without cost within 7 working days of seeking confirmation when consent is absent. In ACTIVAT1 paragraph 2000-DECIDE, line 27 tests WS-CONSENT-DAYS > 7, while line 30 sends SEEKOTP for the <=7 branch. Thus at the boundary value 7 the code still seeks consent instead of closing; the threshold literal is current but its boundary handling is wrong."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires cost-free closure within 7 working days without consent, but ACTIVAT1 line 27 closes only when WS-CONSENT-DAYS > 7 and line 30 selects SEEKOTP through day 7. This is a D5 boundary error at closure_window.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "dcf4dadb143856c94fbc901b7950b1cfcba8e771f9b48c85f730f570a19474b0",
+  "run_key": "0910432193ba4d592ee8d940940c51ccd749d6ae096dd4b151529a346fa4f0e5"
+}

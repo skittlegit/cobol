@@ -221,7 +221,6 @@ Cells below ten rows remain CI-fragile:
 - **mixed_projection_provenance (limitation):** Agent, RAG+reranker, and oracle-slice projections mix reused M4 rows with targeted Phase-5 reruns and are descriptive comparisons, not controlled prompt/effort ablations.
 - **agent_coverage (limitation):** The agent answered 42/196 rows and abstained on 154/196, so answered-subset accuracy cannot stand in for full-coverage performance.
 - **drift_prevalence (limitation):** The test set is drift-heavy (153/196), inflating raw binary F1 for all-drift predictors and making balanced accuracy essential context.
-- **track_b_crlf_manifest (known_cross_track_defect):** Track B's benchmark manifest still records stale CRLF split hashes; Phase-5 uses the ratified canonical LF identities without editing the Track B artifact.
 
 ## Next work
 

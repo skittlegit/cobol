@@ -1,0 +1,422 @@
+{
+  "schema_version": "configuration-3-collaboration-request-v1",
+  "transport": "collaboration_subagent",
+  "provider": "collaboration_subagent",
+  "authentication": "in_product_orchestration",
+  "model_id": "gpt-5.6-luna",
+  "reasoning_effort": "max",
+  "run_key": "a862ece80ef962942c379a9e9879c65188041012c2c08cb60bb90d109fcfbcb9",
+  "request_sha256": "ba58f9818df05b7367ef42806cb1be773760549ecf26215d902e3c7d634ffd11",
+  "prompt": "Perform one evidence-grounded COBOL compliance classification for each opaque\ncase using only its supplied plain_llm context. Tools and file access are not\navailable. Return exactly one response per alias under the required JSON\nschema. A finding must use the alias as prediction.instance_id, copy the\nschema. Set clause_index to null. The host attaches the single detector-visible context.clause.\nThe host also attaches the case identity; author the remaining prediction\nfields, cite concrete source loci from the context, and include verifier hooks.\nThe separate claim is the citation hypothesis: write only a regulatory\nobligation entailed by the selected visible clause, without COBOL identifiers\nor implementation facts. Put the code-versus-clause comparison in\nprediction.rationale and final_answer. In a locus, program names the containing\nexecutable program and file names the physical copybook/source filename, never\nan absolute task path. Set target_path to null unless a D1 or D5 finding\ntargets a composite current_value; in that case it must name a non-composite\nleaf from the selected visible clause. D7 requires positive source evidence of\nconformance and is never a default verdict. Abstain when evidence is\ninsufficient. Do not use or infer hidden labels, generation provenance,\nmutation metadata, git history, file timestamps, formatting, comment\nfreshness, or identifier style.\n\nDetector-visible cases:\n[{\"alias\":\"drift_900000\",\"context\":{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"36\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"program\":\"FILE CICROLL2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. CICROLL2.\\n0003:       * CIC SETTLEMENT-STATUS FEED AFTER THE THIRTY-DAY RULE ROLLOUT.\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-CIC-UPDATE-FLAG PIC X VALUE 'N'.\\n0008:            88  CIC-UPDATE-ON VALUE 'Y'.\\n0009:        01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.\\n0010:        01  WS-DISPUTE-OPEN      PIC X VALUE 'N'.\\n0011:        01  WS-CIC-ACTION        PIC X(8) VALUE 'PENDING'.\\n0012:        PROCEDURE DIVISION.\\n0013:        1000-MAIN.\\n0014:            ACCEPT WS-DAYS-SINCE-SETTLE\\n0015:            ACCEPT WS-DISPUTE-OPEN\\n0016:            IF CIC-UPDATE-ON\\n0017:               IF WS-DISPUTE-OPEN = 'Y'\\n0018:                  MOVE 'HOLD' TO WS-CIC-ACTION\\n0019:               ELSE\\n0020:                  IF WS-DAYS-SINCE-SETTLE <= 30\"}},{\"alias\":\"drift_900001\",\"context\":{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(2)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"no_capitalization_of_unpaid_charges\",\"comparator\":null,\"note\":null}},\"program\":\"FILE INTROLL2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. INTROLL2.\\n0003:       * MONTHLY INTEREST POSTING WITH RULE TABLE INITIALIZATION.\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-INTEREST-RULE-FLAG PIC X VALUE 'N'.\\n0008:            88  INTEREST-RULE-ON VALUE 'Y'.\\n0009:        01  WS-OUTSTANDING PIC 9(9)V99 VALUE ZERO.\\n0010:        01  WS-UNPAID-FEES PIC 9(7)V99 VALUE ZERO.\\n0011:        01  WS-CREDITS      PIC 9(9)V99 VALUE ZERO.\\n0012:        01  WS-INT-BASE     PIC S9(9)V99 VALUE ZERO.\\n0013:        01  WS-APR          PIC 9(2)V99 VALUE 36.00.\\n0014:        01  WS-INTEREST-AMT PIC 9(7)V99 VALUE ZERO.\\n0015:        PROCEDURE DIVISION.\\n0016:        1000-MAIN.\\n0017:            \\n0018:            ACCEPT WS-OUTSTANDING\\n0019:            ACCEPT WS-UNPAID-FEES\\n0020:            ACCEPT WS-CREDITS\\nFILE INTROLL2.cbl LINES 21-32\\n0021:            IF INTEREST-RULE-ON\\n0022:               COMPUTE WS-INT-BASE = WS-OUTSTANDING\\n0023:                       - WS-UNPAID-FEES - WS-CREDITS\\n0024:               IF WS-INT-BASE > ZERO\\n0025:                  COMPUTE WS-INTEREST-AMT ROUNDED =\\n0026:                          (WS-INT-BASE * WS-APR) / 1200\\n0027:               END-IF\\n0028:            END-IF\\n0029:            DISPLAY 'INTEREST: ' WS-INTEREST-AMT\\n0030:            STOP RUN.\\n0031:        1500-LOAD-INTEREST-RULE.\\n0032:            MOVE 'Y' TO WS-INTEREST-RULE-FLAG.\"}},{\"alias\":\"drift_900002\",\"context\":{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"11(6)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"activation_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"FILE ACTIVAT1.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. ACTIVAT1.\\n0003:       * CARD ACTIVATION CONSENT WINDOW (30 DAYS -> OTP, 7WD CLOSE)\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-DAYS-SINCE-ISSUE       PIC 9(4) VALUE ZERO.\\n0008:        01  WS-ACTIVATED              PIC X(1) VALUE 'N'.\\n0009:        01  WS-CONSENT-DAYS           PIC 9(4) VALUE ZERO.\\n0010:        01  WS-ACTION                 PIC X(8) VALUE SPACES.\\n0011:        01  WS-RPT-HEADING            PIC X(2)\\n0012:            VALUE SPACES.\\n0013:        01  FILLER                    PIC X(7) VALUE SPACES.\\n0014:        PROCEDURE DIVISION.\\n0015:        1000-MAIN.\\n0016:            ACCEPT WS-DAYS-SINCE-ISSUE\\n0017:            ACCEPT WS-ACTIVATED\\n0018:            ACCEPT WS-CONSENT-DAYS\\n0019:            PERFORM 2000-DECIDE\\n0020:            DISPLAY 'ACTION: ' WS-ACTION\\nFILE ACTIVAT1.cbl LINES 21-35\\n0021:            STOP RUN.\\n0022:        2000-DECIDE.\\n0023:            IF WS-ACTIVATED = 'Y'\\n0024:               MOVE 'NONE' TO WS-ACTION\\n0025:            ELSE\\n0026:               IF WS-DAYS-SINCE-ISSUE > 30\\n0027:                  IF WS-CONSENT-DAYS > 7\\n0028:                     MOVE 'CLOSE' TO WS-ACTION\\n0029:                  ELSE\\n0030:                     MOVE 'SEEKOTP' TO WS-ACTION\\n0031:                  END-IF\\n0032:               ELSE\\n0033:                  MOVE 'WAIT' TO WS-ACTION\\n0034:               END-IF\\n0035:            END-IF.\"}},{\"alias\":\"drift_900003\",\"context\":{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"FILE LATEFEE2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. LATEFEE2.\\n0003:       * LATE CHARGE ON OUTSTANDING AFTER DUE DATE (3-DAY GRACE)\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.\\n0008:        01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\\n0009:        01  WS-CHARGE                 PIC 9(7)V99 VALUE ZERO.\\n0010:        01  WS-RPT-HEADING            PIC X(20)\\n0011:            VALUE SPACES.\\n0012:        01  FILLER                    PIC X(2) VALUE SPACES.\\n0013:        PROCEDURE DIVISION.\\n0014:        1000-MAIN.\\n0015:            ACCEPT WS-OUTSTANDING\\n0016:            ACCEPT WS-DAYS-PAST-DUE\\n0017:            PERFORM 2000-FEE\\n0018:            DISPLAY 'CHARGE: ' WS-CHARGE\\n0019:            STOP RUN.\\n0020:        2000-FEE.\"}}]\n",
+  "prompt_sha256": "2dd3c5b4fca25d60e6348c4c20567a55fda3e8546e9e51df0dee7ece91c45a45",
+  "response_schema": {
+    "$defs": {
+      "ExecProbe": {
+        "additionalProperties": false,
+        "description": "A Tier-1 execution probe: feed ``stdin`` to the compiled locus program and\nrequire ``expect_substring`` in stdout for the claim to hold.",
+        "properties": {
+          "stdin": {
+            "title": "Stdin",
+            "type": "string"
+          },
+          "expect_substring": {
+            "title": "Expect Substring",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stdin",
+          "expect_substring",
+          "description"
+        ],
+        "title": "ExecProbe",
+        "type": "object"
+      },
+      "Labels": {
+        "additionalProperties": false,
+        "properties": {
+          "program_level": {
+            "enum": [
+              "drift",
+              "conformant"
+            ],
+            "title": "Program Level",
+            "type": "string"
+          },
+          "paragraph_level": {
+            "enum": [
+              "drift",
+              "conformant"
+            ],
+            "title": "Paragraph Level",
+            "type": "string"
+          },
+          "line_level": {
+            "items": {
+              "$ref": "#/$defs/SourceLineRef"
+            },
+            "title": "Line Level",
+            "type": "array"
+          }
+        },
+        "required": [
+          "program_level",
+          "paragraph_level",
+          "line_level"
+        ],
+        "title": "Labels",
+        "type": "object"
+      },
+      "SourceLineRef": {
+        "additionalProperties": false,
+        "properties": {
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "line": {
+            "title": "Line",
+            "type": "integer"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          }
+        },
+        "required": [
+          "program",
+          "line",
+          "file"
+        ],
+        "title": "SourceLineRef",
+        "type": "object"
+      },
+      "SourceLocus": {
+        "additionalProperties": false,
+        "properties": {
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paragraph"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "line_span": {
+            "title": "Line Span",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "program",
+          "paragraph",
+          "file",
+          "line_span"
+        ],
+        "title": "SourceLocus",
+        "type": "object"
+      },
+      "StaticClaim": {
+        "additionalProperties": false,
+        "description": "A Tier-2 static assertion about the locus, checked against tool facts.\n\nAny subset may be given; the attempt verifies iff *all* provided sub-claims\nhold. ``dead_paragraph`` routes to call-graph reachability (D6).",
+        "properties": {
+          "literal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Literal"
+          },
+          "comparator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparator"
+          },
+          "dead_paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dead Paragraph"
+          }
+        },
+        "title": "StaticClaim",
+        "type": "object",
+        "required": [
+          "literal",
+          "comparator",
+          "dead_paragraph"
+        ]
+      },
+      "SubmittedBaselineCase": {
+        "additionalProperties": false,
+        "properties": {
+          "alias": {
+            "title": "Alias",
+            "type": "string"
+          },
+          "clause_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clause Index"
+          },
+          "response": {
+            "$ref": "#/$defs/SubmittedResponse"
+          }
+        },
+        "required": [
+          "alias",
+          "clause_index",
+          "response"
+        ],
+        "title": "SubmittedBaselineCase",
+        "type": "object"
+      },
+      "SubmittedCodeLocus": {
+        "additionalProperties": false,
+        "description": "Provider-authored locus before host-side semantic validation.\n\nJSON-schema structured output cannot express the cross-field rule that\nmulti-program loci require ``is_interprocedural=True``. Keep the submitted\nvalue intact here, then let ``DriftPrediction`` validate it during trusted\ninput binding. A violation therefore abstains only that hunt instead of\ninvalidating every row in the provider batch.",
+        "properties": {
+          "loci": {
+            "items": {
+              "$ref": "#/$defs/SourceLocus"
+            },
+            "title": "Loci",
+            "type": "array"
+          },
+          "slice_vars": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Slice Vars",
+            "type": "array"
+          },
+          "is_interprocedural": {
+            "title": "Is Interprocedural",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "loci",
+          "slice_vars",
+          "is_interprocedural"
+        ],
+        "title": "SubmittedCodeLocus",
+        "type": "object"
+      },
+      "SubmittedPrediction": {
+        "additionalProperties": false,
+        "description": "Provider-authored prediction fields; trusted inputs are host-attached.",
+        "properties": {
+          "code_locus": {
+            "$ref": "#/$defs/SubmittedCodeLocus"
+          },
+          "drift_type": {
+            "enum": [
+              "D1_stale_threshold",
+              "D2_missing_rule",
+              "D3_contradictory",
+              "D4_stale_reference_data",
+              "D5_boundary_error",
+              "D6_dead_code",
+              "D7_conformant"
+            ],
+            "title": "Drift Type",
+            "type": "string"
+          },
+          "target_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Path"
+          },
+          "labels": {
+            "$ref": "#/$defs/Labels"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code_locus",
+          "drift_type",
+          "target_path",
+          "labels",
+          "rationale"
+        ],
+        "title": "SubmittedPrediction",
+        "type": "object"
+      },
+      "SubmittedResponse": {
+        "additionalProperties": false,
+        "description": "Provider-facing final answer without provider-owned telemetry.",
+        "properties": {
+          "kind": {
+            "enum": [
+              "finding",
+              "abstain"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "thought": {
+            "title": "Thought",
+            "type": "string"
+          },
+          "prediction": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SubmittedPrediction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claim"
+          },
+          "exec_probe": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ExecProbe"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "static_claim": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/StaticClaim"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "abstention_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstention Reason"
+          },
+          "final_answer": {
+            "title": "Final Answer",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "thought",
+          "prediction",
+          "claim",
+          "exec_probe",
+          "static_claim",
+          "abstention_reason",
+          "final_answer"
+        ],
+        "title": "SubmittedResponse",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "results": {
+        "items": {
+          "$ref": "#/$defs/SubmittedBaselineCase"
+        },
+        "title": "Results",
+        "type": "array"
+      }
+    },
+    "required": [
+      "results"
+    ],
+    "title": "CodexBaselineEnvelope",
+    "type": "object"
+  },
+  "schema_sha256": "50226a448fdebb712b67454bd9d203765423b544a99ce0d55a694d8d36845bae",
+  "source_sha256": {},
+  "runtime_source_sha256": "0cfadaf78aeaf5be9fac21b542db04b0a5ce1d363592f4f133ee6fe3a166097e",
+  "authorized_hunts": [],
+  "visible_cases": 4,
+  "prior_case_context_included": false,
+  "group": {
+    "group_id": "config3:smoke:plain_llm",
+    "mode": "concurrent",
+    "ordinal": 3,
+    "size": 3
+  }
+}

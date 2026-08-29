@@ -1,0 +1,119 @@
+{
+  "instance_id": "drift_023504",
+  "gold": {
+    "instance_id": "drift_023504",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "36",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 30,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CICROLL2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            7,
+            7
+          ]
+        },
+        {
+          "program": "CICROLL2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            16,
+            16
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CIC-UPDATE-FLAG",
+        "CIC-UPDATE-ON",
+        "WS-DAYS-SINCE-SETTLE",
+        "WS-CIC-ACTION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CICROLL2",
+          "line": 7,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-6 changes \"VALUE 'Y'\" to \"VALUE 'N'\" at CICROLL2:<source>:7-7+CICROLL2:1000-MAIN:16-16, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CICROLL2.cbl",
+      "mutation": "MO-6; locus=CICROLL2:<source>:7-7+CICROLL2:1000-MAIN:16-16; old=\"VALUE 'Y'\"; new=\"VALUE 'N'\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"36\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a cardholder settles dues after being reported as a defaulter, the issuer must update the status with the CIC within 30 days from the date of settlement; default disclosure only after disputes are settled.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"program\":\"CICROLL2\",\"slices\":[{\"variable\":\"WS-CIC-UPDATE-FLAG\",\"scoped_program\":\"CICROLL2\",\"statements\":[{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-CIC-UPDATE-FLAG PIC X VALUE 'N'.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"CIC-UPDATE-ON\",\"scoped_program\":\"CICROLL2\",\"statements\":[{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-CIC-UPDATE-FLAG PIC X VALUE 'N'.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"WS-DAYS-SINCE-SETTLE\",\"scoped_program\":\"CICROLL2\",\"statements\":[{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":14,\"line_end\":14},\"text\":\"ACCEPT WS-DAYS-SINCE-SETTLE\"}],\"paragraphs\":[{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-CIC-ACTION\",\"scoped_program\":\"CICROLL2\",\"statements\":[{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-CIC-UPDATE-FLAG PIC X VALUE 'N'.\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-DAYS-SINCE-SETTLE PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":null,\"line_start\":10,\"line_end\":10},\"text\":\"01  WS-DISPUTE-OPEN      PIC X VALUE 'N'.\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":null,\"line_start\":11,\"line_end\":11},\"text\":\"01  WS-CIC-ACTION        PIC X(8) VALUE 'PENDING'.\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":14,\"line_end\":14},\"text\":\"ACCEPT WS-DAYS-SINCE-SETTLE\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":15,\"line_end\":15},\"text\":\"ACCEPT WS-DISPUTE-OPEN\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":23},\"text\":\"IF CIC-UPDATE-ON\\n              IF WS-DISPUTE-OPEN = 'Y'\\n                 MOVE 'HOLD' TO WS-CIC-ACTION\\n              ELSE\\n                 IF WS-DAYS-SINCE-SETTLE <= 30\\n                    MOVE 'UPDATE' TO WS-CIC-ACTION\\n                 ELSE\\n                    MOVE 'BREACH' TO WS-CIC-ACTION\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":17,\"line_end\":18},\"text\":\"IF WS-DISPUTE-OPEN = 'Y'\\n                 MOVE 'HOLD' TO WS-CIC-ACTION\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"MOVE 'HOLD' TO WS-CIC-ACTION\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":23},\"text\":\"ELSE\\n                 IF WS-DAYS-SINCE-SETTLE <= 30\\n                    MOVE 'UPDATE' TO WS-CIC-ACTION\\n                 ELSE\\n                    MOVE 'BREACH' TO WS-CIC-ACTION\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":21,\"line_end\":21},\"text\":\"MOVE 'UPDATE' TO WS-CIC-ACTION\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":23,\"line_end\":23},\"text\":\"MOVE 'BREACH' TO WS-CIC-ACTION\"},{\"ref\":{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"line_start\":27,\"line_end\":27},\"text\":\"MOVE 'DEFER' TO WS-CIC-ACTION\"}],\"paragraphs\":[{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible branch holds the action while a dispute is open and selects update at 30 days or earlier, providing positive evidence for both visible conditions.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_02...spute-settlement gate.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_02...spute-settlement gate.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible branch holds the action while a dispute is open and selects update at 30 days or earlier, providing positive evidence for both visible conditions.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CICROLL2\",\"paragraph\":\"1000-MAIN\",\"file\":null,\"line_span\":[16,23]}],\"slice_vars\":[\"CIC-UPDATE-ON\",\"WS-DISPUTE-OPEN\",\"WS-DAYS-SINCE-SETTLE\",\"WS-CIC-ACTION\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[{\"program\":\"CICROLL2\",\"line\":17,\"file\":null},{\"program\":\"CICROLL2\",\"line\":21,\"file\":null}]},\"rationale\":\"The code moves HOLD when WS-DISPUTE-OPEN is Y and otherwise moves UPDATE when WS-DAYS-SINCE-SETTLE <= 30, matching the visible 30-day update limit and dispute-settlement gate.\"},\"claim\":\"The issuer must update the cardholder’s status with the CIC within 30 days of settlement and disclose default only after disputes are settled.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"30\",\"comparator\":\"<=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Conformant: the visible code holds action during an open dispute and selects UPDATE for settlement age <= 30 days, matching the clause’s timing and dispute condition.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_02...spute-settlement gate.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_02...spute-settlement gate.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_02...spute-settlement gate.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "3172932e6442e43761d6e01286ecc341bd1bf8e8ce3e9ee296721a90c86a2d7a",
+  "run_key": "ae493a03131f0c5e87116dc184e0bdf5a76a29e1b622a8e7baf19729cfef3675"
+}

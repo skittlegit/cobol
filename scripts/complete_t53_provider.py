@@ -24,7 +24,7 @@ from cobol_archaeologist.eval.materialize import materialize
 from cobol_archaeologist.eval.run import CONFIG2_SMOKE_SEED
 from cobol_archaeologist.rag.search import RegulationSearch
 
-M4_DIR = ROOT / "data" / "eval" / "m4"
+M4_DIR = ROOT / "data" / "eval" / "legacy" / "m4-initial"
 M5_DIR = ROOT / "data" / "eval" / "m5"
 TARGET_ID = "drift_000021"
 

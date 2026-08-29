@@ -1,0 +1,358 @@
+{
+  "instance_id": "drift_161404",
+  "gold": {
+    "instance_id": "drift_161404",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "11(6)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "activation_window": {
+            "kind": "duration_days",
+            "value": 30,
+            "comparator": "at_most",
+            "note": null
+          },
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "ACTIVAT1",
+          "paragraph": "2000-DECIDE",
+          "file": null,
+          "line_span": [
+            26,
+            28
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-ISSUE",
+        "WS-CONSENT-DAYS",
+        "WS-ACTION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": "activation_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "ACTIVAT1",
+          "line": 26,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-2 changes \"IF WS-DAYS-SINCE-ISSUE > 30 IF WS-CONSENT-DAYS > 7 MOVE 'CLOSE' TO WS-ACTION ELSE MOVE 'SEEKOTP' TO WS-ACTION END-IF ELSE MOVE 'WAIT' TO WS-ACTION END-IF\" to \"IF WS-DAYS-SINCE-ISSUE <= 30 MOVE 'WAIT' TO WS-ACTION END-IF\" at ACTIVAT1:2000-DECIDE:26-28, producing D2_missing_rule.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "ACTIVAT1.cbl",
+      "mutation": "MO-2; locus=ACTIVAT1:2000-DECIDE:26-28; old=\"IF WS-DAYS-SINCE-ISSUE > 30 IF WS-CONSENT-DAYS > 7 MOVE 'CLOSE' TO WS-ACTION ELSE MOVE 'SEEKOTP' TO WS-ACTION END-IF ELSE MOVE 'WAIT' TO WS-ACTION END-IF\"; new=\"IF WS-DAYS-SINCE-ISSUE <= 30 MOVE 'WAIT' TO WS-ACTION END-IF\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 only when the regulated check itself is absent and scoped grep,\n  caller graph, callee graph, and data slice all provide the required negative\n  evidence. Any positive observation from one of those four required tools\n  invalidates D2 for that investigation; do not repurpose positive context as\n  absence evidence. Do not invent an unstated date derivation, preprocessing\n  step, or implementation mechanism as a missing rule. If positive code\n  evidence matches the clause and no supported drift remains, consider D7.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"ACTIVAT1\",\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"11(6)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"activation_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program^": "ACTIVAT1^"
+        },
+        "observation_summary": "TypeError: RealToolLayer.read_program() got an unexpected keyword argument 'program^'",
+        "observation_truncated": false,
+        "error": "TypeError: RealToolLayer.read_program() got an unexpected keyword argument 'program^'",
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_program",
+        "arguments": {
+          "program": "ACTIVAT1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 21, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 35, \"line_start\": 22, \"name\": \"2000-DECIDE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4-config4\\\\lineage-v2\\\\train-dev\\\\adaptive_agent\\\\task-staging-v1\\\\a46706d5e4bdd2595dd4e1ea162409e2de43fe9b5eba8a0ddf2a6670c5f36cc6\\\\cases\\\\drift_900000\\\\ACTIVAT1.cbl\", \"program\": \"ACTIVAT1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "ACTIVAT1",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-DECIDE\", \"program\": \"ACTIVAT1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-DAYS-SINCE-ISSUE\\n           ACCEPT WS-ACTIVATED\\n           ACCEPT WS-CONSENT-DAYS\\n           PERFORM 2000-DECIDE\\n           DISPLAY 'ACTION: ' WS-ACTION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 21, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 31.0
+      },
+      {
+        "step": 4,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "ACTIVAT1",
+          "name": "2000-DECIDE"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}], \"code\": \"       2000-DECIDE.\\n           IF WS-ACTIVATED = 'Y'\\n              MOVE 'NONE' TO WS-ACTION\\n           ELSE\\n              IF WS-DAYS-SINCE-ISSUE <= 30 MOVE 'WAIT' TO WS-ACTION END-IF\\n\\n\\n\\n\\n\\n\\n\\n\\n           END-IF.\", \"name\": \"2000-DECIDE\", \"ref\": {\"line_end\": 35, \"line_start\": 22, \"paragraph\": \"2000-DECIDE\", \"program\": \"ACTIVAT1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 5,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-ACTIVATED",
+          "program": "ACTIVAT1"
+        },
+        "observation_summary": "{\"scoped_program\": \"ACTIVAT1\", \"sites\": [{\"excerpt\": \"01  WS-ACTIVATED              PIC X(1) VALUE 'N'.\", \"kind\": \"def\", \"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"ACCEPT WS-ACTIVATED\", \"kind\": \"def\", \"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"ACCEPT\"}, {\"excerpt\": \"IF WS-ACTIVATED = 'Y'\", \"kind\": \"use\", \"ref\": {\"line_end\": 23, \"line_start\": 23, \"paragraph\": \"2000-DECIDE\", \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-ACTIVATED\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 6,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-DAYS-SINCE-ISSUE",
+          "program": "ACTIVAT1"
+        },
+        "observation_summary": "{\"scoped_program\": \"ACTIVAT1\", \"sites\": [{\"excerpt\": \"01  WS-DAYS-SINCE-ISSUE       PIC 9(4) VALUE ZERO.\", \"kind\": \"def\", \"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"ACCEPT WS-DAYS-SINCE-ISSUE\", \"kind\": \"def\", \"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"ACCEPT\"}, {\"excerpt\": \"ELSE\\n              IF WS-DAYS-SINCE-ISSUE <= 30 MOVE 'WAIT' TO WS-ACTION END-IF\", \"kind\": \"use\", \"ref\": {\"line_end\": 26, \"line_start\": 25, \"paragraph\": \"2000-DECIDE\", \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"ELSE_IF\"}], \"variable\": \"WS-DAYS-SINCE-ISSUE\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 7,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-CONSENT-DAYS",
+          "program": "ACTIVAT1"
+        },
+        "observation_summary": "{\"scoped_program\": \"ACTIVAT1\", \"sites\": [{\"excerpt\": \"01  WS-CONSENT-DAYS           PIC 9(4) VALUE ZERO.\", \"kind\": \"def\", \"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"ACCEPT WS-CONSENT-DAYS\", \"kind\": \"def\", \"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}, \"statement_kind\": \"ACCEPT\"}], \"variable\": \"WS-CONSENT-DAYS\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 8,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "CONSENT"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 3, \"program\": \"ACTIVAT1\", \"text\": \"      * CARD ACTIVATION CONSENT WINDOW (30 DAYS -> OTP, 7WD CLOSE)\"}, {\"line\": 9, \"program\": \"ACTIVAT1\", \"text\": \"       01  WS-CONSENT-DAYS           PIC 9(4) VALUE ZERO.\"}, {\"line\": 18, \"program\": \"ACTIVAT1\", \"text\": \"           ACCEPT WS-CONSENT-DAYS\"}], \"pattern\": \"CONSENT\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 9,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-CONSENT-DAYS",
+          "program": "ACTIVAT1"
+        },
+        "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}], \"scoped_program\": \"ACTIVAT1\", \"statements\": [{\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"ACTIVAT1\"}, \"text\": \"01  WS-CONSENT-DAYS           PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}, \"text\": \"ACCEPT WS-CONSENT-DAYS\"}], \"variable\": \"WS-CONSENT-DAYS\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 47.0
+      },
+      {
+        "step": 10,
+        "tool": "find_callers",
+        "arguments": {
+          "program": "ACTIVAT1",
+          "para": "2000-DECIDE"
+        },
+        "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"ACTIVAT1\"}]",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 31.0
+      },
+      {
+        "step": 11,
+        "tool": "find_callees",
+        "arguments": {
+          "program": "ACTIVAT1",
+          "para": "2000-DECIDE"
+        },
+        "observation_summary": "[]",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 32.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The bounded evidence confirms a reachable 30-day activation comparison whose literal and comparator match the clause, but it does not satisfy any finding contract. Consent is accepted but not used, while D2 is barred by positive scoped-grep and caller-graph observations; no contradictory loci, stale reference collection, dead paragraph, stale threshold, or boundary error is established.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No D1-D7 class meets its required evidence contract within the bounded observations.",
+        "final_answer": "ABSTAIN",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The bounded evidence confirms a reachable 30-day activation comparison whose literal and comparator match the clause, but it does not satisfy any finding contract. Consent is accepted but not used, while D2 is barred by positive scoped-grep and caller-graph observations; no contradictory loci, stale reference collection, dead paragraph, stale threshold, or boundary error is established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No D1-D7 class meets its required evidence contract within the bounded observations.\",\"final_answer\":\"ABSTAIN\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 2,
+            "observation_sha256": "a43da8091c35165216b16ce1841d484afb628dc4364c802df442273e525e59d9",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "context",
+            "rationale": "The program index identifies 1000-MAIN and 2000-DECIDE as the available source paragraphs, establishing the loci that required paragraph inspection without itself establishing a stale threshold."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "eb7b6dc3a6fa63ca4bde456bca0b0d601102ed918e2b942b764643d657df3dd1",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "refutes",
+            "rationale": "1000-MAIN accepts WS-DAYS-SINCE-ISSUE, WS-ACTIVATED, and WS-CONSENT-DAYS, then PERFORMs 2000-DECIDE; this is a positive reachable compliance decision path, not evidence that the regulated check is wholly absent."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "294144c963732c358dbbc802a7148ffc99c955ff8854c6c63adde54e49d41b6c",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "refutes",
+            "rationale": "The decision uses WS-DAYS-SINCE-ISSUE <= 30. The clause activation window is 30 days with an at_most comparator, so the observed threshold literal is not stale."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "294144c963732c358dbbc802a7148ffc99c955ff8854c6c63adde54e49d41b6c",
+            "hypothesis": "D5_boundary_error",
+            "bearing": "refutes",
+            "rationale": "The source comparator <= corresponds to the clause's at_most comparator for the 30-day activation window; no boundary mismatch is established."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "294144c963732c358dbbc802a7148ffc99c955ff8854c6c63adde54e49d41b6c",
+            "hypothesis": "D7_conformant",
+            "bearing": "refutes",
+            "rationale": "Although the activation and 30-day branches are present, this paragraph observation shows no OTP-consent action or seven-working-day closure action, so complete clause conformance is not positively established."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "63279a680b052dd3d0b93fbf166b5c95f5553a71298334e7fbb7d6e148c684a7",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "WS-ACTIVATED is accepted and used in IF WS-ACTIVATED = 'Y', providing positive evidence for one part of the regulated activation condition, but not for the full composite obligation."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "fc7dd8322008d44bd2978f463329d2cb4667656344dfa32f102a8a67fe1f0c03",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "refutes",
+            "rationale": "The variable trace confirms the decision use WS-DAYS-SINCE-ISSUE <= 30 at 2000-DECIDE, matching the resolved 30-day activation leaf rather than a stale value."
+          },
+          {
+            "observation_step": 7,
+            "observation_sha256": "4bdd48c9dc1c5cb12a6f223f818d364bc9969ea4bf953b4cc1efe3c704624681",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "WS-CONSENT-DAYS is defined and accepted but has no traced use, supporting a possible missing consent-related action as one data-flow component; this alone cannot satisfy D2's required four negative observations."
+          },
+          {
+            "observation_step": 7,
+            "observation_sha256": "4bdd48c9dc1c5cb12a6f223f818d364bc9969ea4bf953b4cc1efe3c704624681",
+            "hypothesis": "D7_conformant",
+            "bearing": "refutes",
+            "rationale": "The consent input has no traced decision use, so positive evidence that the consent check and resulting action match the clause is absent."
+          },
+          {
+            "observation_step": 8,
+            "observation_sha256": "f52bbaff72e251bf8158a4e10709a9c4ae38f029457a52163a4e5e981685bb8b",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "refutes",
+            "rationale": "Scoped grep returned positive CONSENT matches, including the WS-CONSENT-DAYS declaration and ACCEPT. Under the class policy, any positive scoped-grep observation invalidates D2 for this investigation."
+          },
+          {
+            "observation_step": 9,
+            "observation_sha256": "53ac1262915e60461807c453e09f0e2c95b6d53da305c2eef5cd1a45624ff86c",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "The WS-CONSENT-DAYS slice contains only its declaration and ACCEPT in 1000-MAIN and no decision use, supplying a negative data-slice component for a potential missing consent action, but not the complete D2 contract."
+          },
+          {
+            "observation_step": 10,
+            "observation_sha256": "eb4f17c87ce4cba4553691807135dd96c3240de42b568ecc9cf1aee561a5dd04",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "refutes",
+            "rationale": "find_callers shows 1000-MAIN reaches 2000-DECIDE, a positive caller-graph observation that invalidates D2 under the required absence policy."
+          },
+          {
+            "observation_step": 10,
+            "observation_sha256": "eb4f17c87ce4cba4553691807135dd96c3240de42b568ecc9cf1aee561a5dd04",
+            "hypothesis": "D3_contradictory",
+            "bearing": "context",
+            "rationale": "The caller result identifies one reachable decision paragraph and does not provide two conflicting typed loci for the same regulated condition."
+          },
+          {
+            "observation_step": 11,
+            "observation_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "context",
+            "rationale": "2000-DECIDE has no callees, but this does not establish absence of the regulated check and cannot override the positive scoped-grep and caller-graph observations."
+          },
+          {
+            "observation_step": 10,
+            "observation_sha256": "eb4f17c87ce4cba4553691807135dd96c3240de42b568ecc9cf1aee561a5dd04",
+            "hypothesis": "D6_dead_code",
+            "bearing": "refutes",
+            "rationale": "find_callers shows 1000-MAIN reaches 2000-DECIDE, so the existing decision paragraph is reachable and no dead-paragraph claim is supported."
+          }
+        ]
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "No D1-D7 class meets its required evidence contract within the bounded observations.",
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: No D1-D7 class meets its required evidence contract within the bounded observations.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "No D1-D7 class meets its required evidence contract within the bounded observations.",
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "88768f57ce839983e55fef202df208b5df4d9975808c93747c6b8763428c1609",
+  "run_key": "a46706d5e4bdd2595dd4e1ea162409e2de43fe9b5eba8a0ddf2a6670c5f36cc6"
+}

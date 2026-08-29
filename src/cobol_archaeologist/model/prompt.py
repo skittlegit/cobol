@@ -15,7 +15,12 @@ from typing import Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from cobol_archaeologist.model.verify import ExecProbe, StaticClaim
-from cobol_archaeologist.schemas import CurrentValue, DriftPrediction, RegulationClause
+from cobol_archaeologist.schemas import (
+    CurrentValue,
+    DriftPrediction,
+    DriftType,
+    RegulationClause,
+)
 
 MODEL_ID = "claude-3-5-sonnet-20241022"
 MODEL_TEMPERATURE = 0.0
@@ -50,6 +55,12 @@ finding, alternative, or corrected object after it. A proposed finding must
 include a complete DriftPrediction and a separate claim, plus concrete
 execution/static evidence hooks when available. The runtime will verify every
 proposed finding; if evidence is insufficient, abstain.
+`claim` is the clause-grounded regulatory proposition that the cited clause
+entails. Restate the applicable regulated entity, action, trigger, threshold,
+comparator, and unit in natural language. Never put a COBOL program,
+paragraph, identifier, line, implementation fact, or drift diagnosis in
+`claim`; those code facts belong in `prediction.rationale`, `static_claim`,
+and `final_answer`.
 For a static evidence hook, copy `static_claim.literal` and
 `static_claim.comparator` exactly from source text returned by a cited tool
 observation. These fields contain source tokens, never a prose comparison;
@@ -170,6 +181,18 @@ def build_hunt_prompt(
     )
 
 
+class EvidenceLedgerNote(BaseModel):
+    """Model-authored claim tied to one exact, case-local observation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    observation_step: int = Field(ge=1)
+    observation_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    hypothesis: DriftType
+    bearing: Literal["supports", "refutes", "context"]
+    rationale: str = Field(min_length=1)
+
+
 class AgentResponse(BaseModel):
     """One cached or live model turn.
 
@@ -185,20 +208,30 @@ class AgentResponse(BaseModel):
     tool: ToolName | None = None
     arguments: dict[str, Any] = {}
     prediction: DriftPrediction | None = None
-    claim: str | None = None
+    claim: str | None = Field(
+        default=None,
+        description=(
+            "Clause-grounded regulatory proposition entailed by the cited "
+            "clause; code and drift facts belong in prediction.rationale."
+        ),
+    )
     exec_probe: ExecProbe | None = None
     static_claim: StaticClaim | None = None
     abstention_reason: str | None = None
     final_answer: str | None = None
     token_count: int = Field(ge=0)
+    token_count_recorded: bool = True
     # Provider adapters populate these after parsing. They are deliberately
     # excluded from the provider-facing JSON schema so the model cannot spoof
     # contract telemetry.
     raw_provider_text: str | None = None
     contract_error: str | None = None
+    evidence_ledger: list[EvidenceLedgerNote] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _kind_shape(self) -> AgentResponse:
+        if not self.token_count_recorded and self.token_count != 0:
+            raise ValueError("unrecorded token usage must use the zero placeholder")
         if self.contract_error is not None and self.kind != "abstain":
             raise ValueError("a contract_error must fail closed as abstention")
         if self.kind == "tool":
