@@ -536,7 +536,20 @@ def _tier2_static(finding: Finding, tools) -> TierAttempt:
             except KeyError as exc:
                 unavailable.append(f"{label} ({exc})")
             continue
-        unavailable.append(f"{locus.program}:<no paragraph or file>")
+        # A paragraph-less own-source locus can point into the data division
+        # (for example, a default-off compliance guard). Verify the exact
+        # cited line span instead of discarding that evidence as unreadable.
+        start, end = locus.line_span
+        label = f"{locus.program}:lines-{start}-{end}"
+        try:
+            path = Path(tools.read_program(locus.program).path)
+            lines = path.read_text(encoding="utf-8").splitlines()
+            if start < 1 or end > len(lines):
+                unavailable.append(f"{label} (line span outside source)")
+            else:
+                readable.append((label, "\n".join(lines[start - 1 : end])))
+        except (KeyError, OSError, UnicodeError) as exc:
+            unavailable.append(f"{label} ({exc})")
 
     if not readable:
         return TierAttempt(

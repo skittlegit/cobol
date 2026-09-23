@@ -1,7 +1,7 @@
 # GOAL-R1 work order - finish detector evaluation
 
 **Owner:** Track C
-**State:** active; resume from the sealed configuration-4 dev checkpoint
+**State:** GPT-6 Luna smoke valid; full run prepared and held at user's request
 **Windowing:** run one numbered section per Codex five-hour window
 **Depends on:** immutable configuration-3 smoke evidence and promoted T6-v2
 **Excludes:** UI/T7.4 and all GOAL-R2 migration work
@@ -16,6 +16,14 @@ decision.
 ## Starting checkpoint
 
 Do not repeat completed work.
+
+The original configuration-4 requests and R1.4 smoke/full-run freeze use
+`gpt-5.6-luna` at `max` reasoning. That lineage is preserved at 78/305 sealed
+R1.5 first-half tasks. The 2026-09-23 user-directed GPT-6 Luna repeat below
+has a separate predeclared lineage and does not relabel or replace those keys.
+Its qualification and 44 smoke tasks are sealed and replay valid, with all six
+systems `VALID`. The 196-row, 610-task full run is prepared with zero full-run
+provider calls. Start those tasks only when the user requests the main run.
 
 - Configuration-3 `lineage-v4` is immutable historical evidence under
   `data/eval/legacy/m4-config3`: 37/37 tasks and 84/84 evaluations replayed;
@@ -142,6 +150,24 @@ R1.4 under a new numbered freeze when required.
 ## R1.5 - begin the one-time hidden evaluation
 
 **Budget:** <= 5 hours. **Depends on:** green R1.4.
+
+**2026-09-23 recovery checkpoint:** Original GPT-5.6 Luna/max subagent logs
+for `/root/r15_oracle_009`, `/root/r15_agent_020`, and
+`/root/r15_adaptive_022` matched three saved finals byte-for-byte. Those
+previously captured finals were sealed and replayed under the unchanged
+official full-run identity. The checkpoint now has 78/305 sealed first-half
+tasks and 227 pending; no new provider calls or hidden-case reruns occurred.
+The local CLI reaches GPT-5.6 Luna/max but is a different transport, so fresh
+official keys still require the frozen `collaboration_subagent` worker route.
+
+**2026-09-23 user-directed GPT-6 Luna repeat:** The user authorized a fresh
+`gpt-6-luna`/`max` evaluation. Preserve the original GPT-5.6 Luna run and its
+78 sealed first-half tasks. Create a separate additive lineage with a new model,
+request hashes, smoke qualification, all-system smoke, and full-run identity.
+Run no new full task before its own smoke readiness gate. Since this repeats a
+previously opened hidden roster, report its results as a follow-up comparison,
+not as a first-look hidden-test estimate. Do not pool old and new model rows or
+overwrite original artifacts.
 
 1. Revalidate the freeze and prove the hidden roster is still unread.
 2. Create one official hidden-run identity and immutable run-key order.

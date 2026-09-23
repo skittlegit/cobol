@@ -21,6 +21,7 @@ from cobol_archaeologist.eval.codex_tool import ADAPTIVE_HUNT, ToolLogEntry
 from cobol_archaeologist.eval.materialize import MaterializedSource
 
 MODEL_ID = "gpt-5.6-luna"
+CollaborationModelID = Literal["gpt-5.6-luna", "gpt-6-luna"]
 REASONING_EFFORT = "max"
 TRANSPORT_ID = "collaboration_subagent"
 PROVIDER_ID = "collaboration_subagent"
@@ -117,7 +118,7 @@ class CollaborationSubagentRequest(BaseModel):
     transport: Literal["collaboration_subagent"] = TRANSPORT_ID
     provider: Literal["collaboration_subagent"] = PROVIDER_ID
     authentication: Literal["in_product_orchestration"] = AUTHENTICATION
-    model_id: Literal["gpt-5.6-luna"] = MODEL_ID
+    model_id: CollaborationModelID = MODEL_ID
     reasoning_effort: Literal["max"] = REASONING_EFFORT
     run_key: str = Field(pattern=r"^[0-9a-f]{64}$")
     request_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
@@ -154,6 +155,7 @@ class CollaborationSubagentRequest(BaseModel):
             authorized_hunts=self.authorized_hunts,
             visible_cases=self.visible_cases,
             group=self.group,
+            model_id=self.model_id,
         )
         if self.request_sha256 != expected:
             raise ValueError("collaboration request identity differs from payload")
@@ -182,7 +184,7 @@ class CollaborationSubagentSubmission(BaseModel):
     request_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     task_name: str = Field(min_length=1)
     task_id: str = Field(min_length=1)
-    model_id: Literal["gpt-5.6-luna"] = MODEL_ID
+    model_id: CollaborationModelID = MODEL_ID
     reasoning_effort: Literal["max"] = REASONING_EFFORT
     group: CollaborationGroupIdentity
     final_json: str = Field(min_length=2)
@@ -296,7 +298,7 @@ class CollaborationSubagentSubmissionV2(BaseModel):
     request_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     task_name: str = Field(min_length=1)
     task_id: str = Field(min_length=1)
-    model_id: Literal["gpt-5.6-luna"] = MODEL_ID
+    model_id: CollaborationModelID = MODEL_ID
     reasoning_effort: Literal["max"] = REASONING_EFFORT
     group: CollaborationGroupIdentity
     final_json: str = Field(min_length=2)
@@ -469,6 +471,7 @@ def collaboration_request_sha256(
     authorized_hunts: Sequence[str],
     visible_cases: int,
     group: CollaborationGroupIdentity,
+    model_id: CollaborationModelID = MODEL_ID,
 ) -> str:
     """Hash every model/method/input/group field without any OAuth identity."""
 
@@ -478,7 +481,7 @@ def collaboration_request_sha256(
                 "transport": TRANSPORT_ID,
                 "provider": PROVIDER_ID,
                 "authentication": AUTHENTICATION,
-                "model_id": MODEL_ID,
+                "model_id": model_id,
                 "reasoning_effort": REASONING_EFFORT,
                 "run_key": run_key,
                 "prompt_sha256": _sha_bytes(prompt.encode("utf-8")),
@@ -504,6 +507,7 @@ def build_collaboration_request(
     authorized_hunts: Sequence[str],
     visible_cases: int,
     group: CollaborationGroupIdentity,
+    model_id: CollaborationModelID = MODEL_ID,
 ) -> CollaborationSubagentRequest:
     schema_payload = dict(schema)
     model_visible_prompt = self_contained_collaboration_prompt(prompt, schema_payload)
@@ -511,6 +515,7 @@ def build_collaboration_request(
         alias: source.source_sha256 for alias, source in sorted(sources.items())
     }
     return CollaborationSubagentRequest(
+        model_id=model_id,
         run_key=run_key,
         request_sha256=collaboration_request_sha256(
             run_key=run_key,
@@ -521,6 +526,7 @@ def build_collaboration_request(
             authorized_hunts=authorized_hunts,
             visible_cases=visible_cases,
             group=group,
+            model_id=model_id,
         ),
         prompt=model_visible_prompt,
         prompt_sha256=_sha_bytes(model_visible_prompt.encode("utf-8")),

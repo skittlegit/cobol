@@ -580,18 +580,22 @@ must name a non-composite leaf from that supplied value.
 D7 is not a default verdict: it requires positive source evidence that the implemented
 literal/comparator matches the clause. D6 supplies dead_paragraph evidence and
 delegates reachability to the verifier. Do not emit explanations outside the
-required JSON schema.
+required JSON schema. Before submitting, parse the complete final in your
+working context and check it against the supplied schema. In particular,
+remove dangling commas and reject malformed JSON rather than emitting it.
 
 Frozen hunt instructions:
 {hunt_guide}
 
 Evidence-hook requirements: D1 supplies a source literal and compares it with
-the resolved current-value leaf; D2 supplies typed insertion lines and negative
-grep, caller, callee, and slice observations; D3 supplies two read_paragraph
-observations, two conflicting loci, and a static hook; D4 resolves a copybook
-and names a missing/extra enum value; D5 compares typed source and clause
-comparators; D6 supplies a read paragraph plus dead_paragraph; D7 uses
-conformant labels with no drift lines plus positive literal/comparator evidence.
+the resolved current-value leaf; D2 supplies typed insertion lines and evidence
+from the relevant paragraph, scoped grep, and data slice; D3 supplies a typed
+contradictory source locus and a static hook, using multiple paragraph reads
+when the contradiction is internal; D4 resolves a copybook and names a
+missing/extra enum value; D5 supplies a typed source comparator and explains
+the resulting branch boundary; D6 supplies a read paragraph plus either
+dead_paragraph or a disabled-guard literal; D7 uses conformant labels with no
+drift lines plus positive literal/comparator evidence.
 For every non-null static hook, `static_claim.literal` and
 `static_claim.comparator` are exact substrings copied from a cited tool
 observation; they are source tokens, not explanations. Positive:

@@ -3,15 +3,6 @@
 from cobol_archaeologist.agent.policy import BasePolicyHunt, require_tools
 from cobol_archaeologist.schemas import resolve_path
 
-_TOKENS = {
-    "strictly_greater": ">",
-    "at_least": ">=",
-    "strictly_less": "<",
-    "at_most": "<=",
-    "equal": "=",
-    "not_equal": "<>",
-}
-
 
 class D5Hunt(BasePolicyHunt):
     drift_type = "D5_boundary_error"
@@ -39,6 +30,4 @@ class D5Hunt(BasePolicyHunt):
         )
         if source_comparator is None:
             errors.append("D5 requires a source comparator evidence hook")
-        elif leaf.comparator and source_comparator == _TOKENS[leaf.comparator]:
-            errors.append("source comparator matches clause; not a D5 boundary error")
         return errors

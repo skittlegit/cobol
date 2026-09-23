@@ -1,0 +1,138 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "4511719f3931eb874e2290586f8c534740ff2ab9e62bd99df8187bf26e518387",
+          "hypothesis": "D7_conformant",
+          "bearing": "context",
+          "rationale": "The read_program observation indexes 1000-MAIN and 2000-DECIDE, establishing the candidate decision paragraph for source review."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "767f118e559b09fef6ab64c7c0b86fd497630a5e34527a5fbf6a24c09ad5bbf4",
+          "hypothesis": "D7_conformant",
+          "bearing": "supports",
+          "rationale": "The 2000-DECIDE text contains an unactivated-account path that tests WS-DAYS-SINCE-ISSUE > 30 and then seeks OTP, followed by a consent-window check that closes the account after the 7-day window."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "767f118e559b09fef6ab64c7c0b86fd497630a5e34527a5fbf6a24c09ad5bbf4",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "refutes",
+          "rationale": "The observed source literals 30 and 7 match the composite clause leaves activation_window=30 and closure_window=7."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "767f118e559b09fef6ab64c7c0b86fd497630a5e34527a5fbf6a24c09ad5bbf4",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "context",
+          "rationale": "The observed > predicates test whether each at-most window has been exceeded, so the source comparisons are over-window enforcement checks rather than evidence of a different threshold boundary."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "767f118e559b09fef6ab64c7c0b86fd497630a5e34527a5fbf6a24c09ad5bbf4",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "refutes",
+          "rationale": "The paragraph has positive branches for OTP seeking and account closure, so the regulated decision is not absent."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "767f118e559b09fef6ab64c7c0b86fd497630a5e34527a5fbf6a24c09ad5bbf4",
+          "hypothesis": "D3_contradictory",
+          "bearing": "context",
+          "rationale": "One reachable decision paragraph is shown and no second typed locus with a conflicting outcome for either window is observed."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "767f118e559b09fef6ab64c7c0b86fd497630a5e34527a5fbf6a24c09ad5bbf4",
+          "hypothesis": "D4_stale_reference_data",
+          "bearing": "context",
+          "rationale": "Both selected clause leaves are duration values; the observed decision does not use an enum_set reference collection."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "eb7b6dc3a6fa63ca4bde456bca0b0d601102ed918e2b942b764643d657df3dd1",
+          "hypothesis": "D6_dead_code",
+          "bearing": "refutes",
+          "rationale": "The 1000-MAIN observation shows PERFORM 2000-DECIDE, establishing that the decision paragraph is reachable."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "0f08a156af0c44fb03272f9fc6ccc0cc477b67f0a8c6a5cd75d39637a1bf904f",
+          "hypothesis": "D7_conformant",
+          "bearing": "supports",
+          "rationale": "The scoped grep confirms WS-CONSENT-DAYS is accepted and compared with > 7 at line 27, supporting the closure-window enforcement path."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "0f08a156af0c44fb03272f9fc6ccc0cc477b67f0a8c6a5cd75d39637a1bf904f",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "refutes",
+          "rationale": "The scoped grep returns a positive WS-CONSENT-DAYS comparison and action input, invalidating a missing-rule hypothesis."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "a1f8232013e10d7081888d1664a856947ab873e93c870d310ec2af1c1d8dcfb6",
+          "hypothesis": "D7_conformant",
+          "bearing": "supports",
+          "rationale": "The scoped grep confirms WS-DAYS-SINCE-ISSUE is accepted and compared with > 30 at line 26, supporting the activation-window enforcement path."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The reachable decision paragraph implements both composite duration windows: it seeks OTP after the 30-day activation window and closes after the 7-working-day consent window.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": null,
+                "line_span": [26, 26]
+              },
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": null,
+                "line_span": [27, 27]
+              }
+            ],
+            "slice_vars": ["WS-DAYS-SINCE-ISSUE", "WS-ACTIVATED", "WS-CONSENT-DAYS", "WS-ACTION"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": [
+              {
+                "program": "ACTIVAT1",
+                "line": 26,
+                "file": null
+              },
+              {
+                "program": "ACTIVAT1",
+                "line": 27,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The composite clause resolves to activation_window at_most 30 days and closure_window at_most 7 working days. In 2000-DECIDE, WS-DAYS-SINCE-ISSUE > 30 routes unactivated accounts to SEEKOTP after the activation window, and WS-CONSENT-DAYS > 7 routes absent-consent cases to CLOSE after the consent window. 1000-MAIN supplies the inputs and performs this paragraph."
+        },
+        "claim": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+        "exec_probe": {
+          "stdin": "31\nN\n8\n",
+          "expect_substring": "ACTION: CLOSE",
+          "description": "An unactivated card at 31 days with no consent and 8 days since seeking confirmation should reach the required closure action."
+        },
+        "static_claim": null,
+        "abstention_reason": null,
+        "final_answer": "D7_conformant: the reachable decision paragraph implements the 30-day activation and 7-working-day closure windows."
+      }
+    }
+  ]
+}

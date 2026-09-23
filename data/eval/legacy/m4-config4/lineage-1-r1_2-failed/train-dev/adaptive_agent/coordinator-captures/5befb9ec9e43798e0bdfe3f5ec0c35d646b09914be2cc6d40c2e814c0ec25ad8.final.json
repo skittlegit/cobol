@@ -1,0 +1,98 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "96854dda8500fa81c43a50fa9a12e5901911a94d7e1da9e9207bdef2f492a195",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The program index identifies 2000-FEE at lines 20-25 as the fee-decision paragraph, so that paragraph is the typed locus to inspect for the composite clause's grace-period and charge-base rules."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "1ae87a91549d58a37ab73a3d0265b0a8522f2352a78041fae460b29f0f5a2375",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The fee paragraph applies a charge when WS-DAYS-PAST-DUE > ZERO, whereas the resolved past_due_grace leaf requires strictly more than 3 days; the threshold literal is stale."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "1ae87a91549d58a37ab73a3d0265b0a8522f2352a78041fae460b29f0f5a2375",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "refutes",
+          "rationale": "The source comparator is '>', which matches the resolved strictly_greater comparator; the defect is the ZERO threshold rather than an inclusive/exclusive boundary mismatch."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "47a8f5479f84e7e92cc874a05b9205e0fb20eb1e2af2a05fd47c4b0d1561e60c",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The main paragraph accepts the outstanding amount and days-past-due separately and reaches 2000-FEE, confirming that the observed threshold governs the live fee path."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "eaffb1e03844c665a6562f590f2e9b3bc588de3dfb622473645b472af36cd8d3",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The complete scoped trace finds exactly one decision use of WS-DAYS-PAST-DUE, at line 21 as IF WS-DAYS-PAST-DUE > ZERO, supplying the exact static tokens and ruling out an unenumerated second threshold for this regulated condition."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "eaffb1e03844c665a6562f590f2e9b3bc588de3dfb622473645b472af36cd8d3",
+          "hypothesis": "D3_contradictory",
+          "bearing": "refutes",
+          "rationale": "The variable trace enumerates only one reachable typed days-past-due comparison, so there are not two loci producing conflicting grace-period outcomes."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The live fee path contains a single days-past-due comparison. Its strict comparator is correct, but ZERO does not match the resolved three-day grace leaf, making D1 the best-supported class; the charge computation separately uses the outstanding amount.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE2",
+                "paragraph": "2000-FEE",
+                "file": null,
+                "line_span": [
+                  21,
+                  21
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-PAST-DUE",
+              "WS-CHARGE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE2",
+                "line": 21,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "LATEFEE2 line 21 authorizes the fee when WS-DAYS-PAST-DUE > ZERO. The composite clause's past_due_grace leaf requires more than 3 days. The '>' comparator is correct, but ZERO is stale and causes charges during days 1 through 3."
+        },
+        "claim": "A card account may be reported past due or assessed penal charges only after it is past due for strictly more than 3 days, measured from the payment due date, and any late charge applies only to the outstanding amount after that due date rather than the Total Amount Due.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "LATEFEE2 has a stale grace-period threshold: line 21 permits a late fee for more than ZERO days past due instead of only after more than 3 days."
+      }
+    }
+  ]
+}

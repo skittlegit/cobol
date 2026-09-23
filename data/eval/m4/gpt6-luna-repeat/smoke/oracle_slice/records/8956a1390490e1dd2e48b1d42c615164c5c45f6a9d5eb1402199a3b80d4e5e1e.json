@@ -1,0 +1,112 @@
+{
+  "instance_id": "drift_274886",
+  "gold": {
+    "instance_id": "drift_274886",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SANCBAT2",
+          "paragraph": null,
+          "file": "UNSCREG2.cpy",
+          "line_span": [
+            3,
+            3
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-BATCH-ROUTE",
+        "WS-RECORD-COUNT",
+        "WS-SCREEN-COUNT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SANCBAT2",
+          "line": 3,
+          "file": "UNSCREG2.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'S88' to '(deleted)' at SANCBAT2:UNSCREG2.cpy:3-3, producing D4_stale_reference_data. MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "SANCBAT2.cbl",
+      "mutation": "MO-4; locus=SANCBAT2:UNSCREG2.cpy:3-3; old='S88'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"56(prevention)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"UNSC-ISIL-Daesh-AlQaida-1267-1989-2253\",\"UNSC-Taliban-1988\"],\"comparator\":null,\"note\":\"clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally\"}},\"program\":\"SANCBAT2\",\"slices\":[{\"variable\":\"WS-BATCH-ROUTE\",\"scoped_program\":\"SANCBAT2\",\"statements\":[{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-BATCH-ROUTE  PIC X(6) VALUE 'HOLD'.\"},{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":\"2000-ROUTE-FEED\",\"line_start\":20,\"line_end\":22},\"text\":\"IF MANDATED-SANCTIONS-FEED\\n              MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\\n              MOVE 'SCREEN' TO WS-BATCH-ROUTE\"},{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":\"2000-ROUTE-FEED\",\"line_start\":22,\"line_end\":22},\"text\":\"MOVE 'SCREEN' TO WS-BATCH-ROUTE\"},{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":\"2000-ROUTE-FEED\",\"line_start\":24,\"line_end\":24},\"text\":\"MOVE 'HOLD' TO WS-BATCH-ROUTE\"}],\"paragraphs\":[{\"program\":\"SANCBAT2\",\"paragraph\":\"2000-ROUTE-FEED\"}],\"is_interprocedural\":false},{\"variable\":\"WS-RECORD-COUNT\",\"scoped_program\":\"SANCBAT2\",\"statements\":[{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-RECORD-COUNT PIC 9(6) VALUE ZERO.\"},{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":\"1000-MAIN\",\"line_start\":14,\"line_end\":14},\"text\":\"ACCEPT WS-RECORD-COUNT\"}],\"paragraphs\":[{\"program\":\"SANCBAT2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-SCREEN-COUNT\",\"scoped_program\":\"SANCBAT2\",\"statements\":[{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-RECORD-COUNT PIC 9(6) VALUE ZERO.\"},{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":null,\"line_start\":10,\"line_end\":10},\"text\":\"01  WS-SCREEN-COUNT PIC 9(6) VALUE ZERO.\"},{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":\"1000-MAIN\",\"line_start\":14,\"line_end\":14},\"text\":\"ACCEPT WS-RECORD-COUNT\"},{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":\"1000-MAIN\",\"line_start\":15,\"line_end\":15},\"text\":\"PERFORM 2000-ROUTE-FEED\"},{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":\"2000-ROUTE-FEED\",\"line_start\":20,\"line_end\":22},\"text\":\"IF MANDATED-SANCTIONS-FEED\\n              MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\\n              MOVE 'SCREEN' TO WS-BATCH-ROUTE\"},{\"ref\":{\"program\":\"SANCBAT2\",\"paragraph\":\"2000-ROUTE-FEED\",\"line_start\":21,\"line_end\":21},\"text\":\"MOVE WS-RECORD-COUNT TO WS-SCREEN-COUNT\"}],\"paragraphs\":[{\"program\":\"SANCBAT2\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"SANCBAT2\",\"paragraph\":\"2000-ROUTE-FEED\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The clause prohibits accounts in the names of people or entities on the specified UNSC lists. The supplied code shows feed routing and record counting, but not account-name matching or a downstream screening outcome.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The slice shows a mandated feed routed to SCREEN, but does not show whether a downstream stage checks account names against the UNSC lists and prevents the prohibited accounts.",
+        "final_answer": "The clause requires preventing accounts in the names of individuals or entities on the specified UNSC lists. SANCBAT2 routes a mandated feed to SCREEN and passes a record count, but the supplied slice does not establish whether a downstream stage performs the required account screening. I cannot classify the full control from this evidence.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause prohibits accounts in the names of people or entities on the specified UNSC lists. The supplied code shows feed routing and record counting, but not account-name matching or a downstream screening outcome.\",\"prediction\":null,\"claim\":\"An entity must not have an account in the name of an individual or entity suspected of terrorist links who appears on a list approved and periodically circulated by the United Nations Security Council.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"SCREEN\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":\"The slice shows a mandated feed routed to SCREEN, but does not show whether a downstream stage checks account names against the UNSC lists and prevents the prohibited accounts.\",\"final_answer\":\"The clause requires preventing accounts in the names of individuals or entities on the specified UNSC lists. SANCBAT2 routes a mandated feed to SCREEN and passes a record count, but the supplied slice does not establish whether a downstream stage performs the required account screening. I cannot classify the full control from this evidence.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The slice shows a mandated feed routed to SCREEN, but does not show whether a downstream stage checks account names against the UNSC lists and prevents the prohibited accounts.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires preventing accounts in the names of individuals or entities on the specified UNSC lists. SANCBAT2 routes a mandated feed to SCREEN and passes a record count, but the supplied slice does not establish whether a downstream stage performs the required account screening. I cannot classify the full control from this evidence.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The slice shows a mandated feed routed to SCREEN, but does not show whether a downstream stage checks account names against the UNSC lists and prevents the prohibited accounts.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "37c0577d9dd2ed0c40fdcca2f6c5c3d97aaa520060a03bcdf4afa4f679107545",
+  "run_key": "8956a1390490e1dd2e48b1d42c615164c5c45f6a9d5eb1402199a3b80d4e5e1e"
+}

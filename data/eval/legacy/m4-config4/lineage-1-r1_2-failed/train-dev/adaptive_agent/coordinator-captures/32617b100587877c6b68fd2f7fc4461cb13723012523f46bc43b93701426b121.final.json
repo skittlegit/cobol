@@ -1,0 +1,99 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "36fc27c08edcdfa0fb3f72963b7da2ef4254bbd933be6933b3aec94fb318e8ce",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The program index identifies 2000-DECIDE at lines 22-35 as the decision paragraph that must be inspected for both leaves of the activation-and-closure composite rule."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "2d04d3446d2d04985a78308ed1f78ad915d90c93f3945d2e787bdeec3bddbd50",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The live decision waits until WS-DAYS-SINCE-ISSUE > 45 before seeking OTP or considering closure, while the resolved activation_window leaf is 30 days."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "2d04d3446d2d04985a78308ed1f78ad915d90c93f3945d2e787bdeec3bddbd50",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "refutes",
+          "rationale": "Positive source evidence shows that the non-activation condition, OTP-seeking action, consent waiting period, and closure action all exist, so this is not an absent-rule case."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "5fb1ede5c319949f9abc0c34b3873281d8b0d7879c7a39baf553308c8ed42366",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The complete scoped trace enumerates exactly one decision use for WS-DAYS-SINCE-ISSUE and returns the exact source tokens IF WS-DAYS-SINCE-ISSUE > 45 at line 26."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "5fb1ede5c319949f9abc0c34b3873281d8b0d7879c7a39baf553308c8ed42366",
+          "hypothesis": "D3_contradictory",
+          "bearing": "refutes",
+          "rationale": "Only one typed activation-window comparison is present, so there are not two reachable activation loci with conflicting outcomes."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "8d97e813865e82c3e5bc2719ba3f21e04a0b9106fd2198642a098fdcc078c436",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The separate closure-window trace finds the distinct consent-days comparison with literal 7 at line 27; it does not supply another activation-window locus or conflict with the stale activation literal 45."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The source positively implements the workflow and exposes both composite-rule variables. The only activation-window locus uses 45 days instead of the resolved 30-day leaf, making D1 the strongest supported finding without conflating the separate closure-window condition.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": null,
+                "line_span": [
+                  26,
+                  26
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ACTIVATED",
+              "WS-DAYS-SINCE-ISSUE",
+              "WS-ACTION"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "activation_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "ACTIVAT1",
+                "line": 26,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "ACTIVAT1 line 26 tests WS-DAYS-SINCE-ISSUE > 45 before entering the OTP/closure workflow. The applicable composite activation_window permits at most 30 days before OTP-based consent must be sought. Literal 45 is stale and delays the required workflow by 15 days."
+        },
+        "claim": "For an issuer's unactivated credit-card account, OTP-based consent must be sought when activation has not occurred within 30 days of issuance, and if consent remains absent the account must be closed without cost within 7 working days after confirmation was sought.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "45",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "ACTIVAT1 has a stale activation window: line 26 waits for more than 45 days since issuance instead of starting the OTP-consent workflow after the 30-day activation limit."
+      }
+    }
+  ]
+}

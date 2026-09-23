@@ -1,0 +1,103 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "11eaec7e350ae455bc9233cf1c0925dd7e22da640d3d7321993bb87351f65568",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "context",
+          "rationale": "Successful read_program observation step 1 (SHA-256 11eaec7e350ae455bc9233cf1c0925dd7e22da640d3d7321993bb87351f65568) enumerates ACTIVAT1's 1000-MAIN and 2000-DECIDE paragraphs, identifying the decision paragraph to inspect; it establishes bounded source structure but not yet the missing-rule outcome."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "294144c963732c358dbbc802a7148ffc99c955ff8854c6c63adde54e49d41b6c",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "Successful read_paragraph observation step 2 (SHA-256 294144c963732c358dbbc802a7148ffc99c955ff8854c6c63adde54e49d41b6c) shows only the activation-window decision `WS-DAYS-SINCE-ISSUE <= 30` and no consent-dependent closure decision or close action in 2000-DECIDE. This identifies the closure_window rule as the missing regulated check."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "eb7b6dc3a6fa63ca4bde456bca0b0d601102ed918e2b942b764643d657df3dd1",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "Successful read_paragraph observation step 3 (SHA-256 eb7b6dc3a6fa63ca4bde456bca0b0d601102ed918e2b942b764643d657df3dd1) shows 1000-MAIN accepts WS-DAYS-SINCE-ISSUE, WS-ACTIVATED, and WS-CONSENT-DAYS, performs 2000-DECIDE, and displays the action. The relevant decision path is reachable and the consent-days input is present for the missing closure rule."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "f7bbdb0030a6e8118b619343c50d25f5d6e208ecd47b46fcca146ad71675b1ed",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "context",
+          "rationale": "Successful grep observation step 4 (SHA-256 f7bbdb0030a6e8118b619343c50d25f5d6e208ecd47b46fcca146ad71675b1ed) found `CLOSE` only in the source comment describing the intended activation/consent window. This is an edit cue, not executable code evidence, so it does not establish a regulated closure check or serve as the required negative scoped grep."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "4bdd48c9dc1c5cb12a6f223f818d364bc9969ea4bf953b4cc1efe3c704624681",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "Successful trace_variable observation step 5 (SHA-256 4bdd48c9dc1c5cb12a6f223f818d364bc9969ea4bf953b4cc1efe3c704624681) finds WS-CONSENT-DAYS only at its definition and ACCEPT, with no use in a decision or closure action. This is negative data-flow evidence for the missing closure rule."
+        },
+        {
+          "observation_step": 6,
+          "observation_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "Successful find_callees observation step 6 (SHA-256 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945) returns an empty callee set for 2000-DECIDE. No delegated closure verifier or consent-confirmation routine is called from the decision paragraph, providing the required negative callee-graph evidence."
+        },
+        {
+          "observation_step": 7,
+          "observation_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "Successful find_callers observation step 7 (SHA-256 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945) returns an empty caller set for the closure-action locus search. No separate closure routine is reachable, providing the required negative caller-graph evidence for the absent rule."
+        },
+        {
+          "observation_step": 8,
+          "observation_sha256": "5707a47dc463b407c29ac4904fd90c9b3e3e4ed1c1bf801dcb806a9d079ced23",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "Successful scoped grep observation step 8 (SHA-256 5707a47dc463b407c29ac4904fd90c9b3e3e4ed1c1bf801dcb806a9d079ced23) returns no matches for the closure-action code token. This is the required negative scoped-grep evidence that no closure action is implemented."
+        },
+        {
+          "observation_step": 9,
+          "observation_sha256": "53ac1262915e60461807c453e09f0e2c95b6d53da305c2eef5cd1a45624ff86c",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "Successful slice_on observation step 9 (SHA-256 53ac1262915e60461807c453e09f0e2c95b6d53da305c2eef5cd1a45624ff86c) contains only the WS-CONSENT-DAYS definition and ACCEPT in 1000-MAIN, with no decision statement or downstream closure paragraph. This supplies the required negative data-slice evidence and identifies the reachable typed insertion point in 2000-DECIDE."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The activation-window check is present, but the closure_window rule has no executable check or close action. The targeted scoped grep, caller graph, callee graph, and data slice are all negative for the missing closure rule, so the evidence supports D2_missing_rule.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": null,
+                "line_span": [22, 35]
+              }
+            ],
+            "slice_vars": ["WS-CONSENT-DAYS", "WS-ACTIVATED", "WS-DAYS-SINCE-ISSUE"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": []
+          },
+          "rationale": "ACTIVAT1 paragraph 2000-DECIDE implements the 30-day activation-window check, but no branch checks absent consent after seeking confirmation and no action closes the account within seven working days. WS-CONSENT-DAYS is accepted in 1000-MAIN yet has no downstream use; the typed insertion point is the reachable 2000-DECIDE decision paragraph."
+        },
+        "claim": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; if consent is absent, the account must be closed without cost within seven working days of seeking confirmation.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": null,
+        "final_answer": "D2 missing rule: ACTIVAT1 accepts consent timing but has no executable closure check or account-close action for the required seven-working-day window after absent consent."
+      }
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 6,
+          "observation_sha256": "54db34ade44b226358824fdfadfe32d82a6855217e27a7f3a018cbeb02528483",
+          "hypothesis": "D3_contradictory",
+          "bearing": "context",
+          "rationale": "The successful read_program observation indexes one relevant fee paragraph, 2000-FEE (lines 20-25), for the regulated behavior; it supplies no second typed locus or conflicting outcome, so D3 is not established."
+        },
+        {
+          "observation_step": 7,
+          "observation_sha256": "3ec0e08e76465dc630d48bb7ebf38c7a4c67ee6c3c8b033beaccffffbb65f730",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "refutes",
+          "rationale": "The successful 2000-FEE source contains IF WS-DAYS-PAST-DUE > 3; the literal 3 agrees with the resolved past_due_grace value 3, so a stale threshold is refuted."
+        },
+        {
+          "observation_step": 7,
+          "observation_sha256": "3ec0e08e76465dc630d48bb7ebf38c7a4c67ee6c3c8b033beaccffffbb65f730",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "refutes",
+          "rationale": "The source comparator token > is the strict-greater comparator resolved for the three-day threshold, so the observed boundary matches and D5 is refuted."
+        },
+        {
+          "observation_step": 7,
+          "observation_sha256": "3ec0e08e76465dc630d48bb7ebf38c7a4c67ee6c3c8b033beaccffffbb65f730",
+          "hypothesis": "D7_conformant",
+          "bearing": "supports",
+          "rationale": "The successful paragraph observation provides positive code evidence for the >3-day gate and shows WS-CHARGE computed from WS-OUTSTANDING, matching the resolved charge base."
+        },
+        {
+          "observation_step": 8,
+          "observation_sha256": "47a8f5479f84e7e92cc874a05b9205e0fb20eb1e2af2a05fd47c4b0d1561e60c",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "refutes",
+          "rationale": "The successful 1000-MAIN observation shows PERFORM 2000-FEE, while the paragraph observation reports 2000-FEE as its callee; the regulated check is present and reachable, so D2's absence contract fails."
+        },
+        {
+          "observation_step": 8,
+          "observation_sha256": "47a8f5479f84e7e92cc874a05b9205e0fb20eb1e2af2a05fd47c4b0d1561e60c",
+          "hypothesis": "D6_dead_code",
+          "bearing": "refutes",
+          "rationale": "The successful main-paragraph observation shows 1000-MAIN performs 2000-FEE, providing a reachable caller and refuting a dead compliance paragraph."
+        },
+        {
+          "observation_step": 9,
+          "observation_sha256": "c8bb5e7c5ae79152d285fd55b4f127a4f7f4084d402fb9cc815360717b7089f6",
+          "hypothesis": "D7_conformant",
+          "bearing": "supports",
+          "rationale": "The successful grep observation shows WS-OUTSTANDING declared, accepted, and used in the charge multiplication, reinforcing the outstanding amount charge-base evidence."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "Class arbitration: 2000-FEE is the single reachable typed locus for the regulated fee check. Its positive source evidence uses literal 3 with > and multiplies by WS-OUTSTANDING. D1 and D5 are refuted; D2 and D6 fail because the rule is present and reachable; D3 has no conflicting typed locus; D4 is inapplicable because the enum_set is a nested charge_base leaf rather than a clause-level reference collection. D7 therefore has positive matching code evidence.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE2",
+                "paragraph": "2000-FEE",
+                "file": null,
+                "line_span": [20, 25]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-PAST-DUE",
+              "WS-CHARGE",
+              "WS-OUTSTANDING"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "At LATEFEE2 paragraph 2000-FEE (lines 20-25), the observed condition is WS-DAYS-PAST-DUE > 3, matching the clause's past_due_grace value 3 and strictly_greater comparator. The same paragraph computes WS-CHARGE from WS-OUTSTANDING, and 1000-MAIN reaches it; this matches the charge_base value outstanding_after_due_date. The typed locus is in the program's own source, so file is null."
+        },
+        "claim": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "3",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Conformant: LATEFEE2 applies the more-than-three-day gate and computes the charge from WS-OUTSTANDING."
+      }
+    }
+  ]
+}

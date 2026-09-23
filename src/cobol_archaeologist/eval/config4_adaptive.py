@@ -219,8 +219,6 @@ def _load_freeze_and_preparation(
                 failures["__freeze_artifact__"] = (
                     "request preparation freeze artifact hash differs"
                 )
-    if freeze is not None and freeze.selection != "dev":
-        failures["__selection__"] = "adaptive readiness requires the dev-only selection"
     if preparation is not None and preparation.status != "PROVIDER_FREE_READY_NON_HEADLINE":
         failures["__preparation_status__"] = "request preparation is not provider-free dev readiness"
     return freeze, preparation, failures
@@ -375,6 +373,7 @@ def score_config4_adaptive_readiness(
     pending_instance_ids: Sequence[str] = (),
     infrastructure_failures: Mapping[str, Config4ReplayFailure] = {},
     contract_rejections: Mapping[str, Config4ReplayFailure] = {},
+    completion_gate_name: str = "complete_102_row_dev_trial",
 ) -> Config4AdaptiveReadiness:
     """Score records and apply every non-headline adaptive-dev gate."""
 
@@ -399,7 +398,7 @@ def score_config4_adaptive_readiness(
                 reason=record.infrastructure_error,
             )
     gates = {
-        "complete_102_row_dev_trial": len(records) == expected_row_count,
+        completion_gate_name: len(records) == expected_row_count,
         "zero_infrastructure_failures": not infrastructure,
         "zero_contract_rejections": not contracts,
         "zero_unverified_emissions": unverified == 0,
@@ -485,26 +484,6 @@ def replay_config4_adaptive_dev(
         records = {}
         markers = {}
 
-    try:
-        rows_with_split = load_train_dev_rows(root=root, selection="dev")
-    except Exception as exc:  # noqa: BLE001 - dev roster is host input
-        rows_with_split = ()
-        infrastructure["__dev_roster__"] = _failure(
-            kind="infrastructure",
-            instance_id="__dev_roster__",
-            reason=f"unable to load dev roster: {type(exc).__name__}: {exc}",
-        )
-    rows = {row.instance_id: (row, split) for row, split in rows_with_split}
-    if len(rows) != expected_row_count:
-        infrastructure["__dev_roster_count__"] = _failure(
-            kind="infrastructure",
-            instance_id="__dev_roster__",
-            reason=(
-                f"expected {expected_row_count} dev rows, observed {len(rows)}; "
-                "the complete dev gate cannot use a smaller denominator"
-            ),
-        )
-
     freeze, preparation, artifact_failures = _load_freeze_and_preparation(
         output_dir=output_dir
     )
@@ -513,6 +492,36 @@ def replay_config4_adaptive_dev(
             kind="infrastructure", instance_id=key, reason=reason
         )
     freeze_hash = canonical_sha256(freeze) if freeze is not None else ZERO_HASH
+    selection = freeze.selection if freeze is not None else "dev"
+    qualification = selection != "dev"
+    selected_ids = (
+        tuple(item.instance_id for item in freeze.selected_rows)
+        if freeze is not None and qualification
+        else None
+    )
+    try:
+        rows_with_split = load_train_dev_rows(
+            root=root,
+            selection=selection,
+            row_ids=selected_ids,
+        )
+    except Exception as exc:  # noqa: BLE001 - train/dev roster is host input
+        rows_with_split = ()
+        infrastructure["__train_dev_roster__"] = _failure(
+            kind="infrastructure",
+            instance_id="__train_dev_roster__",
+            reason=f"unable to load {selection} roster: {type(exc).__name__}: {exc}",
+        )
+    rows = {row.instance_id: (row, split) for row, split in rows_with_split}
+    if len(rows) != expected_row_count:
+        infrastructure["__train_dev_roster_count__"] = _failure(
+            kind="infrastructure",
+            instance_id="__train_dev_roster__",
+            reason=(
+                f"expected {expected_row_count} {selection} rows, observed {len(rows)}; "
+                "the frozen roster cannot use a smaller denominator"
+            ),
+        )
     pins: dict[str, Config4RequestPin] = {}
     task_count = preparation.task_count if preparation is not None else 0
     if preparation is not None:
@@ -548,19 +557,24 @@ def replay_config4_adaptive_dev(
             infrastructure[_failure_key(instance_id, "not_selected")] = _failure(
                 kind="infrastructure",
                 instance_id=instance_id,
-                reason="dev row is absent from the immutable configuration-4 freeze",
+                reason=(
+                    f"{selection} row is absent from the immutable "
+                    "configuration-4 freeze"
+                ),
             )
         for instance_id in sorted(frozen_ids - set(rows)):
             infrastructure[_failure_key(instance_id, "not_dev")]= _failure(
                 kind="infrastructure",
                 instance_id=instance_id,
-                reason="freeze selected a row outside the complete dev roster",
+                reason=f"freeze selected a row outside the frozen {selection} roster",
             )
     for instance_id in sorted(set(rows) - set(pins)):
         infrastructure[_failure_key(instance_id, "not_prepared")] = _failure(
             kind="infrastructure",
             instance_id=instance_id,
-            reason="dev row has no immutable provider-free request preparation",
+            reason=(
+                f"{selection} row has no immutable provider-free request preparation"
+            ),
         )
     for instance_id, pin in sorted(pins.items()):
         if instance_id not in rows:
@@ -568,14 +582,14 @@ def replay_config4_adaptive_dev(
                 kind="infrastructure",
                 instance_id=instance_id,
                 run_key=pin.run_key,
-                reason="request preparation contains a non-dev row",
+                reason=f"request preparation contains a non-{selection} row",
             )
         elif pin.source_split != rows[instance_id][1]:
             infrastructure[_failure_key(instance_id, "split_mismatch")] = _failure(
                 kind="infrastructure",
                 instance_id=instance_id,
                 run_key=pin.run_key,
-                reason="request pin split differs from the dev roster",
+                reason=f"request pin split differs from the {selection} roster",
             )
         if freeze is not None and instance_id in frozen_by_id:
             frozen = frozen_by_id[instance_id]
@@ -746,6 +760,11 @@ def replay_config4_adaptive_dev(
         pending_instance_ids=pending,
         infrastructure_failures=infrastructure,
         contract_rejections=contracts,
+        completion_gate_name=(
+            "complete_predeclared_qualification_roster"
+            if qualification
+            else "complete_102_row_dev_trial"
+        ),
     )
     progress = Config4AdaptiveProgress(
         freeze_sha256=freeze_hash,

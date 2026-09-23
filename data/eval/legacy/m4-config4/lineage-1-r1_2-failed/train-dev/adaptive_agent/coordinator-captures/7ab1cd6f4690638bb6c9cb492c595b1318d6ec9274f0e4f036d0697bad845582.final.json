@@ -1,0 +1,84 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "62adac79d16caf957708d39fe4c552b3198a7a2cfd66cfa58c9a18be7b6de050",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The program index identifies 2000-CLASSIFY at lines 22-34 as the classification paragraph, requiring paragraph-level source inspection before deciding whether a threshold drift exists."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "7eed2c0d368426a53348010abc145721033b3b6f6290ec622f59dd9fb36e3e33",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The partnership branch WHEN 'P' tests WS-OWN-PCT > 15.00, while the clause's resolved current percentage is 10 with a strictly-greater comparator; the literal is stale but the comparator semantics match."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "7eed2c0d368426a53348010abc145721033b3b6f6290ec622f59dd9fb36e3e33",
+          "hypothesis": "D3_contradictory",
+          "bearing": "refutes",
+          "rationale": "The complete classification paragraph exposes the typed entity branches, and the only partnership branch has one ownership threshold outcome; the other visible ownership checks also use 15.00 rather than creating a conflicting partnership threshold."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "6f65a9772b8617ef9b93d4c9a23c7ec15d58cdf986aa2a7b40e196fc11de95f0",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The variable trace independently locates the partnership ownership comparison at BOIDENT3 line 29 and returns the exact source tokens WS-OWN-PCT > 15.00 for the static evidence hook."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The positive source evidence establishes a partnership-specific ownership check. Its strictly-greater comparator agrees with the clause, but its 15.00 percentage literal does not match the resolved current value of 10, supporting D1 rather than D2, D3, D4, D5, D6, or D7.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "BOIDENT3",
+                "paragraph": "2000-CLASSIFY",
+                "file": null,
+                "line_span": [
+                  29,
+                  29
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ENTITY-TYPE",
+              "WS-OWN-PCT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "value",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "BOIDENT3",
+                "line": 29,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "In the partnership branch, BOIDENT3 line 29 compares WS-OWN-PCT > 15.00. The applicable current threshold is more than 10 percent. The source comparator '>' correctly implements strictly_greater, but literal 15.00 is stale, so ownership percentages above 10 through 15 are wrongly excluded."
+        },
+        "claim": "For a partnership firm, a natural person is a beneficial owner when that person's ownership of or entitlement to the firm's capital or profits is strictly more than 10 percent.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "15.00",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "BOIDENT3 has a stale partnership beneficial-owner threshold: line 29 uses more than 15.00 percent instead of more than 10 percent."
+      }
+    }
+  ]
+}

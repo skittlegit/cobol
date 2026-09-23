@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 import os
+import time
 from pathlib import Path
 from typing import Literal
 
@@ -73,7 +74,17 @@ def _atomic_write(path: Path, text: str) -> None:
         handle.write(text)
         handle.flush()
         os.fsync(handle.fileno())
-    temporary.replace(path)
+    for attempt in range(5):
+        try:
+            temporary.replace(path)
+            return
+        except PermissionError:
+            if attempt == 4:
+                raise
+            # Windows scanners and indexers can briefly hold the destination
+            # between close() and os.replace(). Preserve atomic replacement,
+            # but tolerate that transient lock with a bounded backoff.
+            time.sleep(0.01 * (2**attempt))
 
 
 def _canonical_sha(model: BaseModel) -> str:

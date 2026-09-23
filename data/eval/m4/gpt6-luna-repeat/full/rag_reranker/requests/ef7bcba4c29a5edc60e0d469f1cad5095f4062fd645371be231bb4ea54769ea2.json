@@ -1,0 +1,423 @@
+{
+  "schema_version": "configuration-3-collaboration-request-v2",
+  "transport": "collaboration_subagent",
+  "provider": "collaboration_subagent",
+  "authentication": "in_product_orchestration",
+  "model_id": "gpt-6-luna",
+  "reasoning_effort": "max",
+  "run_key": "ef7bcba4c29a5edc60e0d469f1cad5095f4062fd645371be231bb4ea54769ea2",
+  "request_sha256": "4b186e5682e4b565841cc3912ed6f7ec651eab50737862b98d5c67b83494e58c",
+  "prompt": "Perform one evidence-grounded COBOL compliance classification for each opaque\ncase using only its supplied rag_reranker context. Tools and file access are not\navailable. Return exactly one response per alias under the required JSON\nschema. A finding must use the alias as prediction.instance_id, copy the\nschema. For a finding, set clause_index to the zero-based index of the supporting clause in context.retrieved_clauses. The host validates that selection and attaches that exact detector-visible clause.\nThe host also attaches the case identity; author the remaining prediction\nfields, cite concrete source loci from the context, and include verifier hooks.\nThe separate claim is the citation hypothesis: write only a regulatory\nobligation entailed by the selected visible clause, without COBOL identifiers\nor implementation facts. Put the code-versus-clause comparison in\nprediction.rationale and final_answer. In a locus, program names the containing\nexecutable program and file names the physical copybook/source filename, never\nan absolute task path. Set target_path to null unless a D1 or D5 finding\ntargets a composite current_value; in that case it must name a non-composite\nleaf from the selected visible clause. D7 requires positive source evidence of\nconformance and is never a default verdict. Abstain when evidence is\ninsufficient. Do not use or infer hidden labels, generation provenance,\nmutation metadata, git history, file timestamps, formatting, comment\nfreshness, or identifier style.\n\nDetector-visible cases:\n[{\"alias\":\"drift_900000\",\"context\":{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":5.303750038146973},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"11(6)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"activation_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":-2.0516772270202637},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(7)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Changes in charges take prospective effect only, with prior notice of at least one month.\",\"current_value\":{\"kind\":\"duration_months\",\"value\":1,\"comparator\":\"at_least\",\"note\":null}},\"score\":-3.7169880867004395},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"31\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"cutoff\":{\"kind\":\"formula\",\"value\":\"min(0.01 * credit_limit, 5000_inr)\",\"comparator\":null,\"note\":null},\"consent_window\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"reversal_window\":{\"kind\":\"duration_working_days\",\"value\":3,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":-4.2095818519592285},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"20\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a card is unused for more than one year, initiate closure after intimating the cardholder; if no reply within 30 days, close the account (subject to dues) and update the CIC within 30 days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"inactivity_threshold\":{\"kind\":\"duration_years\",\"value\":1,\"comparator\":\"strictly_greater\",\"note\":\"Trigger: closure workflow fires when unused for MORE THAN one year. Stale side is UP (later closure of dormant accounts = laxer).\"},\"reply_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"cic_update_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":-4.605912208557129}],\"program\":\"FILE T6CL04.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6CL04.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-CLOSURE-RECORD.\\n0007:            05  WS-WORK-DAYS-TO-CLOSE PIC 9(4) VALUE ZERO.\\n0008:            05  WS-EXCESS-WORK-DAYS   PIC S9(5) VALUE ZERO.\\n0009:            05  WS-AMOUNT-DUE         PIC 9(7)V99 VALUE ZERO.\\n0010:        PROCEDURE DIVISION.\\n0011:        1000-MAIN.\\n0012:            ACCEPT WS-WORK-DAYS-TO-CLOSE\\n0013:            PERFORM 2300-ASSESS-PENALTY\\n0014:            DISPLAY WS-AMOUNT-DUE\\n0015:            STOP RUN.\\n0016:        2300-ASSESS-PENALTY.\\n0017:            COMPUTE WS-EXCESS-WORK-DAYS =\\n0018:               WS-WORK-DAYS-TO-CLOSE - 7\\n0019:            IF WS-EXCESS-WORK-DAYS IS POSITIVE\\n0020:               COMPUTE WS-AMOUNT-DUE =\"}},{\"alias\":\"drift_900001\",\"context\":{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":5.303750038146973},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"11(6)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"activation_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":-2.0516772270202637},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(7)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Changes in charges take prospective effect only, with prior notice of at least one month.\",\"current_value\":{\"kind\":\"duration_months\",\"value\":1,\"comparator\":\"at_least\",\"note\":null}},\"score\":-3.7169880867004395},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"31\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"cutoff\":{\"kind\":\"formula\",\"value\":\"min(0.01 * credit_limit, 5000_inr)\",\"comparator\":null,\"note\":null},\"consent_window\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"reversal_window\":{\"kind\":\"duration_working_days\",\"value\":3,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":-4.2095818519592285},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"20\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a card is unused for more than one year, initiate closure after intimating the cardholder; if no reply within 30 days, close the account (subject to dues) and update the CIC within 30 days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"inactivity_threshold\":{\"kind\":\"duration_years\",\"value\":1,\"comparator\":\"strictly_greater\",\"note\":\"Trigger: closure workflow fires when unused for MORE THAN one year. Stale side is UP (later closure of dormant accounts = laxer).\"},\"reply_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"cic_update_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":-4.605912208557129}],\"program\":\"FILE T6CL05.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6CL05.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-CALENDAR.\\n0007:            05  WS-DAY-ENTRY OCCURS 31 TIMES.\\n0008:                10  WS-BUSINESS-FLAG PIC X VALUE 'N'.\\n0009:                    88  BUSINESS-DAY VALUE 'Y'.\\n0010:        01  WS-STATE.\\n0011:            05  WS-DAYS-OBSERVED      PIC 9(2) VALUE ZERO.\\n0012:            05  WS-SCAN-INDEX         PIC 9(2) VALUE ZERO.\\n0013:            05  WS-BUSINESS-COUNT     PIC 9(2) VALUE ZERO.\\n0014:            05  WS-CHARGE-DAYS        PIC S9(3) VALUE ZERO.\\n0015:            05  WS-PENALTY            PIC 9(7)V99 VALUE ZERO.\\n0016:        PROCEDURE DIVISION.\\n0017:        1000-MAIN.\\n0018:            ACCEPT WS-DAYS-OBSERVED\\n0019:            PERFORM 2400-SCAN-CALENDAR\\n0020:            DISPLAY WS-PENALTY\\nFILE T6CL05.cbl LINES 21-32\\n0021:            STOP RUN.\\n0022:        2400-SCAN-CALENDAR.\\n0023:            PERFORM VARYING WS-SCAN-INDEX FROM 1 BY 1\\n0024:               UNTIL WS-SCAN-INDEX > WS-DAYS-OBSERVED\\n0025:               IF BUSINESS-DAY(WS-SCAN-INDEX)\\n0026:                  ADD 1 TO WS-BUSINESS-COUNT\\n0027:               END-IF\\n0028:            END-PERFORM\\n0029:            COMPUTE WS-CHARGE-DAYS = WS-BUSINESS-COUNT - 7\\n0030:            IF WS-CHARGE-DAYS > ZERO\\n0031:               COMPUTE WS-PENALTY = 500 * WS-CHARGE-DAYS\\n0032:            END-IF.\"}},{\"alias\":\"drift_900002\",\"context\":{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"score\":8.301251411437988}],\"program\":\"FILE T6BO01.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6BO01.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-PARTNER.\\n0007:            05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\\n0008:            05  WS-IS-BO              PIC X VALUE 'N'.\\n0009:        PROCEDURE DIVISION.\\n0010:        1000-MAIN.\\n0011:            ACCEPT WS-CAPITAL-PCT\\n0012:            PERFORM 2000-IDENTIFY-OWNER\\n0013:            DISPLAY WS-IS-BO\\n0014:            STOP RUN.\\n0015:        2000-IDENTIFY-OWNER.\\n0016:            IF WS-CAPITAL-PCT > 15\\n0017:               MOVE 'Y' TO WS-IS-BO\\n0018:            ELSE\\n0019:               MOVE 'N' TO WS-IS-BO\\n0020:            END-IF.\"}},{\"alias\":\"drift_900003\",\"context\":{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"score\":7.156122207641602}],\"program\":\"FILE T6BO01.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6BO01.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-PARTNER.\\n0007:            05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\\n0008:            05  WS-IS-BO              PIC X VALUE 'N'.\\n0009:        PROCEDURE DIVISION.\\n0010:        1000-MAIN.\\n0011:            ACCEPT WS-CAPITAL-PCT\\n0012:            PERFORM 2000-IDENTIFY-OWNER\\n0013:            DISPLAY WS-IS-BO\\n0014:            STOP RUN.\\n0015:        2000-IDENTIFY-OWNER.\\n0016:            IF WS-CAPITAL-PCT > 15\\n0017:               MOVE 'Y' TO WS-IS-BO\\n0018:            ELSE\\n0019:               MOVE 'N' TO WS-IS-BO\\n0020:            END-IF.\"}},{\"alias\":\"drift_900004\",\"context\":{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"score\":8.301251411437988}],\"program\":\"FILE T6BO02.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6BO02.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-PARTNERSHIP-RULE.\\n0007:            05  WS-LEGACY-BO-LIMIT   PIC 9(3)V99 VALUE 15.\\n0008:        01  WS-APPLICATION.\\n0009:            05  WS-PROFIT-SHARE      PIC 9(3)V99 VALUE ZERO.\\n0010:            05  WS-OWNER-RESULT      PIC X VALUE 'N'.\\n0011:        PROCEDURE DIVISION.\\n0012:        1000-MAIN.\\n0013:            ACCEPT WS-PROFIT-SHARE\\n0014:            PERFORM 2100-CHECK-PROFIT-SHARE\\n0015:            DISPLAY WS-OWNER-RESULT\\n0016:            STOP RUN.\\n0017:        2100-CHECK-PROFIT-SHARE.\\n0018:            IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\\n0019:               MOVE 'Y' TO WS-OWNER-RESULT\\n0020:            ELSE\"}}]\n\n\nSTRICT RESPONSE CONTRACT (part of this frozen model-visible prompt):\nReturn exactly one JSON object matching the JSON Schema below. Do not wrap it in Markdown and do not include any text before or after it.\nJSON Schema (canonical JSON):\n{\"$defs\":{\"ExecProbe\":{\"additionalProperties\":false,\"description\":\"A Tier-1 execution probe: feed ``stdin`` to the compiled locus program and\\nrequire ``expect_substring`` in stdout for the claim to hold.\",\"properties\":{\"description\":{\"title\":\"Description\",\"type\":\"string\"},\"expect_substring\":{\"title\":\"Expect Substring\",\"type\":\"string\"},\"stdin\":{\"title\":\"Stdin\",\"type\":\"string\"}},\"required\":[\"stdin\",\"expect_substring\",\"description\"],\"title\":\"ExecProbe\",\"type\":\"object\"},\"Labels\":{\"additionalProperties\":false,\"properties\":{\"line_level\":{\"items\":{\"$ref\":\"#/$defs/SourceLineRef\"},\"title\":\"Line Level\",\"type\":\"array\"},\"paragraph_level\":{\"enum\":[\"drift\",\"conformant\"],\"title\":\"Paragraph Level\",\"type\":\"string\"},\"program_level\":{\"enum\":[\"drift\",\"conformant\"],\"title\":\"Program Level\",\"type\":\"string\"}},\"required\":[\"program_level\",\"paragraph_level\",\"line_level\"],\"title\":\"Labels\",\"type\":\"object\"},\"SourceLineRef\":{\"additionalProperties\":false,\"properties\":{\"file\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"File\"},\"line\":{\"title\":\"Line\",\"type\":\"integer\"},\"program\":{\"title\":\"Program\",\"type\":\"string\"}},\"required\":[\"program\",\"line\",\"file\"],\"title\":\"SourceLineRef\",\"type\":\"object\"},\"SourceLocus\":{\"additionalProperties\":false,\"properties\":{\"file\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"File\"},\"line_span\":{\"items\":{\"type\":\"integer\"},\"title\":\"Line Span\",\"type\":\"array\"},\"paragraph\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Paragraph\"},\"program\":{\"title\":\"Program\",\"type\":\"string\"}},\"required\":[\"program\",\"paragraph\",\"file\",\"line_span\"],\"title\":\"SourceLocus\",\"type\":\"object\"},\"StaticClaim\":{\"additionalProperties\":false,\"description\":\"A Tier-2 static assertion about the locus, checked against tool facts.\\n\\nAny subset may be given; the attempt verifies iff *all* provided sub-claims\\nhold. ``dead_paragraph`` routes to call-graph reachability (D6).\",\"properties\":{\"comparator\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Comparator\"},\"dead_paragraph\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Dead Paragraph\"},\"literal\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Literal\"}},\"required\":[\"literal\",\"comparator\",\"dead_paragraph\"],\"title\":\"StaticClaim\",\"type\":\"object\"},\"SubmittedBaselineCase\":{\"additionalProperties\":false,\"properties\":{\"alias\":{\"title\":\"Alias\",\"type\":\"string\"},\"clause_index\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"title\":\"Clause Index\"},\"response\":{\"$ref\":\"#/$defs/SubmittedResponse\"}},\"required\":[\"alias\",\"clause_index\",\"response\"],\"title\":\"SubmittedBaselineCase\",\"type\":\"object\"},\"SubmittedCodeLocus\":{\"additionalProperties\":false,\"description\":\"Provider-authored locus before host-side semantic validation.\\n\\nJSON-schema structured output cannot express the cross-field rule that\\nmulti-program loci require ``is_interprocedural=True``. Keep the submitted\\nvalue intact here, then let ``DriftPrediction`` validate it during trusted\\ninput binding. A violation therefore abstains only that hunt instead of\\ninvalidating every row in the provider batch.\",\"properties\":{\"is_interprocedural\":{\"title\":\"Is Interprocedural\",\"type\":\"boolean\"},\"loci\":{\"items\":{\"$ref\":\"#/$defs/SourceLocus\"},\"title\":\"Loci\",\"type\":\"array\"},\"slice_vars\":{\"items\":{\"type\":\"string\"},\"title\":\"Slice Vars\",\"type\":\"array\"}},\"required\":[\"loci\",\"slice_vars\",\"is_interprocedural\"],\"title\":\"SubmittedCodeLocus\",\"type\":\"object\"},\"SubmittedPrediction\":{\"additionalProperties\":false,\"description\":\"Provider-authored prediction fields; trusted inputs are host-attached.\",\"properties\":{\"code_locus\":{\"$ref\":\"#/$defs/SubmittedCodeLocus\"},\"drift_type\":{\"enum\":[\"D1_stale_threshold\",\"D2_missing_rule\",\"D3_contradictory\",\"D4_stale_reference_data\",\"D5_boundary_error\",\"D6_dead_code\",\"D7_conformant\"],\"title\":\"Drift Type\",\"type\":\"string\"},\"labels\":{\"$ref\":\"#/$defs/Labels\"},\"rationale\":{\"title\":\"Rationale\",\"type\":\"string\"},\"target_path\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Target Path\"}},\"required\":[\"code_locus\",\"drift_type\",\"target_path\",\"labels\",\"rationale\"],\"title\":\"SubmittedPrediction\",\"type\":\"object\"},\"SubmittedResponse\":{\"additionalProperties\":false,\"description\":\"Provider-facing final answer without provider-owned telemetry.\",\"properties\":{\"abstention_reason\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Abstention Reason\"},\"claim\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"description\":\"Clause-grounded regulatory proposition entailed by the cited clause; never a COBOL implementation or drift assertion.\",\"title\":\"Claim\"},\"exec_probe\":{\"anyOf\":[{\"$ref\":\"#/$defs/ExecProbe\"},{\"type\":\"null\"}]},\"final_answer\":{\"title\":\"Final Answer\",\"type\":\"string\"},\"kind\":{\"enum\":[\"finding\",\"abstain\"],\"title\":\"Kind\",\"type\":\"string\"},\"prediction\":{\"anyOf\":[{\"$ref\":\"#/$defs/SubmittedPrediction\"},{\"type\":\"null\"}]},\"static_claim\":{\"anyOf\":[{\"$ref\":\"#/$defs/StaticClaim\"},{\"type\":\"null\"}]},\"thought\":{\"title\":\"Thought\",\"type\":\"string\"}},\"required\":[\"kind\",\"thought\",\"prediction\",\"claim\",\"exec_probe\",\"static_claim\",\"abstention_reason\",\"final_answer\"],\"title\":\"SubmittedResponse\",\"type\":\"object\"}},\"additionalProperties\":false,\"properties\":{\"results\":{\"items\":{\"$ref\":\"#/$defs/SubmittedBaselineCase\"},\"title\":\"Results\",\"type\":\"array\"}},\"required\":[\"results\"],\"title\":\"CodexBaselineEnvelope\",\"type\":\"object\"}",
+  "prompt_sha256": "2b3ad23c5c5ad202bb03e52389a44dde11043928ffd7d49bc46563d0c37f959f",
+  "response_schema": {
+    "$defs": {
+      "ExecProbe": {
+        "additionalProperties": false,
+        "description": "A Tier-1 execution probe: feed ``stdin`` to the compiled locus program and\nrequire ``expect_substring`` in stdout for the claim to hold.",
+        "properties": {
+          "stdin": {
+            "title": "Stdin",
+            "type": "string"
+          },
+          "expect_substring": {
+            "title": "Expect Substring",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stdin",
+          "expect_substring",
+          "description"
+        ],
+        "title": "ExecProbe",
+        "type": "object"
+      },
+      "Labels": {
+        "additionalProperties": false,
+        "properties": {
+          "program_level": {
+            "enum": [
+              "drift",
+              "conformant"
+            ],
+            "title": "Program Level",
+            "type": "string"
+          },
+          "paragraph_level": {
+            "enum": [
+              "drift",
+              "conformant"
+            ],
+            "title": "Paragraph Level",
+            "type": "string"
+          },
+          "line_level": {
+            "items": {
+              "$ref": "#/$defs/SourceLineRef"
+            },
+            "title": "Line Level",
+            "type": "array"
+          }
+        },
+        "required": [
+          "program_level",
+          "paragraph_level",
+          "line_level"
+        ],
+        "title": "Labels",
+        "type": "object"
+      },
+      "SourceLineRef": {
+        "additionalProperties": false,
+        "properties": {
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "line": {
+            "title": "Line",
+            "type": "integer"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          }
+        },
+        "required": [
+          "program",
+          "line",
+          "file"
+        ],
+        "title": "SourceLineRef",
+        "type": "object"
+      },
+      "SourceLocus": {
+        "additionalProperties": false,
+        "properties": {
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paragraph"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "line_span": {
+            "title": "Line Span",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "program",
+          "paragraph",
+          "file",
+          "line_span"
+        ],
+        "title": "SourceLocus",
+        "type": "object"
+      },
+      "StaticClaim": {
+        "additionalProperties": false,
+        "description": "A Tier-2 static assertion about the locus, checked against tool facts.\n\nAny subset may be given; the attempt verifies iff *all* provided sub-claims\nhold. ``dead_paragraph`` routes to call-graph reachability (D6).",
+        "properties": {
+          "literal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Literal"
+          },
+          "comparator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparator"
+          },
+          "dead_paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dead Paragraph"
+          }
+        },
+        "title": "StaticClaim",
+        "type": "object",
+        "required": [
+          "literal",
+          "comparator",
+          "dead_paragraph"
+        ]
+      },
+      "SubmittedBaselineCase": {
+        "additionalProperties": false,
+        "properties": {
+          "alias": {
+            "title": "Alias",
+            "type": "string"
+          },
+          "clause_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clause Index"
+          },
+          "response": {
+            "$ref": "#/$defs/SubmittedResponse"
+          }
+        },
+        "required": [
+          "alias",
+          "clause_index",
+          "response"
+        ],
+        "title": "SubmittedBaselineCase",
+        "type": "object"
+      },
+      "SubmittedCodeLocus": {
+        "additionalProperties": false,
+        "description": "Provider-authored locus before host-side semantic validation.\n\nJSON-schema structured output cannot express the cross-field rule that\nmulti-program loci require ``is_interprocedural=True``. Keep the submitted\nvalue intact here, then let ``DriftPrediction`` validate it during trusted\ninput binding. A violation therefore abstains only that hunt instead of\ninvalidating every row in the provider batch.",
+        "properties": {
+          "loci": {
+            "items": {
+              "$ref": "#/$defs/SourceLocus"
+            },
+            "title": "Loci",
+            "type": "array"
+          },
+          "slice_vars": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Slice Vars",
+            "type": "array"
+          },
+          "is_interprocedural": {
+            "title": "Is Interprocedural",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "loci",
+          "slice_vars",
+          "is_interprocedural"
+        ],
+        "title": "SubmittedCodeLocus",
+        "type": "object"
+      },
+      "SubmittedPrediction": {
+        "additionalProperties": false,
+        "description": "Provider-authored prediction fields; trusted inputs are host-attached.",
+        "properties": {
+          "code_locus": {
+            "$ref": "#/$defs/SubmittedCodeLocus"
+          },
+          "drift_type": {
+            "enum": [
+              "D1_stale_threshold",
+              "D2_missing_rule",
+              "D3_contradictory",
+              "D4_stale_reference_data",
+              "D5_boundary_error",
+              "D6_dead_code",
+              "D7_conformant"
+            ],
+            "title": "Drift Type",
+            "type": "string"
+          },
+          "target_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Path"
+          },
+          "labels": {
+            "$ref": "#/$defs/Labels"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code_locus",
+          "drift_type",
+          "target_path",
+          "labels",
+          "rationale"
+        ],
+        "title": "SubmittedPrediction",
+        "type": "object"
+      },
+      "SubmittedResponse": {
+        "additionalProperties": false,
+        "description": "Provider-facing final answer without provider-owned telemetry.",
+        "properties": {
+          "kind": {
+            "enum": [
+              "finding",
+              "abstain"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "thought": {
+            "title": "Thought",
+            "type": "string"
+          },
+          "prediction": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SubmittedPrediction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Clause-grounded regulatory proposition entailed by the cited clause; never a COBOL implementation or drift assertion.",
+            "title": "Claim"
+          },
+          "exec_probe": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ExecProbe"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "static_claim": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/StaticClaim"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "abstention_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstention Reason"
+          },
+          "final_answer": {
+            "title": "Final Answer",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "thought",
+          "prediction",
+          "claim",
+          "exec_probe",
+          "static_claim",
+          "abstention_reason",
+          "final_answer"
+        ],
+        "title": "SubmittedResponse",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "results": {
+        "items": {
+          "$ref": "#/$defs/SubmittedBaselineCase"
+        },
+        "title": "Results",
+        "type": "array"
+      }
+    },
+    "required": [
+      "results"
+    ],
+    "title": "CodexBaselineEnvelope",
+    "type": "object"
+  },
+  "schema_sha256": "4cfd615511fe3fbaff2ffbdbbd615b852ed89c0db7e585e5083696e48bd41d48",
+  "source_sha256": {},
+  "runtime_source_sha256": "dcfc7257cae6b98597e3b505c93af671143559d7f7e4fc79f9854785bd168ef9",
+  "authorized_hunts": [],
+  "visible_cases": 5,
+  "prior_case_context_included": false,
+  "group": {
+    "group_id": "config4:full:rag_reranker",
+    "mode": "concurrent",
+    "ordinal": 10,
+    "size": 40
+  }
+}

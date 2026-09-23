@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from cobol_archaeologist.agent.hunts.d3 import D3Hunt
 from cobol_archaeologist.agent.hunts.d4 import D4Hunt
 from cobol_archaeologist.agent.policy import (
     HUNT_REGISTRY,
@@ -203,6 +204,44 @@ def test_interprogram_d3_has_typed_loci_and_line_ownership(tools):
     }
     with pytest.raises(ValidationError):
         DriftInstance.model_validate(dumped)
+
+
+def test_d3_counts_unique_paragraph_reads_and_accepts_bypass_wording():
+    payload = json.loads(json.dumps(_rows("d3")[-1]))
+    first = payload["prediction"]["code_locus"]["loci"][0]
+    payload["prediction"]["code_locus"]["loci"] = [
+        first,
+        {**first, "line_span": [first["line_span"][1], first["line_span"][1]]},
+    ]
+    payload["prediction"]["code_locus"]["is_interprocedural"] = False
+    payload["prediction"]["labels"]["line_level"] = [
+        {
+            "program": first["program"],
+            "line": first["line_span"][0],
+            "file": first["file"],
+        }
+    ]
+    payload["prediction"]["rationale"] = (
+        "The downstream action bypasses the invalid state."
+    )
+    response = AgentResponse.model_validate(payload)
+    errors = D3Hunt().validate_response(
+        response,
+        [
+            {
+                "step": 1,
+                "tool": "read_paragraph",
+                "arguments": {"program": first["program"], "name": first["paragraph"]},
+                "observation_summary": "{}",
+                "observation_truncated": False,
+                "error": None,
+            }
+        ],
+        response.prediction.regulation_clause,
+    )
+
+    assert not any("read_paragraph calls" in error for error in errors)
+    assert not any("conflicting outcomes" in error for error in errors)
 
 
 def test_insufficient_evidence_is_guarded_before_loop_emission(tools):

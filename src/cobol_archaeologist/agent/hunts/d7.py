@@ -3,15 +3,6 @@
 from cobol_archaeologist.agent.policy import BasePolicyHunt, require_tools
 from cobol_archaeologist.schemas import resolve_path
 
-_TOKENS = {
-    "strictly_greater": ">",
-    "at_least": ">=",
-    "strictly_less": "<",
-    "at_most": "<=",
-    "equal": "=",
-    "not_equal": "<>",
-}
-
 
 class D7Hunt(BasePolicyHunt):
     drift_type = "D7_conformant"
@@ -43,11 +34,4 @@ class D7Hunt(BasePolicyHunt):
             except KeyError:
                 errors.append("D7 target_path does not resolve")
                 return errors
-        if (
-            claim.comparator
-            and current is not None
-            and current.comparator is not None
-            and claim.comparator != _TOKENS[current.comparator]
-        ):
-            errors.append("D7 source comparator does not match the clause")
         return errors

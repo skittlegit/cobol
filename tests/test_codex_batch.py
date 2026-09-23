@@ -1014,15 +1014,17 @@ def test_agent_prompt_is_gold_hidden_and_pins_per_hunt_real_tool_investigation()
     assert "at least 3 successful" in prompt
     assert "D7 is not a default verdict" in prompt
     assert all(instruction in prompt for instruction in HUNT_PROMPTS.values())
-    assert "caller, callee, and slice observations" in prompt
+    assert "paragraph, scoped grep, and data slice" in prompt
     assert "including scalar, list, or enum-valued leaves" in prompt
-    assert "emit only when all four negative observations are present" in prompt
+    assert "specific required behavior or violation branch is absent" in prompt
     assert "Each D1-D7 HUNT has an independent transcript" in prompt
     assert "there is no shared hunt" in prompt
     assert "program names the containing executable program" in prompt
     assert "are exact substrings copied from a cited tool" in prompt
     assert '{"literal":"7","comparator":">="}' in prompt
     assert "source `>=`; clause `at_most`" in prompt
+    assert "parse the complete final" in prompt
+    assert "remove dangling commas" in prompt
     normalized_prompt = " ".join(prompt.split())
     assert "claim is the citation hypothesis" in normalized_prompt
     assert "without COBOL identifiers or implementation facts" in normalized_prompt

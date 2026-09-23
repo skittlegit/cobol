@@ -60,11 +60,16 @@ entails. Restate the applicable regulated entity, action, trigger, threshold,
 comparator, and unit in natural language. Never put a COBOL program,
 paragraph, identifier, line, implementation fact, or drift diagnosis in
 `claim`; those code facts belong in `prediction.rationale`, `static_claim`,
-and `final_answer`.
+and `final_answer`. Keep the claim as a close paraphrase of the supplied
+clause and preserve its distinctive regulated terms; do not add an entity,
+qualifier, or mechanism that the clause does not state.
 For a static evidence hook, copy `static_claim.literal` and
 `static_claim.comparator` exactly from source text returned by a cited tool
 observation. These fields contain source tokens, never a prose comparison;
 put the explanation in prediction.rationale.
+For D7 over a boolean-required behavior, choose a literal that directly
+participates in the conformant operation (for example, the excluded amount in
+the subtraction), not an unrelated nearby threshold or branch token.
 For every predicted source locus, `file` is null when the line is in the
 program's own source; it is never the program filename. Negative example
 (own source): {"program": "CLOSPEN1", "file": null}. Positive example
@@ -103,14 +108,22 @@ HUNT_PROMPTS: dict[str, str] = {
         "current_value is required for D1."
     ),
     "D2_missing_rule": (
-        "Hunt D2 missing rules: establish absence across the scoped grep, "
-        "caller graph, callee graph, and data slice; emit only when all four "
-        "negative observations are present, and report typed insertion points. "
+        "Hunt D2 missing rules or required outcomes: inspect the relevant "
+        "paragraph, scoped grep, and data slice, and show that the specific "
+        "required behavior or violation branch is absent. Positive surrounding "
+        "control flow does not prove that the required outcome exists. Report "
+        "typed insertion points. Reserve D2 for absence without an existing "
+        "source state or action that positively conflicts with the requirement. "
         "The clause current_value may be null for D2."
     ),
     "D3_contradictory": (
-        "Hunt D3 contradictions: obtain at least two typed loci that produce "
-        "conflicting outcomes for the same regulated condition."
+        "Hunt D3 contradictions: identify source behavior that positively "
+        "contradicts the regulated condition. Use multiple typed loci when the "
+        "contradiction is internal, but one typed source locus may contradict "
+        "the trusted clause directly. If validation detects a violation and "
+        "sets a denial or invalid state but a reachable downstream action "
+        "ignores or bypasses that state, classify the conflicting implemented "
+        "behavior as D3 rather than D2."
     ),
     "D4_stale_reference_data": (
         "Hunt D4 stale reference data only when the clause current value is "
@@ -120,13 +133,15 @@ HUNT_PROMPTS: dict[str, str] = {
         "is required for D4."
     ),
     "D5_boundary_error": (
-        "Hunt D5 boundary errors: compare the source comparator with the "
-        "typed comparator at the resolved current-value leaf. A resolved "
-        "current_value is required for D5."
+        "Hunt D5 boundary errors: evaluate the source comparator together with "
+        "the branch action and say whether the transition occurs early or late. "
+        "A resolved current_value is required for D5."
     ),
     "D6_dead_code": (
-        "Hunt D6 dead compliance code: propose a dead_paragraph static claim "
-        "for the existing verifier; do not infer deadness from caller absence. "
+        "Hunt D6 dead or disabled compliance code: use dead_paragraph for an "
+        "unreachable paragraph, or an exact literal hook for a reachable "
+        "compliance branch disabled by an always-false/default-off guard. "
+        "Do not infer deadness from caller absence alone. "
         "The clause current_value may be null for D6."
     ),
     "D7_conformant": (

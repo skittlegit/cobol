@@ -1,0 +1,139 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "ca54d3f90f7a6cc298ec1407cbad984535b178fcee4f26a9931bc570091f9636",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The scoped source search identifies ACTIVAT1, the program containing the credit-card activation decision logic."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "2f61e70636950678183f14ae2c5103ad3b52a2006ce867510eecde8521b72d9e",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The program index identifies 2000-DECIDE as the paragraph containing the activation and consent timing checks."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "2d04d3446d2d04985a78308ed1f78ad915d90c93f3945d2e787bdeec3bddbd50",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The reachable decision paragraph waits for WS-DAYS-SINCE-ISSUE > 45 before seeking consent, while the trusted activation_window leaf is 30 days; the source threshold literal is stale."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "2d04d3446d2d04985a78308ed1f78ad915d90c93f3945d2e787bdeec3bddbd50",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "context",
+          "rationale": "The source uses an over-window > test for the activation deadline; the selected discrepancy is the literal 45 versus 30, not a comparator-only change."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "2d04d3446d2d04985a78308ed1f78ad915d90c93f3945d2e787bdeec3bddbd50",
+          "hypothesis": "D3_contradictory",
+          "bearing": "refutes",
+          "rationale": "The paragraph has distinct activation and consent-window checks, but no two conflicting typed loci for the same activation-window condition."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "eb7b6dc3a6fa63ca4bde456bca0b0d601102ed918e2b942b764643d657df3dd1",
+          "hypothesis": "D6_dead_code",
+          "bearing": "refutes",
+          "rationale": "1000-MAIN accepts the timing and activation inputs, performs 2000-DECIDE, and displays WS-ACTION, proving the decision paragraph is reachable."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "eb7b6dc3a6fa63ca4bde456bca0b0d601102ed918e2b942b764643d657df3dd1",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "refutes",
+          "rationale": "The main paragraph calls the decision paragraph, where a positive activation timing check is implemented; the regulated rule is not absent."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "cd7423b78962a93cd07b7517d72adf285b0ee863204db5be9224e85168d95df5",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The scoped variable search confirms the timing declarations, inputs, and exact source condition WS-DAYS-SINCE-ISSUE > 45 at line 26."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "cd7423b78962a93cd07b7517d72adf285b0ee863204db5be9224e85168d95df5",
+          "hypothesis": "D4_stale_reference_data",
+          "bearing": "refutes",
+          "rationale": "The trusted current value is a composite of duration leaves, not an enum_set reference collection."
+        },
+        {
+          "observation_step": 6,
+          "observation_sha256": "7aa51a7c0475d39127be750349c7a2ff37e5525c68682ffa3f35adf84ab783df",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The source comment explicitly states a 30-day activation-to-OTP window, while the executable condition uses 45, corroborating the stale activation threshold."
+        },
+        {
+          "observation_step": 6,
+          "observation_sha256": "7aa51a7c0475d39127be750349c7a2ff37e5525c68682ffa3f35adf84ab783df",
+          "hypothesis": "D7_conformant",
+          "bearing": "refutes",
+          "rationale": "The positive activation rule delays the OTP decision beyond the trusted 30-day window, so the implementation does not conform."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The reachable activation branch uses a stale 45-day literal before seeking consent, whereas the trusted activation window is 30 days. The evidence supports D1_stale_threshold at activation_window.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": null,
+                "line_span": [
+                  26,
+                  26
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ACTIVATED",
+              "WS-DAYS-SINCE-ISSUE",
+              "WS-CONSENT-DAYS",
+              "WS-ACTION"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "activation_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "ACTIVAT1",
+                "line": 26,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "In reachable paragraph 2000-DECIDE, line 26 enters the consent decision only when WS-DAYS-SINCE-ISSUE > 45. The trusted activation_window requires the issuer to act by the 30-day limit, so the source literal 45 is stale."
+        },
+        "claim": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; if consent is absent, the account must be closed without cost within 7 working days of seeking confirmation.",
+        "exec_probe": {
+          "stdin": "31\nN\n0\n",
+          "expect_substring": "ACTION: WAIT",
+          "description": "At 31 days after issuance without activation, the source still waits even though the clause requires seeking OTP-based consent after the 30-day window."
+        },
+        "static_claim": {
+          "literal": "45",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D1_stale_threshold: the reachable activation check uses > 45 days instead of the required 30-day window."
+      }
+    }
+  ]
+}

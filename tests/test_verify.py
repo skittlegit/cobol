@@ -220,6 +220,40 @@ def test_tier2_static_reads_copybook_only_locus(offline_entailer):
     assert "CLOSPEN2:WSDAYBAS.cpy" in result.evidence
 
 
+def test_tier2_static_reads_own_source_data_division_locus(tools, offline_entailer):
+    finding = load("supported_tier2")
+    finding = finding.model_copy(
+        update={
+            "prediction": finding.prediction.model_copy(
+                update={
+                    "code_locus": finding.prediction.code_locus.model_copy(
+                        update={
+                            "loci": [
+                                SourceLocus(
+                                    program="CICSLIT",
+                                    paragraph=None,
+                                    file=None,
+                                    line_span=(14, 14),
+                                )
+                            ]
+                        }
+                    )
+                }
+            ),
+            "exec_probe": None,
+            "static_claim": finding.static_claim.model_copy(
+                update={"literal": "45", "comparator": None}
+            ),
+        }
+    )
+
+    result = verify(finding, tools, entailer=offline_entailer)
+
+    assert result.verified
+    assert result.tier == VerificationTier.STATIC
+    assert "CICSLIT:lines-14-14" in result.evidence
+
+
 def test_tier1_unavailable_falls_through_to_tier2_not_tier3(tools, offline_entailer):
     r = verify(load("d6_reachability"), tools, entailer=offline_entailer)
     assert r.tier == VerificationTier.STATIC

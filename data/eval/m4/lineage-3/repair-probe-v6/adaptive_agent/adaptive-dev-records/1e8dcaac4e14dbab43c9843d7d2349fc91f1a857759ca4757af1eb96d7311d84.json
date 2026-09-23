@@ -1,0 +1,533 @@
+{
+  "instance_id": "drift_062370",
+  "gold": {
+    "instance_id": "drift_062370",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "12(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "explicit_consent_before_overlimit",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "OVRLIM1",
+          "paragraph": "1000-PROCESS-BATCH",
+          "file": null,
+          "line_span": [
+            29,
+            30
+          ]
+        },
+        {
+          "program": "OVRLIM1",
+          "paragraph": "1500-LOAD-CONSENT",
+          "file": null,
+          "line_span": [
+            38,
+            38
+          ]
+        },
+        {
+          "program": "OVRLIM1",
+          "paragraph": "2000-VALIDATE-LIMIT",
+          "file": null,
+          "line_span": [
+            43,
+            43
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CONSENT-ON-FILE",
+        "WS-CONSENT-REC-FOUND",
+        "WS-PROJECTED-BAL",
+        "WS-CREDIT-LIMIT",
+        "WS-VALID"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "OVRLIM1",
+          "line": 29,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-3× changes \"IF WS-VALID = 'Y'\" to 'OR WS-CREDIT-LIMIT = ZERO' at OVRLIM1:1000-PROCESS-BATCH:29-30+OVRLIM1:1500-LOAD-CONSENT:38-38+OVRLIM1:2000-VALIDATE-LIMIT:43-43, producing D3_contradictory.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "OVRLIM1.cbl",
+      "mutation": "MO-3×; locus=OVRLIM1:1000-PROCESS-BATCH:29-30+OVRLIM1:1500-LOAD-CONSENT:38-38+OVRLIM1:2000-VALIDATE-LIMIT:43-43; old=\"IF WS-VALID = 'Y'\"; new='OR WS-CREDIT-LIMIT = ZERO'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_062370",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "12(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "explicit_consent_before_overlimit",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "OVRLIM1",
+          "paragraph": "1000-PROCESS-BATCH",
+          "file": null,
+          "line_span": [
+            29,
+            30
+          ]
+        }
+      ],
+      "slice_vars": [],
+      "is_interprocedural": false
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "OVRLIM1",
+          "line": 29,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "At lines 42-44, WS-PROJECTED-BAL > WS-CREDIT-LIMIT and WS-CONSENT-ON-FILE NOT = 'Y' causes MOVE 'N' TO WS-VALID. However, line 29 contains OR WS-CREDIT-LIMIT = ZERO immediately before line 30 PERFORM 3000-POST-TRANSACTION, with no IF WS-VALID guard in the source inventory. The posting action can therefore bypass the detected no-consent invalid state, contradicting the required consent-before-overlimit behavior."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "OVRLIM1:1000-PROCESS-BATCH — literal 'ZERO' present; comparator '=' present",
+    "citation_ok": true,
+    "entailment_probability": 1.0,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "OVRLIM1:1000-PROCESS-BATCH — literal 'ZERO' present; comparator '=' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`. Keep the claim as a close paraphrase of the supplied\nclause and preserve its distinctive regulated terms; do not add an entity,\nqualifier, or mechanism that the clause does not state.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor D7 over a boolean-required behavior, choose a literal that directly\nparticipates in the conformant operation (for example, the excluded amount in\nthe subtraction), not an unrelated nearby threshold or branch token.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 when the specific regulated behavior or required violation outcome\n  is absent. Inspect the relevant paragraph, scoped grep, and data slice,\n  but distinguish positive surrounding control flow from positive evidence of\n  the required outcome itself. A present compliant branch does not cure a\n  missing breach/overdue/denial branch. Do not invent an unstated date\n  derivation, preprocessing step, or implementation mechanism as a missing\n  rule. If complete positive code evidence matches the clause and no supported\n  drift remains, consider D7.\n  Treat a one-sided state machine as incomplete when the regulated outcome for\n  the other side is absent: `days <= 30 -> UPDATE` without an explicit\n  `days > 30 -> BREACH` outcome is D2, and `today <= due -> OK` without an\n  explicit overdue outcome is D2. A zero-day `NEW` special case does not\n  implement a required seven-day SLA. Do not call these partial machines D7.\n- Choose D3 when reachable source behavior positively contradicts the trusted\n  clause. Two source loci are required only for an internal source conflict;\n  one typed computation can contradict the clause directly. For a required\n  exclusion, accepting a regulated amount and then computing the base without\n  excluding it is contradictory, not conformant-by-absence.\n  A validation rule that detects the regulated violation and sets a denial or\n  invalid state, followed by a reachable action that ignores or bypasses that\n  state, is also D3: the implemented validation and action conflict. Do not\n  relabel that case D2 merely because the final gate is malformed or absent.\n  Reserve D2 for a required outcome that is absent without an existing source\n  state or action that positively conflicts with the requirement.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- For D7, put the positive source location in `code_locus`, but set\n  `labels.program_level` and `labels.paragraph_level` to `conformant` and set\n  `labels.line_level` to an empty list. D7 line labels identify drift and must\n  therefore stay empty. When the clause current value is composite, set\n  `target_path` to the exact matching non-composite leaf.\n- Interpret a comparator together with the branch action and control-flow\n  polarity. Do not call D5 from a token-only comparison between a clause's\n  typed comparator and a source predicate. In an elapsed-window state machine,\n  `elapsed > limit` can be the conformant transition after the full allowed\n  window, while `elapsed >= limit` can fire one boundary unit early. Trace the\n  resulting action and use a boundary probe when possible before choosing D5.\n  Apply these exact elapsed-window checks: `delay > 7` is conformant for a\n  seven-day allowed window and `delay >= 7` is one unit early; `elapsed > 30`\n  is conformant for an at-most-30-day window and `elapsed >= 30` is early;\n  `notice >= 30` is conformant for an at-least-30-day requirement and\n  `notice > 30` is late. Do not cancel an early transition merely because a\n  downstream arithmetic expression happens to evaluate to zero at the edge.\n- Choose D6 when the relevant compliance action is unreachable, including a\n  reachable paragraph whose compliance branch is disabled by an always-false\n  or default-off flag. A paragraph caller does not make guarded statements\n  live. Inspect the guard definition and its uses. Use `dead_paragraph` only\n  for a truly unreachable paragraph; for a disabled guard use an exact source\n  literal as the static hook and explain why the action cannot execute.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"OVRLIM1\",\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"12(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"explicit_consent_before_overlimit\",\"comparator\":null,\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "OVRLIM1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 49, \"line_start\": 20, \"name\": \"1000-PROCESS-BATCH\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\lineage-3\\\\repair-probe-v6\\\\adaptive_agent\\\\task-staging\\\\1e8dcaac4e14dbab43c9843d7d2349fc91f1a857759ca4757af1eb96d7311d84\\\\cases\\\\drift_900000\\\\OVRLIM1.cbl\", \"program\": \"OVRLIM1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "OVRLIM1",
+          "name": "1000-PROCESS-BATCH"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-PROCESS-BATCH.\\n           PERFORM UNTIL WS-MORE-TRANSACTIONS NOT = 'Y'\\n              ACCEPT WS-PROJECTED-BAL\\n              ACCEPT WS-CREDIT-LIMIT\\n              ACCEPT WS-CONSENT-REC-FOUND\\n              MOVE 'N' TO WS-POSTED\\n              MOVE 'N' TO WS-CONSENT-ON-FILE\\n              PERFORM 1500-LOAD-CONSENT\\n              PERFORM 2000-VALIDATE-LIMIT\\n              OR WS-CREDIT-LIMIT = ZERO\\n                 PERFORM 3000-POST-TRANSACTION\\n              END-IF\\n              DISPLAY 'POSTED: ' WS-POSTED\\n              ACCEPT WS-MORE-TRANSACTIONS\\n           END-PERFORM\\n           STOP RUN.\\n       1500-LOAD-CONSENT.\\n           IF WS-CONSENT-REC-FOUND = 'Y'\\n              MOVE 'Y' TO WS-CONSENT-ON-FILE\\n           END-IF.\\n       2000-VALIDATE-LIMIT.\\n           MOVE 'Y' TO WS-VALID\\n           IF WS-PROJECTED-BAL > WS-CREDIT-LIMIT\\n              IF WS-CONSENT-ON-FILE NOT = 'Y'\\n                 MOVE 'N' TO WS-VALID\\n              END-IF\\n           END-IF.\\n       3000-POST-TRANSACTION.\\n           MOVE 'Y' TO WS-POSTED.\", \"name\": \"1000-PROCESS-BATCH\", \"ref\": {\"line_end\": 49, \"line_start\": 20, \"paragraph\": \"1000-PROCESS-BATCH\", \"program\": \"OVRLIM1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-VALID"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 17, \"program\": \"OVRLIM1\", \"text\": \"           05  WS-VALID               PIC X(1) VALUE 'N'.\"}, {\"line\": 41, \"program\": \"OVRLIM1\", \"text\": \"           MOVE 'Y' TO WS-VALID\"}, {\"line\": 44, \"program\": \"OVRLIM1\", \"text\": \"                 MOVE 'N' TO WS-VALID\"}], \"pattern\": \"WS-VALID\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "CREDIT-LIMIT"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 4, \"program\": \"OVRLIM1\", \"text\": \"      * BATCH CREDIT-LIMIT VALIDATION WITH CARDHOLDER CONSENT LOOKUP\"}, {\"line\": 11, \"program\": \"OVRLIM1\", \"text\": \"           05  WS-CREDIT-LIMIT        PIC 9(7) VALUE ZERO.\"}, {\"line\": 23, \"program\": \"OVRLIM1\", \"text\": \"              ACCEPT WS-CREDIT-LIMIT\"}, {\"line\": 29, \"program\": \"OVRLIM1\", \"text\": \"              OR WS-CREDIT-LIMIT = ZERO\"}, {\"line\": 42, \"program\": \"OVRLIM1\", \"text\": \"           IF WS-PROJECTED-BAL > WS-CREDIT-LIMIT\"}], \"pattern\": \"CREDIT-LIMIT\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 5,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"OVRLIM1\", \"text\": \"       01  WS-TRANSACTION.\"}, {\"line\": 10, \"program\": \"OVRLIM1\", \"text\": \"           05  WS-PROJECTED-BAL       PIC 9(7) VALUE ZERO.\"}, {\"line\": 11, \"program\": \"OVRLIM1\", \"text\": \"           05  WS-CREDIT-LIMIT        PIC 9(7) VALUE ZERO.\"}, {\"line\": 12, \"program\": \"OVRLIM1\", \"text\": \"       01  WS-CONSENT-STATE.\"}, {\"line\": 13, \"program\": \"OVRLIM1\", \"text\": \"           05  WS-CONSENT-REC-FOUND   PIC X(1) VALUE 'N'.\"}, {\"line\": 14, \"program\": \"OVRLIM1\", \"text\": \"           05  WS-CONSENT-ON-FILE     PIC X(1) VALUE 'N'.\"}, {\"line\": 15, \"program\": \"OVRLIM1\", \"text\": \"       01  WS-CONTROL.\"}, {\"line\": 16, \"program\": \"OVRLIM1\", \"text\": \"           05  WS-MORE-TRANSACTIONS   PIC X(1) VALUE 'Y'.\"}, {\"line\": 17, \"program\": \"OVRLIM1\", \"text\": \"           05  WS-VALID               PIC X(1) VALUE 'N'.\"}, {\"line\": 18, \"program\": \"OVRLIM1\", \"text\": \"           05  WS-POSTED              PIC X(1) VALUE 'N'.\"}, {\"line\": 21, \"program\": \"OVRLIM1\", \"text\": \"           PERFORM UNTIL WS-MORE-TRANSACTIONS NOT = 'Y'\"}, {\"line\": 22, \"program\": \"OVRLIM1\", \"text\": \"              ACCEPT WS-PROJECTED-BAL\"}, {\"line\": 23, \"program\": \"OVRLIM1\", \"text\": \"              ACCEPT WS-CREDIT-LIMIT\"}, {\"line\": 24, \"program\": \"OVRLIM1\", \"text\": \"              ACCEPT WS-CONSENT-REC-FOUND\"}, {\"line\": 25, \"program\": \"OVRLIM1\", \"text\": \"              MOVE 'N' TO WS-POSTED\"}, {\"line\": 26, \"program\": \"OVRLIM1\", \"text\": \"              MOVE 'N' TO WS-CONSENT-ON-FILE\"}, {\"line\": 29, \"program\": \"OVRLIM1\", \"text\": \"              OR WS-CREDIT-LIMIT = ZERO\"}, {\"line\": 32, \"program\": \"OVRLIM1\", \"text\": \"              DISPLAY 'POSTED: ' WS-POSTED\"}, {\"line\": 33, \"program\": \"OVRLIM1\", \"text\": \"              ACCEPT WS-MORE-TRANSACTIONS\"}, {\"line\": 37, \"program\": \"OVRLIM1\", \"text\": \"           IF WS-CONSENT-REC-FOUND = 'Y'\"}, {\"line\": 38, \"program\": \"OVRLIM1\", \"text\": \"              MOVE 'Y' TO WS-CONSENT-ON-FILE\"}, {\"line\": 41, \"program\": \"OVRLIM1\", \"text\": \"           MOVE 'Y' TO WS-VALID\"}, {\"line\": 42, \"program\": \"OVRLIM1\", \"text\": \"           IF WS-PROJECTED-BAL > WS-CREDIT-LIMIT\"}, {\"line\": 43, \"program\": \"OVRLIM1\", \"text\": \"              IF WS-CONSENT-ON-FILE NOT = 'Y'\"}, {\"line\": 44, \"program\": \"OVRLIM1\", \"text\": \"                 MOVE 'N' TO WS-VALID\"}, {\"line\": 48, \"program\": \"OVRLIM1\", \"text\": \"           MOVE 'Y' TO WS-POSTED.\"}], \"pattern\": \"WS-\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 6,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "POSTED"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 18, \"program\": \"OVRLIM1\", \"text\": \"           05  WS-POSTED              PIC X(1) VALUE 'N'.\"}, {\"line\": 25, \"program\": \"OVRLIM1\", \"text\": \"              MOVE 'N' TO WS-POSTED\"}, {\"line\": 32, \"program\": \"OVRLIM1\", \"text\": \"              DISPLAY 'POSTED: ' WS-POSTED\"}, {\"line\": 48, \"program\": \"OVRLIM1\", \"text\": \"           MOVE 'Y' TO WS-POSTED.\"}], \"pattern\": \"POSTED\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 7,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-VALID",
+          "program": "OVRLIM1"
+        },
+        "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [], \"scoped_program\": \"OVRLIM1\", \"statements\": [{\"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": null, \"program\": \"OVRLIM1\"}, \"text\": \"05  WS-VALID               PIC X(1) VALUE 'N'.\"}], \"variable\": \"WS-VALID\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 8,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-VALID",
+          "program": "OVRLIM1"
+        },
+        "observation_summary": "{\"scoped_program\": \"OVRLIM1\", \"sites\": [{\"excerpt\": \"05  WS-VALID               PIC X(1) VALUE 'N'.\", \"kind\": \"def\", \"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": null, \"program\": \"OVRLIM1\"}, \"statement_kind\": \"VALUE-clause\"}], \"variable\": \"WS-VALID\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 9,
+        "tool": "get_data_layout",
+        "arguments": {
+          "record": "WS-TRANSACTION"
+        },
+        "observation_summary": "{\"record\": \"WS-TRANSACTION\", \"root\": {\"children\": [{\"children\": [], \"level\": 5, \"name\": \"WS-PROJECTED-BAL\", \"pic\": \"9(7)\", \"redefines\": null}, {\"children\": [], \"level\": 5, \"name\": \"WS-CREDIT-LIMIT\", \"pic\": \"9(7)\", \"redefines\": null}], \"level\": 1, \"name\": \"WS-TRANSACTION\", \"pic\": null, \"redefines\": null}, \"source\": {\"line_end\": 11, \"line_start\": 9, \"paragraph\": null, \"program\": \"OVRLIM1\"}}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 10,
+        "tool": "get_data_layout",
+        "arguments": {
+          "record": "WS-CONSENT-STATE"
+        },
+        "observation_summary": "{\"record\": \"WS-CONSENT-STATE\", \"root\": {\"children\": [{\"children\": [], \"level\": 5, \"name\": \"WS-CONSENT-REC-FOUND\", \"pic\": \"X(1)\", \"redefines\": null}, {\"children\": [], \"level\": 5, \"name\": \"WS-CONSENT-ON-FILE\", \"pic\": \"X(1)\", \"redefines\": null}], \"level\": 1, \"name\": \"WS-CONSENT-STATE\", \"pic\": null, \"redefines\": null}, \"source\": {\"line_end\": 14, \"line_start\": 12, \"paragraph\": null, \"program\": \"OVRLIM1\"}}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 11,
+        "tool": "find_callees",
+        "arguments": {
+          "program": "OVRLIM1",
+          "para": "1000-PROCESS-BATCH"
+        },
+        "observation_summary": "[]",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 12,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "OVRLIM1",
+          "name": "2000-VALIDATE-LIMIT"
+        },
+        "observation_summary": "ToolLookupError: \"unknown paragraph '2000-VALIDATE-LIMIT' in program 'OVRLIM1'\"",
+        "observation_truncated": false,
+        "error": "ToolLookupError: \"unknown paragraph '2000-VALIDATE-LIMIT' in program 'OVRLIM1'\"",
+        "latency_ms": 0.0
+      },
+      {
+        "step": 13,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "END-IF"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 31, \"program\": \"OVRLIM1\", \"text\": \"              END-IF\"}, {\"line\": 39, \"program\": \"OVRLIM1\", \"text\": \"           END-IF.\"}, {\"line\": 45, \"program\": \"OVRLIM1\", \"text\": \"              END-IF\"}, {\"line\": 46, \"program\": \"OVRLIM1\", \"text\": \"           END-IF.\"}], \"pattern\": \"END-IF\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 14,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "IF"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 1, \"program\": \"OVRLIM1\", \"text\": \"       IDENTIFICATION DIVISION.\"}, {\"line\": 31, \"program\": \"OVRLIM1\", \"text\": \"              END-IF\"}, {\"line\": 37, \"program\": \"OVRLIM1\", \"text\": \"           IF WS-CONSENT-REC-FOUND = 'Y'\"}, {\"line\": 39, \"program\": \"OVRLIM1\", \"text\": \"           END-IF.\"}, {\"line\": 42, \"program\": \"OVRLIM1\", \"text\": \"           IF WS-PROJECTED-BAL > WS-CREDIT-LIMIT\"}, {\"line\": 43, \"program\": \"OVRLIM1\", \"text\": \"              IF WS-CONSENT-ON-FILE NOT = 'Y'\"}, {\"line\": 45, \"program\": \"OVRLIM1\", \"text\": \"              END-IF\"}, {\"line\": 46, \"program\": \"OVRLIM1\", \"text\": \"           END-IF.\"}], \"pattern\": \"IF\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 15,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "3000-POST"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 30, \"program\": \"OVRLIM1\", \"text\": \"                 PERFORM 3000-POST-TRANSACTION\"}, {\"line\": 47, \"program\": \"OVRLIM1\", \"text\": \"       3000-POST-TRANSACTION.\"}], \"pattern\": \"3000-POST\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The typed validation detects an over-limit transaction without consent and marks it invalid, but the reachable posting path is not guarded by that state and includes a credit-limit-zero OR bypass. This is a positive contradiction, so D3 is selected.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_062370",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "12(5)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+            "current_value": {
+              "kind": "boolean_required",
+              "value": "explicit_consent_before_overlimit",
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "OVRLIM1",
+                "paragraph": "1000-PROCESS-BATCH",
+                "file": null,
+                "line_span": [
+                  29,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "OVRLIM1",
+                "line": 29,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "At lines 42-44, WS-PROJECTED-BAL > WS-CREDIT-LIMIT and WS-CONSENT-ON-FILE NOT = 'Y' causes MOVE 'N' TO WS-VALID. However, line 29 contains OR WS-CREDIT-LIMIT = ZERO immediately before line 30 PERFORM 3000-POST-TRANSACTION, with no IF WS-VALID guard in the source inventory. The posting action can therefore bypass the detected no-consent invalid state, contradicting the required consent-before-overlimit behavior."
+        },
+        "claim": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": "=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "OVRLIM1 contradicts the clause: it detects an over-limit transaction without consent but leaves the posting action ungated, with a credit-limit-zero OR path that can bypass the invalid state.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The typed validation detects an over-limit transaction without consent and marks it invalid, but the reachable posting path is not guarded by that state and includes a credit-limit-zero OR bypass. This is a positive contradiction, so D3 is selected.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"OVRLIM1\",\"paragraph\":\"1000-PROCESS-BATCH\",\"file\":null,\"line_span\":[29,30]}],\"slice_vars\":[],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"OVRLIM1\",\"line\":29,\"file\":null}]},\"rationale\":\"At lines 42-44, WS-PROJECTED-BAL > WS-CREDIT-LIMIT and WS-CONSENT-ON-FILE NOT = 'Y' causes MOVE 'N' TO WS-VALID. However, line 29 contains OR WS-CREDIT-LIMIT = ZERO immediately before line 30 PERFORM 3000-POST-TRANSACTION, with no IF WS-VALID guard in the source inventory. The posting action can therefore bypass the detected no-consent invalid state, contradicting the required consent-before-overlimit behavior.\"},\"claim\":\"The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"ZERO\",\"comparator\":\"=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"OVRLIM1 contradicts the clause: it detects an over-limit transaction without consent but leaves the posting action ungated, with a credit-limit-zero OR path that can bypass the invalid state.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 2,
+            "observation_sha256": "7ef971413088998e79e94781a93ac15180255a46c86087a76cc911c4ce7b7eae",
+            "hypothesis": "D3_contradictory",
+            "bearing": "supports",
+            "rationale": "The paragraph sets WS-VALID to 'N' for an over-limit balance without consent, yet places an OR WS-CREDIT-LIMIT = ZERO condition immediately before PERFORM 3000-POST-TRANSACTION, indicating the invalid state can be bypassed."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "1d5c0bb65f8ede2e265675342b79a52f67a1011020760960b327d9fcd0151e57",
+            "hypothesis": "D3_contradictory",
+            "bearing": "supports",
+            "rationale": "The source contains the over-limit comparator WS-PROJECTED-BAL > WS-CREDIT-LIMIT and the separate OR WS-CREDIT-LIMIT = ZERO branch token."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "556c18d01e760bc6b42160e40443ce870e05d421976ea9a58c8f50499d126883",
+            "hypothesis": "D3_contradictory",
+            "bearing": "supports",
+            "rationale": "The source inventory shows WS-VALID is assigned 'N' during validation, while the posting path contains the separate credit-limit-zero OR token."
+          },
+          {
+            "observation_step": 9,
+            "observation_sha256": "655d4b5cb097d7a18bd0c82c405e17976d1150f9d70a96dd223dc8c70b0281fb",
+            "hypothesis": "D3_contradictory",
+            "bearing": "supports",
+            "rationale": "WS-PROJECTED-BAL and WS-CREDIT-LIMIT are typed numeric fields PIC 9(7), confirming the comparison is a typed credit-limit computation."
+          },
+          {
+            "observation_step": 10,
+            "observation_sha256": "5db58a02eeaa9069fc2fc1ad8b333b4454c1399c13b55e6cf989f8503cad5089",
+            "hypothesis": "D3_contradictory",
+            "bearing": "supports",
+            "rationale": "The consent state is explicitly represented by WS-CONSENT-REC-FOUND and WS-CONSENT-ON-FILE, so the validation and bypass concern the regulated consent condition."
+          },
+          {
+            "observation_step": 13,
+            "observation_sha256": "f3136c31f0081ee5fd7edeebe867c1db6041d825d89fc9f6ea825d5237526011",
+            "hypothesis": "D3_contradictory",
+            "bearing": "supports",
+            "rationale": "The source has an END-IF at line 31 around the posting location, but the corresponding IF guard is not present there."
+          },
+          {
+            "observation_step": 14,
+            "observation_sha256": "2745532ec0ed1107295c2cf5f9e93ad9ff1b123de4e04eb976fd6fc1a8420d18",
+            "hypothesis": "D3_contradictory",
+            "bearing": "supports",
+            "rationale": "The IF inventory contains the consent-loading and validation IFs at lines 37, 42, and 43, but no IF WS-VALID gate before the posting action."
+          },
+          {
+            "observation_step": 15,
+            "observation_sha256": "576315a17904db2b0e934563350f3e4bbbc02b85cd382bd2d2348c3d17fb6bd6",
+            "hypothesis": "D3_contradictory",
+            "bearing": "supports",
+            "rationale": "The source directly places PERFORM 3000-POST-TRANSACTION at line 30 and defines the posting paragraph at line 47."
+          }
+        ]
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "OVRLIM1:1000-PROCESS-BATCH — literal 'ZERO' present; comparator '=' present",
+      "citation_ok": true,
+      "entailment_probability": 1.0,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "OVRLIM1:1000-PROCESS-BATCH — literal 'ZERO' present; comparator '=' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_062370",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "12(5)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "current_value": {
+          "kind": "boolean_required",
+          "value": "explicit_consent_before_overlimit",
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "OVRLIM1",
+            "paragraph": "1000-PROCESS-BATCH",
+            "file": null,
+            "line_span": [
+              29,
+              30
+            ]
+          }
+        ],
+        "slice_vars": [],
+        "is_interprocedural": false
+      },
+      "drift_type": "D3_contradictory",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "OVRLIM1",
+            "line": 29,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "At lines 42-44, WS-PROJECTED-BAL > WS-CREDIT-LIMIT and WS-CONSENT-ON-FILE NOT = 'Y' causes MOVE 'N' TO WS-VALID. However, line 29 contains OR WS-CREDIT-LIMIT = ZERO immediately before line 30 PERFORM 3000-POST-TRANSACTION, with no IF WS-VALID guard in the source inventory. The posting action can therefore bypass the detected no-consent invalid state, contradicting the required consent-before-overlimit behavior."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "OVRLIM1 contradicts the clause: it detects an over-limit transaction without consent but leaves the posting action ungated, with a credit-limit-zero OR path that can bypass the invalid state.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "94a705571aaf3d9cb6e2c71fc4263355a2aba2ba79e583f9140bd1d427af6e8e",
+  "run_key": "1e8dcaac4e14dbab43c9843d7d2349fc91f1a857759ca4757af1eb96d7311d84"
+}

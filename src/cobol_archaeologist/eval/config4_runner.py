@@ -41,12 +41,18 @@ from cobol_archaeologist.eval.collaboration_transport import (
     load_collaboration_bundle,
     seal_collaboration_subagent_output,
 )
-from cobol_archaeologist.eval.config3_controls import build_control_contexts
+from cobol_archaeologist.eval.config3_controls import (
+    build_control_contexts,
+    replay_agent_batch,
+    replay_baseline_batch,
+)
 from cobol_archaeologist.eval.config3_live import (
     PHASE5_AGGREGATE_PATHS,
     PHASE5_BASELINE_PATHS,
     CodexAdaptiveEnvelope,
     _load_split,
+    _replay_adaptive_record,
+    _write_record_sidecar,
     build_adaptive_codex_prompt,
     build_agent_prompt,
     build_baseline_prompt,
@@ -67,6 +73,8 @@ from cobol_archaeologist.eval.config4_live import (
     canonical_sha256 as config4_canonical_sha256,
 )
 from cobol_archaeologist.eval.materialize import MaterializedSource, materialize
+from cobol_archaeologist.eval.schemas import EvaluationRecord
+from cobol_archaeologist.model.verify import Entailer, default_entailer
 from cobol_archaeologist.rag.search import RegulationSearch
 from cobol_archaeologist.schemas import DriftInstance
 
@@ -422,6 +430,7 @@ def prepare_config4_run(
                 tool_command=staged.tool_command if staged is not None else None,
             )
             request = build_collaboration_request(
+                model_id=freeze.model_id,
                 run_key=task_key,
                 prompt=prompt,
                 schema=schema,
@@ -487,6 +496,13 @@ def update_config4_progress(
     completed_run_keys: Sequence[str],
     pending_instance_ids: Sequence[str],
     interruptions: Mapping[str, str],
+    infrastructure_failures: Mapping[str, str] | None = None,
+    counted_repair_substitutions: int = 0,
+    verified_non_null_candidates: int = 0,
+    unverified_emissions: int = 0,
+    exact_final_replays: int = 0,
+    records_sha256: str | None = None,
+    execution_sha256: Mapping[str, str] | None = None,
 ) -> Config4Progress:
     """Persist one resumable system progress record with frozen identity checks."""
 
@@ -505,11 +521,26 @@ def update_config4_progress(
     }
     if not set(completed_run_keys).issubset(expected):
         raise ValueError("configuration-4 progress contains an unexpected run key")
-    status = (
-        "VALID"
-        if not pending_instance_ids and not interruptions and set(completed_run_keys) == expected
-        else "IN_PROGRESS"
+    infrastructure_failures = dict(infrastructure_failures or {})
+    execution_sha256 = dict(execution_sha256 or {})
+    evidence_complete = (
+        records_sha256 is not None
+        and exact_final_replays > 0
+        and len(execution_sha256) == exact_final_replays
     )
+    status = "VALID" if (
+        not pending_instance_ids
+        and not interruptions
+        and not infrastructure_failures
+        and counted_repair_substitutions == 0
+        and unverified_emissions == 0
+        and set(completed_run_keys) == expected
+        and evidence_complete
+        and (
+            system_id not in {"agent", "adaptive_agent"}
+            or verified_non_null_candidates >= 1
+        )
+    ) else "IN_PROGRESS"
     progress = Config4Progress(
         freeze_sha256=config4_canonical_sha256(freeze),
         system_id=system_id,
@@ -517,6 +548,13 @@ def update_config4_progress(
         completed_run_keys=sorted(completed_run_keys),
         pending_instance_ids=list(pending_instance_ids),
         interruptions=dict(interruptions),
+        infrastructure_failures=infrastructure_failures,
+        counted_repair_substitutions=counted_repair_substitutions,
+        verified_non_null_candidates=verified_non_null_candidates,
+        unverified_emissions=unverified_emissions,
+        exact_final_replays=exact_final_replays,
+        records_sha256=records_sha256,
+        execution_sha256=execution_sha256,
         status=status,
     )
     _atomic_json(output / mode / system_id / "progress.json", progress)
@@ -586,6 +624,7 @@ def seal_config4_capture(
         )
     )
     submission = CollaborationSubagentSubmissionV2(
+        model_id=request.model_id,
         request_sha256=request.request_sha256,
         task_name=task_name,
         task_id=task_id,
@@ -645,3 +684,132 @@ def replay_config4_capture(
             staging_base=task.staging_base,
         )
     return execution
+
+
+def finalize_config4_system(
+    *,
+    freeze: Config4RunFreeze,
+    rows: Sequence[DriftInstance],
+    preparation: Config4RunPreparation,
+    system_id: str,
+    output_dir: Path | str,
+    entailer: Entailer | None = None,
+    regulation_search: RegulationSearch | None = None,
+) -> tuple[list[EvaluationRecord], Config4Progress]:
+    """Host-replay every sealed exact final and publish one gated system result."""
+
+    if preparation.freeze_sha256 != config4_canonical_sha256(freeze):
+        raise ValueError("configuration-4 preparation differs from the freeze")
+    if tuple(row.instance_id for row in rows) != preparation.row_order:
+        raise ValueError("configuration-4 finalization rows differ from preparation")
+    tasks = [task for task in preparation.tasks if task.system_id == system_id]
+    if not tasks:
+        raise ValueError(f"configuration-4 preparation has no {system_id} tasks")
+    output = _resolve_path(output_dir)
+    artifact_dir = output / preparation.run_mode / system_id
+    sources = {row.instance_id: materialize(row) for row in rows}
+    contexts: Mapping[str, BaseModel] = {}
+    if system_id not in {"agent", "adaptive_agent"}:
+        contexts = build_control_contexts(
+            system_id,
+            rows=rows,
+            sources=sources,
+            regulation_search=regulation_search,
+        )
+    row_keys = {
+        instance_id: run_key
+        for task in tasks
+        for instance_id, run_key in zip(
+            task.row_instance_ids, task.row_run_keys, strict=True
+        )
+    }
+    by_id = {row.instance_id: row for row in rows}
+    records: dict[str, EvaluationRecord] = {}
+    execution_hashes: dict[str, str] = {}
+    entailer = entailer or default_entailer()
+    for task in tasks:
+        execution = replay_config4_capture(task=task)
+        execution_hashes[task.task_key] = config4_canonical_sha256(execution)
+        batch = [by_id[instance_id] for instance_id in task.row_instance_ids]
+        if system_id == "adaptive_agent":
+            if len(batch) != 1:
+                raise ValueError("adaptive exact-final replay is not row-isolated")
+            row = batch[0]
+            batch_records = [
+                _replay_adaptive_record(
+                    row,
+                    source=sources[row.instance_id],
+                    execution=execution,
+                    key=row_keys[row.instance_id],
+                    entailer=entailer,
+                )
+            ]
+        elif system_id == "agent":
+            batch_records = replay_agent_batch(
+                batch=batch,
+                execution=execution,
+                sources=sources,
+                row_keys=row_keys,
+                entailer=entailer,
+            )
+        else:
+            batch_records = replay_baseline_batch(
+                system_id=system_id,  # type: ignore[arg-type]
+                batch=batch,
+                execution=execution,
+                sources=sources,
+                contexts=contexts,
+                row_keys=row_keys,
+                entailer=entailer,
+            )
+        for record in batch_records:
+            if record.run_key in records:
+                raise ValueError("configuration-4 replay returned a duplicate row")
+            _write_record_sidecar(
+                artifact_dir / "records" / f"{record.run_key}.json",
+                record,
+                execution=execution,
+                raw_bundle_key=task.task_key,
+            )
+            records[record.run_key] = record
+    ordered = [records[row_keys[row.instance_id]] for row in rows]
+    canonical_path = artifact_dir / f"{system_id}.jsonl"
+    rendered = "".join(record.model_dump_json() + "\n" for record in ordered)
+    if canonical_path.exists() and canonical_path.read_text(encoding="utf-8") != rendered:
+        raise RuntimeError("refusing to replace configuration-4 canonical records")
+    if not canonical_path.exists():
+        _atomic_write(canonical_path, rendered)
+    records_sha256 = hashlib.sha256(rendered.encode("utf-8")).hexdigest()
+    infrastructure = {
+        record.instance_id: record.infrastructure_error
+        for record in ordered
+        if record.infrastructure_error is not None
+    }
+    unverified = sum(
+        record.prediction is not None
+        and (record.verification is None or not record.verification.verified)
+        for record in ordered
+    )
+    candidates = sum(record.prediction is not None for record in ordered)
+    repairs = sum(
+        record.trajectory.contract_repairs
+        for record in ordered
+        if record.trajectory is not None
+    )
+    progress = update_config4_progress(
+        freeze=freeze,
+        output_dir=output,
+        mode=preparation.run_mode,
+        system_id=system_id,
+        completed_run_keys=tuple(records),
+        pending_instance_ids=(),
+        interruptions={},
+        infrastructure_failures=infrastructure,
+        counted_repair_substitutions=repairs,
+        verified_non_null_candidates=candidates,
+        unverified_emissions=unverified,
+        exact_final_replays=len(tasks),
+        records_sha256=records_sha256,
+        execution_sha256=execution_hashes,
+    )
+    return ordered, progress

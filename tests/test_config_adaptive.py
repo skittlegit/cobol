@@ -280,6 +280,43 @@ def test_replay_is_provider_free_and_distinguishes_pending_capture(
     assert len(preparation.request_order) == 2
 
 
+def test_replay_supports_separately_identified_train_qualification(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write_split(tmp_path, "dev", [_row("drift_100001")])
+    _write_split(tmp_path, "train", [_row("drift_100003", program="TRAIN.cbl")])
+    monkeypatch.setattr(
+        "cobol_archaeologist.eval.config4_prepare.materialize", _fake_materialize
+    )
+    monkeypatch.setattr(
+        "cobol_archaeologist.eval.config4_prepare.runtime_source_sha256",
+        lambda _root: "a" * 64,
+    )
+    monkeypatch.setattr(
+        "cobol_archaeologist.eval.config4_adaptive.materialize", _fake_materialize
+    )
+    output = tmp_path / "data/eval/m4/lineage-2/train-dev/adaptive_agent"
+    prepare_config4_adaptive_dev(
+        root=tmp_path,
+        output_dir=output,
+        selection="train",
+        row_ids=("drift_100003",),
+        limit=None,
+        trial_id="qualification-02",
+    )
+
+    readiness = replay_config4_adaptive_dev(
+        root=tmp_path, output_dir=output, expected_row_count=1
+    )
+
+    assert readiness.status == "IN_PROGRESS"
+    assert readiness.pending_instance_ids == ("drift_100003",)
+    assert readiness.infrastructure_failures == {}
+    assert readiness.contract_rejections == {}
+    assert readiness.gates["complete_predeclared_qualification_roster"] is False
+    assert "complete_102_row_dev_trial" not in readiness.gates
+
+
 def test_replay_marks_host_artifact_failure_separately_from_pending(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

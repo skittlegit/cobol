@@ -41,7 +41,7 @@ MODEL_ID = "gpt-5.6-luna"
 REASONING_EFFORT = "max"
 TRANSPORT_ID = "collaboration_subagent"
 AUTHENTICATION = "in_product_orchestration"
-PROMPT_VERSION = "m4-config4-adaptive-dev-v1"
+PROMPT_VERSION = "m4-config4-adaptive-dev-v7"
 CONFIGURATION = 4
 SOURCE_ALIAS = "drift_900000"
 MAX_WORKERS = 3
@@ -49,12 +49,12 @@ DEFAULT_CASE_LIMIT = 14
 
 DEV_SPLIT_RELATIVE = Path("data/benchmark/v1/dev.jsonl")
 TRAIN_SPLIT_RELATIVE = Path("data/benchmark/v1/train.jsonl")
-OUTPUT_DIR = ROOT / "data/eval/m4/lineage/train-dev/adaptive_agent"
+OUTPUT_DIR = ROOT / "data/eval/m4/lineage-3/train-dev/adaptive_agent"
 FREEZE_NAME = "train-dev-freeze.json"
 INDEX_NAME = "request-preparation.json"
 REQUEST_DIRECTORY_NAME = "requests"
 STAGING_DIRECTORY_NAME = "task-staging"
-GROUP_ID = "config4:train-dev:adaptive_agent"
+GROUP_ID = "config4:train-dev:adaptive_agent:qualification-3"
 _TRIAL_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
 
 SplitName = Literal["dev", "train", "train-dev"]

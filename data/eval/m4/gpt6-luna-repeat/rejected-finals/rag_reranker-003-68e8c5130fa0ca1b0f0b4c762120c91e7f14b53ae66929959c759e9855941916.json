@@ -1,0 +1,113 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "clause_index": null,
+      "response": {
+        "kind": "abstain",
+        "thought": "The supplied source ends at the start of the 30-day condition, before its behavior is visible.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The retrieved clause requires a CIC status update within 30 days after settlement, but the source excerpt stops at line 20 before showing the condition's body or resulting action. The visible code is insufficient to classify compliance.",
+        "final_answer": "The clause sets a 30-day CIC update deadline. The source excerpt ends as the program begins testing that deadline, so its response is not visible. Abstain."
+      }
+    },
+    {
+      "alias": "drift_900001",
+      "clause_index": null,
+      "response": {
+        "kind": "abstain",
+        "thought": "The code subtracts unpaid fees from the interest base, but the supplied source does not establish whether unpaid levies or taxes are included in WS-OUTSTANDING.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The clause prohibits capitalizing unpaid charges, levies, and taxes. The shown calculation subtracts unpaid fees and credits from WS-OUTSTANDING, but does not establish the contents of WS-OUTSTANDING or whether unpaid levies and taxes enter the interest base.",
+        "final_answer": "The clause bars capitalizing unpaid charges, levies, and taxes for interest. The source subtracts unpaid fees and credits from WS-OUTSTANDING, but does not show whether that input includes levies or taxes. The code-versus-clause evidence is insufficient to classify this case, so I abstain."
+      }
+    },
+    {
+      "alias": "drift_900002",
+      "clause_index": 0,
+      "response": {
+        "kind": "finding",
+        "thought": "The close branch is guarded by a strict greater-than-seven condition, so it waits beyond the clause's seven-working-day maximum.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": "ACTIVAT1.cbl",
+                "line_span": [
+                  26,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-ISSUE",
+              "WS-ACTIVATED",
+              "WS-CONSENT-DAYS",
+              "WS-ACTION"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "ACTIVAT1",
+                "line": 27,
+                "file": "ACTIVAT1.cbl"
+              },
+              {
+                "program": "ACTIVAT1",
+                "line": 28,
+                "file": "ACTIVAT1.cbl"
+              },
+              {
+                "program": "ACTIVAT1",
+                "line": 30,
+                "file": "ACTIVAT1.cbl"
+              }
+            ]
+          },
+          "rationale": "Clause 11(6) requires the account to be closed without cost within seven working days of seeking confirmation when consent is absent. In 2000-DECIDE, the close action is reached only when WS-CONSENT-DAYS > 7; at seven days the alternate branch seeks OTP. The visible comparison therefore permits closure only after the stated maximum.",
+        },
+        "claim": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; without consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+        "exec_probe": {
+          "stdin": "31\nN\n8\n",
+          "expect_substring": "ACTION: CLOSE",
+          "description": "With an inactive card and the consent-day counter at eight, the routine closes only after the seven-day maximum has passed."
+        },
+        "static_claim": {
+          "literal": null,
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Clause 11(6) requires closure without cost within seven working days if consent is absent. The code closes only when WS-CONSENT-DAYS is greater than seven, so its close condition crosses the clause's maximum. This is a boundary error."
+      }
+    },
+    {
+      "alias": "drift_900003",
+      "clause_index": null,
+      "response": {
+        "kind": "abstain",
+        "thought": "The supplied source ends at the start of the fee paragraph, before any fee calculation or threshold behavior is visible.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The retrieved clause specifies a past-due threshold and a late-charge base, but the source excerpt ends at line 20 before the 2000-FEE paragraph body. There is not enough implementation evidence to assess either rule.",
+        "final_answer": "The clause restricts past-due reporting and penal charges to accounts past due for more than three days and limits late charges to the outstanding amount after the due date. The source excerpt shows no fee logic beyond the paragraph heading, so I abstain."
+      }
+    }
+  ]
+}

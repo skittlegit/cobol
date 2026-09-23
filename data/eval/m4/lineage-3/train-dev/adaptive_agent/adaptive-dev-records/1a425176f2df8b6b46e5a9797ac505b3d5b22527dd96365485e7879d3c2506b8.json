@@ -1,0 +1,486 @@
+{
+  "instance_id": "drift_088875",
+  "gold": {
+    "instance_id": "drift_088875",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "42(1)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "high_risk": {
+            "kind": "duration_years",
+            "value": 2,
+            "comparator": "at_most",
+            "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+          },
+          "medium_risk": {
+            "kind": "duration_years",
+            "value": 8,
+            "comparator": "at_most",
+            "note": null
+          },
+          "low_risk": {
+            "kind": "duration_years",
+            "value": 10,
+            "comparator": "at_most",
+            "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSCHED2",
+          "paragraph": "2000-DUE",
+          "file": null,
+          "line_span": [
+            22,
+            22
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DUE-YYYY",
+        "WS-LAST-KYC-YYYY"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "high_risk",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSCHED2",
+          "line": 22,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-1 changes '2' to '5' at KYCSCHED2:2000-DUE:22-22, producing D1_stale_threshold.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSCHED2.cbl",
+      "mutation": "MO-1; locus=KYCSCHED2:2000-DUE:22-22; old='2'; new='5'; validation=compiled; stale_source=grid_fallback; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_088875",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "42(1)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "high_risk": {
+            "kind": "duration_years",
+            "value": 2,
+            "comparator": "at_most",
+            "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+          },
+          "medium_risk": {
+            "kind": "duration_years",
+            "value": 8,
+            "comparator": "at_most",
+            "note": null
+          },
+          "low_risk": {
+            "kind": "duration_years",
+            "value": 10,
+            "comparator": "at_most",
+            "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSCHED2",
+          "paragraph": "2000-DUE",
+          "file": null,
+          "line_span": [
+            22,
+            22
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-RISK",
+        "WS-LAST-KYC-YYYY",
+        "WS-DUE-YYYY"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "high_risk",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSCHED2",
+          "line": 22,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "At KYCSCHED2 paragraph 2000-DUE line 22, the reachable high-risk branch computes WS-DUE-YYYY as WS-LAST-KYC-YYYY + 5. The trusted high_risk leaf is a 2-year interval with comparator at_most, so the hardcoded five-year interval is stale and laxer than the permitted ceiling. The +8 medium-risk and +10 low-risk paths match their trusted leaves."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "KYCSCHED2:2000-DUE — literal '5' present",
+    "citation_ok": true,
+    "entailment_probability": 1.0,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "KYCSCHED2:2000-DUE — literal '5' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`. Keep the claim as a close paraphrase of the supplied\nclause and preserve its distinctive regulated terms; do not add an entity,\nqualifier, or mechanism that the clause does not state.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor D7 over a boolean-required behavior, choose a literal that directly\nparticipates in the conformant operation (for example, the excluded amount in\nthe subtraction), not an unrelated nearby threshold or branch token.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 when the specific regulated behavior or required violation outcome\n  is absent. Inspect the relevant paragraph, scoped grep, and data slice,\n  but distinguish positive surrounding control flow from positive evidence of\n  the required outcome itself. A present compliant branch does not cure a\n  missing breach/overdue/denial branch. Do not invent an unstated date\n  derivation, preprocessing step, or implementation mechanism as a missing\n  rule. If complete positive code evidence matches the clause and no supported\n  drift remains, consider D7.\n  Treat a one-sided state machine as incomplete when the regulated outcome for\n  the other side is absent: `days <= 30 -> UPDATE` without an explicit\n  `days > 30 -> BREACH` outcome is D2, and `today <= due -> OK` without an\n  explicit overdue outcome is D2. A zero-day `NEW` special case does not\n  implement a required seven-day SLA. Do not call these partial machines D7.\n- Choose D3 when reachable source behavior positively contradicts the trusted\n  clause. Two source loci are required only for an internal source conflict;\n  one typed computation can contradict the clause directly. For a required\n  exclusion, accepting a regulated amount and then computing the base without\n  excluding it is contradictory, not conformant-by-absence.\n  A validation rule that detects the regulated violation and sets a denial or\n  invalid state, followed by a reachable action that ignores or bypasses that\n  state, is also D3: the implemented validation and action conflict. Do not\n  relabel that case D2 merely because the final gate is malformed or absent.\n  Reserve D2 for a required outcome that is absent without an existing source\n  state or action that positively conflicts with the requirement.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- For D7, put the positive source location in `code_locus`, but set\n  `labels.program_level` and `labels.paragraph_level` to `conformant` and set\n  `labels.line_level` to an empty list. D7 line labels identify drift and must\n  therefore stay empty. When the clause current value is composite, set\n  `target_path` to the exact matching non-composite leaf.\n- Interpret a comparator together with the branch action and control-flow\n  polarity. Do not call D5 from a token-only comparison between a clause's\n  typed comparator and a source predicate. In an elapsed-window state machine,\n  `elapsed > limit` can be the conformant transition after the full allowed\n  window, while `elapsed >= limit` can fire one boundary unit early. Trace the\n  resulting action and use a boundary probe when possible before choosing D5.\n  Apply these exact elapsed-window checks: `delay > 7` is conformant for a\n  seven-day allowed window and `delay >= 7` is one unit early; `elapsed > 30`\n  is conformant for an at-most-30-day window and `elapsed >= 30` is early;\n  `notice >= 30` is conformant for an at-least-30-day requirement and\n  `notice > 30` is late. Do not cancel an early transition merely because a\n  downstream arithmetic expression happens to evaluate to zero at the edge.\n- Choose D6 when the relevant compliance action is unreachable, including a\n  reachable paragraph whose compliance branch is disabled by an always-false\n  or default-off flag. A paragraph caller does not make guarded statements\n  live. Inspect the guard definition and its uses. Use `dead_paragraph` only\n  for a truly unreachable paragraph; for a disabled guard use an exact source\n  literal as the static hook and explain why the action cannot execute.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"KYCSCHED2\",\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"42(1)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"high_risk\":{\"kind\":\"duration_years\",\"value\":2,\"comparator\":\"at_most\",\"note\":\"Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right.\"},\"medium_risk\":{\"kind\":\"duration_years\",\"value\":8,\"comparator\":\"at_most\",\"note\":null},\"low_risk\":{\"kind\":\"duration_years\",\"value\":10,\"comparator\":\"at_most\",\"note\":\"10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side.\"}},\"comparator\":null,\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "KYCSCHED2"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 19, \"line_start\": 14, \"name\": \"1000-MAIN\"}, {\"line_end\": 25, \"line_start\": 20, \"name\": \"2000-DUE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\lineage-3\\\\train-dev\\\\adaptive_agent\\\\task-staging\\\\1a425176f2df8b6b46e5a9797ac505b3d5b22527dd96365485e7879d3c2506b8\\\\cases\\\\drift_900000\\\\KYCSCHED2.cbl\", \"program\": \"KYCSCHED2\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "KYCSCHED2",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-DUE\", \"program\": \"KYCSCHED2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-RISK\\n           ACCEPT WS-LAST-KYC-YYYY\\n           PERFORM 2000-DUE\\n           DISPLAY 'DUE: ' WS-DUE-YYYY\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 19, \"line_start\": 14, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "KYCSCHED2",
+          "name": "2000-DUE"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED2\"}], \"code\": \"       2000-DUE.\\n           EVALUATE WS-RISK\\n             WHEN 'H' COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 5\\n             WHEN 'M' COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 8\\n             WHEN OTHER COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 10\\n           END-EVALUATE.\", \"name\": \"2000-DUE\", \"ref\": {\"line_end\": 25, \"line_start\": 20, \"paragraph\": \"2000-DUE\", \"program\": \"KYCSCHED2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-DUE-YYYY",
+          "program": "KYCSCHED2"
+        },
+        "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED2\"}, {\"paragraph\": \"2000-DUE\", \"program\": \"KYCSCHED2\"}], \"scoped_program\": \"KYCSCHED2\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"KYCSCHED2\"}, \"text\": \"01  WS-RISK                   PIC X(1) VALUE SPACE.\"}, {\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"KYCSCHED2\"}, \"text\": \"01  WS-LAST-KYC-YYYY          PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"KYCSCHED2\"}, \"text\": \"01  WS-DUE-YYYY               PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 15, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED2\"}, \"text\": \"ACCEPT WS-RISK\"}, {\"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED2\"}, \"text\": \"ACCEPT WS-LAST-KYC-YYYY\"}, {\"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED2\"}, \"text\": \"PERFORM 2000-DUE\"}, {\"ref\": {\"line_end\": 25, \"line_start\": 21, \"paragraph\": \"2000-DUE\", \"program\": \"KYCSCHED2\"}, \"text\": \"EVALUATE WS-RISK\\n             WHEN 'H' COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 5\\n             WHEN 'M' COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 8\\n             WHEN OTHER COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 10\\n           END-EVALUATE.\"}, {\"ref\": {\"line_end\": 22, \"line_start\": 22, \"paragraph\": \"2000-DUE\", \"program\": \"KYCSCHED2\"}, \"text\": \"WHEN 'H' COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 5\"}, {\"ref\": {\"line_end\": 23, \"line_start\": 23, \"paragraph\": \"2000-DUE\", \"program\": \"KYCSCHED2\"}, \"text\": \"WHEN 'M' COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 8\"}, {\"ref\": {\"line_end\": 24, \"line_start\": 24, \"paragraph\": \"2000-DUE\", \"program\": \"KYCSCHED2\"}, \"text\": \"WHEN OTHER COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 10\"}], \"variable\": \"WS-DUE-YYYY\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 5,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-DUE-YYYY",
+          "program": "KYCSCHED2"
+        },
+        "observation_summary": "{\"scoped_program\": \"KYCSCHED2\", \"sites\": [{\"excerpt\": \"01  WS-DUE-YYYY               PIC 9(4) VALUE ZERO.\", \"kind\": \"def\", \"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"KYCSCHED2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"DISPLAY 'DUE: ' WS-DUE-YYYY\", \"kind\": \"use\", \"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED2\"}, \"statement_kind\": \"DISPLAY\"}, {\"excerpt\": \"WHEN 'H' COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 5\", \"kind\": \"def\", \"ref\": {\"line_end\": 22, \"line_start\": 22, \"paragraph\": \"2000-DUE\", \"program\": \"KYCSCHED2\"}, \"statement_kind\": \"COMPUTE\"}, {\"excerpt\": \"WHEN 'M' COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 8\", \"kind\": \"def\", \"ref\": {\"line_end\": 23, \"line_start\": 23, \"paragraph\": \"2000-DUE\", \"program\": \"KYCSCHED2\"}, \"statement_kind\": \"COMPUTE\"}, {\"excerpt\": \"WHEN OTHER COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 10\", \"kind\": \"def\", \"ref\": {\"line_end\": 24, \"line_start\": 24, \"paragraph\": \"2000-DUE\", \"program\": \"KYCSCHED2\"}, \"statement_kind\": \"COMPUTE\"}], \"variable\": \"WS-DUE-YYYY\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 6,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-DUE-YYYY"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"KYCSCHED2\", \"text\": \"       01  WS-DUE-YYYY               PIC 9(4) VALUE ZERO.\"}, {\"line\": 18, \"program\": \"KYCSCHED2\", \"text\": \"           DISPLAY 'DUE: ' WS-DUE-YYYY\"}, {\"line\": 22, \"program\": \"KYCSCHED2\", \"text\": \"             WHEN 'H' COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 5\"}, {\"line\": 23, \"program\": \"KYCSCHED2\", \"text\": \"             WHEN 'M' COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 8\"}, {\"line\": 24, \"program\": \"KYCSCHED2\", \"text\": \"             WHEN OTHER COMPUTE WS-DUE-YYYY = WS-LAST-KYC-YYYY + 10\"}], \"pattern\": \"WS-DUE-YYYY\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The reachable high-risk computation uses a stale five-year interval against the trusted two-year ceiling; the medium and low branches match their respective intervals.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_088875",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "42(1)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "high_risk": {
+                  "kind": "duration_years",
+                  "value": 2,
+                  "comparator": "at_most",
+                  "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+                },
+                "medium_risk": {
+                  "kind": "duration_years",
+                  "value": 8,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "low_risk": {
+                  "kind": "duration_years",
+                  "value": 10,
+                  "comparator": "at_most",
+                  "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSCHED2",
+                "paragraph": "2000-DUE",
+                "file": null,
+                "line_span": [
+                  22,
+                  22
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-RISK",
+              "WS-LAST-KYC-YYYY",
+              "WS-DUE-YYYY"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "high_risk",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSCHED2",
+                "line": 22,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "At KYCSCHED2 paragraph 2000-DUE line 22, the reachable high-risk branch computes WS-DUE-YYYY as WS-LAST-KYC-YYYY + 5. The trusted high_risk leaf is a 2-year interval with comparator at_most, so the hardcoded five-year interval is stale and laxer than the permitted ceiling. The +8 medium-risk and +10 low-risk paths match their trusted leaves."
+        },
+        "claim": "For high-risk customers, periodic updation of KYC shall be carried out at least once every two years from the date of account opening or last KYC updation.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "5",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D1 stale threshold: high-risk KYC is scheduled after 5 years instead of at least once every 2 years.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The reachable high-risk computation uses a stale five-year interval against the trusted two-year ceiling; the medium and low branches match their respective intervals.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSCHED2\",\"paragraph\":\"2000-DUE\",\"file\":null,\"line_span\":[22,22]}],\"slice_vars\":[\"WS-RISK\",\"WS-LAST-KYC-YYYY\",\"WS-DUE-YYYY\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"high_risk\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"KYCSCHED2\",\"line\":22,\"file\":null}]},\"rationale\":\"At KYCSCHED2 paragraph 2000-DUE line 22, the reachable high-risk branch computes WS-DUE-YYYY as WS-LAST-KYC-YYYY + 5. The trusted high_risk leaf is a 2-year interval with comparator at_most, so the hardcoded five-year interval is stale and laxer than the permitted ceiling. The +8 medium-risk and +10 low-risk paths match their trusted leaves.\"},\"claim\":\"For high-risk customers, periodic updation of KYC shall be carried out at least once every two years from the date of account opening or last KYC updation.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"5\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"D1 stale threshold: high-risk KYC is scheduled after 5 years instead of at least once every 2 years.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 1,
+            "observation_sha256": "d0e7b5d95828c1ccdb23c1a9cb7a0d0ac1c1521da772d5cf86b6be7c91ee8102",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "context",
+            "rationale": "The program index exposes only 1000-MAIN and 2000-DUE, bounding the candidate source surface before statement inspection."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "5acb5e1d0f54db48dbfc54182cf90bc1a90b0ca66fbdd2d839b272984053d75f",
+            "hypothesis": "D6_dead_code",
+            "bearing": "refutes",
+            "rationale": "1000-MAIN directly PERFORMs 2000-DUE, so the due paragraph is reachable and is not dead code."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "dafe93eb0c409cf724fdcc1e6601b0135f833cbdb7d2df0184969c7a69e7f856",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "supports",
+            "rationale": "2000-DUE defines distinct H, M, and OTHER computations using +5, +8, and +10; the high-risk typed interval is present for comparison with the trusted high_risk leaf."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "26170d2975f0e53ac8f4df2a57634bf4b63b35f8fdb2fb52c6f6905d8e60af57",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "supports",
+            "rationale": "The slice enumerates the complete reachable chain and all three WS-DUE-YYYY definitions at lines 22-24, with no alternate high-risk locus shown."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "1a66b45686d9b8a44a1c252d673d59dd8ce8cb174a1ce9f92a0f1f833e899ca6",
+            "hypothesis": "D7_conformant",
+            "bearing": "refutes",
+            "rationale": "The variable trace confirms the high-risk definition at line 22 uses +5, which is positive code evidence but does not match the trusted two-year high-risk interval."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "09405e48a8c8ea77df548f20a008e6d394730ecfa08cc1f8034dec2c00e40283",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "supports",
+            "rationale": "Scoped grep returns exactly the three due computations, and the high-risk line contains the exact stale literal 5, confirming the final static hook."
+          }
+        ]
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "KYCSCHED2:2000-DUE — literal '5' present",
+      "citation_ok": true,
+      "entailment_probability": 1.0,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "KYCSCHED2:2000-DUE — literal '5' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_088875",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "42(1)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "high_risk": {
+              "kind": "duration_years",
+              "value": 2,
+              "comparator": "at_most",
+              "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+            },
+            "medium_risk": {
+              "kind": "duration_years",
+              "value": 8,
+              "comparator": "at_most",
+              "note": null
+            },
+            "low_risk": {
+              "kind": "duration_years",
+              "value": 10,
+              "comparator": "at_most",
+              "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "KYCSCHED2",
+            "paragraph": "2000-DUE",
+            "file": null,
+            "line_span": [
+              22,
+              22
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-RISK",
+          "WS-LAST-KYC-YYYY",
+          "WS-DUE-YYYY"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": "high_risk",
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "KYCSCHED2",
+            "line": 22,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "At KYCSCHED2 paragraph 2000-DUE line 22, the reachable high-risk branch computes WS-DUE-YYYY as WS-LAST-KYC-YYYY + 5. The trusted high_risk leaf is a 2-year interval with comparator at_most, so the hardcoded five-year interval is stale and laxer than the permitted ceiling. The +8 medium-risk and +10 low-risk paths match their trusted leaves."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "D1 stale threshold: high-risk KYC is scheduled after 5 years instead of at least once every 2 years.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "f5faeb36918fd0caa2988bff5a2ca1fdbda1fcb5c4d86bae7595d598d5144569",
+  "run_key": "1a425176f2df8b6b46e5a9797ac505b3d5b22527dd96365485e7879d3c2506b8"
+}

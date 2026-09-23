@@ -473,7 +473,7 @@ class ProviderIdentity(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     authentication: Literal["chatgpt"] = "chatgpt"
-    model: Literal["gpt-5.6-luna"] = "gpt-5.6-luna"
+    model: Literal["gpt-6-luna"] = "gpt-6-luna"
     reasoning_effort: Literal["max"] = "max"
     isolation: Literal["one_case_per_task"] = "one_case_per_task"
 

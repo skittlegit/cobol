@@ -52,16 +52,56 @@ Before emitting, perform this class-arbitration preflight:
 - Enumerate every typed locus found for the same regulated condition before
   choosing D1. If two reachable typed loci produce conflicting outcomes,
   choose D3 rather than selecting one locus as a stale D1 value.
-- Choose D2 only when the regulated check itself is absent and scoped grep,
-  caller graph, callee graph, and data slice all provide the required negative
-  evidence. Any positive observation from one of those four required tools
-  invalidates D2 for that investigation; do not repurpose positive context as
-  absence evidence. Do not invent an unstated date derivation, preprocessing
-  step, or implementation mechanism as a missing rule. If positive code
-  evidence matches the clause and no supported drift remains, consider D7.
+- Choose D2 when the specific regulated behavior or required violation outcome
+  is absent. Inspect the relevant paragraph, scoped grep, and data slice,
+  but distinguish positive surrounding control flow from positive evidence of
+  the required outcome itself. A present compliant branch does not cure a
+  missing breach/overdue/denial branch. Do not invent an unstated date
+  derivation, preprocessing step, or implementation mechanism as a missing
+  rule. If complete positive code evidence matches the clause and no supported
+  drift remains, consider D7.
+  Treat a one-sided state machine as incomplete when the regulated outcome for
+  the other side is absent: `days <= 30 -> UPDATE` without an explicit
+  `days > 30 -> BREACH` outcome is D2, and `today <= due -> OK` without an
+  explicit overdue outcome is D2. A zero-day `NEW` special case does not
+  implement a required seven-day SLA. Do not call these partial machines D7.
+- Choose D3 when reachable source behavior positively contradicts the trusted
+  clause. Two source loci are required only for an internal source conflict;
+  one typed computation can contradict the clause directly. For a required
+  exclusion, accepting a regulated amount and then computing the base without
+  excluding it is contradictory, not conformant-by-absence.
+  A validation rule that detects the regulated violation and sets a denial or
+  invalid state, followed by a reachable action that ignores or bypasses that
+  state, is also D3: the implemented validation and action conflict. Do not
+  relabel that case D2 merely because the final gate is malformed or absent.
+  Reserve D2 for a required outcome that is absent without an existing source
+  state or action that positively conflicts with the requirement.
 - Choose D4 only for an enum_set reference collection, and quote at least one
   complete canonical missing or extra enum member verbatim, including its
   prefixes and punctuation, in `prediction.rationale`.
+- For D7, put the positive source location in `code_locus`, but set
+  `labels.program_level` and `labels.paragraph_level` to `conformant` and set
+  `labels.line_level` to an empty list. D7 line labels identify drift and must
+  therefore stay empty. When the clause current value is composite, set
+  `target_path` to the exact matching non-composite leaf.
+- Interpret a comparator together with the branch action and control-flow
+  polarity. Do not call D5 from a token-only comparison between a clause's
+  typed comparator and a source predicate. In an elapsed-window state machine,
+  `elapsed > limit` can be the conformant transition after the full allowed
+  window, while `elapsed >= limit` can fire one boundary unit early. Trace the
+  resulting action and use a boundary probe when possible before choosing D5.
+  Apply these exact elapsed-window checks: `delay > 7` is conformant for a
+  seven-day allowed window and `delay >= 7` is one unit early; `elapsed > 30`
+  is conformant for an at-most-30-day window and `elapsed >= 30` is early;
+  `notice >= 30` is conformant for an at-least-30-day requirement and
+  `notice > 30` is late. Do not cancel an early transition merely because a
+  downstream arithmetic expression happens to evaluate to zero at the edge.
+- Choose D6 when the relevant compliance action is unreachable, including a
+  reachable paragraph whose compliance branch is disabled by an always-false
+  or default-off flag. A paragraph caller does not make guarded statements
+  live. Inspect the guard definition and its uses. Use `dead_paragraph` only
+  for a truly unreachable paragraph; for a disabled guard use an exact source
+  literal as the static hook and explain why the action cannot execute.
 - Copy every ledger step and observation SHA-256 exactly from the bounded
   command output. Recheck them before the final response.
 If the bounded command returns `infrastructure_error`, correct the invocation
