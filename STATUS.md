@@ -16,9 +16,13 @@ in `docs/tasks/` and immutable evaluation artifacts.
   all-system readiness receipt is verified. One isolated qualification is also
   sealed and replay valid. The frozen full-run preparation covers 196 rows and
   610 model tasks (305 in the first half), with zero full-run provider calls.
-  Execution is held at the user's request pending review of the time and usage
-  estimate. A repeated hidden-roster result must be described as a follow-up
+  Execution began at the user's request on 2026-09-23; only frozen pending
+  keys may be scheduled. A repeated hidden-roster result must be described as a follow-up
   comparison, not a first-look estimate.
+  The first handoff has **17/305** first-half keys sealed and replayed,
+  **287** pending runnable keys, and **one** terminal contract rejection.
+  See `full/r1.5-checkpoint.json` and `full/terminal-attempts.json` under the
+  GPT-6 lineage. No second-half key has been launched.
 - R2 migration generation is planned for `gpt-6-luna`/`max`. R2.2 must freeze
   new requests and pass a fresh qualification under that identity before live
   generation. R2 remains blocked on the R1.7 detector decision.
@@ -105,15 +109,15 @@ in `docs/tasks/` and immutable evaluation artifacts.
   `full/r1.5-checkpoint.json`; schema validation and replay-driven resume
   selection prevent sealed keys from being scheduled again. No tuning, resampling,
   threshold change, or score-driven restart has occurred. The separate GPT-6
-  Luna repeat has passed smoke and is prepared, but its full run is held at the
-  user's request; no full-run provider calls have been made in that lineage.
+  Luna repeat has passed smoke, and its full run began on 2026-09-23 under the
+  frozen identity. Record sealed progress in its own checkpoint.
 - **R1 and R2 are divided into five-hour windows.** R1 has seven sequential
   sections. R2 now has ten conservative sections at the 24-task migration
   ceiling (50 planned hours), or eight sections when only one 12-case track is
   eligible (40 planned hours); each reserves the final 45 minutes for a clean
   replay/documentation handoff and must resume the same section if incomplete.
   R1.3 and R1.4 completed as multi-window exceptions without restarting sealed
-  rows. Resume execution only when the user starts the prepared GPT-6 repeat.
+  rows. The GPT-6 repeat is now executing from its immutable task order.
 - **Artifact naming and cleanup are reconciled.** The earlier configuration-4
   dev checkpoint used `data/eval/m4/lineage` and plain operational filenames.
   Its frozen-path compatibility replay preserved exactly 22 completed / 80 pending rows, the
@@ -155,13 +159,13 @@ in `docs/tasks/` and immutable evaluation artifacts.
 | Config-3 transport repair | ready | Additive `lineage-v4`; 37/37 requests; 44 focused tests pass | No implementation blocker remains before smoke |
 | Config-3 smoke | terminal `NOT_EVALUABLE` for the candidate | 37/37 sealed tasks; 84/84 host-replayed evaluations; five systems VALID; adaptive 14/14 abstained | Preserve as configuration-3 evidence; repair only through the governed successor path |
 | Original detector/full evaluation | Preserved and paused | Immutable identity `455d6f604b6f29b1fb7b14011bdfc2fbe7b28e18aea1205015774b72891e05b6`; 78/305 R1.5 tasks sealed and replay-valid | Preserve 227 pending keys and the original model identity |
-| GPT-6 Luna follow-up evaluation | Smoke VALID; full run prepared and held | 44/44 smoke tasks sealed; six systems VALID; 196 hidden rows, 610 frozen full-run requests, zero full-run provider calls | Await the user's instruction to start the main run |
+| GPT-6 Luna follow-up evaluation | Smoke VALID; full run in progress | 44/44 smoke tasks sealed; six systems VALID; 196 hidden rows, 610 frozen full-run requests; 17/305 first-half keys sealed, 1 terminal contract rejection | Resume 287 pending runnable first-half keys; preserve original R1.5 separately |
 | T6.2-T6.4 migration | ready offline, live pending | Offline migration suite previously 30/30 green | Run after detector freeze |
 | M5/release record | historical T5.5/T5.5A closed; successor addendum pending | `benchmark-first-analysis` and `ablations/report`; historical T5.4 remains immutable | Integrate configuration-4 and migration results in R2.6 |
 
 ## Next execution order
 
-1. On the user's instruction, start the prepared GPT-6 Luna follow-up full run
+1. Continue the GPT-6 Luna follow-up full run
    from `data/eval/m4/gpt6-luna-repeat`. Preserve the original R1.5 keys and
    follow the five-hour handoff rule in `docs/tasks/GOAL-R1-work-order.md`.
    Continue R1.6 and R1.7 only after the full-run handoff is terminal.

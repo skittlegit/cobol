@@ -13,7 +13,12 @@ in the applicable work order or immutable artifact.
   `data/eval/m4/gpt6-luna-repeat`; all 44 smoke tasks and its isolated
   qualification are sealed and replay valid, and all six smoke systems are
   `VALID`. The full-run identity and 610 requests are prepared with zero
-  full-run provider calls. Execution is held for the user's estimate review.
+  full-run provider calls at preparation. Execution began at the user's
+  request on 2026-09-23; schedule only frozen pending keys and checkpoint
+  sealed progress. The first handoff has 17/305 first-half keys sealed and
+  replayed, 287 pending runnable keys, and one terminal contract rejection
+  recorded in `full/terminal-attempts.json` under that lineage. No second-half
+  key has started.
   R2 migration generation will use `gpt-6-luna`/`max` after R2.2
   freezes fresh requests and passes qualification. Historical T6 reviews and
   evaluations retain their original model identities.
@@ -60,7 +65,7 @@ in the applicable work order or immutable artifact.
   sections. Stop launching work at 4:15, reserve 45 minutes for a clean
   checkpoint, and resume the same section if it is not terminal. R1.3 closed
   as multi-window exceptions without restarting sealed rows. The GPT-6 Luna
-  full run is prepared and held until the user starts it. The original R1.5
+  full run is now in progress under its separate frozen identity. The original R1.5
   checkpoint remains at `full/r1.5-checkpoint.json`.
 - **UI remains deferred.** T7.4 is outside this release.
 - **Remote T5.5/T5.5A is integrated.** The benchmark-first closure, ablation

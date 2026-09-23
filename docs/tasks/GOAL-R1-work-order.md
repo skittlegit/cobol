@@ -1,7 +1,7 @@
 # GOAL-R1 work order - finish detector evaluation
 
 **Owner:** Track C
-**State:** GPT-6 Luna smoke valid; full run prepared and held at user's request
+**State:** GPT-6 Luna smoke valid; frozen full run started 2026-09-23
 **Windowing:** run one numbered section per Codex five-hour window
 **Depends on:** immutable configuration-3 smoke evidence and promoted T6-v2
 **Excludes:** UI/T7.4 and all GOAL-R2 migration work
@@ -23,7 +23,13 @@ R1.5 first-half tasks. The 2026-09-23 user-directed GPT-6 Luna repeat below
 has a separate predeclared lineage and does not relabel or replace those keys.
 Its qualification and 44 smoke tasks are sealed and replay valid, with all six
 systems `VALID`. The 196-row, 610-task full run is prepared with zero full-run
-provider calls. Start those tasks only when the user requests the main run.
+provider calls at preparation. The user started those frozen tasks on
+2026-09-23; checkpoint each sealed result without changing the freeze.
+The first execution handoff is 17/305 sealed and replayed first-half keys,
+287 pending runnable keys, and one terminal contract rejection after a failed
+JSON serialization repair. Its exact failed final is retained as a rejected
+diagnostic, and `full/terminal-attempts.json` excludes that key from automatic
+resume. No second-half key has run.
 
 - Configuration-3 `lineage-v4` is immutable historical evidence under
   `data/eval/legacy/m4-config3`: 37/37 tasks and 84/84 evaluations replayed;
