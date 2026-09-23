@@ -1,0 +1,423 @@
+{
+  "schema_version": "configuration-3-collaboration-request-v2",
+  "transport": "collaboration_subagent",
+  "provider": "collaboration_subagent",
+  "authentication": "in_product_orchestration",
+  "model_id": "gpt-6-luna",
+  "reasoning_effort": "max",
+  "run_key": "410cad8c6aeaff7dc6de665d4ff38e65e52352bb9d7d8c8b289f50d362ad6ab2",
+  "request_sha256": "66dc2e251d502d288b752d773eda7716add677e9198c9b4af7b7229b52b81147",
+  "prompt": "Perform one evidence-grounded COBOL compliance classification for each opaque\ncase using only its supplied oracle_slice context. Tools and file access are not\navailable. Return exactly one response per alias under the required JSON\nschema. A finding must use the alias as prediction.instance_id, copy the\nschema. Set clause_index to null. The host attaches the single detector-visible context.clause.\nThe host also attaches the case identity; author the remaining prediction\nfields, cite concrete source loci from the context, and include verifier hooks.\nThe separate claim is the citation hypothesis: write only a regulatory\nobligation entailed by the selected visible clause, without COBOL identifiers\nor implementation facts. Put the code-versus-clause comparison in\nprediction.rationale and final_answer. In a locus, program names the containing\nexecutable program and file names the physical copybook/source filename, never\nan absolute task path. Set target_path to null unless a D1 or D5 finding\ntargets a composite current_value; in that case it must name a non-composite\nleaf from the selected visible clause. D7 requires positive source evidence of\nconformance and is never a default verdict. Abstain when evidence is\ninsufficient. Do not use or infer hidden labels, generation provenance,\nmutation metadata, git history, file timestamps, formatting, comment\nfreshness, or identifier style.\n\nDetector-visible cases:\n[{\"alias\":\"drift_900000\",\"context\":{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"program\":\"BOIDENT2\",\"slices\":[{\"variable\":\"WS-CAPITAL-PCT\",\"scoped_program\":\"BOIDENT2\",\"statements\":[{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\",\"line_start\":24,\"line_end\":24},\"text\":\"ACCEPT WS-CAPITAL-PCT\"}],\"paragraphs\":[{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-PROFIT-PCT\",\"scoped_program\":\"BOIDENT2\",\"statements\":[{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-PROFIT-PCT         PIC 9(3)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\",\"line_start\":25,\"line_end\":25},\"text\":\"ACCEPT WS-PROFIT-PCT\"}],\"paragraphs\":[{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-CONTROL-IND\",\"scoped_program\":\"BOIDENT2\",\"statements\":[{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":null,\"line_start\":14,\"line_end\":14},\"text\":\"05  WS-CONTROL-IND        PIC X(1) VALUE 'N'.\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\",\"line_start\":26,\"line_end\":26},\"text\":\"ACCEPT WS-CONTROL-IND\"}],\"paragraphs\":[{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-BO-THRESHOLD\",\"scoped_program\":\"BOIDENT2\",\"statements\":[{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":null,\"line_start\":18,\"line_end\":18},\"text\":\"05  WS-BO-THRESHOLD       PIC 9(3)V99 VALUE 10.00.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"WS-IS-BO\",\"scoped_program\":\"BOIDENT2\",\"statements\":[{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-PROFIT-PCT         PIC 9(3)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":null,\"line_start\":14,\"line_end\":14},\"text\":\"05  WS-CONTROL-IND        PIC X(1) VALUE 'N'.\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":null,\"line_start\":16,\"line_end\":16},\"text\":\"05  WS-IS-BO              PIC X(1) VALUE 'N'.\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":null,\"line_start\":18,\"line_end\":18},\"text\":\"05  WS-BO-THRESHOLD       PIC 9(3)V99 VALUE 10.00.\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\",\"line_start\":24,\"line_end\":24},\"text\":\"ACCEPT WS-CAPITAL-PCT\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\",\"line_start\":25,\"line_end\":25},\"text\":\"ACCEPT WS-PROFIT-PCT\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\",\"line_start\":26,\"line_end\":26},\"text\":\"ACCEPT WS-CONTROL-IND\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\",\"line_start\":27,\"line_end\":27},\"text\":\"PERFORM 2000-IDENTIFY-BO\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":\"2000-IDENTIFY-BO\",\"line_start\":31,\"line_end\":34},\"text\":\"IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\\n              MOVE 'Y' TO WS-IS-BO\"},{\"ref\":{\"program\":\"BOIDENT2\",\"paragraph\":\"2000-IDENTIFY-BO\",\"line_start\":34,\"line_end\":34},\"text\":\"MOVE 'Y' TO WS-IS-BO\"}],\"paragraphs\":[{\"program\":\"BOIDENT2\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"BOIDENT2\",\"paragraph\":\"2000-IDENTIFY-BO\"}],\"is_interprocedural\":true}]}},{\"alias\":\"drift_900001\",\"context\":{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"20\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a card is unused for more than one year, initiate closure after intimating the cardholder; if no reply within 30 days, close the account (subject to dues) and update the CIC within 30 days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"inactivity_threshold\":{\"kind\":\"duration_years\",\"value\":1,\"comparator\":null,\"note\":null},\"reply_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":null,\"note\":null},\"cic_update_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"CBTRN02C\",\"slices\":[{\"variable\":\"WS-VALIDATION-FAIL-REASON\",\"scoped_program\":\"CBTRN02C\",\"statements\":[{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":null,\"line_start\":146,\"line_end\":146},\"text\":\"01  END-OF-FILE             PIC X(01)    VALUE 'N'.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":195,\"line_end\":195},\"text\":\"PERFORM 0000-DALYTRAN-OPEN.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":196,\"line_end\":196},\"text\":\"PERFORM 0100-TRANFILE-OPEN.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":197,\"line_end\":197},\"text\":\"PERFORM 0200-XREFFILE-OPEN.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":198,\"line_end\":198},\"text\":\"PERFORM 0300-DALYREJS-OPEN.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":199,\"line_end\":199},\"text\":\"PERFORM 0400-ACCTFILE-OPEN.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":200,\"line_end\":200},\"text\":\"PERFORM 0500-TCATBALF-OPEN.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":202,\"line_end\":219},\"text\":\"PERFORM UNTIL END-OF-FILE = 'Y'\\n               IF  END-OF-FILE = 'N'\\n                   PERFORM 1000-DALYTRAN-GET-NEXT\\n                   IF  END-OF-FILE = 'N'\\n                     ADD 1 TO WS-TRANSACTION-COUNT\\n      *              DISPLAY DALYTRAN-RECORD\\n                     MOVE 0 TO WS-VALIDATION-FAIL-REASON\\n                     MOVE SPACES TO WS-VALIDATION-FAIL-REASON-DESC\\n                     PERFORM 1500-VALIDATE-TRAN\\n                     IF WS-VALIDATION-FAIL-REASON = 0\\n                       PERFORM 2000-POST-TRANSACTION\\n                     ELSE\\n                       ADD 1 TO WS-REJECT-COUNT\\n                       PERFORM 2500-WRITE-REJECT-REC\\n                     END-IF\\n                   END-IF\\n               END-IF\\n           END-PERFORM.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":203,\"line_end\":215},\"text\":\"IF  END-OF-FILE = 'N'\\n                   PERFORM 1000-DALYTRAN-GET-NEXT\\n                   IF  END-OF-FILE = 'N'\\n                     ADD 1 TO WS-TRANSACTION-COUNT\\n      *              DISPLAY DALYTRAN-RECORD\\n                     MOVE 0 TO WS-VALIDATION-FAIL-REASON\\n                     MOVE SPACES TO WS-VALIDATION-FAIL-REASON-DESC\\n                     PERFORM 1500-VALIDATE-TRAN\\n                     IF WS-VALIDATION-FAIL-REASON = 0\\n                       PERFORM 2000-POST-TRANSACTION\\n                     ELSE\\n                       ADD 1 TO WS-REJECT-COUNT\\n                       PERFORM 2500-WRITE-REJECT-REC\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":204,\"line_end\":204},\"text\":\"PERFORM 1000-DALYTRAN-GET-NEXT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":205,\"line_end\":215},\"text\":\"IF  END-OF-FILE = 'N'\\n                     ADD 1 TO WS-TRANSACTION-COUNT\\n      *              DISPLAY DALYTRAN-RECORD\\n                     MOVE 0 TO WS-VALIDATION-FAIL-REASON\\n                     MOVE SPACES TO WS-VALIDATION-FAIL-REASON-DESC\\n                     PERFORM 1500-VALIDATE-TRAN\\n                     IF WS-VALIDATION-FAIL-REASON = 0\\n                       PERFORM 2000-POST-TRANSACTION\\n                     ELSE\\n                       ADD 1 TO WS-REJECT-COUNT\\n                       PERFORM 2500-WRITE-REJECT-REC\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":208,\"line_end\":208},\"text\":\"MOVE 0 TO WS-VALIDATION-FAIL-REASON\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":210,\"line_end\":210},\"text\":\"PERFORM 1500-VALIDATE-TRAN\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":212,\"line_end\":212},\"text\":\"PERFORM 2000-POST-TRANSACTION\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":215,\"line_end\":215},\"text\":\"PERFORM 2500-WRITE-REJECT-REC\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":221,\"line_end\":221},\"text\":\"PERFORM 9000-DALYTRAN-CLOSE.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":222,\"line_end\":222},\"text\":\"PERFORM 9100-TRANFILE-CLOSE.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":223,\"line_end\":223},\"text\":\"PERFORM 9200-XREFFILE-CLOSE.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":224,\"line_end\":224},\"text\":\"PERFORM 9300-DALYREJS-CLOSE.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":225,\"line_end\":225},\"text\":\"PERFORM 9400-ACCTFILE-CLOSE.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\",\"line_start\":226,\"line_end\":226},\"text\":\"PERFORM 9500-TCATBALF-CLOSE.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0000-DALYTRAN-OPEN\",\"line_start\":237,\"line_end\":237},\"text\":\"MOVE 8 TO APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0000-DALYTRAN-OPEN\",\"line_start\":239,\"line_end\":240},\"text\":\"IF  DALYTRAN-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0000-DALYTRAN-OPEN\",\"line_start\":240,\"line_end\":240},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0000-DALYTRAN-OPEN\",\"line_start\":242,\"line_end\":242},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0100-TRANFILE-OPEN\",\"line_start\":255,\"line_end\":255},\"text\":\"MOVE 8 TO APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0100-TRANFILE-OPEN\",\"line_start\":257,\"line_end\":258},\"text\":\"IF  TRANFILE-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0100-TRANFILE-OPEN\",\"line_start\":258,\"line_end\":258},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0100-TRANFILE-OPEN\",\"line_start\":260,\"line_end\":260},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0200-XREFFILE-OPEN\",\"line_start\":274,\"line_end\":274},\"text\":\"MOVE 8 TO APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0200-XREFFILE-OPEN\",\"line_start\":276,\"line_end\":277},\"text\":\"IF  XREFFILE-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0200-XREFFILE-OPEN\",\"line_start\":277,\"line_end\":277},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0200-XREFFILE-OPEN\",\"line_start\":279,\"line_end\":279},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0300-DALYREJS-OPEN\",\"line_start\":292,\"line_end\":292},\"text\":\"MOVE 8 TO APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0300-DALYREJS-OPEN\",\"line_start\":294,\"line_end\":295},\"text\":\"IF  DALYREJS-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0300-DALYREJS-OPEN\",\"line_start\":295,\"line_end\":295},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0300-DALYREJS-OPEN\",\"line_start\":297,\"line_end\":297},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0400-ACCTFILE-OPEN\",\"line_start\":310,\"line_end\":310},\"text\":\"MOVE 8 TO APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0400-ACCTFILE-OPEN\",\"line_start\":312,\"line_end\":313},\"text\":\"IF  ACCTFILE-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0400-ACCTFILE-OPEN\",\"line_start\":313,\"line_end\":313},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0400-ACCTFILE-OPEN\",\"line_start\":315,\"line_end\":315},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0500-TCATBALF-OPEN\",\"line_start\":328,\"line_end\":328},\"text\":\"MOVE 8 TO APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0500-TCATBALF-OPEN\",\"line_start\":330,\"line_end\":331},\"text\":\"IF  TCATBALF-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0500-TCATBALF-OPEN\",\"line_start\":331,\"line_end\":331},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"0500-TCATBALF-OPEN\",\"line_start\":333,\"line_end\":333},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1000-DALYTRAN-GET-NEXT\",\"line_start\":347,\"line_end\":348},\"text\":\"IF  DALYTRAN-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1000-DALYTRAN-GET-NEXT\",\"line_start\":348,\"line_end\":348},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1000-DALYTRAN-GET-NEXT\",\"line_start\":350,\"line_end\":354},\"text\":\"ELSE\\n               IF  DALYTRAN-STATUS = '10'\\n                   MOVE 16 TO APPL-RESULT\\n               ELSE\\n                   MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1000-DALYTRAN-GET-NEXT\",\"line_start\":352,\"line_end\":352},\"text\":\"MOVE 16 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1000-DALYTRAN-GET-NEXT\",\"line_start\":354,\"line_end\":354},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1000-DALYTRAN-GET-NEXT\",\"line_start\":357,\"line_end\":358},\"text\":\"IF  APPL-AOK\\n               CONTINUE\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1000-DALYTRAN-GET-NEXT\",\"line_start\":359,\"line_end\":366},\"text\":\"ELSE\\n               IF  APPL-EOF\\n                   MOVE 'Y' TO END-OF-FILE\\n               ELSE\\n                   DISPLAY 'ERROR READING DALYTRAN FILE'\\n                   MOVE DALYTRAN-STATUS TO IO-STATUS\\n                   PERFORM 9910-DISPLAY-IO-STATUS\\n                   PERFORM 9999-ABEND-PROGRAM\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1000-DALYTRAN-GET-NEXT\",\"line_start\":361,\"line_end\":361},\"text\":\"MOVE 'Y' TO END-OF-FILE\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-VALIDATE-TRAN\",\"line_start\":371,\"line_end\":371},\"text\":\"PERFORM 1500-A-LOOKUP-XREF.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-VALIDATE-TRAN\",\"line_start\":373,\"line_end\":373},\"text\":\"PERFORM 1500-B-LOOKUP-ACCT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-A-LOOKUP-XREF\",\"line_start\":385,\"line_end\":385},\"text\":\"MOVE 100 TO WS-VALIDATION-FAIL-REASON\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-B-LOOKUP-ACCT\",\"line_start\":397,\"line_end\":397},\"text\":\"MOVE 101 TO WS-VALIDATION-FAIL-REASON\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-B-LOOKUP-ACCT\",\"line_start\":403,\"line_end\":405},\"text\":\"COMPUTE WS-TEMP-BAL = ACCT-CURR-CYC-CREDIT\\n                                    - ACCT-CURR-CYC-DEBIT\\n                                    + DALYTRAN-AMT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-B-LOOKUP-ACCT\",\"line_start\":407,\"line_end\":408},\"text\":\"IF ACCT-CREDIT-LIMIT >= WS-TEMP-BAL\\n                  CONTINUE\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-B-LOOKUP-ACCT\",\"line_start\":410,\"line_end\":410},\"text\":\"MOVE 102 TO WS-VALIDATION-FAIL-REASON\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-B-LOOKUP-ACCT\",\"line_start\":414,\"line_end\":415},\"text\":\"IF ACCT-EXPIRAION-DATE >= DALYTRAN-ORIG-TS (1:10)\\n                  CONTINUE\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-B-LOOKUP-ACCT\",\"line_start\":417,\"line_end\":417},\"text\":\"MOVE 103 TO WS-VALIDATION-FAIL-REASON\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2000-POST-TRANSACTION\",\"line_start\":440,\"line_end\":440},\"text\":\"PERFORM 2700-UPDATE-TCATBAL\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2000-POST-TRANSACTION\",\"line_start\":441,\"line_end\":441},\"text\":\"PERFORM 2800-UPDATE-ACCOUNT-REC\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2000-POST-TRANSACTION\",\"line_start\":442,\"line_end\":442},\"text\":\"PERFORM 2900-WRITE-TRANSACTION-FILE\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2500-WRITE-REJECT-REC\",\"line_start\":450,\"line_end\":450},\"text\":\"MOVE 8 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2500-WRITE-REJECT-REC\",\"line_start\":452,\"line_end\":453},\"text\":\"IF DALYREJS-STATUS = '00'\\n               MOVE 0 TO  APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2500-WRITE-REJECT-REC\",\"line_start\":453,\"line_end\":453},\"text\":\"MOVE 0 TO  APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2500-WRITE-REJECT-REC\",\"line_start\":455,\"line_end\":455},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-UPDATE-TCATBAL\",\"line_start\":481,\"line_end\":482},\"text\":\"IF  TCATBALF-STATUS = '00'  OR '23'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-UPDATE-TCATBAL\",\"line_start\":482,\"line_end\":482},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-UPDATE-TCATBAL\",\"line_start\":484,\"line_end\":484},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-UPDATE-TCATBAL\",\"line_start\":496,\"line_end\":496},\"text\":\"PERFORM 2700-A-CREATE-TCATBAL-REC\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-UPDATE-TCATBAL\",\"line_start\":498,\"line_end\":498},\"text\":\"PERFORM 2700-B-UPDATE-TCATBAL-REC\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-A-CREATE-TCATBAL-REC\",\"line_start\":512,\"line_end\":513},\"text\":\"IF  TCATBALF-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-A-CREATE-TCATBAL-REC\",\"line_start\":513,\"line_end\":513},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-A-CREATE-TCATBAL-REC\",\"line_start\":515,\"line_end\":515},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-B-UPDATE-TCATBAL-REC\",\"line_start\":530,\"line_end\":531},\"text\":\"IF  TCATBALF-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-B-UPDATE-TCATBAL-REC\",\"line_start\":531,\"line_end\":531},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-B-UPDATE-TCATBAL-REC\",\"line_start\":533,\"line_end\":533},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2800-UPDATE-ACCOUNT-REC\",\"line_start\":556,\"line_end\":556},\"text\":\"MOVE 109 TO WS-VALIDATION-FAIL-REASON\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2900-WRITE-TRANSACTION-FILE\",\"line_start\":563,\"line_end\":563},\"text\":\"MOVE 8 TO  APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2900-WRITE-TRANSACTION-FILE\",\"line_start\":566,\"line_end\":567},\"text\":\"IF  TRANFILE-STATUS = '00'\\n               MOVE 0 TO  APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2900-WRITE-TRANSACTION-FILE\",\"line_start\":567,\"line_end\":567},\"text\":\"MOVE 0 TO  APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"2900-WRITE-TRANSACTION-FILE\",\"line_start\":569,\"line_end\":569},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9000-DALYTRAN-CLOSE\",\"line_start\":583,\"line_end\":583},\"text\":\"MOVE 8 TO  APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9000-DALYTRAN-CLOSE\",\"line_start\":585,\"line_end\":586},\"text\":\"IF  DALYTRAN-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9000-DALYTRAN-CLOSE\",\"line_start\":586,\"line_end\":586},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9000-DALYTRAN-CLOSE\",\"line_start\":588,\"line_end\":588},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9100-TRANFILE-CLOSE\",\"line_start\":601,\"line_end\":601},\"text\":\"MOVE 8 TO  APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9100-TRANFILE-CLOSE\",\"line_start\":603,\"line_end\":604},\"text\":\"IF  TRANFILE-STATUS = '00'\\n               MOVE 0 TO  APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9100-TRANFILE-CLOSE\",\"line_start\":604,\"line_end\":604},\"text\":\"MOVE 0 TO  APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9100-TRANFILE-CLOSE\",\"line_start\":606,\"line_end\":606},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9200-XREFFILE-CLOSE\",\"line_start\":620,\"line_end\":620},\"text\":\"MOVE 8 TO APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9200-XREFFILE-CLOSE\",\"line_start\":622,\"line_end\":623},\"text\":\"IF  XREFFILE-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9200-XREFFILE-CLOSE\",\"line_start\":623,\"line_end\":623},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9200-XREFFILE-CLOSE\",\"line_start\":625,\"line_end\":625},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9300-DALYREJS-CLOSE\",\"line_start\":638,\"line_end\":638},\"text\":\"MOVE 8 TO APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9300-DALYREJS-CLOSE\",\"line_start\":640,\"line_end\":641},\"text\":\"IF  DALYREJS-STATUS = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9300-DALYREJS-CLOSE\",\"line_start\":641,\"line_end\":641},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9300-DALYREJS-CLOSE\",\"line_start\":643,\"line_end\":643},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9400-ACCTFILE-CLOSE\",\"line_start\":656,\"line_end\":656},\"text\":\"MOVE 8 TO APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9400-ACCTFILE-CLOSE\",\"line_start\":658,\"line_end\":659},\"text\":\"IF  ACCTFILE-STATUS  = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9400-ACCTFILE-CLOSE\",\"line_start\":659,\"line_end\":659},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9400-ACCTFILE-CLOSE\",\"line_start\":661,\"line_end\":661},\"text\":\"MOVE 12 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9500-TCATBALF-CLOSE\",\"line_start\":675,\"line_end\":675},\"text\":\"MOVE 8 TO APPL-RESULT.\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9500-TCATBALF-CLOSE\",\"line_start\":677,\"line_end\":678},\"text\":\"IF  TCATBALF-STATUS  = '00'\\n               MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9500-TCATBALF-CLOSE\",\"line_start\":678,\"line_end\":678},\"text\":\"MOVE 0 TO APPL-RESULT\"},{\"ref\":{\"program\":\"CBTRN02C\",\"paragraph\":\"9500-TCATBALF-CLOSE\",\"line_start\":680,\"line_end\":680},\"text\":\"MOVE 12 TO APPL-RESULT\"}],\"paragraphs\":[{\"program\":\"CBTRN02C\",\"paragraph\":\"<preamble>\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"0000-DALYTRAN-OPEN\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"0100-TRANFILE-OPEN\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"0200-XREFFILE-OPEN\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"0300-DALYREJS-OPEN\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"0400-ACCTFILE-OPEN\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"0500-TCATBALF-OPEN\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"1000-DALYTRAN-GET-NEXT\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-VALIDATE-TRAN\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-A-LOOKUP-XREF\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-B-LOOKUP-ACCT\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"2000-POST-TRANSACTION\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"2500-WRITE-REJECT-REC\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-UPDATE-TCATBAL\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-A-CREATE-TCATBAL-REC\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"2700-B-UPDATE-TCATBAL-REC\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"2800-UPDATE-ACCOUNT-REC\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"2900-WRITE-TRANSACTION-FILE\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"9000-DALYTRAN-CLOSE\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"9100-TRANFILE-CLOSE\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"9200-XREFFILE-CLOSE\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"9300-DALYREJS-CLOSE\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"9400-ACCTFILE-CLOSE\"},{\"program\":\"CBTRN02C\",\"paragraph\":\"9500-TCATBALF-CLOSE\"}],\"is_interprocedural\":true}]}}]\n\n\nSTRICT RESPONSE CONTRACT (part of this frozen model-visible prompt):\nReturn exactly one JSON object matching the JSON Schema below. Do not wrap it in Markdown and do not include any text before or after it.\nJSON Schema (canonical JSON):\n{\"$defs\":{\"ExecProbe\":{\"additionalProperties\":false,\"description\":\"A Tier-1 execution probe: feed ``stdin`` to the compiled locus program and\\nrequire ``expect_substring`` in stdout for the claim to hold.\",\"properties\":{\"description\":{\"title\":\"Description\",\"type\":\"string\"},\"expect_substring\":{\"title\":\"Expect Substring\",\"type\":\"string\"},\"stdin\":{\"title\":\"Stdin\",\"type\":\"string\"}},\"required\":[\"stdin\",\"expect_substring\",\"description\"],\"title\":\"ExecProbe\",\"type\":\"object\"},\"Labels\":{\"additionalProperties\":false,\"properties\":{\"line_level\":{\"items\":{\"$ref\":\"#/$defs/SourceLineRef\"},\"title\":\"Line Level\",\"type\":\"array\"},\"paragraph_level\":{\"enum\":[\"drift\",\"conformant\"],\"title\":\"Paragraph Level\",\"type\":\"string\"},\"program_level\":{\"enum\":[\"drift\",\"conformant\"],\"title\":\"Program Level\",\"type\":\"string\"}},\"required\":[\"program_level\",\"paragraph_level\",\"line_level\"],\"title\":\"Labels\",\"type\":\"object\"},\"SourceLineRef\":{\"additionalProperties\":false,\"properties\":{\"file\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"File\"},\"line\":{\"title\":\"Line\",\"type\":\"integer\"},\"program\":{\"title\":\"Program\",\"type\":\"string\"}},\"required\":[\"program\",\"line\",\"file\"],\"title\":\"SourceLineRef\",\"type\":\"object\"},\"SourceLocus\":{\"additionalProperties\":false,\"properties\":{\"file\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"File\"},\"line_span\":{\"items\":{\"type\":\"integer\"},\"title\":\"Line Span\",\"type\":\"array\"},\"paragraph\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Paragraph\"},\"program\":{\"title\":\"Program\",\"type\":\"string\"}},\"required\":[\"program\",\"paragraph\",\"file\",\"line_span\"],\"title\":\"SourceLocus\",\"type\":\"object\"},\"StaticClaim\":{\"additionalProperties\":false,\"description\":\"A Tier-2 static assertion about the locus, checked against tool facts.\\n\\nAny subset may be given; the attempt verifies iff *all* provided sub-claims\\nhold. ``dead_paragraph`` routes to call-graph reachability (D6).\",\"properties\":{\"comparator\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Comparator\"},\"dead_paragraph\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Dead Paragraph\"},\"literal\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Literal\"}},\"required\":[\"literal\",\"comparator\",\"dead_paragraph\"],\"title\":\"StaticClaim\",\"type\":\"object\"},\"SubmittedBaselineCase\":{\"additionalProperties\":false,\"properties\":{\"alias\":{\"title\":\"Alias\",\"type\":\"string\"},\"clause_index\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"title\":\"Clause Index\"},\"response\":{\"$ref\":\"#/$defs/SubmittedResponse\"}},\"required\":[\"alias\",\"clause_index\",\"response\"],\"title\":\"SubmittedBaselineCase\",\"type\":\"object\"},\"SubmittedCodeLocus\":{\"additionalProperties\":false,\"description\":\"Provider-authored locus before host-side semantic validation.\\n\\nJSON-schema structured output cannot express the cross-field rule that\\nmulti-program loci require ``is_interprocedural=True``. Keep the submitted\\nvalue intact here, then let ``DriftPrediction`` validate it during trusted\\ninput binding. A violation therefore abstains only that hunt instead of\\ninvalidating every row in the provider batch.\",\"properties\":{\"is_interprocedural\":{\"title\":\"Is Interprocedural\",\"type\":\"boolean\"},\"loci\":{\"items\":{\"$ref\":\"#/$defs/SourceLocus\"},\"title\":\"Loci\",\"type\":\"array\"},\"slice_vars\":{\"items\":{\"type\":\"string\"},\"title\":\"Slice Vars\",\"type\":\"array\"}},\"required\":[\"loci\",\"slice_vars\",\"is_interprocedural\"],\"title\":\"SubmittedCodeLocus\",\"type\":\"object\"},\"SubmittedPrediction\":{\"additionalProperties\":false,\"description\":\"Provider-authored prediction fields; trusted inputs are host-attached.\",\"properties\":{\"code_locus\":{\"$ref\":\"#/$defs/SubmittedCodeLocus\"},\"drift_type\":{\"enum\":[\"D1_stale_threshold\",\"D2_missing_rule\",\"D3_contradictory\",\"D4_stale_reference_data\",\"D5_boundary_error\",\"D6_dead_code\",\"D7_conformant\"],\"title\":\"Drift Type\",\"type\":\"string\"},\"labels\":{\"$ref\":\"#/$defs/Labels\"},\"rationale\":{\"title\":\"Rationale\",\"type\":\"string\"},\"target_path\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Target Path\"}},\"required\":[\"code_locus\",\"drift_type\",\"target_path\",\"labels\",\"rationale\"],\"title\":\"SubmittedPrediction\",\"type\":\"object\"},\"SubmittedResponse\":{\"additionalProperties\":false,\"description\":\"Provider-facing final answer without provider-owned telemetry.\",\"properties\":{\"abstention_reason\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"title\":\"Abstention Reason\"},\"claim\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"description\":\"Clause-grounded regulatory proposition entailed by the cited clause; never a COBOL implementation or drift assertion.\",\"title\":\"Claim\"},\"exec_probe\":{\"anyOf\":[{\"$ref\":\"#/$defs/ExecProbe\"},{\"type\":\"null\"}]},\"final_answer\":{\"title\":\"Final Answer\",\"type\":\"string\"},\"kind\":{\"enum\":[\"finding\",\"abstain\"],\"title\":\"Kind\",\"type\":\"string\"},\"prediction\":{\"anyOf\":[{\"$ref\":\"#/$defs/SubmittedPrediction\"},{\"type\":\"null\"}]},\"static_claim\":{\"anyOf\":[{\"$ref\":\"#/$defs/StaticClaim\"},{\"type\":\"null\"}]},\"thought\":{\"title\":\"Thought\",\"type\":\"string\"}},\"required\":[\"kind\",\"thought\",\"prediction\",\"claim\",\"exec_probe\",\"static_claim\",\"abstention_reason\",\"final_answer\"],\"title\":\"SubmittedResponse\",\"type\":\"object\"}},\"additionalProperties\":false,\"properties\":{\"results\":{\"items\":{\"$ref\":\"#/$defs/SubmittedBaselineCase\"},\"title\":\"Results\",\"type\":\"array\"}},\"required\":[\"results\"],\"title\":\"CodexBaselineEnvelope\",\"type\":\"object\"}",
+  "prompt_sha256": "065041fecaca7ce58f1042c002de13a4b9fe40a2c50f331b8685750611ec1646",
+  "response_schema": {
+    "$defs": {
+      "ExecProbe": {
+        "additionalProperties": false,
+        "description": "A Tier-1 execution probe: feed ``stdin`` to the compiled locus program and\nrequire ``expect_substring`` in stdout for the claim to hold.",
+        "properties": {
+          "stdin": {
+            "title": "Stdin",
+            "type": "string"
+          },
+          "expect_substring": {
+            "title": "Expect Substring",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stdin",
+          "expect_substring",
+          "description"
+        ],
+        "title": "ExecProbe",
+        "type": "object"
+      },
+      "Labels": {
+        "additionalProperties": false,
+        "properties": {
+          "program_level": {
+            "enum": [
+              "drift",
+              "conformant"
+            ],
+            "title": "Program Level",
+            "type": "string"
+          },
+          "paragraph_level": {
+            "enum": [
+              "drift",
+              "conformant"
+            ],
+            "title": "Paragraph Level",
+            "type": "string"
+          },
+          "line_level": {
+            "items": {
+              "$ref": "#/$defs/SourceLineRef"
+            },
+            "title": "Line Level",
+            "type": "array"
+          }
+        },
+        "required": [
+          "program_level",
+          "paragraph_level",
+          "line_level"
+        ],
+        "title": "Labels",
+        "type": "object"
+      },
+      "SourceLineRef": {
+        "additionalProperties": false,
+        "properties": {
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "line": {
+            "title": "Line",
+            "type": "integer"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          }
+        },
+        "required": [
+          "program",
+          "line",
+          "file"
+        ],
+        "title": "SourceLineRef",
+        "type": "object"
+      },
+      "SourceLocus": {
+        "additionalProperties": false,
+        "properties": {
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paragraph"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "line_span": {
+            "title": "Line Span",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "program",
+          "paragraph",
+          "file",
+          "line_span"
+        ],
+        "title": "SourceLocus",
+        "type": "object"
+      },
+      "StaticClaim": {
+        "additionalProperties": false,
+        "description": "A Tier-2 static assertion about the locus, checked against tool facts.\n\nAny subset may be given; the attempt verifies iff *all* provided sub-claims\nhold. ``dead_paragraph`` routes to call-graph reachability (D6).",
+        "properties": {
+          "literal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Literal"
+          },
+          "comparator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparator"
+          },
+          "dead_paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dead Paragraph"
+          }
+        },
+        "title": "StaticClaim",
+        "type": "object",
+        "required": [
+          "literal",
+          "comparator",
+          "dead_paragraph"
+        ]
+      },
+      "SubmittedBaselineCase": {
+        "additionalProperties": false,
+        "properties": {
+          "alias": {
+            "title": "Alias",
+            "type": "string"
+          },
+          "clause_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clause Index"
+          },
+          "response": {
+            "$ref": "#/$defs/SubmittedResponse"
+          }
+        },
+        "required": [
+          "alias",
+          "clause_index",
+          "response"
+        ],
+        "title": "SubmittedBaselineCase",
+        "type": "object"
+      },
+      "SubmittedCodeLocus": {
+        "additionalProperties": false,
+        "description": "Provider-authored locus before host-side semantic validation.\n\nJSON-schema structured output cannot express the cross-field rule that\nmulti-program loci require ``is_interprocedural=True``. Keep the submitted\nvalue intact here, then let ``DriftPrediction`` validate it during trusted\ninput binding. A violation therefore abstains only that hunt instead of\ninvalidating every row in the provider batch.",
+        "properties": {
+          "loci": {
+            "items": {
+              "$ref": "#/$defs/SourceLocus"
+            },
+            "title": "Loci",
+            "type": "array"
+          },
+          "slice_vars": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Slice Vars",
+            "type": "array"
+          },
+          "is_interprocedural": {
+            "title": "Is Interprocedural",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "loci",
+          "slice_vars",
+          "is_interprocedural"
+        ],
+        "title": "SubmittedCodeLocus",
+        "type": "object"
+      },
+      "SubmittedPrediction": {
+        "additionalProperties": false,
+        "description": "Provider-authored prediction fields; trusted inputs are host-attached.",
+        "properties": {
+          "code_locus": {
+            "$ref": "#/$defs/SubmittedCodeLocus"
+          },
+          "drift_type": {
+            "enum": [
+              "D1_stale_threshold",
+              "D2_missing_rule",
+              "D3_contradictory",
+              "D4_stale_reference_data",
+              "D5_boundary_error",
+              "D6_dead_code",
+              "D7_conformant"
+            ],
+            "title": "Drift Type",
+            "type": "string"
+          },
+          "target_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Path"
+          },
+          "labels": {
+            "$ref": "#/$defs/Labels"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code_locus",
+          "drift_type",
+          "target_path",
+          "labels",
+          "rationale"
+        ],
+        "title": "SubmittedPrediction",
+        "type": "object"
+      },
+      "SubmittedResponse": {
+        "additionalProperties": false,
+        "description": "Provider-facing final answer without provider-owned telemetry.",
+        "properties": {
+          "kind": {
+            "enum": [
+              "finding",
+              "abstain"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "thought": {
+            "title": "Thought",
+            "type": "string"
+          },
+          "prediction": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SubmittedPrediction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Clause-grounded regulatory proposition entailed by the cited clause; never a COBOL implementation or drift assertion.",
+            "title": "Claim"
+          },
+          "exec_probe": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ExecProbe"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "static_claim": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/StaticClaim"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "abstention_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstention Reason"
+          },
+          "final_answer": {
+            "title": "Final Answer",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "thought",
+          "prediction",
+          "claim",
+          "exec_probe",
+          "static_claim",
+          "abstention_reason",
+          "final_answer"
+        ],
+        "title": "SubmittedResponse",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "results": {
+        "items": {
+          "$ref": "#/$defs/SubmittedBaselineCase"
+        },
+        "title": "Results",
+        "type": "array"
+      }
+    },
+    "required": [
+      "results"
+    ],
+    "title": "CodexBaselineEnvelope",
+    "type": "object"
+  },
+  "schema_sha256": "4cfd615511fe3fbaff2ffbdbbd615b852ed89c0db7e585e5083696e48bd41d48",
+  "source_sha256": {},
+  "runtime_source_sha256": "dcfc7257cae6b98597e3b505c93af671143559d7f7e4fc79f9854785bd168ef9",
+  "authorized_hunts": [],
+  "visible_cases": 2,
+  "prior_case_context_included": false,
+  "group": {
+    "group_id": "config4:full:oracle_slice",
+    "mode": "concurrent",
+    "ordinal": 8,
+    "size": 98
+  }
+}

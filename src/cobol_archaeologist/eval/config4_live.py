@@ -24,7 +24,7 @@ from cobol_archaeologist.eval.config3_live import (
     canonical_sha256,
 )
 
-CONFIG4_PROMPT_VERSION = "m4-config4-adaptive-v1"
+CONFIG4_PROMPT_VERSION = "m4-config4-global-v1-adaptive-v7"
 CONFIG4_OUTPUT_DIR = ROOT / "data" / "eval" / "m4"
 CONFIG4_FREEZE_PATH = CONFIG4_OUTPUT_DIR / "run-freeze.json"
 CONFIG4_PREDECLARATION_PATH = CONFIG4_OUTPUT_DIR / "predeclaration.json"
@@ -145,7 +145,7 @@ class Config4RunFreeze(BaseModel):
     predecessor_freeze_sha256: str = Field(pattern=_HASH_PATTERN)
     provider: Literal["collaboration_subagent", "chatgpt-codex"]
     authentication: Literal["in_product_orchestration", "ChatGPT"]
-    model_id: Literal["gpt-5.6-luna"] = "gpt-5.6-luna"
+    model_id: Literal["gpt-5.6-luna", "gpt-6-luna"] = "gpt-5.6-luna"
     reasoning_effort: Literal["max"] = "max"
     prompt_version: str = Field(min_length=1)
     prompt_sha256: str = Field(pattern=_HASH_PATTERN)
@@ -195,6 +195,15 @@ class Config4RunFreeze(BaseModel):
     smoke_output_dir: str = "data/eval/m4/smoke"
     full_output_dir: str = "data/eval/m4/full"
     smoke_gate_required: Literal[True] = True
+    smoke_thresholds: dict[str, int] = Field(
+        default_factory=lambda: {
+            "rows_per_system": 14,
+            "max_infrastructure_failures": 0,
+            "max_counted_repair_substitutions": 0,
+            "max_unverified_emissions": 0,
+            "min_verified_non_null_agent_candidates": 1,
+        }
+    )
 
     @model_validator(mode="after")
     def _identity_is_governed(self) -> Config4RunFreeze:
@@ -262,6 +271,15 @@ class Config4RunFreeze(BaseModel):
             raise ValueError("configuration-4 full output must be under its root")
         if len(set(self.smoke_instance_ids)) != len(self.smoke_instance_ids):
             raise ValueError("configuration-4 smoke roster contains duplicates")
+        expected_thresholds = {
+            "rows_per_system": 14,
+            "max_infrastructure_failures": 0,
+            "max_counted_repair_substitutions": 0,
+            "max_unverified_emissions": 0,
+            "min_verified_non_null_agent_candidates": 1,
+        }
+        if self.smoke_thresholds != expected_thresholds:
+            raise ValueError("configuration-4 smoke thresholds differ")
         if self.transport == "collaboration_subagent":
             if (
                 self.provider != "collaboration_subagent"
@@ -293,7 +311,7 @@ class Config4Predeclaration(BaseModel):
     status: Literal["PREDECLARED"] = "PREDECLARED"
     provider: Literal["collaboration_subagent", "chatgpt-codex"]
     authentication: Literal["in_product_orchestration", "ChatGPT"]
-    model_id: Literal["gpt-5.6-luna"] = "gpt-5.6-luna"
+    model_id: Literal["gpt-5.6-luna", "gpt-6-luna"] = "gpt-5.6-luna"
     reasoning_effort: Literal["max"] = "max"
     freeze_sha256: str = Field(pattern=_HASH_PATTERN)
     freeze_artifact_sha256: str = Field(pattern=_HASH_PATTERN)
@@ -315,6 +333,7 @@ class Config4Predeclaration(BaseModel):
     full_output_dir: str
     provider_calls_performed: Literal[0] = 0
     smoke_gate_required: Literal[True] = True
+    smoke_thresholds: dict[str, int]
 
 
 class Config4Progress(BaseModel):
@@ -332,6 +351,13 @@ class Config4Progress(BaseModel):
     completed_run_keys: list[str]
     pending_instance_ids: list[str]
     interruptions: dict[str, str]
+    infrastructure_failures: dict[str, str] = Field(default_factory=dict)
+    counted_repair_substitutions: int = Field(default=0, ge=0)
+    verified_non_null_candidates: int = Field(default=0, ge=0)
+    unverified_emissions: int = Field(default=0, ge=0)
+    exact_final_replays: int = Field(default=0, ge=0)
+    records_sha256: str | None = Field(default=None, pattern=_HASH_PATTERN)
+    execution_sha256: dict[str, str] = Field(default_factory=dict)
     status: Literal["IN_PROGRESS", "VALID", "NOT_EVALUABLE"]
 
 
@@ -369,11 +395,14 @@ def build_config4_freeze(
     verifier_identity: str,
     runner_identity: str,
     prompt_version: str = CONFIG4_PROMPT_VERSION,
+    model_id: Literal["gpt-5.6-luna", "gpt-6-luna"] = "gpt-5.6-luna",
     output_root: Path | str = CONFIG4_OUTPUT_DIR,
     systems: Sequence[Config4SystemID] = CONFIG4_SYSTEMS,
     budgets: Mapping[str, Mapping[str, Any]] | None = None,
     batch_sizes: Mapping[str, int] | None = None,
     max_workers: int | None = None,
+    repository_commit: str | None = None,
+    runtime_source_sha256_value: str | None = None,
     root: Path = ROOT,
 ) -> Config4RunFreeze:
     """Create a successor freeze without writing artifacts or calling a provider."""
@@ -453,6 +482,7 @@ def build_config4_freeze(
             "configuration": 4,
             "predecessor_configuration": 3,
             "predecessor_freeze_sha256": predecessor_hash,
+            "model_id": model_id,
             "prompt_version": prompt_version,
             "prompt_sha256": prompt_sha256,
             "prompt_hashes": dict(prompt_hashes),
@@ -462,6 +492,16 @@ def build_config4_freeze(
             "verifier_sha256": verifier_sha256,
             "runner_sha256": runner_sha256,
             "method_identity_sha256": method_identity_sha256,
+            "repository_commit": (
+                predecessor.repository_commit
+                if repository_commit is None
+                else repository_commit
+            ),
+            "runtime_source_sha256": (
+                predecessor.runtime_source_sha256
+                if runtime_source_sha256_value is None
+                else runtime_source_sha256_value
+            ),
             "max_workers": (
                 predecessor.max_workers if max_workers is None else max_workers
             ),
@@ -490,6 +530,13 @@ def build_config4_freeze(
             "smoke_output_dir": smoke_text,
             "full_output_dir": full_text,
             "smoke_gate_required": True,
+            "smoke_thresholds": {
+                "rows_per_system": 14,
+                "max_infrastructure_failures": 0,
+                "max_counted_repair_substitutions": 0,
+                "max_unverified_emissions": 0,
+                "min_verified_non_null_agent_candidates": 1,
+            },
         }
     )
     return Config4RunFreeze.model_validate(payload)
@@ -579,6 +626,44 @@ def _valid_config4_smoke_progress(
         raise RuntimeError("configuration-4 smoke roster has missing source hashes")
     if set(progress.completed_run_keys) != expected_keys:
         raise RuntimeError(f"{system_id} smoke does not contain the exact frozen run keys")
+    if (
+        progress.infrastructure_failures
+        or progress.counted_repair_substitutions != 0
+        or progress.unverified_emissions != 0
+        or progress.records_sha256 is None
+        or progress.exact_final_replays < 1
+        or len(progress.execution_sha256) != progress.exact_final_replays
+        or (
+            system_id in {"agent", "adaptive_agent"}
+            and progress.verified_non_null_candidates < 1
+        )
+    ):
+        raise RuntimeError(f"{system_id} configuration-4 smoke evidence is not valid")
+    # Re-run the host finalizer from the immutable exact finals. This verifies
+    # the capture chain, schema, staged tool receipts, canonical records, and
+    # every threshold counter instead of trusting a hand-authored progress file.
+    from cobol_archaeologist.eval.config4_runner import (
+        Config4RunPreparation,
+        finalize_config4_system,
+        load_config4_smoke_rows,
+    )
+
+    preparation_path = Path(output_dir) / CONFIG4_SMOKE_DIRECTORY / "run-preparation.json"
+    if not preparation_path.is_file():
+        raise RuntimeError("configuration-4 smoke preparation is missing")
+    preparation = Config4RunPreparation.model_validate_json(
+        preparation_path.read_text(encoding="utf-8")
+    )
+    rows = load_config4_smoke_rows(freeze, root=ROOT)
+    _, replayed = finalize_config4_system(
+        freeze=freeze,
+        rows=rows,
+        preparation=preparation,
+        system_id=system_id,
+        output_dir=output_dir,
+    )
+    if replayed != progress:
+        raise RuntimeError(f"{system_id} configuration-4 smoke replay differs")
     return progress, hashlib.sha256(payload).hexdigest()
 
 
@@ -664,6 +749,7 @@ def write_config4_predeclaration(
     freeze_path = target / "run-freeze.json"
     ensure_config4_frozen_identity(freeze_path, freeze, root=root)
     predeclaration = Config4Predeclaration(
+        model_id=freeze.model_id,
         provider=freeze.provider,
         authentication=freeze.authentication,
         freeze_sha256=canonical_sha256(freeze),
@@ -684,6 +770,7 @@ def write_config4_predeclaration(
         output_root=freeze.output_root,
         smoke_output_dir=freeze.smoke_output_dir,
         full_output_dir=freeze.full_output_dir,
+        smoke_thresholds=freeze.smoke_thresholds,
     )
     path = target / "predeclaration.json"
     rendered = predeclaration.model_dump_json(indent=2)
@@ -709,7 +796,14 @@ def predeclare_config4(
     verifier_identity: str,
     runner_identity: str,
     prompt_version: str = CONFIG4_PROMPT_VERSION,
+    model_id: Literal["gpt-5.6-luna", "gpt-6-luna"] = "gpt-5.6-luna",
+    repository_commit: str | None = None,
+    runtime_source_sha256_value: str | None = None,
     output_root: Path | str = CONFIG4_OUTPUT_DIR,
+    systems: Sequence[Config4SystemID] = CONFIG4_SYSTEMS,
+    budgets: Mapping[str, Mapping[str, Any]] | None = None,
+    batch_sizes: Mapping[str, int] | None = None,
+    max_workers: int | None = None,
     root: Path = ROOT,
 ) -> tuple[Config4RunFreeze, Config4Predeclaration]:
     """Build and persist the successor identity without provider execution."""
@@ -724,7 +818,14 @@ def predeclare_config4(
         verifier_identity=verifier_identity,
         runner_identity=runner_identity,
         prompt_version=prompt_version,
+        model_id=model_id,
+        repository_commit=repository_commit,
+        runtime_source_sha256_value=runtime_source_sha256_value,
         output_root=output_root,
+        systems=systems,
+        budgets=budgets,
+        batch_sizes=batch_sizes,
+        max_workers=max_workers,
         root=root,
     )
     return freeze, write_config4_predeclaration(

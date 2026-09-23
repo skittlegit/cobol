@@ -146,9 +146,9 @@ def test_full_preparation_reaches_frozen_row_check_only_after_smoke_gate(
             pending_instance_ids=[],
             interruptions={},
         )
-    assert refresh_config4_smoke_readiness(output_dir=output, freeze=freeze)
+    assert refresh_config4_smoke_readiness(output_dir=output, freeze=freeze) is None
 
-    with pytest.raises(ValueError, match="full rows differ"):
+    with pytest.raises(RuntimeError, match="smoke is not valid"):
         prepare_config4_run(
             freeze=freeze,
             rows=[],

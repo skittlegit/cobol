@@ -2,9 +2,16 @@
 
 **Owners:** Track A / Track C
 **State:** blocked until GOAL-R1 freezes one detector decision and roster
-**Windowing:** run one numbered section per Codex five-hour window
+**Windowing:** ten planned Codex five-hour windows at the 24-task planning
+ceiling; eight when only one 12-case track is eligible
 **Depends on:** GOAL-R1, promoted T6-v2, and the existing offline migration gates
 **Excludes:** UI/T7.4
+
+**Model decision (2026-09-23):** R2 migration generation uses
+`gpt-6-luna` at `max` reasoning. R1's active frozen evaluation continues with
+`gpt-5.6-luna`/`max`; completed T6 reviews retain their recorded identities.
+R2.2 must bind the new model to its fresh requests and qualification before
+live generation. This decision does not reopen R1 or historical evidence.
 
 ## Required outcome
 
@@ -14,12 +21,40 @@ release addendum without erasing the closed T5.5/M5 or prior M4 evidence.
 
 ## Five-hour execution contract
 
-Each section targets 4 hours 15 minutes of execution and reserves 45 minutes
-for sealing, deterministic checks, reports, and a clean handoff. At 4:15, stop
-launching new provider tasks and close the current checkpoint. If a section is
-not terminal, resume that same section in the next five-hour window.
+Each section is one real five-hour window: at most 4 hours 15 minutes of work
+and at least 45 minutes for sealing, replay, tests, documentation, and handoff.
+At 4:15, stop launching provider work. An unfinished wave resumes under the
+same section identifier in an explicitly recorded repair window; it never
+silently consumes the next section.
 
-Use at most three isolated Luna/max tasks concurrently. Checkpoint every case.
+The planning denominator is concrete. The current migration candidate roster
+contains 12 cases. R2 may freeze at most two non-pooled tracks, so the planning
+ceiling is 24 isolated GPT-6 Luna/max generation tasks. R2.1 must replace this ceiling
+with the exact frozen denominator before any provider call. If that denominator
+exceeds 24, recompute and publish the window count instead of retaining this
+schedule.
+
+The live-generation cap is six terminal run keys per window: at most two tasks
+per worker across three isolated workers. This is deliberately below the
+theoretical concurrency maximum because migration tasks create patches and
+staging evidence and may require an unchanged-request infrastructure retry.
+The validation cap is eight terminal records per window. These caps are
+planning limits, not permission to stop early when safe capacity remains.
+
+At the 24-task ceiling the baseline plan is **10 windows / 50 hours**:
+
+- 2 preparation/freeze windows;
+- 4 generation windows of at most 6 live tasks;
+- 3 validation/report windows of at most 8 records; and
+- 1 release-close window.
+
+If only the 12-case oracle-assisted track is eligible, generation waves R2.5
+and R2.6 are skipped after reconciliation, producing **8 windows / 40 hours**.
+Each genuine repair window adds five hours and must name its exact unresolved
+keys. These are planning ceilings, not promises that a provider or compiler
+failure will fit inside the original window.
+
+Use at most three isolated GPT-6 Luna/max tasks concurrently. Checkpoint every case.
 Self-heal staging, schema, hash, apply, validator, replay, and report defects
 within the same section before marking it complete. Do not manually improve a
 model patch, erase a failed patch or abstention, pool detector and oracle
@@ -29,59 +64,87 @@ Use this prompt for each window:
 
 > Execute only section R2.N from
 > `docs/tasks/GOAL-R2-work-order.md`. Resume its durable checkpoint, use up to
-> three isolated Luna/max workers, self-heal permitted failures, update project
+> three isolated GPT-6 Luna/max workers, self-heal permitted failures, update project
 > records, and stop at that section's terminal handoff. Do not start R2.N+1.
 
-## R2.1 - freeze rosters, runtime, and requests
+## R2.1 - freeze exact rosters and planning denominator
 
 **Budget:** <= 5 hours.
 
-1. Validate GOAL-R1's frozen detector decision and its exact eligible findings.
+1. Validate GOAL-R1's frozen detector decision and exact eligible findings.
 2. Validate the promoted T6-v2 20-pair / 40-side manifest and migration runtime
    snapshot.
-3. Freeze two non-pooled rosters: detector-led verified findings and
-   oracle-assisted frozen findings.
-4. Materialize one-case Luna/max requests with only authorized source,
-   verified finding, patch scope, and output contract.
-5. Prove source, request, staging, schema, runtime, validator, and run-key
-   binding with provider-free tests and one isolated qualification.
+3. Freeze the detector-led and oracle-assisted rosters separately.
+4. Publish exact per-track and combined generation denominators.
+5. Recalculate the numbered generation and validation waves if the combined
+   denominator is not 12 or 24.
 
-**Handoff:** immutable rosters and requests, exact denominators, zero hidden
-cross-track leakage, and green preflight tests.
+**Handoff:** immutable rosters, exact denominators, a deterministic wave map,
+and zero hidden cross-track leakage.
 
-## R2.2 - T6.2 migration generation, first half
+## R2.2 - freeze runtime, requests, and qualification
 
 **Budget:** <= 5 hours. **Depends on:** R2.1.
 
-1. Execute the first deterministic half of each frozen roster, keeping tracks
-   separately labeled.
-2. Each case ends in one exact sealed patch proposal or explicit abstention.
-3. Preserve request/final hashes, events, tool logs, unavailable telemetry,
-   interruptions, and resume evidence.
-4. Isolate malformed finals under diagnostic identities and retry unchanged
-   requests without counting an unvalidated replacement.
+1. Materialize one-case `gpt-6-luna`/`max` requests containing only authorized source,
+   verified finding, patch scope, and output contract.
+2. Freeze source, request, staging, schema, runtime, validator, and run-key
+   bindings.
+3. Run provider-free tests and one isolated qualification task.
+4. Repair request/capture/staging defects now; do not discover them across the
+   live roster.
 
-**Handoff:** all first-half run keys terminal and replayable, with no broken
-staging state.
+**Handoff:** immutable requests and runtime identity, green preflight, and one
+sealed/replay-valid qualification that is not counted in the live denominator.
 
-## R2.3 - T6.2 migration generation, second half
+## R2.3 - T6.2 generation wave 1
 
 **Budget:** <= 5 hours. **Depends on:** R2.2.
 
-1. Resume the same frozen run and process every remaining run key.
+1. Execute deterministic generation keys 1-6 across the frozen non-pooled
+   rosters, using at most three isolated workers.
+2. Seal one exact patch proposal or explicit abstention per key.
+3. Preserve request/final hashes, events, tool logs, interruptions, and resume
+   evidence. Unchanged-request infrastructure retries remain uncounted until
+   sealed.
+
+**Handoff:** six or fewer wave-1 keys terminal and replay-valid; no pending key
+is misreported as completed.
+
+## R2.4 - T6.2 generation wave 2
+
+**Budget:** <= 5 hours. **Depends on:** R2.3.
+
+Process deterministic generation keys 7-12 under the identical contracts and
+produce the same terminal, replay-valid handoff. If the full denominator is 12,
+reconcile and freeze the T6.2 generation ledger here, then skip R2.5-R2.6.
+
+## R2.5 - T6.2 generation wave 3 (conditional)
+
+**Budget:** <= 5 hours. **Depends on:** R2.4. **Required only when denominator > 12.**
+
+Process deterministic generation keys 13-18 under the identical contracts.
+
+## R2.6 - finish T6.2 generation and reconcile
+
+**Budget:** <= 5 hours. **Depends on:** R2.5 when required, otherwise R2.4.
+
+1. Process deterministic generation keys 19-24, or every remaining key when
+   the exact denominator is smaller.
 2. Reconcile proposals, abstentions, malformed attempts, interruptions, and
-   exact eligible/evaluated denominators for both tracks.
-3. Freeze the complete T6.2 generation ledger. Do not advance with pending keys.
+   per-track denominators.
+3. Freeze the complete T6.2 ledger and immutable validation roster. Do not
+   advance with pending keys.
 
 **Handoff:** complete sealed patch/abstention coverage and one immutable
 validation input roster.
 
-## R2.4 - T6.3 validation, first half
+## R2.7 - T6.3 validation wave 1
 
-**Budget:** <= 5 hours. **Depends on:** R2.3.
+**Budget:** <= 5 hours. **Depends on:** terminal T6.2 generation.
 
 1. Apply proposals only to disposable per-case staging copies.
-2. Validate the first deterministic half for patch scope, clean application,
+2. Validate deterministic records 1-8 for patch scope, clean application,
    parser integrity, call graph/dataflow/slice consistency, intended behavior,
    unaffected regressions, copybook fan-out, and source-hash binding.
 3. Use pinned GnuCOBOL compile/execution for supported batch cases when the
@@ -89,14 +152,22 @@ validation input roster.
    never convert it to a pass.
 4. A failed generated patch remains a measured failure.
 
-**Handoff:** first-half terminal validation records, reproducible staging, and
+**Handoff:** up to eight terminal validation records, reproducible staging, and
 green validator/integrity tests.
 
-## R2.5 - finish validation and publish T6.4
+## R2.8 - T6.3 validation wave 2
 
-**Budget:** <= 5 hours. **Depends on:** R2.4.
+**Budget:** <= 5 hours. **Depends on:** R2.7.
 
-1. Validate every remaining proposal under the identical frozen validator.
+Validate deterministic records 9-16 with the identical frozen validator and
+terminal evidence requirements.
+
+## R2.9 - finish validation and publish T6.4
+
+**Budget:** <= 5 hours. **Depends on:** R2.8.
+
+1. Validate deterministic records 17-24, or every remaining record under the
+   identical frozen validator.
 2. Reach terminal verdicts for all proposals and abstentions.
 3. Build T6.4 with exact patch, abstention, apply, parse, compile,
    intended-test, regression, affected-line, class, stratum, and capability
@@ -108,9 +179,9 @@ green validator/integrity tests.
 **Handoff:** reconciled `data/migration/report.json` and
 `data/migration/report.md` with no pending validation state.
 
-## R2.6 - successor release addendum and close
+## R2.10 - successor release addendum and close
 
-**Budget:** <= 5 hours. **Depends on:** R2.5.
+**Budget:** <= 5 hours. **Depends on:** R2.9.
 
 1. Consume the closed T5.5/T5.5A evidence and complete the successor release
    addendum and T7.5 from the frozen detector and migration decisions.

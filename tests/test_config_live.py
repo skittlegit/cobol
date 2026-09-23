@@ -75,12 +75,58 @@ def test_configuration4_pins_predecessor_and_method_affecting_hashes(tmp_path: P
     assert freeze.identity_hashes["prompt"] == freeze.prompt_sha256
     assert freeze.identity_hashes["response_schema"] == freeze.response_schema_sha256
     assert freeze.smoke_gate_required is True
+    assert freeze.smoke_thresholds == {
+        "rows_per_system": 14,
+        "max_infrastructure_failures": 0,
+        "max_counted_repair_substitutions": 0,
+        "max_unverified_emissions": 0,
+        "min_verified_non_null_agent_candidates": 1,
+    }
     assert "m4-config3" not in freeze.output_root
 
     changed = freeze.model_dump(mode="json")
     changed["prompt_sha256"] = "0" * 64
     with pytest.raises(ValidationError, match="prompt hash differs"):
         Config4RunFreeze.model_validate(changed)
+
+
+def test_configuration4_can_freeze_row_isolated_agent_batches(tmp_path: Path):
+    predecessor = _predecessor()
+    freeze = build_config4_freeze(
+        predecessor=predecessor,
+        prompt="row-isolated agent repair",
+        response_schema={"type": "object", "additionalProperties": False},
+        tool_policy="bounded",
+        verifier_identity="verifier-v1",
+        runner_identity="runner-v1",
+        batch_sizes={**predecessor.batch_sizes, "agent": 1},
+        output_root=tmp_path / "m4",
+    )
+
+    assert freeze.batch_sizes["agent"] == 1
+
+
+def test_gpt6_luna_freeze_has_distinct_run_keys_without_changing_old_freeze(
+    tmp_path: Path,
+):
+    old = _freeze(tmp_path)
+    new = Config4RunFreeze.model_validate(
+        {**old.model_dump(mode="json"), "model_id": "gpt-6-luna"}
+    )
+    instance_id = old.smoke_instance_ids[0]
+    arguments = {
+        "system_id": "adaptive_agent",
+        "run_mode": "smoke",
+        "instance_id": instance_id,
+        "source_sha256": old.source_sha256[instance_id],
+    }
+
+    assert old.model_id == "gpt-5.6-luna"
+    assert new.model_id == "gpt-6-luna"
+    assert canonical_sha256(new) != canonical_sha256(old)
+    assert config4_run_key(freeze=new, **arguments) != config4_run_key(
+        freeze=old, **arguments
+    )
 
 
 def test_configuration4_writer_refuses_configuration3_tree_without_mutation(
@@ -116,7 +162,9 @@ def test_predeclaration_is_additive_and_provider_free(tmp_path: Path):
     assert not (tmp_path / "m4-config3" / "run-freeze.json").exists()
 
 
-def test_configuration4_full_execution_is_smoke_gated(tmp_path: Path):
+def test_configuration4_completion_counts_alone_cannot_open_smoke_gate(
+    tmp_path: Path,
+):
     freeze = _freeze(tmp_path)
     output = tmp_path / "m4"
 
@@ -149,21 +197,6 @@ def test_configuration4_full_execution_is_smoke_gated(tmp_path: Path):
             encoding="utf-8",
         )
 
-    readiness = refresh_config4_smoke_readiness(
-        output_dir=output, freeze=freeze
-    )
-    assert readiness is not None
-    assert require_config4_full_smoke_readiness(
-        output_dir=output, freeze=freeze
-    ) == readiness
-
-    bad = output / "smoke" / "agent" / "progress.json"
-    payload = Config4Progress.model_validate_json(bad.read_text(encoding="utf-8"))
-    bad.write_text(
-        payload.model_copy(update={"status": "IN_PROGRESS"}).model_dump_json(
-            indent=2
-        ),
-        encoding="utf-8",
-    )
-    with pytest.raises(RuntimeError, match="smoke is not valid"):
+    assert refresh_config4_smoke_readiness(output_dir=output, freeze=freeze) is None
+    with pytest.raises(RuntimeError, match="smoke evidence is not valid"):
         require_config4_full_smoke_readiness(output_dir=output, freeze=freeze)

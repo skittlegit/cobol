@@ -1,0 +1,85 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 2,
+          "observation_sha256": "ba7f46826332b333e201b6e041e5e695f715a385dbe649d2be6c6f13718c1ef9",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "Successful read_program observation step 2 (SHA-256 ba7f46826332b333e201b6e041e5e695f715a385dbe649d2be6c6f13718c1ef9) enumerates the two paragraphs of LATEFEE2, identifying 2000-FEE as the relevant paragraph to inspect; it establishes the bounded source structure but not yet the compliance outcome."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "1ae87a91549d58a37ab73a3d0265b0a8522f2352a78041fae460b29f0f5a2375",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "Successful read_paragraph observation step 3 (SHA-256 1ae87a91549d58a37ab73a3d0265b0a8522f2352a78041fae460b29f0f5a2375) shows the typed compliance check `IF WS-DAYS-PAST-DUE > ZERO` in 2000-FEE and the charge computation from WS-OUTSTANDING. The source comparator and literal are therefore available for comparison with the resolved three-day strict-greater requirement."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "47a8f5479f84e7e92cc874a05b9205e0fb20eb1e2af2a05fd47c4b0d1561e60c",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "Successful read_paragraph observation step 4 (SHA-256 47a8f5479f84e7e92cc874a05b9205e0fb20eb1e2af2a05fd47c4b0d1561e60c) shows 1000-MAIN accepts WS-OUTSTANDING and WS-DAYS-PAST-DUE, performs 2000-FEE, and displays the charge. This makes the 2000-FEE check reachable for the regulated input and connects the typed condition to the program outcome."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "eaffb1e03844c665a6562f590f2e9b3bc588de3dfb622473645b472af36cd8d3",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "Successful trace_variable observation step 5 (SHA-256 eaffb1e03844c665a6562f590f2e9b3bc588de3dfb622473645b472af36cd8d3) enumerates the only scoped use of WS-DAYS-PAST-DUE at line 21 in 2000-FEE, after its ACCEPT at line 16. It satisfies the locus enumeration preflight and shows no second typed threshold locus in LATEFEE2."
+        },
+        {
+          "observation_step": 6,
+          "observation_sha256": "1596b79ab596d44f023441af7d6f015c67868b5b88b00fb1200ce2c2dbac7a7b",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "Successful trace_variable observation step 6 (SHA-256 1596b79ab596d44f023441af7d6f015c67868b5b88b00fb1200ce2c2dbac7a7b) traces WS-OUTSTANDING from its ACCEPT at line 15 to the COMPUTE at line 22. This confirms the charge base is a separate reachable source value while the selected drift is the stale past_due_grace threshold."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The single typed threshold locus in reachable paragraph 2000-FEE uses > ZERO, while the trusted clause leaf past_due_grace requires strictly greater than 3 days. The evidence supports D1_stale_threshold; no conflicting typed locus was found.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE2",
+                "paragraph": "2000-FEE",
+                "file": null,
+                "line_span": [21, 21]
+              }
+            ],
+            "slice_vars": ["WS-DAYS-PAST-DUE"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE2",
+                "line": 21,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "At LATEFEE2 paragraph 2000-FEE line 21, the source condition is `IF WS-DAYS-PAST-DUE > ZERO`. The resolved clause leaf `past_due_grace` requires a strictly-greater comparison against 3 days, so the source admits any positive days-past-due value, including one through three days, instead of waiting for more than three days. The reachable caller path is 1000-MAIN, which accepts WS-DAYS-PAST-DUE and performs 2000-FEE."
+        },
+        "claim": "For a card account, reporting the account past-due to CICs or levying penal charges is permitted only when it has been past due for more than three days; days-past-due and late charges are computed from the payment due date, and late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D1 stale threshold: LATEFEE2 paragraph 2000-FEE line 21 checks WS-DAYS-PAST-DUE > ZERO instead of strictly greater than the required 3 days, so charges can apply during the first three days past due."
+      }
+    }
+  ]
+}

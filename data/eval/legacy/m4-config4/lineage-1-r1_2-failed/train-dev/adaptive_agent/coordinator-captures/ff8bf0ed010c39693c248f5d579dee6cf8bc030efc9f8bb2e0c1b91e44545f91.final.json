@@ -1,0 +1,111 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "6f0ed16e8d9b790d104a1852337dbb4dfd16d2105cf72f65912eb42db9ebbaec",
+          "hypothesis": "D7_conformant",
+          "bearing": "context",
+          "rationale": "The program index identifies 2000-FEE at lines 20-25 as the fee-decision paragraph that must contain positive evidence for both leaves of the composite rule."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "3ec0e08e76465dc630d48bb7ebf38c7a4c67ee6c3c8b033beaccffffbb65f730",
+          "hypothesis": "D7_conformant",
+          "bearing": "supports",
+          "rationale": "The fee paragraph positively checks WS-DAYS-PAST-DUE > 3 and computes the charge from WS-OUTSTANDING, matching the strictly-more-than-three-day grace rule and the outstanding-after-due-date charge base."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "3ec0e08e76465dc630d48bb7ebf38c7a4c67ee6c3c8b033beaccffffbb65f730",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "refutes",
+          "rationale": "The typed grace comparison uses literal 3, exactly matching the resolved past_due_grace value, and the charge expression uses the expected outstanding base."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "3ec0e08e76465dc630d48bb7ebf38c7a4c67ee6c3c8b033beaccffffbb65f730",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "refutes",
+          "rationale": "The source comparator is strict '>', which matches the resolved strictly_greater grace comparator and excludes the exact three-day boundary."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "4543a463b42496456a41a0f96fa6596e3a21aa01358099012d2337224c621382",
+          "hypothesis": "D7_conformant",
+          "bearing": "supports",
+          "rationale": "The complete days-past-due trace independently confirms the sole decision use is IF WS-DAYS-PAST-DUE > 3 at line 21."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "4543a463b42496456a41a0f96fa6596e3a21aa01358099012d2337224c621382",
+          "hypothesis": "D3_contradictory",
+          "bearing": "refutes",
+          "rationale": "The scoped trace enumerates only one typed days-past-due comparison, so no conflicting grace-period outcome is present."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "1596b79ab596d44f023441af7d6f015c67868b5b88b00fb1200ce2c2dbac7a7b",
+          "hypothesis": "D7_conformant",
+          "bearing": "supports",
+          "rationale": "The outstanding-variable trace confirms the accepted outstanding amount is the operand used to compute WS-CHARGE at line 22, providing positive evidence for the charge_base leaf."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "Positive, reachable source evidence covers both composite leaves: a strict greater-than-three-days check and a charge computed from the outstanding amount. The traces expose no alternative conflicting locus, stale value, or boundary mismatch, supporting D7 conformance.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE2",
+                "paragraph": "2000-FEE",
+                "file": null,
+                "line_span": [
+                  21,
+                  22
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-PAST-DUE",
+              "WS-OUTSTANDING",
+              "WS-CHARGE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": [
+              {
+                "program": "LATEFEE2",
+                "line": 21,
+                "file": null
+              },
+              {
+                "program": "LATEFEE2",
+                "line": 22,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "LATEFEE2 line 21 applies the fee only when WS-DAYS-PAST-DUE > 3, exactly matching the strictly-greater three-day grace leaf. Line 22 computes the charge from WS-OUTSTANDING, matching the required outstanding-after-due-date base rather than Total Amount Due."
+        },
+        "claim": "A card account may be reported past due or assessed penal charges only when it is past due for strictly more than 3 days from the payment due date, and any late charge applies only to the outstanding amount after that due date rather than the Total Amount Due.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "3",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "LATEFEE2 conforms: it applies the charge only after more than 3 days past due and calculates it from the outstanding amount."
+      }
+    }
+  ]
+}

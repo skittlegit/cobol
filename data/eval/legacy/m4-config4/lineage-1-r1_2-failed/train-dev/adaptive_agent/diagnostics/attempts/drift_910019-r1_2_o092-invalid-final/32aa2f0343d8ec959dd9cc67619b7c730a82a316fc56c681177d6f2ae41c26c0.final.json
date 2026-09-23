@@ -1,0 +1,136 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "730188826cc633bcf59810724f3b89deb99a48eb60ad2c2f852537b3cffe4336",
+          "hypothesis": "D3_contradictory",
+          "bearing": "context",
+          "rationale": "The successful read_program observation indexes 1000-MAIN and 2000-DECIDE, with one decision paragraph for this condition and no second typed outcome; a contradictory pair is not established."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "ab348073e6ef1a8cb76d895d6f2eb2d644c2848acf6d04f31f422fdbc784f74c",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "supports",
+          "rationale": "The successful 2000-DECIDE observation shows WS-DAYS-SINCE-ISSUE >= 30 for the activation decision. With an at-most 30-day activation window, including equality is the boundary mismatch under investigation."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "ab348073e6ef1a8cb76d895d6f2eb2d644c2848acf6d04f31f422fdbc784f74c",
+          "hypothesis": "D4_stale_reference_data",
+          "bearing": "context",
+          "rationale": "The successful decision paragraph contains duration comparisons for activation and consent windows rather than a hardcoded enum_set collection, so D4 is not the applicable class for this composite duration rule."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "ab348073e6ef1a8cb76d895d6f2eb2d644c2848acf6d04f31f422fdbc784f74c",
+          "hypothesis": "D7_conformant",
+          "bearing": "refutes",
+          "rationale": "The source activation path uses >= 30, which fires at equality for the resolved at-most 30-day window; therefore complete conformance is not supported."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "eb7b6dc3a6fa63ca4bde456bca0b0d601102ed918e2b942b764643d657df3dd1",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "refutes",
+          "rationale": "The successful 1000-MAIN observation shows PERFORM 2000-DECIDE after accepting the relevant inputs; a positive reachable regulated decision invalidates D2's required absence evidence."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "eb7b6dc3a6fa63ca4bde456bca0b0d601102ed918e2b942b764643d657df3dd1",
+          "hypothesis": "D6_dead_code",
+          "bearing": "refutes",
+          "rationale": "The successful main-paragraph observation shows 1000-MAIN performs 2000-DECIDE, so the compliance decision paragraph is reachable and not dead."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "f5c39ac8a9a493812cb5fcd88aabf8d6009a527e215a1bbeaba06a513c1e6e01",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "refutes",
+          "rationale": "The successful scoped grep shows the source literal 30 at line 26, equal to the resolved activation_window value 30; the issue is the boundary comparator, not a stale threshold value."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "f5c39ac8a9a493812cb5fcd88aabf8d6009a527e215a1bbeaba06a513c1e6e01",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "supports",
+          "rationale": "The successful grep returns the exact source line WS-DAYS-SINCE-ISSUE >= 30. An at-most 30-day activation window should expire only after day 30, while >= includes the equality boundary."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "0f08a156af0c44fb03272f9fc6ccc0cc477b67f0a8c6a5cd75d39637a1bf904f",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "context",
+          "rationale": "The successful consent-variable grep shows the separate closure test WS-CONSENT-DAYS > 7, isolating the observed boundary discrepancy to activation_window rather than the seven-day closure leaf."
+        },
+        {
+          "observation_step": 6,
+          "observation_sha256": "9e8f2117b7f0cba197ed5a45b34cd29ca7708d3a8e0abc4d62bad8ed5694f920",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "supports",
+          "rationale": "The successful data slice traces WS-DAYS-SINCE-ISSUE from its declaration and input in 1000-MAIN to the use in 2000-DECIDE, confirming the typed variable reaches the mismatching >= 30 boundary."
+        },
+        {
+          "observation_step": 7,
+          "observation_sha256": "c2e2859708aef63a9b2405166421cc24e32777ce720e7396e00be1f0733fc549",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "supports",
+          "rationale": "The successful variable trace identifies the use excerpt ELSE followed by IF WS-DAYS-SINCE-ISSUE >= 30 at lines 25-26 in 2000-DECIDE, providing the exact typed source locus for the boundary error."
+        },
+        {
+          "observation_step": 8,
+          "observation_sha256": "8d97e813865e82c3e5bc2719ba3f21e04a0b9106fd2198642a098fdc078c436",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "context",
+          "rationale": "The successful trace of WS-CONSENT-DAYS places the > 7 closure use at line 27, confirming a distinct reachable closure check while the selected activation_window locus remains the >= 30 comparison."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "Class arbitration: 2000-DECIDE is the single reachable typed decision locus. The activation literal 30 equals the resolved activation_window value, so D1 is refuted; its source comparator >= includes equality for an at-most 30-day window, supporting D5. The seven-day closure branch is separately present, D2 and D6 are refuted by the reachable rule, D3 has no conflicting typed locus, and D4 is inapplicable because the clause leaves are durations rather than an enum_set reference collection. D5 is therefore the best-supported class at target_path activation_window.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": null,
+                "line_span": [26, 26]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-ISSUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "activation_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "ACTIVAT1",
+                "line": 26,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "At ACTIVAT1 paragraph 2000-DECIDE line 26, the observed condition uses WS-DAYS-SINCE-ISSUE >= 30. The resolved activation_window is 30 days at_most, so equality remains within the permitted window and the trigger should occur only after day 30; >= fires one boundary early. The seven-day closure check is a separate > 7 branch, so the typed activation_window locus is the supported boundary drift."
+        },
+        "claim": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "30",
+          "comparator": ">=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Boundary drift: ACTIVAT1 triggers the activation action at >= 30 days, including the at-most-30-day boundary."
+      }
+    }
+  ]
+}

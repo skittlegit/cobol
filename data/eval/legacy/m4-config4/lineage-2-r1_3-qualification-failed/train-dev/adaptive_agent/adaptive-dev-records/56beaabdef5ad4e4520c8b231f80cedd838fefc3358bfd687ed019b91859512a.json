@@ -1,0 +1,369 @@
+{
+  "instance_id": "drift_002306",
+  "gold": {
+    "instance_id": "drift_002306",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "11(4)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For an unsolicited card issued/activated and billed, the issuer must reverse the charges and pay the recipient a penalty of twice the value of the charges reversed.",
+      "current_value": {
+        "kind": "multiplier",
+        "value": 2,
+        "comparator": null,
+        "note": "Fixed statutory multiplier (2x charges reversed), not a directional threshold: a stale value is simply WRONG, not laxer/stricter on a grid. mo1_mode=exact_wrong with declared wrong-set [1], not [1,3]: the drift-direction principle extends to constants on two grounds - (a) D1 is temporal staleness and penalty provisions ratchet upward (every primary-verified change in this corpus moved toward strictness), so the plausible FORMER value sits below; (b) survival bias - drift that overpays (3x) is noticed and corrected internally, drift that underpays (1x) generates no internal signal and persists. The mechanism is indifferent to threshold-vs-constant."
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "UNSOLIC1",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            11,
+            11
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CHARGES-BILLED",
+        "WS-REVERSAL",
+        "WS-PENALTY"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at UNSOLIC1:<source>:11-11; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "UNSOLIC1.cbl",
+      "mutation": "MO-0; locus=UNSOLIC1:<source>:11-11; old='05  WS-PRINT-LINE OCCURS 30 PIC X(30).'; new='05  WS-PRINT-LINE OCCURS 30 PIC X(50).'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_002306",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "11(4)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For an unsolicited card issued/activated and billed, the issuer must reverse the charges and pay the recipient a penalty of twice the value of the charges reversed.",
+      "current_value": {
+        "kind": "multiplier",
+        "value": 2,
+        "comparator": null,
+        "note": "Fixed statutory multiplier (2x charges reversed), not a directional threshold: a stale value is simply WRONG, not laxer/stricter on a grid. mo1_mode=exact_wrong with declared wrong-set [1], not [1,3]: the drift-direction principle extends to constants on two grounds - (a) D1 is temporal staleness and penalty provisions ratchet upward (every primary-verified change in this corpus moved toward strictness), so the plausible FORMER value sits below; (b) survival bias - drift that overpays (3x) is noticed and corrected internally, drift that underpays (1x) generates no internal signal and persists. The mechanism is indifferent to threshold-vs-constant."
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "UNSOLIC1",
+          "paragraph": "2000-REMEDY",
+          "file": null,
+          "line_span": [
+            21,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CHARGES-BILLED",
+        "WS-REVERSAL",
+        "WS-PENALTY"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "rationale": "The reachable 2000-REMEDY paragraph moves WS-CHARGES-BILLED into WS-REVERSAL and computes WS-PENALTY = 2 * WS-REVERSAL. This exact source literal 2 matches the clause's resolved multiplier 2; traces confirm the computed penalty is displayed."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "UNSOLIC1:2000-REMEDY — literal '2' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9333,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "UNSOLIC1:2000-REMEDY — literal '2' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 only when the regulated check itself is absent and scoped grep,\n  caller graph, callee graph, and data slice all provide the required negative\n  evidence. Any positive observation from one of those four required tools\n  invalidates D2 for that investigation; do not repurpose positive context as\n  absence evidence. Do not invent an unstated date derivation, preprocessing\n  step, or implementation mechanism as a missing rule. If positive code\n  evidence matches the clause and no supported drift remains, consider D7.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- For D7, put the positive source location in `code_locus`, but set\n  `labels.program_level` and `labels.paragraph_level` to `conformant` and set\n  `labels.line_level` to an empty list. D7 line labels identify drift and must\n  therefore stay empty. When the clause current value is composite, set\n  `target_path` to the exact matching non-composite leaf.\n- Interpret a comparator together with the branch action and control-flow\n  polarity. Do not call D5 from a token-only comparison between a clause's\n  typed comparator and a source predicate. In an elapsed-window state machine,\n  `elapsed > limit` can be the conformant transition after the full allowed\n  window, while `elapsed >= limit` can fire one boundary unit early. Trace the\n  resulting action and use a boundary probe when possible before choosing D5.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"UNSOLIC1\",\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"11(4)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For an unsolicited card issued/activated and billed, the issuer must reverse the charges and pay the recipient a penalty of twice the value of the charges reversed.\",\"current_value\":{\"kind\":\"multiplier\",\"value\":2,\"comparator\":null,\"note\":\"Fixed statutory multiplier (2x charges reversed), not a directional threshold: a stale value is simply WRONG, not laxer/stricter on a grid. mo1_mode=exact_wrong with declared wrong-set [1], not [1,3]: the drift-direction principle extends to constants on two grounds - (a) D1 is temporal staleness and penalty provisions ratchet upward (every primary-verified change in this corpus moved toward strictness), so the plausible FORMER value sits below; (b) survival bias - drift that overpays (3x) is noticed and corrected internally, drift that underpays (1x) generates no internal signal and persists. The mechanism is indifferent to threshold-vs-constant.\"}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "UNSOLIC1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 14, \"name\": \"1000-MAIN\"}, {\"line_end\": 21, \"line_start\": 19, \"name\": \"2000-REMEDY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\lineage-2\\\\train-dev\\\\adaptive_agent\\\\task-staging\\\\56beaabdef5ad4e4520c8b231f80cedd838fefc3358bfd687ed019b91859512a\\\\cases\\\\drift_900000\\\\UNSOLIC1.cbl\", \"program\": \"UNSOLIC1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "UNSOLIC1",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-REMEDY\", \"program\": \"UNSOLIC1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CHARGES-BILLED\\n           PERFORM 2000-REMEDY\\n           DISPLAY 'PEN: ' WS-PENALTY\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 14, \"paragraph\": \"1000-MAIN\", \"program\": \"UNSOLIC1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "UNSOLIC1",
+          "name": "2000-REMEDY"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"UNSOLIC1\"}], \"code\": \"       2000-REMEDY.\\n           MOVE WS-CHARGES-BILLED TO WS-REVERSAL\\n           COMPUTE WS-PENALTY = 2 * WS-REVERSAL.\", \"name\": \"2000-REMEDY\", \"ref\": {\"line_end\": 21, \"line_start\": 19, \"paragraph\": \"2000-REMEDY\", \"program\": \"UNSOLIC1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 15.0
+      },
+      {
+        "step": 4,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-PENALTY",
+          "program": "UNSOLIC1"
+        },
+        "observation_summary": "{\"scoped_program\": \"UNSOLIC1\", \"sites\": [{\"excerpt\": \"01  WS-PENALTY                PIC 9(9)V99 VALUE ZERO.\", \"kind\": \"def\", \"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"UNSOLIC1\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"DISPLAY 'PEN: ' WS-PENALTY\", \"kind\": \"use\", \"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": \"1000-MAIN\", \"program\": \"UNSOLIC1\"}, \"statement_kind\": \"DISPLAY\"}, {\"excerpt\": \"COMPUTE WS-PENALTY = 2 * WS-REVERSAL.\", \"kind\": \"def\", \"ref\": {\"line_end\": 21, \"line_start\": 21, \"paragraph\": \"2000-REMEDY\", \"program\": \"UNSOLIC1\"}, \"statement_kind\": \"COMPUTE\"}], \"variable\": \"WS-PENALTY\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 5,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-REVERSAL",
+          "program": "UNSOLIC1"
+        },
+        "observation_summary": "{\"scoped_program\": \"UNSOLIC1\", \"sites\": [{\"excerpt\": \"01  WS-REVERSAL               PIC 9(7)V99 VALUE ZERO.\", \"kind\": \"def\", \"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"UNSOLIC1\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"MOVE WS-CHARGES-BILLED TO WS-REVERSAL\", \"kind\": \"def\", \"ref\": {\"line_end\": 20, \"line_start\": 20, \"paragraph\": \"2000-REMEDY\", \"program\": \"UNSOLIC1\"}, \"statement_kind\": \"MOVE\"}, {\"excerpt\": \"COMPUTE WS-PENALTY = 2 * WS-REVERSAL.\", \"kind\": \"use\", \"ref\": {\"line_end\": 21, \"line_start\": 21, \"paragraph\": \"2000-REMEDY\", \"program\": \"UNSOLIC1\"}, \"statement_kind\": \"COMPUTE\"}], \"variable\": \"WS-REVERSAL\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The reachable remedy path uses the statutory multiplier exactly, with one typed computation and no conflicting typed locus observed.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_002306",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "11(4)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For an unsolicited card issued/activated and billed, the issuer must reverse the charges and pay the recipient a penalty of twice the value of the charges reversed.",
+            "current_value": {
+              "kind": "multiplier",
+              "value": 2,
+              "comparator": null,
+              "note": "Fixed statutory multiplier (2x charges reversed), not a directional threshold: a stale value is simply WRONG, not laxer/stricter on a grid. mo1_mode=exact_wrong with declared wrong-set [1], not [1,3]: the drift-direction principle extends to constants on two grounds - (a) D1 is temporal staleness and penalty provisions ratchet upward (every primary-verified change in this corpus moved toward strictness), so the plausible FORMER value sits below; (b) survival bias - drift that overpays (3x) is noticed and corrected internally, drift that underpays (1x) generates no internal signal and persists. The mechanism is indifferent to threshold-vs-constant."
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "UNSOLIC1",
+                "paragraph": "2000-REMEDY",
+                "file": null,
+                "line_span": [
+                  21,
+                  21
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CHARGES-BILLED",
+              "WS-REVERSAL",
+              "WS-PENALTY"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "The reachable 2000-REMEDY paragraph moves WS-CHARGES-BILLED into WS-REVERSAL and computes WS-PENALTY = 2 * WS-REVERSAL. This exact source literal 2 matches the clause's resolved multiplier 2; traces confirm the computed penalty is displayed."
+        },
+        "claim": "For an unsolicited card that is issued or activated and billed, the issuer must reverse the charges and pay the recipient a penalty equal to twice the value of the charges reversed.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "2",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Conformant: the issuer's penalty is computed as twice the charges reversed.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The reachable remedy path uses the statutory multiplier exactly, with one typed computation and no conflicting typed locus observed.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"UNSOLIC1\",\"paragraph\":\"2000-REMEDY\",\"file\":null,\"line_span\":[21,21]}],\"slice_vars\":[\"WS-CHARGES-BILLED\",\"WS-REVERSAL\",\"WS-PENALTY\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[]},\"rationale\":\"The reachable 2000-REMEDY paragraph moves WS-CHARGES-BILLED into WS-REVERSAL and computes WS-PENALTY = 2 * WS-REVERSAL. This exact source literal 2 matches the clause's resolved multiplier 2; traces confirm the computed penalty is displayed.\"},\"claim\":\"For an unsolicited card that is issued or activated and billed, the issuer must reverse the charges and pay the recipient a penalty equal to twice the value of the charges reversed.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"2\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Conformant: the issuer's penalty is computed as twice the charges reversed.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 1,
+            "observation_sha256": "cfa2a23d9fe84fcd5790f856f6fcd7c182741d6258b8cdb1df24efacae10d009",
+            "hypothesis": "D7_conformant",
+            "bearing": "context",
+            "rationale": "The paragraph index identifies 1000-MAIN and 2000-REMEDY, bounding the reachable candidate path but not yet proving the statutory multiplier."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "c3e1025ab7264362ec6ae4bba4daec620724a0c769f4303c177aa27522fd089a",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "1000-MAIN accepts WS-CHARGES-BILLED, performs 2000-REMEDY, and displays WS-PENALTY, establishing that the remedy computation is reachable and its result is surfaced."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "3a402093fa7957c42f49b6261af518c54addd56332f8716529fd23362b597a81",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "2000-REMEDY moves WS-CHARGES-BILLED to WS-REVERSAL and computes WS-PENALTY = 2 * WS-REVERSAL; the source literal 2 matches the clause's resolved multiplier 2."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "7a99941221d445466cbeba4afa776046689742a16e7234021255d81ebf283baa",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "The WS-PENALTY trace identifies the line-21 COMPUTE definition and line-17 DISPLAY use, supporting that the matching value is the produced penalty."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "4bf9d5ab3a1cb590de5e7917f269369f9c13f013d699f7ba7ddb0f6d6502e7ec",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "The WS-REVERSAL trace identifies the line-20 MOVE from WS-CHARGES-BILLED and its line-21 use, supporting that the multiplier is applied to charges reversed."
+          }
+        ]
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "UNSOLIC1:2000-REMEDY — literal '2' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9333,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "UNSOLIC1:2000-REMEDY — literal '2' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_002306",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "11(4)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For an unsolicited card issued/activated and billed, the issuer must reverse the charges and pay the recipient a penalty of twice the value of the charges reversed.",
+        "current_value": {
+          "kind": "multiplier",
+          "value": 2,
+          "comparator": null,
+          "note": "Fixed statutory multiplier (2x charges reversed), not a directional threshold: a stale value is simply WRONG, not laxer/stricter on a grid. mo1_mode=exact_wrong with declared wrong-set [1], not [1,3]: the drift-direction principle extends to constants on two grounds - (a) D1 is temporal staleness and penalty provisions ratchet upward (every primary-verified change in this corpus moved toward strictness), so the plausible FORMER value sits below; (b) survival bias - drift that overpays (3x) is noticed and corrected internally, drift that underpays (1x) generates no internal signal and persists. The mechanism is indifferent to threshold-vs-constant."
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "UNSOLIC1",
+            "paragraph": "2000-REMEDY",
+            "file": null,
+            "line_span": [
+              21,
+              21
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CHARGES-BILLED",
+          "WS-REVERSAL",
+          "WS-PENALTY"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D7_conformant",
+      "target_path": null,
+      "labels": {
+        "program_level": "conformant",
+        "paragraph_level": "conformant",
+        "line_level": []
+      },
+      "rationale": "The reachable 2000-REMEDY paragraph moves WS-CHARGES-BILLED into WS-REVERSAL and computes WS-PENALTY = 2 * WS-REVERSAL. This exact source literal 2 matches the clause's resolved multiplier 2; traces confirm the computed penalty is displayed."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Conformant: the issuer's penalty is computed as twice the charges reversed.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "13662b8da51f8c155eaa34f1831d64f8bfb3ecd7d7b5e1df61f35f7aa49a0e25",
+  "run_key": "56beaabdef5ad4e4520c8b231f80cedd838fefc3358bfd687ed019b91859512a"
+}

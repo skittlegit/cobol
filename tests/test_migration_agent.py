@@ -159,7 +159,7 @@ def test_prompt_locks_provider_and_excludes_hidden_roster_references() -> None:
     request = _request()
     prompt = build_migration_prompt(request)
 
-    assert request.provider.model == "gpt-5.6-luna"
+    assert request.provider.model == "gpt-6-luna"
     assert request.provider.reasoning_effort == "max"
     assert request.provider.authentication == "chatgpt"
     assert "detector_input_ref" not in prompt

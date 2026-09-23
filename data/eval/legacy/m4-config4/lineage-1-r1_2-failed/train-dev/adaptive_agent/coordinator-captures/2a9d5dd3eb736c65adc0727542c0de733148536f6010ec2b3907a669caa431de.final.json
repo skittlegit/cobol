@@ -1,0 +1,117 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "5257e78bd6f1fa0e8231678ca097cde6fdd98f738dd0eac667cf270136a3a44c",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The read_program observation indexes 1000-MAIN and 2000-CLASSIFY, establishing the candidate paragraph for source review."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "7eed2c0d368426a53348010abc145721033b3b6f6290ec622f59dd9fb36e3e33",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The 2000-CLASSIFY text shows the WHEN 'P' branch testing WS-OWN-PCT > 15.00, while the trusted clause requires more than 10 percent."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "7eed2c0d368426a53348010abc145721033b3b6f6290ec622f59dd9fb36e3e33",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "refutes",
+          "rationale": "The partnership branch uses the > comparator, which matches the clause's strictly-greater boundary; the observed mismatch is the threshold literal."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "7eed2c0d368426a53348010abc145721033b3b6f6290ec622f59dd9fb36e3e33",
+          "hypothesis": "D7_conformant",
+          "bearing": "refutes",
+          "rationale": "The positive partnership check is present, but its observed 15.00 threshold does not match the clause's current 10 percent value."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "7eed2c0d368426a53348010abc145721033b3b6f6290ec622f59dd9fb36e3e33",
+          "hypothesis": "D3_contradictory",
+          "bearing": "context",
+          "rationale": "The observation exposes one partnership ('P') branch; the C and OTHER branches are distinct entity-type paths, not conflicting partnership loci."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "7eed2c0d368426a53348010abc145721033b3b6f6290ec622f59dd9fb36e3e33",
+          "hypothesis": "D4_stale_reference_data",
+          "bearing": "context",
+          "rationale": "The observed regulated path is a scalar percentage comparison, not an enum_set reference collection."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "2daeb33e8486d5dce43524083acce7ea3bce06e940b6d9fb67d58ba43798c428",
+          "hypothesis": "D6_dead_code",
+          "bearing": "refutes",
+          "rationale": "The 1000-MAIN observation shows PERFORM 2000-CLASSIFY, establishing that the cited paragraph is reachable."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "e5f4b6830a1f299f2065e11fab8cbed68409f7e839bc113929e9737d7ee6f74b",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The scoped grep confirms the P-locus comparison at line 29 uses > 15.00; the other 15.00 comparisons are separate entity-type branches."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "e5f4b6830a1f299f2065e11fab8cbed68409f7e839bc113929e9737d7ee6f74b",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "refutes",
+          "rationale": "The scoped grep returns positive WS-OWN-PCT rule uses, invalidating a missing regulated check hypothesis."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The reachable partnership branch uses >15.00, which is stale against the clause's required more-than-10-percent threshold.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "BOIDENT3",
+                "paragraph": "2000-CLASSIFY",
+                "file": null,
+                "line_span": [29, 29]
+              }
+            ],
+            "slice_vars": ["WS-ENTITY-TYPE", "WS-OWN-PCT", "WS-CTRL-IND", "WS-IS-BO"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "BOIDENT3",
+                "line": 29,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "In BOIDENT3 paragraph 2000-CLASSIFY, the WHEN 'P' branch evaluates WS-OWN-PCT > 15.00, with an additional WS-CTRL-IND = 'Y' alternative. The observed 15.00 literal is stale relative to the clause's resolved 10 percent strictly-greater requirement, and 1000-MAIN performs the paragraph."
+        },
+        "claim": "For a partnership firm, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+        "exec_probe": {
+          "stdin": "P\n11.00\nN\n",
+          "expect_substring": "BO: N",
+          "description": "For a partnership input at 11 percent with no control indicator, the classifier should not identify a beneficial owner because the observed threshold is 15 percent."
+        },
+        "static_claim": {
+          "literal": "15.00",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D1_stale_threshold: the reachable partnership branch uses 15.00 instead of the required more-than-10-percent threshold."
+      }
+    }
+  ]
+}

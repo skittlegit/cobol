@@ -1,0 +1,118 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "b9a7e1e205be5f6fb9194db0ae7945ce2d6cb3677502114f7cdc822717e14230",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "context",
+          "rationale": "The successful read_program observation identifies ACTIVAT1's 2000-DECIDE paragraph at lines 22-35 but returns only the paragraph index, so the decision paragraph must be read before concluding whether either resolved duration leaf is implemented correctly."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "767f118e559b09fef6ab64c7c0b86fd497630a5e34527a5fbf6a24c09ad5bbf4",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "supports",
+          "rationale": "The successful paragraph observation returns IF WS-CONSENT-DAYS > 7 in 2000-DECIDE, exposing the source comparator for the closure-window check and its exact decision line."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "6ad8a0e89afff5d8c454532c1dd9e5f945934a05b20729f282b71be940ac476b",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "refutes",
+          "rationale": "The successful activation-days trace types WS-DAYS-SINCE-ISSUE and records the source use as WS-DAYS-SINCE-ISSUE > 30, so the activation literal matches the resolved 30-day leaf and does not support D1."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "8d97e813865e82c3e5bc2719ba3f21e04a0b9106fd2198642a098fdcc078c436",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "supports",
+          "rationale": "The successful consent-days trace types WS-CONSENT-DAYS as PIC 9(4) and records its use at line 27 with comparator >, binding the suspected comparator to a typed closure-days locus."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "0f08a156af0c44fb03272f9fc6ccc0cc477b67f0a8c6a5cd75d39637a1bf904f",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "supports",
+          "rationale": "The successful scoped grep finds the closure-days definition, input, and exactly one decision use at ACTIVAT1 line 27 with source text IF WS-CONSENT-DAYS > 7, establishing a unique typed locus and no conflicting closure comparator."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "0f08a156af0c44fb03272f9fc6ccc0cc477b67f0a8c6a5cd75d39637a1bf904f",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "refutes",
+          "rationale": "The successful scoped grep has positive source evidence for the regulated closure check, so D2's required absence of the regulated rule is not met."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "0f08a156af0c44fb03272f9fc6ccc0cc477b67f0a8c6a5cd75d39637a1bf904f",
+          "hypothesis": "D3_contradictory",
+          "bearing": "refutes",
+          "rationale": "The successful scoped grep shows one closure-days decision use rather than two conflicting typed loci, so D3 is not supported for the closure condition."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "767f118e559b09fef6ab64c7c0b86fd497630a5e34527a5fbf6a24c09ad5bbf4",
+          "hypothesis": "D6_dead_code",
+          "bearing": "refutes",
+          "rationale": "The successful paragraph observation reports 1000-MAIN as a caller of 2000-DECIDE, establishing reachability and refuting dead compliance code for the cited locus."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "767f118e559b09fef6ab64c7c0b86fd497630a5e34527a5fbf6a24c09ad5bbf4",
+          "hypothesis": "D7_conformant",
+          "bearing": "refutes",
+          "rationale": "The successful paragraph observation exposes the closure check with source comparator >, which does not match the resolved at-most 7-working-day comparator, so positive conformance is not established."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "D5_boundary_error is the best-supported single finding: the unique typed closure-days check uses the correct literal 7 but the source comparator > conflicts with the resolved closure_window at-most comparator. The activation-days check matches 30 and no conflicting closure loci were found.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "ACTIVAT1",
+                "paragraph": "2000-DECIDE",
+                "file": null,
+                "line_span": [
+                  27,
+                  27
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CONSENT-DAYS"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "ACTIVAT1",
+                "line": 27,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "At ACTIVAT1 paragraph 2000-DECIDE line 27, the typed variable WS-CONSENT-DAYS is tested with source comparator > and literal 7. The resolved clause leaf closure_window is a 7-working-day at-most window, so the source comparator implements the wrong boundary. The locus is in the program's own source and the scoped grep shows it is the only closure-days decision use."
+        },
+        "claim": "If a credit card is not activated within 30 days of issuance, the issuer must seek OTP-based consent; absent consent, the account must be closed without cost within 7 working days of seeking confirmation.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "7",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D5_boundary_error at ACTIVAT1 2000-DECIDE line 27: the closure check uses > 7 instead of the clause's at-most 7-working-day boundary."
+      }
+    }
+  ]
+}

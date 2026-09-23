@@ -1,0 +1,243 @@
+{
+  "instance_id": "drift_110397",
+  "gold": {
+    "instance_id": "drift_110397",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(2)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "no_capitalization_of_unpaid_charges",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "INTCOMP1",
+          "paragraph": "2000-CALC",
+          "file": null,
+          "line_span": [
+            22,
+            22
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-UNPAID-FEES",
+        "WS-BASE",
+        "WS-CREDITS",
+        "WS-INT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "INTCOMP1",
+          "line": 22,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-3 changes 'COMPUTE WS-BASE = WS-OUTSTANDING - WS-UNPAID-FEES' to 'COMPUTE WS-BASE = WS-OUTSTANDING' at INTCOMP1:2000-CALC:22-22, producing D3_contradictory.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "INTCOMP1.cbl",
+      "mutation": "MO-3; locus=INTCOMP1:2000-CALC:22-22; old='COMPUTE WS-BASE = WS-OUTSTANDING - WS-UNPAID-FEES'; new='COMPUTE WS-BASE = WS-OUTSTANDING'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 only when the regulated check itself is absent and scoped grep,\n  caller graph, callee graph, and data slice all provide the required negative\n  evidence. Any positive observation from one of those four required tools\n  invalidates D2 for that investigation; do not repurpose positive context as\n  absence evidence. Do not invent an unstated date derivation, preprocessing\n  step, or implementation mechanism as a missing rule. If positive code\n  evidence matches the clause and no supported drift remains, consider D7.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- For D7, put the positive source location in `code_locus`, but set\n  `labels.program_level` and `labels.paragraph_level` to `conformant` and set\n  `labels.line_level` to an empty list. D7 line labels identify drift and must\n  therefore stay empty. When the clause current value is composite, set\n  `target_path` to the exact matching non-composite leaf.\n- Interpret a comparator together with the branch action and control-flow\n  polarity. Do not call D5 from a token-only comparison between a clause's\n  typed comparator and a source predicate. In an elapsed-window state machine,\n  `elapsed > limit` can be the conformant transition after the full allowed\n  window, while `elapsed >= limit` can fire one boundary unit early. Trace the\n  resulting action and use a boundary probe when possible before choosing D5.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"INTCOMP1\",\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(2)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"no_capitalization_of_unpaid_charges\",\"comparator\":null,\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "INTCOMP1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 20, \"line_start\": 14, \"name\": \"1000-MAIN\"}, {\"line_end\": 28, \"line_start\": 21, \"name\": \"2000-CALC\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\lineage-2\\\\train-dev\\\\adaptive_agent\\\\task-staging\\\\1ceda484f56b7cc5a766d7ba3b23a4d64981c275282e17a426abccf3a8cd4036\\\\cases\\\\drift_900000\\\\INTCOMP1.cbl\", \"program\": \"INTCOMP1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "INTCOMP1",
+          "name": "2000-CALC"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"INTCOMP1\"}], \"code\": \"       2000-CALC.\\n           COMPUTE WS-BASE = WS-OUTSTANDING\\n                   - WS-CREDITS\\n           IF WS-BASE > ZERO\\n              COMPUTE WS-INT ROUNDED = (WS-BASE * WS-APR) / 1200\\n           ELSE\\n              MOVE ZERO TO WS-INT\\n           END-IF.\", \"name\": \"2000-CALC\", \"ref\": {\"line_end\": 28, \"line_start\": 21, \"paragraph\": \"2000-CALC\", \"program\": \"INTCOMP1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "INTCOMP1",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-CALC\", \"program\": \"INTCOMP1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-OUTSTANDING\\n           ACCEPT WS-UNPAID-FEES\\n           ACCEPT WS-CREDITS\\n           PERFORM 2000-CALC\\n           DISPLAY 'INT: ' WS-INT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 20, \"line_start\": 14, \"paragraph\": \"1000-MAIN\", \"program\": \"INTCOMP1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 4,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "UNPAID-FEES.*INT"
+        },
+        "observation_summary": "{\"matches\": [], \"pattern\": \"UNPAID-FEES.*INT\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 5,
+        "tool": "find_callers",
+        "arguments": {
+          "program": "INTCOMP1",
+          "para": "2000-CALC"
+        },
+        "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"INTCOMP1\"}]",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 6,
+        "tool": "find_callees",
+        "arguments": {
+          "program": "INTCOMP1",
+          "para": "2000-CALC"
+        },
+        "observation_summary": "[]",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 7,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-UNPAID-FEES",
+          "program": "INTCOMP1"
+        },
+        "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"INTCOMP1\"}], \"scoped_program\": \"INTCOMP1\", \"statements\": [{\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"INTCOMP1\"}, \"text\": \"01  WS-UNPAID-FEES            PIC 9(7)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"INTCOMP1\"}, \"text\": \"ACCEPT WS-UNPAID-FEES\"}], \"variable\": \"WS-UNPAID-FEES\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The clause requires no capitalization of unpaid charges. The bounded observations show WS-UNPAID-FEES is accepted but absent from the interest calculation, yet the required D2 four-path negative evidence is not complete because the caller graph returned a positive caller.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D2_missing_rule cannot be emitted because the required caller-graph absence path returned a positive caller for 2000-CALC; the class evidence contract is therefore unmet.",
+        "final_answer": "Abstain: bounded evidence is insufficient to emit a validated finding.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause requires no capitalization of unpaid charges. The bounded observations show WS-UNPAID-FEES is accepted but absent from the interest calculation, yet the required D2 four-path negative evidence is not complete because the caller graph returned a positive caller.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D2_missing_rule cannot be emitted because the required caller-graph absence path returned a positive caller for 2000-CALC; the class evidence contract is therefore unmet.\",\"final_answer\":\"Abstain: bounded evidence is insufficient to emit a validated finding.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 1,
+            "observation_sha256": "f07afb4b42a2319828dba3f503a7d98f97422df4183ddbd1cca2e2d23ea6003b",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "context",
+            "rationale": "read_program returned the INTCOMP1 paragraph index and identified 1000-MAIN (lines 14-20) and 2000-CALC (lines 21-28), establishing the reachable source scope for later checks."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "99763ec25ef60129670e1c9c42d3fc5f3843498fd9ace9607b34eb9cd3633640",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "2000-CALC computes interest from WS-OUTSTANDING minus WS-CREDITS and tests WS-BASE, with no WS-UNPAID-FEES term or no-capitalization action; this is positive static context for a missing regulated rule."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "c4833515eabd217e9637685c11991e1901c912487ce804a046deceae93769659",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "context",
+            "rationale": "1000-MAIN accepts WS-UNPAID-FEES and then performs 2000-CALC, showing the fee input is in the reachable flow while the calculation paragraph is the relevant insertion context."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "e99baaf1d5b9c21d032803bcc06fb6b2d57d5c1fd2e737f3956969bdb98edc9a",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "Scoped grep for UNPAID-FEES.*INT returned no matches, providing the required negative search evidence for a fee-to-interest compliance check."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "125556cba9eeee14ebc0e3d6f4ab99681b6738b4bcb116fdcdff1292787cb446",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "refutes",
+            "rationale": "find_callers for 2000-CALC returned 1000-MAIN, a positive caller-graph observation; under the D2 policy, any positive result in a required absence path prevents claiming complete four-path negative evidence."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "find_callees for 2000-CALC returned an empty list, so no downstream callee supplies an omitted unpaid-fee capitalization check."
+          },
+          {
+            "observation_step": 7,
+            "observation_sha256": "a4145df9cc70870f9b484fecab8f62a00c3f056d83a612c93a6033c18ae63172",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "The WS-UNPAID-FEES data slice contains only its declaration and ACCEPT in 1000-MAIN, with no calculation use; this supports omission but cannot override the positive caller-graph result for D2 arbitration."
+          }
+        ]
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "D2_missing_rule cannot be emitted because the required caller-graph absence path returned a positive caller for 2000-CALC; the class evidence contract is therefore unmet.",
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: D2_missing_rule cannot be emitted because the required caller-graph absence path returned a positive caller for 2000-CALC; the class evidence contract is therefore unmet.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "D2_missing_rule cannot be emitted because the required caller-graph absence path returned a positive caller for 2000-CALC; the class evidence contract is therefore unmet.",
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "15c2b97a7c14b0a07e07b3f7ece27b2a8de6ce00e5277209cd59f1004ffdc9d7",
+  "run_key": "1ceda484f56b7cc5a766d7ba3b23a4d64981c275282e17a426abccf3a8cd4036"
+}

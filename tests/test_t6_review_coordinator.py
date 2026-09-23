@@ -13,6 +13,7 @@ from scripts.t6_review_coordinator import (
     DELIVERY_AUDIT_NAME,
     RESPONSES_NAME,
     STATE_NAME,
+    _atomic_write,
     finalize,
     initialize,
     record_response,
@@ -21,6 +22,27 @@ from scripts.t6_review_coordinator import (
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "data/benchmark/t6-v2/manifest.json"
+
+
+def test_atomic_write_retries_transient_permission_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    destination = tmp_path / "artifact.json"
+    original_replace = Path.replace
+    attempts = 0
+
+    def flaky_replace(source: Path, target: Path) -> Path:
+        nonlocal attempts
+        attempts += 1
+        if attempts < 3:
+            raise PermissionError(5, "transient destination lock", str(target))
+        return original_replace(source, target)
+
+    monkeypatch.setattr(Path, "replace", flaky_replace)
+    _atomic_write(destination, "payload\n")
+
+    assert attempts == 3
+    assert destination.read_text(encoding="utf-8") == "payload\n"
 
 
 def _response(item_id: str, reviewer: str) -> dict[str, object]:

@@ -49,6 +49,19 @@ def main() -> None:
     parser.add_argument("--task-name", required=True)
     parser.add_argument("--task-id", required=True)
     parser.add_argument("--artifact-dir", type=Path, required=True)
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Seal and validate without printing the large execution envelope.",
+    )
+    parser.add_argument(
+        "--staging-base",
+        type=Path,
+        help=(
+            "Explicit staged-task directory; defaults to the configuration-3 "
+            "task-staging-v1 directory under --artifact-dir."
+        ),
+    )
     args = parser.parse_args()
 
     request = CollaborationSubagentRequest.model_validate_json(
@@ -58,7 +71,7 @@ def main() -> None:
     final_sha256 = hashlib.sha256(final_json.encode("utf-8")).hexdigest()
     tool_logs = ()
     if args.system in {"agent", "adaptive_agent"}:
-        staging_base = args.artifact_dir / "task-staging-v1"
+        staging_base = args.staging_base or args.artifact_dir / "task-staging-v1"
         manifest_path = staging_base / request.run_key / "staging-manifest.json"
         manifest = CollaborationStagingManifest.model_validate_json(
             manifest_path.read_text(encoding="utf-8")
@@ -131,7 +144,8 @@ def main() -> None:
         artifact_dir=args.artifact_dir,
         key=request.run_key,
     )
-    print(execution.model_dump_json(indent=2))
+    if not args.quiet:
+        print(execution.model_dump_json(indent=2))
 
 
 if __name__ == "__main__":

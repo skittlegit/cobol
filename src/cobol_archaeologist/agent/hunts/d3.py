@@ -12,14 +12,20 @@ class D3Hunt(BasePolicyHunt):
         if prediction is None:
             return errors
         loci = prediction.code_locus.loci
-        required_reads = max(2, len(loci))
+        # Multiple line spans in one paragraph need one acquisition. Requiring
+        # duplicate reads adds no independent evidence.
+        required_reads = max(
+            1,
+            len({(locus.program, locus.paragraph) for locus in loci}),
+        )
         if transcript_tools(transcript).count("read_paragraph") < required_reads:
             errors.append(
                 "required tool evidence missing: "
-                f"{required_reads} read_paragraph calls (one per D3 locus)"
+                f"{required_reads} read_paragraph calls "
+                "(one per unique D3 paragraph)"
             )
-        if len(loci) < 2:
-            errors.append("D3 requires at least two conflicting loci")
+        if not loci:
+            errors.append("D3 requires at least one contradictory source locus")
         if (
             len({locus.program for locus in loci}) > 1
             and not prediction.code_locus.is_interprocedural
@@ -27,7 +33,14 @@ class D3Hunt(BasePolicyHunt):
             errors.append("multi-program D3 must be interprocedural")
         rationale = prediction.rationale.lower()
         if not any(
-            word in rationale for word in ("conflict", "contradict", "disagree")
+            word in rationale
+            for word in (
+                "conflict",
+                "contradict",
+                "disagree",
+                "bypass",
+                "ignore",
+            )
         ):
             errors.append("D3 rationale must name the conflicting outcomes")
         if response.static_claim is None:

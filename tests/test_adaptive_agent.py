@@ -147,20 +147,41 @@ def test_adaptive_prompt_exposes_every_hypothesis_but_no_benchmark_answer():
 def test_successor_prompt_encodes_observed_smoke_recovery_contracts():
     assert "Never put a COBOL program" in ADAPTIVE_SYSTEM_PROMPT
     assert "choose D3 rather than" in ADAPTIVE_SYSTEM_PROMPT
-    assert "Choose D2 only when the regulated check itself is absent" in (
+    assert "Choose D2 when the specific regulated behavior" in (
         ADAPTIVE_SYSTEM_PROMPT
     )
     assert "consider D7" in ADAPTIVE_SYSTEM_PROMPT
     assert "complete canonical missing or extra enum member verbatim" in (
         ADAPTIVE_SYSTEM_PROMPT
     )
-    assert "Any positive observation from one of those four required tools" in (
+    assert "positive surrounding control flow" in (
         ADAPTIVE_SYSTEM_PROMPT
     )
+    assert "explicit overdue outcome is D2" in ADAPTIVE_SYSTEM_PROMPT
+    assert "zero-day `NEW` special case" in ADAPTIVE_SYSTEM_PROMPT
     assert "If the bounded command returns `infrastructure_error`" in (
         ADAPTIVE_SYSTEM_PROMPT
     )
     assert "Copy every ledger step and observation SHA-256 exactly" in (
+        ADAPTIVE_SYSTEM_PROMPT
+    )
+    assert "D7 line labels identify drift" in ADAPTIVE_SYSTEM_PROMPT
+    assert "`target_path` to the exact matching non-composite leaf" in (
+        ADAPTIVE_SYSTEM_PROMPT
+    )
+    assert "Do not call D5 from a token-only comparison" in ADAPTIVE_SYSTEM_PROMPT
+    assert "`elapsed > limit` can be the conformant transition" in (
+        ADAPTIVE_SYSTEM_PROMPT
+    )
+    assert "one typed computation can contradict the clause directly" in (
+        ADAPTIVE_SYSTEM_PROMPT
+    )
+    assert "paragraph caller does not make guarded statements" in (
+        ADAPTIVE_SYSTEM_PROMPT
+    )
+    assert "`delay >= 7` is one unit early" in ADAPTIVE_SYSTEM_PROMPT
+    assert "close paraphrase of the supplied" in ADAPTIVE_SYSTEM_PROMPT
+    assert "participates in the conformant operation" in (
         ADAPTIVE_SYSTEM_PROMPT
     )
 

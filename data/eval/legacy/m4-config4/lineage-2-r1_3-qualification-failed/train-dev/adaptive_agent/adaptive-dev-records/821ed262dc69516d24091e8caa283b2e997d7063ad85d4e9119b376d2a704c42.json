@@ -1,0 +1,418 @@
+{
+  "instance_id": "drift_015187",
+  "gold": {
+    "instance_id": "drift_015187",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC3",
+          "paragraph": "2000-CHK",
+          "file": null,
+          "line_span": [
+            23,
+            25
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-TODAY-DAY",
+        "WS-DUE-DAY",
+        "WS-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSYNC3",
+          "line": 23,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-2 changes \"IF WS-TODAY-DAY > WS-DUE-DAY MOVE 'OVERDUE' TO WS-STATUS ELSE MOVE 'OK' TO WS-STATUS END-IF.\" to \"IF WS-TODAY-DAY <= WS-DUE-DAY MOVE 'OK' TO WS-STATUS END-IF.\" at KYCSYNC3:2000-CHK:23-25, producing D2_missing_rule.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSYNC3.cbl",
+      "mutation": "MO-2; locus=KYCSYNC3:2000-CHK:23-25; old=\"IF WS-TODAY-DAY > WS-DUE-DAY MOVE 'OVERDUE' TO WS-STATUS ELSE MOVE 'OK' TO WS-STATUS END-IF.\"; new=\"IF WS-TODAY-DAY <= WS-DUE-DAY MOVE 'OK' TO WS-STATUS END-IF.\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_015187",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC3",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            18,
+            18
+          ]
+        },
+        {
+          "program": "KYCSYNC3",
+          "paragraph": "2000-CHK",
+          "file": null,
+          "line_span": [
+            22,
+            23
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-RECEIPT-DAY",
+        "WS-DUE-DAY",
+        "WS-TODAY-DAY"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "rationale": "KYCSYNC3 computes WS-DUE-DAY as WS-RECEIPT-DAY + 7 in 1000-MAIN (successful observation step 3) and 2000-CHK then applies IF WS-TODAY-DAY <= WS-DUE-DAY MOVE 'OK' TO WS-STATUS (successful observation step 2). The WS-DUE-DAY slice (step 4) confirms the threshold data flow, so the reachable implementation matches the clause's duration_days value leaf 7 and at_most comparator."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "literal '7' present in ['KYCSYNC3:1000-MAIN']; comparator '<=' present in ['KYCSYNC3:2000-CHK']",
+    "citation_ok": true,
+    "entailment_probability": 0.8571,
+    "entailment_backend": "lexical_proxy_v1",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "literal '7' present in ['KYCSYNC3:1000-MAIN']; comparator '<=' present in ['KYCSYNC3:2000-CHK']"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 only when the regulated check itself is absent and scoped grep,\n  caller graph, callee graph, and data slice all provide the required negative\n  evidence. Any positive observation from one of those four required tools\n  invalidates D2 for that investigation; do not repurpose positive context as\n  absence evidence. Do not invent an unstated date derivation, preprocessing\n  step, or implementation mechanism as a missing rule. If positive code\n  evidence matches the clause and no supported drift remains, consider D7.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- For D7, put the positive source location in `code_locus`, but set\n  `labels.program_level` and `labels.paragraph_level` to `conformant` and set\n  `labels.line_level` to an empty list. D7 line labels identify drift and must\n  therefore stay empty. When the clause current value is composite, set\n  `target_path` to the exact matching non-composite leaf.\n- Interpret a comparator together with the branch action and control-flow\n  polarity. Do not call D5 from a token-only comparison between a clause's\n  typed comparator and a source predicate. In an elapsed-window state machine,\n  `elapsed > limit` can be the conformant transition after the full allowed\n  window, while `elapsed >= limit` can fire one boundary unit early. Trace the\n  resulting action and use a boundary probe when possible before choosing D5.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules: establish absence across the scoped grep, caller graph, callee graph, and data slice; emit only when all four negative observations are present, and report typed insertion points. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: obtain at least two typed loci that produce conflicting outcomes for the same regulated condition.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: compare the source comparator with the typed comparator at the resolved current-value leaf. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead compliance code: propose a dead_paragraph static claim for the existing verifier; do not infer deadness from caller absence. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"KYCSYNC3\",\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "KYCSYNC3"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 21, \"line_start\": 15, \"name\": \"1000-MAIN\"}, {\"line_end\": 23, \"line_start\": 22, \"name\": \"2000-CHK\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\lineage-2\\\\train-dev\\\\adaptive_agent\\\\task-staging\\\\821ed262dc69516d24091e8caa283b2e997d7063ad85d4e9119b376d2a704c42\\\\cases\\\\drift_900000\\\\KYCSYNC3.cbl\", \"program\": \"KYCSYNC3\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "KYCSYNC3",
+          "name": "2000-CHK"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC3\"}], \"code\": \"       2000-CHK.\\n           IF WS-TODAY-DAY <= WS-DUE-DAY MOVE 'OK' TO WS-STATUS END-IF.\", \"name\": \"2000-CHK\", \"ref\": {\"line_end\": 23, \"line_start\": 22, \"paragraph\": \"2000-CHK\", \"program\": \"KYCSYNC3\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "KYCSYNC3",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-CHK\", \"program\": \"KYCSYNC3\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-RECEIPT-DAY\\n           ACCEPT WS-TODAY-DAY\\n           COMPUTE WS-DUE-DAY = WS-RECEIPT-DAY + 7\\n           PERFORM 2000-CHK\\n           DISPLAY 'STATUS: ' WS-STATUS\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 21, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC3\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-DUE-DAY",
+          "program": "KYCSYNC3"
+        },
+        "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC3\"}], \"scoped_program\": \"KYCSYNC3\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"KYCSYNC3\"}, \"text\": \"01  WS-RECEIPT-DAY            PIC 9(5) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"KYCSYNC3\"}, \"text\": \"01  WS-DUE-DAY                PIC 9(5) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC3\"}, \"text\": \"ACCEPT WS-RECEIPT-DAY\"}, {\"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC3\"}, \"text\": \"COMPUTE WS-DUE-DAY = WS-RECEIPT-DAY + 7\"}], \"variable\": \"WS-DUE-DAY\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "Positive bounded source evidence shows a 7-day due-date computation and an inclusive <= check that sets status OK, so the cited at-most-7-day requirement is implemented and reachable.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_015187",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "65(8)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSYNC3",
+                "paragraph": "1000-MAIN",
+                "file": null,
+                "line_span": [
+                  18,
+                  18
+                ]
+              },
+              {
+                "program": "KYCSYNC3",
+                "paragraph": "2000-CHK",
+                "file": null,
+                "line_span": [
+                  22,
+                  23
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-RECEIPT-DAY",
+              "WS-DUE-DAY",
+              "WS-TODAY-DAY"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "KYCSYNC3 computes WS-DUE-DAY as WS-RECEIPT-DAY + 7 in 1000-MAIN (successful observation step 3) and 2000-CHK then applies IF WS-TODAY-DAY <= WS-DUE-DAY MOVE 'OK' TO WS-STATUS (successful observation step 2). The WS-DUE-DAY slice (step 4) confirms the threshold data flow, so the reachable implementation matches the clause's duration_days value leaf 7 and at_most comparator."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within at most 7 days after receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "7",
+          "comparator": "<=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Conformant: the reachable KYCSYNC3 check implements an at-most 7-day window.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"Positive bounded source evidence shows a 7-day due-date computation and an inclusive <= check that sets status OK, so the cited at-most-7-day requirement is implemented and reachable.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSYNC3\",\"paragraph\":\"1000-MAIN\",\"file\":null,\"line_span\":[18,18]},{\"program\":\"KYCSYNC3\",\"paragraph\":\"2000-CHK\",\"file\":null,\"line_span\":[22,23]}],\"slice_vars\":[\"WS-RECEIPT-DAY\",\"WS-DUE-DAY\",\"WS-TODAY-DAY\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[]},\"rationale\":\"KYCSYNC3 computes WS-DUE-DAY as WS-RECEIPT-DAY + 7 in 1000-MAIN (successful observation step 3) and 2000-CHK then applies IF WS-TODAY-DAY <= WS-DUE-DAY MOVE 'OK' TO WS-STATUS (successful observation step 2). The WS-DUE-DAY slice (step 4) confirms the threshold data flow, so the reachable implementation matches the clause's duration_days value leaf 7 and at_most comparator.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within at most 7 days after receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"7\",\"comparator\":\"<=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Conformant: the reachable KYCSYNC3 check implements an at-most 7-day window.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 1,
+            "observation_sha256": "c4b798ca3baef82dad707341a877771398548cc7e9991d2a858def85594bb3eb",
+            "hypothesis": "D7_conformant",
+            "bearing": "context",
+            "rationale": "The successful paragraph index bounds this case to KYCSYNC3 paragraphs 1000-MAIN (15-21) and 2000-CHK (22-23), establishing the candidate scope for the evolving D7 investigation without yet proving the check."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "4795ab794086965036227b3b5d7c7ce0afdf2733c267a80a96580932b2cebacb",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "The successful 2000-CHK observation returns the positive action-bearing predicate IF WS-TODAY-DAY <= WS-DUE-DAY MOVE 'OK' TO WS-STATUS, directly showing the regulated timing check and inclusive at-most boundary."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "4795ab794086965036227b3b5d7c7ce0afdf2733c267a80a96580932b2cebacb",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "refutes",
+            "rationale": "The same successful observation contains an explicit IF predicate and action, so the regulated check is present rather than absent."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "4795ab794086965036227b3b5d7c7ce0afdf2733c267a80a96580932b2cebacb",
+            "hypothesis": "D6_dead_code",
+            "bearing": "refutes",
+            "rationale": "The successful observation reports 2000-CHK called by 1000-MAIN, and therefore the positive compliance paragraph is reachable; this does not support dead compliance code."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "d06dc756bc53ae16888638ccd5fbd5a2b4efe68f64211f7f779aca04c2acf9f2",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "refutes",
+            "rationale": "The successful 1000-MAIN observation returns COMPUTE WS-DUE-DAY = WS-RECEIPT-DAY + 7, so the source threshold literal is 7 and matches the clause duration leaf."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "d06dc756bc53ae16888638ccd5fbd5a2b4efe68f64211f7f779aca04c2acf9f2",
+            "hypothesis": "D5_boundary_error",
+            "bearing": "refutes",
+            "rationale": "Together with the returned call to 2000-CHK, the successful main paragraph shows the due date is formed at receipt day plus 7; the check observed at step 2 uses <=, matching an at-most-7-day boundary rather than firing early."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "e50b6b7848ad8fc0d79314b93da89609de1786cb92fc81f034b77d3ce40b7ea2",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "The successful WS-DUE-DAY slice confirms the data flow from accepted WS-RECEIPT-DAY through COMPUTE ... + 7 in 1000-MAIN, corroborating the positive 7-day check and leaving no supported stale or boundary drift."
+          },
+          {
+            "observation_step": 1,
+            "observation_sha256": "c4b798ca3baef82dad707341a877771398548cc7e9991d2a858def85594bb3eb",
+            "hypothesis": "D3_contradictory",
+            "bearing": "context",
+            "rationale": "The successful paragraph index identifies the only two scoped paragraphs but does not reveal two conflicting typed outcomes; contradiction remains unsupported."
+          },
+          {
+            "observation_step": 1,
+            "observation_sha256": "c4b798ca3baef82dad707341a877771398548cc7e9991d2a858def85594bb3eb",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "context",
+            "rationale": "The successful source index provides the bounded program scope but shows no reference-data enumeration; this case does not present evidence for an enum_set reference collection."
+          }
+        ]
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "literal '7' present in ['KYCSYNC3:1000-MAIN']; comparator '<=' present in ['KYCSYNC3:2000-CHK']",
+      "citation_ok": true,
+      "entailment_probability": 0.8571,
+      "entailment_backend": "lexical_proxy_v1",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "literal '7' present in ['KYCSYNC3:1000-MAIN']; comparator '<=' present in ['KYCSYNC3:2000-CHK']"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_015187",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "65(8)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "current_value": {
+          "kind": "duration_days",
+          "value": 7,
+          "comparator": "at_most",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "KYCSYNC3",
+            "paragraph": "1000-MAIN",
+            "file": null,
+            "line_span": [
+              18,
+              18
+            ]
+          },
+          {
+            "program": "KYCSYNC3",
+            "paragraph": "2000-CHK",
+            "file": null,
+            "line_span": [
+              22,
+              23
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-RECEIPT-DAY",
+          "WS-DUE-DAY",
+          "WS-TODAY-DAY"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D7_conformant",
+      "target_path": null,
+      "labels": {
+        "program_level": "conformant",
+        "paragraph_level": "conformant",
+        "line_level": []
+      },
+      "rationale": "KYCSYNC3 computes WS-DUE-DAY as WS-RECEIPT-DAY + 7 in 1000-MAIN (successful observation step 3) and 2000-CHK then applies IF WS-TODAY-DAY <= WS-DUE-DAY MOVE 'OK' TO WS-STATUS (successful observation step 2). The WS-DUE-DAY slice (step 4) confirms the threshold data flow, so the reachable implementation matches the clause's duration_days value leaf 7 and at_most comparator."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Conformant: the reachable KYCSYNC3 check implements an at-most 7-day window.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "7639bf6da88de756d91a3ecf95818b7f4eeced45f0fcbd0d354ae8162fdde4b9",
+  "run_key": "821ed262dc69516d24091e8caa283b2e997d7063ad85d4e9119b376d2a704c42"
+}

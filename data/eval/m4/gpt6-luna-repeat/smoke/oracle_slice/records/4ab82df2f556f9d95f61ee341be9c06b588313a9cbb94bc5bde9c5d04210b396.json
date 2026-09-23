@@ -1,0 +1,127 @@
+{
+  "instance_id": "drift_824062",
+  "gold": {
+    "instance_id": "drift_824062",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "past_due_grace": {
+            "kind": "duration_days",
+            "value": 3,
+            "comparator": "strictly_greater",
+            "note": null
+          },
+          "charge_base": {
+            "kind": "enum_set",
+            "value": [
+              "outstanding_after_due_date"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "LATEFEE2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            10,
+            10
+          ]
+        },
+        {
+          "program": "LATEFEE2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            12,
+            12
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-PAST-DUE",
+        "WS-OUTSTANDING",
+        "WS-CHARGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": "past_due_grace",
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at LATEFEE2:<source>:10-10+LATEFEE2:<source>:12-12; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "LATEFEE2.cbl",
+      "mutation": "MO-0; locus=LATEFEE2:<source>:10-10+LATEFEE2:<source>:12-12; old='01  WS-RPT-HEADING            PIC X(10)'; new='01  WS-RPT-HEADING            PIC X(20)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"past_due_grace\":{\"kind\":\"duration_days\",\"value\":3,\"comparator\":\"strictly_greater\",\"note\":null},\"charge_base\":{\"kind\":\"enum_set\",\"value\":[\"outstanding_after_due_date\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"LATEFEE2\",\"slices\":[{\"variable\":\"WS-DAYS-PAST-DUE\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":16},\"text\":\"ACCEPT WS-DAYS-PAST-DUE\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-OUTSTANDING\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":15,\"line_end\":15},\"text\":\"ACCEPT WS-OUTSTANDING\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-CHARGE\",\"scoped_program\":\"LATEFEE2\",\"statements\":[{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-OUTSTANDING            PIC 9(9)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"01  WS-DAYS-PAST-DUE          PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-CHARGE                 PIC 9(7)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":15,\"line_end\":15},\"text\":\"ACCEPT WS-OUTSTANDING\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":16},\"text\":\"ACCEPT WS-DAYS-PAST-DUE\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\",\"line_start\":17,\"line_end\":17},\"text\":\"PERFORM 2000-FEE\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"line_start\":21,\"line_end\":22},\"text\":\"IF WS-DAYS-PAST-DUE > 3\\n              COMPUTE WS-CHARGE ROUNDED = .025 * WS-OUTSTANDING\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"line_start\":22,\"line_end\":22},\"text\":\"COMPUTE WS-CHARGE ROUNDED = .025 * WS-OUTSTANDING\"},{\"ref\":{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\",\"line_start\":24,\"line_end\":24},\"text\":\"MOVE ZERO TO WS-CHARGE\"}],\"paragraphs\":[{\"program\":\"LATEFEE2\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"LATEFEE2\",\"paragraph\":\"2000-FEE\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The code applies charges only when the supplied days-past-due value is greater than 3 and calculates them from the supplied outstanding amount. The visible context does not establish how either input is derived or whether the amount is specifically outstanding after the due date, so it does not establish a violation or positive conformance.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The visible slice accepts WS-DAYS-PAST-DUE and WS-OUTSTANDING as inputs but does not show their relationship to the payment due date or whether the outstanding amount is limited to the post-due amount. The evidence is insufficient to classify the charge-base requirement.",
+        "final_answer": "Clause 23(5) permits reporting or penal charges only after more than three days past due and limits late charges to the outstanding amount after the due date. The visible code uses a > 3 test and WS-OUTSTANDING, but the slice does not establish the input dates or amount basis; abstain.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The code applies charges only when the supplied days-past-due value is greater than 3 and calculates them from the supplied outstanding amount. The visible context does not establish how either input is derived or whether the amount is specifically outstanding after the due date, so it does not establish a violation or positive conformance.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The visible slice accepts WS-DAYS-PAST-DUE and WS-OUTSTANDING as inputs but does not show their relationship to the payment due date or whether the outstanding amount is limited to the post-due amount. The evidence is insufficient to classify the charge-base requirement.\",\"final_answer\":\"Clause 23(5) permits reporting or penal charges only after more than three days past due and limits late charges to the outstanding amount after the due date. The visible code uses a > 3 test and WS-OUTSTANDING, but the slice does not establish the input dates or amount basis; abstain.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The visible slice accepts WS-DAYS-PAST-DUE and WS-OUTSTANDING as inputs but does not show their relationship to the payment due date or whether the outstanding amount is limited to the post-due amount. The evidence is insufficient to classify the charge-base requirement.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Clause 23(5) permits reporting or penal charges only after more than three days past due and limits late charges to the outstanding amount after the due date. The visible code uses a > 3 test and WS-OUTSTANDING, but the slice does not establish the input dates or amount basis; abstain.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The visible slice accepts WS-DAYS-PAST-DUE and WS-OUTSTANDING as inputs but does not show their relationship to the payment due date or whether the outstanding amount is limited to the post-due amount. The evidence is insufficient to classify the charge-base requirement.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "8a60088780072e5cb13534a98a5c03e3772770c209fdc5bfbf5d1ed378e56f18",
+  "run_key": "4ab82df2f556f9d95f61ee341be9c06b588313a9cbb94bc5bde9c5d04210b396"
+}

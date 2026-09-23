@@ -46,11 +46,12 @@ class _Response(BaseModel):
     answer: str
 
 
-def _request(*, authorized_hunts=()):
+def _request(*, authorized_hunts=(), model_id="gpt-5.6-luna"):
     source = MaterializedSource(
         main_file="CASE.cbl", files={"CASE.cbl": "STOP RUN.\n"}, source_sha256="a" * 64
     )
     return build_collaboration_request(
+        model_id=model_id,
         run_key="b" * 64,
         prompt="Judge exactly one opaque case.",
         schema={
@@ -72,11 +73,29 @@ def _request(*, authorized_hunts=()):
     )
 
 
+def test_model_identity_changes_request_hash_and_replays_both_models(tmp_path: Path):
+    old = _request()
+    new = _request(model_id="gpt-6-luna")
+
+    assert old.request_sha256 != new.request_sha256
+    assert CollaborationSubagentRequest.model_validate(old.model_dump()) == old
+    assert CollaborationSubagentRequest.model_validate(new.model_dump()) == new
+    execution = seal_collaboration_subagent_output(
+        request=new,
+        submission=_submission(new),
+        response_model=_Response,
+        artifact_dir=tmp_path,
+        key=new.run_key,
+    )
+    assert execution.request.model_id == "gpt-6-luna"
+
+
 def _submission(request):
     final = '{"answer":"D7_conformant"}'
     task = "/root/config3/plain_llm_01"
     task_id = "task-01"
     return CollaborationSubagentSubmissionV2(
+        model_id=request.model_id,
         request_sha256=request.request_sha256,
         task_name=task,
         task_id=task_id,

@@ -36,6 +36,21 @@ conflict, STOP and report the conflict—do not silently pick one. A task withou
 its canonical work order is not executable; create or request that work order
 instead of falling back to another document.
 
+## Model transition (2026-09-23)
+
+- Use `gpt-6-sol` for new repository implementation and review work. This
+  changes the coding assistant, not the identity of completed model evidence.
+- The original GOAL-R1 configuration-4 evaluation is preserved at 78/305
+  sealed first-half tasks under `gpt-5.6-luna`/`max`. Its keys and results are
+  immutable. The user authorized a separate `gpt-6-luna`/`max` follow-up on
+  2026-09-23; it has its own freeze, qualification, smoke, and full-run identity.
+  Because it repeats a previously opened hidden roster, describe it as a
+  follow-up comparison rather than a first-look hidden-test result.
+- GOAL-R2 migration generation will use `gpt-6-luna`/`max`. Freeze that model
+  with the R2 requests at R2.2 and pass its fresh qualification before live
+  generation. Completed T6 reviews and prior evaluations retain their recorded
+  `gpt-5.6-sol`/`gpt-5.6-luna` identities.
+
 ## How you (Claude Code) are used here
 
 You are always invoked as: _"Read CLAUDE.md and
