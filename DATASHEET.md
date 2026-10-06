@@ -204,6 +204,20 @@ metered billing record exists.
 
 ## Limitations
 
+The 2026-10-06 configuration-4 GPT-6 Luna/max follow-up completed 196 test rows
+per system across six systems and the separate 20-pair temporal add-on. It is a
+repeated hidden-roster comparison, not a first-look estimate. Canonical reporting
+and exact evidence bindings are at `data/eval/m4/evaluation-manifest.json`.
+The sole successor detector decision is `NOT_EVALUABLE`: host replay is VALID,
+but four required signed-reference discrepancies prevent release provenance
+validation. Descriptive balanced accuracy is 0.5274, interprocedural paired
+significance p=0.0512 misses p < 0.05, and temporal accuracy is 7/20 (35%).
+These measured failures are preserved; no completed result was rerun or tuned.
+Provider resource/cost telemetry is not recorded. T7.2/T7.3 deployment/archive
+claims remain unestablished. The authorized successor migration review will be
+AI-primary with independent AI verification/adjudication, explicitly non-human;
+it does not confer human-review provenance on temporal or migration artifacts.
+
 - **43/51, not 51/51, real-curated test rows.** 8 candidates were excluded
   by adjudication rather than forced to a label: 7 because the 2022-clause
   text is genuinely silent on calendar-vs-working-day penalty accrual

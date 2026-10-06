@@ -1,7 +1,7 @@
 # GOAL-R1 work order - finish detector evaluation
 
 **Owner:** Track C
-**State:** GPT-6 Luna follow-up R1.5 and R1.6 complete; R1.7 pending
+**State:** COMPLETE; GPT-6 Luna follow-up R1.5-R1.7 terminal
 **Windowing:** run one numbered section per Codex five-hour window
 **Depends on:** immutable configuration-3 smoke evidence and promoted T6-v2
 **Excludes:** UI/T7.4 and all GOAL-R2 migration work
@@ -237,7 +237,8 @@ metrics and drift-type cell denominators are reconciled without pooling.
 
 See `data/eval/m4/gpt6-luna-repeat/diagnostics/r1.6-terminal-receipt.json`
 and `diagnostics/r1.6-full-terminal-reconciliation.json` in that lineage.
-Nineteen focused configuration tests and Ruff passed. R1.7 has not started.
+Nineteen focused configuration tests and Ruff passed. This immutable R1.6
+checkpoint preceded R1.7; its original receipt is preserved unchanged.
 
 ## R1.7 - T8.3/T8.4 reports and detector freeze
 
@@ -261,6 +262,31 @@ Nineteen focused configuration tests and Ruff passed. R1.7 has not started.
 **Completion:** GOAL-R1 is complete only when reports, manifests, hashes, raw
 evidence, resume state, and the detector decision reconcile and GOAL-R2 can
 consume one frozen detector roster.
+
+### R1.7 terminal record (2026-10-06 IST)
+
+Canonical reports, performance profile, evidence/claim manifest, sole detector
+decision, and migration input roster are under the plain `data/eval/m4` root.
+The signed model cohort remains at its immutable `gpt6-luna-repeat` paths;
+`evaluation-manifest.json` binds that storage without editing signed requests
+or relabeling the paused original GPT-5.6 lineage. The decision is NOT_EVALUABLE
+for four required signed-reference provenance mismatches, with host replay VALID
+and failed descriptive balanced-accuracy, paired-significance, and temporal gates
+preserved. Provider resource telemetry remains unavailable.
+
+All 102 archived dev request/staging identities pass byte-integrity auditing;
+the exact historical command mapping regression passes. The archived failed
+trial is no longer an active command-path alias and is not represented as one.
+The complete evaluation runtime is preserved as a hash-bound deterministic ZIP
+before successor development. Thirty-four focused tests and Ruff pass. T7.2/T7.3
+remain explicitly incomplete in release accounting; T7.4 remains deferred.
+
+The R2 intake freezes zero active detector-led findings and 12 oracle-assisted
+candidates requiring review/fixture promotion in R2.1. The user authorized a
+persistent goal through every applicable R2 section and an additive AI-primary
+migration review protocol with independent AI verification and adjudication.
+These new reviews must remain explicitly non-human; no human attestations may
+be manufactured, and candidate-only artifacts do not authorize generation.
 
 ## Naming and legacy rule
 

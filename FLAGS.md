@@ -7,13 +7,19 @@ in the applicable work order or immutable artifact.
 
 ## Release-wide
 
-- **R1.7 pending:** R1.6 is complete at 610/610 full tasks and 40/40
+- **Successor detector provenance and quality limits:** R1.7 is complete;
+  R1.6 is complete at 610/610 full tasks and 40/40
   temporal sides. Each of the six full-run systems has 196 canonical records;
   all host replay statuses are VALID. Temporal paired accuracy is 7/20 (35%),
   below the reporting bar. Preserve the four signed-reference discrepancies
   across full adaptive 154/173 and temporal 40; host validity does not imply
   hash equality. Provider resource telemetry is unavailable. Reports and detector
-  decision remain pending. Terminal receipt:
+  decision are canonical at `data/eval/m4`. The sole release decision is
+  NOT_EVALUABLE for required signed-reference provenance. Balanced accuracy,
+  paired significance, and temporal quality gates also fail descriptively.
+  T7.2/T7.3 remain incomplete and explicitly accounted in
+  `docs/release-accounting.md`; no deployment or deterministic archive claim is
+  established. Terminal evaluation receipt:
   `data/eval/m4/gpt6-luna-repeat/diagnostics/r1.6-terminal-receipt.json`.
 
 - **Model transition:** Use `gpt-6.1-sol` for new repository work. Preserve the
@@ -27,8 +33,8 @@ in the applicable work order or immutable artifact.
   sealed progress. The first-half checkpoint is COMPLETE at 305/305 sealed keys,
   zero pending runnable keys, and zero terminal contract rejections. Twelve
   second-half oracle batches (50-61) were executed early in the prior session;
-  preserve their evidence. R1.6 resumes only immutable unsealed keys. The full
-  run has 610 sealed tasks overall.
+  preserve their evidence. R1.6 is terminal with no unsealed official keys. The
+  full run has 610 sealed tasks overall.
   R2 migration generation will use `gpt-6-luna`/`max` after R2.2
   freezes fresh requests and passes qualification. Historical T6 reviews and
   evaluations retain their original model identities.
@@ -75,7 +81,7 @@ in the applicable work order or immutable artifact.
   sections. Stop launching work at 4:15, reserve 45 minutes for a clean
   checkpoint, and resume the same section if it is not terminal. R1.3 closed
   as multi-window exceptions without restarting sealed rows. The GPT-6 Luna
-  full run is now in progress under its separate frozen identity. The original R1.5
+  full run is terminal under its separate frozen identity. The original R1.5
   checkpoint remains at `full/r1.5-checkpoint.json`.
 - **UI remains deferred.** T7.4 is outside this release.
 - **Remote T5.5/T5.5A is integrated.** The benchmark-first closure, ablation
@@ -94,9 +100,15 @@ in the applicable work order or immutable artifact.
 
 ## Track A - migration
 
-- T6.2-T6.4 live migration is dependency-blocked, not implementation-blocked.
-  T6.1 is complete and offline migration gates are green. Live patching waits
-  for the configuration-4 detector freeze produced by R1.7.
+- R2 is now authorized as a persistent goal through every applicable section.
+  R1.7 has frozen the configuration-4 NOT_EVALUABLE decision and detector-led
+  roster of zero. Twelve oracle-assisted candidates remain ineligible until
+  R2.1 completes fresh migration-specific review, duplicate-source justification,
+  concrete behavior fixtures, and a pinned real validation backend. The user
+  authorized a separate AI-primary review protocol with independent AI
+  verification/adjudication; never populate historical human-attestation fields
+  with model evidence. Existing offline tests used stub backends and do not
+  establish live migration validity. No R2 provider task has begun.
 
 ## Track B - T6 review and promotion
 
@@ -137,7 +149,7 @@ in the applicable work order or immutable artifact.
   R1.3 qualification-2 is archived failed, its repair is complete, and
   qualification-3 is VALID at 38/38. R1.4 is globally VALID; R1.5-R1.7 cover
   the single hidden run, temporal evaluation, and T8.3/T8.4.
-- GOAL-R2 remains blocked until R1.7 and is split into R2.1-R2.10: ten
+- GOAL-R2 is authorized after terminal R1.7 and is split into R2.1-R2.10: ten
   conservative five-hour windows at the 24-task migration ceiling, or eight
   when only one 12-case track is eligible, for roster freeze, generation,
   validation, reporting, and release close.

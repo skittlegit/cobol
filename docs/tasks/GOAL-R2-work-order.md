@@ -1,7 +1,7 @@
 # GOAL-R2 work order - migration evaluation and release close
 
 **Owners:** Track A / Track C
-**State:** blocked until GOAL-R1 freezes one detector decision and roster
+**State:** authorized; R1.7 input frozen, R2.1 review/fixture preparation next
 **Windowing:** ten planned Codex five-hour windows at the 24-task planning
 ceiling; eight when only one 12-case track is eligible
 **Depends on:** GOAL-R1, promoted T6-v2, and the existing offline migration gates
@@ -12,6 +12,28 @@ ceiling; eight when only one 12-case track is eligible
 `gpt-5.6-luna`/`max`; completed T6 reviews retain their recorded identities.
 R2.2 must bind the new model to its fresh requests and qualification before
 live generation. This decision does not reopen R1 or historical evidence.
+
+**2026-10-06 input and review amendment:** R1.7 is complete. Consume
+`data/eval/m4/evaluation-manifest.json`, `detector-decision.json`, and
+`r2-input-roster.json` with their exact hashes. The configuration-4 detector is
+NOT_EVALUABLE for required signed-reference provenance, while measured quality
+failures remain descriptive. Detector-led generation is inactive (zero findings).
+The 12 oracle-assisted candidates are not reviewed migration cases yet.
+
+The user explicitly authorized AI-primary migration review with independent AI
+verification and adjudication. Implement a separate, additive non-human protocol
+and loader; preserve the existing human contracts and candidate records. Fresh
+reviews must examine the actual migration case, allowed scopes, intended behavior,
+unaffected regressions, and concrete fixtures. T6-v2 temporal reviews cannot
+substitute for these migration reviews. Justify the three repeated-source pairs
+before promotion. Freeze a real parser/static/compiler/behavior validation backend;
+stub-backed unit tests do not establish live validation capability. See
+`docs/tasks/R2-review-design.md` for preparation design.
+
+A persistent goal now authorizes continued sequential work through all applicable
+R2 sections. Keep checkpoints across limits and resume the same unfinished
+section; no completed provider key may be rerun. This goal does not guarantee a
+specific quota-reset wake-up time or override actual provider availability.
 
 ## Required outcome
 

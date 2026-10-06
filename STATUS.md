@@ -47,10 +47,27 @@ in `docs/tasks/` and immutable evaluation artifacts.
   Host validity does not imply signed-reference equality. No sealed result was rerun.
   Terminal receipt: `diagnostics/r1.6-terminal-receipt.json`; full metrics and cell
   denominators: `diagnostics/r1.6-full-terminal-reconciliation.json` under the lineage.
-  Provider resource telemetry remains unavailable. R1.7 has not started.
+  Provider resource telemetry remains unavailable. **R1.7 is COMPLETE**: T8.3/T8.4
+  reports and their claim/input hashes are canonical at `data/eval/m4`.
+  The sole detector decision is **NOT_EVALUABLE** because the four required
+  signed-reference mismatches fail release provenance despite host replay VALID.
+  Descriptive quality fails balanced accuracy (0.5274), interprocedural paired
+  significance (p=0.0512), and temporal accuracy (35%). The paired advantage
+  remains +0.2591 with positive bootstrap interval; it does not pass p < 0.05.
+  T7.2/T7.3 are explicitly accounted as incomplete; UI/T7.4 remains deferred.
+  All 102 archived signed dev requests retain exact identities and staging bytes;
+  the historical CLI mapping regression passes, while the archived failed trial
+  is explicitly not an active command-path alias. Thirty-four focused tests and
+  Ruff pass. The evaluation runtime is preserved in `runtime-source.zip`.
 - R2 migration generation is planned for `gpt-6-luna`/`max`. R2.2 must freeze
   new requests and pass a fresh qualification under that identity before live
-  generation. R2 remains blocked on the R1.7 detector decision.
+  generation. R2 now consumes `data/eval/m4/r2-input-roster.json`: detector-led
+  findings are inactive (0); 12 oracle-assisted candidates require fresh case
+  review and validation fixtures before generation. The user authorized an
+  additive AI-primary migration review protocol, independent AI verification,
+  and adjudication on 2026-10-06. Its provenance must remain explicitly non-human.
+  A persistent goal covers R1.7 and all applicable R2 sections, with durable
+  checkpoints and no rerunning completed keys. R2.1 preparation is next.
 
 ## Current outcome
 
@@ -184,18 +201,19 @@ in `docs/tasks/` and immutable evaluation artifacts.
 | Config-3 transport repair | ready | Additive `lineage-v4`; 37/37 requests; 44 focused tests pass | No implementation blocker remains before smoke |
 | Config-3 smoke | terminal `NOT_EVALUABLE` for the candidate | 37/37 sealed tasks; 84/84 host-replayed evaluations; five systems VALID; adaptive 14/14 abstained | Preserve as configuration-3 evidence; repair only through the governed successor path |
 | Original detector/full evaluation | Preserved and paused | Immutable identity `455d6f604b6f29b1fb7b14011bdfc2fbe7b28e18aea1205015774b72891e05b6`; 78/305 R1.5 tasks sealed and replay-valid | Preserve 227 pending keys and the original model identity |
-| GPT-6 Luna follow-up evaluation | R1.5 COMPLETE; R1.6 COMPLETE | 305/305 first-half keys sealed; 610/610 full-run tasks sealed; 0 terminal contract rejections | R1.7: reports and detector decision; preserve measured failures and original R1.5 |
+| GPT-6 Luna follow-up evaluation | R1.5-R1.7 COMPLETE; detector NOT_EVALUABLE | 610/610 full tasks; 40/40 temporal sides; canonical reports and frozen decision at data/eval/m4 | Preserve provenance discrepancies, measured quality failures, and original R1.5 |
 | T6.2-T6.4 migration | ready offline, live pending | Offline migration suite previously 30/30 green | Run after detector freeze |
 | M5/release record | historical T5.5/T5.5A closed; successor addendum pending | `benchmark-first-analysis` and `ablations/report`; historical T5.4 remains immutable | Integrate configuration-4 and migration results in R2.6 |
 
 ## Next execution order
 
-1. R1.6 is terminal. R1.7 is next: publish the reports and detector decision
-   from the sealed evidence at `data/eval/m4/gpt6-luna-repeat`, preserving
-   signed-reference discrepancies, measured quality failures, and missing telemetry.
-   Start R1.7 only when requested; no R1.7 work has begun.
-2. After R1.7 freezes the detector roster, run R2.1 through R2.10 sequentially
-   from `docs/tasks/GOAL-R2-work-order.md` under the same window rule.
+1. R1.7 is terminal. Validate its canonical `evaluation-manifest.json`, frozen
+   detector decision, and `r2-input-roster.json` at `data/eval/m4`.
+2. Continue the authorized persistent goal through R2.1-R2.10 sequentially from
+   `docs/tasks/GOAL-R2-work-order.md`, resuming incomplete sections. R2.1 must
+   create the separate non-human migration review protocol, review the exact
+   12 candidates, justify repeated source bundles, and freeze concrete fixtures
+   and the reviewed roster. Candidates alone do not authorize patch generation.
 3. Keep UI/T7.4 deferred.
 
 ## Configuration-3 evidence pins
@@ -275,7 +293,7 @@ in `docs/tasks/` and immutable evaluation artifacts.
 | T5.5 | done for frozen T5.4 benchmark-first analysis; successor release addendum remains in R2.6 |
 | T5.5A | done; five core ablations frozen at 71/71 rows each |
 | T6.1 | done; final T6-v2 is 20 pairs / 40 sides |
-| T6.2 | blocked on config-3 detector freeze |
+| T6.2 | R2.1 reviewed migration roster and fixtures pending; detector-led inactive |
 | T6.3 | blocked on T6.2 |
 | T6.4 | blocked on T6.3 |
 | T7.1 | done |
@@ -285,9 +303,9 @@ in `docs/tasks/` and immutable evaluation artifacts.
 | T8.1 | done for additive `lineage-v4` transport/request preparation |
 | T8.2 | done offline |
 | T8.3 | configuration-4 successor smoke globally VALID at 44/44 tasks and 84/84 system-row evaluations; immutable R1.5 hidden run active at 78/305 sealed tasks |
-| T8.4 | queued in GOAL-R1 after a valid successor smoke/full run |
-| GOAL-R1 | R1.4 globally VALID; GPT-6 follow-up R1.5 complete at 305/305; R1.6 complete; R1.7 remains |
-| GOAL-R2 | blocked on R1.7; ten conservative five-hour sections R2.1-R2.10 at the 24-task ceiling (eight if only one 12-case track is eligible) cover T6.2-T6.4 and the successor release addendum/close |
+| T8.4 | complete; host observation profile and explicit unavailable provider telemetry |
+| GOAL-R1 | COMPLETE; canonical reports and sole detector NOT_EVALUABLE decision reconcile |
+| GOAL-R2 | authorized persistent goal; R2.1 review/fixtures next; detector-led 0, oracle candidates 12; exact generation denominator pending reviewed roster |
 
 ## Update policy
 
