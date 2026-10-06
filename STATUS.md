@@ -67,7 +67,37 @@ in `docs/tasks/` and immutable evaluation artifacts.
   additive AI-primary migration review protocol, independent AI verification,
   and adjudication on 2026-10-06. Its provenance must remain explicitly non-human.
   A persistent goal covers R1.7 and all applicable R2 sections, with durable
-  checkpoints and no rerunning completed keys. R2.1 preparation is next.
+  checkpoints and no rerunning completed keys. R2.1 is in progress: twelve
+  source/fixture proposals are prepared, with 133 focused tests passing in the
+  current preflight. Earlier Windows execution-policy skips remain retained
+  diagnostics. A separate
+  synthetic review qualification is sealed and replay-valid under
+  `gpt-6.1-sol`/`medium`, with encrypted launch content bound by an explicit
+  host launch receipt. Real synthetic baseline parsing, compilation, static
+  checks and unchanged behavior passed; intended/boundary behavior failed as
+  expected for the stale source. No official case is promoted and no migration
+  generation key has run. Official review inputs and 24 blind requests are
+  frozen; all **36/36 original reviews are sealed**. An explicit capture-only
+  amendment accepts exactly bound prior-review citations while retaining the
+  original runtime archive and final bytes. One interrupted adjudication was
+  recovered under the unchanged request. No original case meets all three
+  include decisions with zero unresolved issues, so generation remains inactive.
+  Four source-grounded revised inputs (075075, 255807, 191889, 345332) are
+  finalized and all **12/12 revised reviews are sealed**; original judgments
+  are not rerun. All twelve recommend inclusion but retain unresolved future
+  validation/scope qualifications, so none is eligible under the frozen
+  zero-unresolved-issues gate. R2.1 remains incomplete pending a prospective
+  stage-policy decision; no empty-roster completion or generation is claimed.
+  The concrete proposal is
+  `data/migration/coordination/proposed-stage-review-amendment.json`. The
+  separately pinned Ubuntu WSL GnuCOBOL 3.2.0 backend passed six actual
+  qualification tests with zero skips. All four unchanged-source revised
+  fixture baselines completed: parser/compiler/static and regression checks
+  pass, intended behavior fails as measured. Windows Application Control
+  failures remain retained; WSL execution makes no Windows pass claim. See
+  `data/migration/ai-review/original-review-receipt.json`. Window 2 and its
+  deadlines are recorded in
+  `data/migration/coordination/checkpoint.json`.
 
 ## Current outcome
 
@@ -305,7 +335,7 @@ in `docs/tasks/` and immutable evaluation artifacts.
 | T8.3 | configuration-4 successor smoke globally VALID at 44/44 tasks and 84/84 system-row evaluations; immutable R1.5 hidden run active at 78/305 sealed tasks |
 | T8.4 | complete; host observation profile and explicit unavailable provider telemetry |
 | GOAL-R1 | COMPLETE; canonical reports and sole detector NOT_EVALUABLE decision reconcile |
-| GOAL-R2 | authorized persistent goal; R2.1 review/fixtures next; detector-led 0, oracle candidates 12; exact generation denominator pending reviewed roster |
+| GOAL-R2 | active R2.1; 36/36 original reviews sealed; four revised inputs and twelve fresh reviews pending; detector-led 0; generation denominator pending revised roster |
 
 ## Update policy
 

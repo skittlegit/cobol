@@ -1,0 +1,46 @@
+{
+  "schema_version": "migration-ai-review-response-v1",
+  "case_id": "migration_191889",
+  "role": "ai_primary",
+  "decision": "needs_revision",
+  "rationale": "The source supports D4_stale_reference_data: the shared accepted-document enumeration omits NPR, which the supplied clause includes. However, its final empty literal also introduces a blank-document boundary requiring explicit review and testing. The proposed fixtures establish NPR admission and preserve the five existing named document codes, but do not establish rejection of blank input. The finite proof scope and absence of a full compliance claim are appropriate.",
+  "scope_judgment": "OVDLIST.cpy line 5 contains the complete accepted-document enumeration, and OVDCHK1 evaluates that condition directly. The allowlisted line is sufficient for the supported registry correction. The packet identifies one affected host; conclusions about fanout are limited to that supplied host.",
+  "intended_fixture_judgment": "The NPR fixture directly exercises 2000-SCREEN-OVD and observes the decision, with ACCEPT grounded in the supplied clause. It is a meaningful proposed check, not an executed pass. Add an intended rejection fixture for spaces or blank document input to address the existing empty literal and ensure the accepted enumeration contains only recognized document codes.",
+  "regression_fixture_judgment": "The fixtures cover all five unchanged named registry members and one unknown code, ZZZ. This provides useful finite regression coverage. Blank input is untested despite its direct relevance to the final enumeration literal. Short, padded and lowercase invalid codes would strengthen boundary coverage; the blank-input gap must be resolved before inclusion.",
+  "capability_judgment": "The reported GnuCOBOL backend supports batch execution and copybook fanout, which fit this case. The checks have not been executed, so no compilation or behavioral pass is established. Its finite fixture scope and lack of complete semantic equivalence proof preclude broader compliance or equivalence claims. Execution should also establish how the compiler handles the empty literal.",
+  "duplicate_source_judgment": "Preselection before detector results, retention only with reviewer approval, disclosure of case and distinct-bundle counts, and avoidance of independent-case interval claims form a defensible justification for retaining repeated bundles. Dependence must remain explicit; this single packet does not independently establish the identities or approval status of any paired cases.",
+  "evidence": [
+    {
+      "path": "inputs/migration_191889/sources/OVDCHK1.cbl",
+      "sha256": "d826f3526d752b3ebf566e9047d3ec6088ab96b8e8b406b798c58026f8cc3c92"
+    },
+    {
+      "path": "inputs/migration_191889/sources/OVDLIST.cpy",
+      "sha256": "6e405d5723fc2177d57939b72457cb063c9374f54faae27439bb2bb0c2905ae2"
+    },
+    {
+      "path": "inputs/migration_191889/regulation.json",
+      "sha256": "f1ca14b10fe2b6dbf66c499210c812f58750c2c12b40dd3fb0207b777c11cb01"
+    },
+    {
+      "path": "inputs/migration_191889/fixtures.json",
+      "sha256": "7f48a0def2193ec2269011547175437ccaa38bbfa18786c3bf91873005c76aa6"
+    },
+    {
+      "path": "inputs/migration_191889/proposal.json",
+      "sha256": "dd3f350d5f8ab6637474187666d5dd502aa5a782f9f64febe4d4027ad7385f38"
+    },
+    {
+      "path": "inputs/migration_191889/backend-capability.json",
+      "sha256": "5334e264bfce4886e80a230e44cd3e3e548feddc04ff7e205451f4b04cd7782a"
+    },
+    {
+      "path": "inputs/migration_191889/fixture-authoring.json",
+      "sha256": "e62656a46edb8ad86c8a4f26fec83ab9a307c15442508b280e228240056a6f80"
+    }
+  ],
+  "unresolved_issues": [
+    "The proposed checks omit blank-document rejection even though the original accepted enumeration contains an empty literal.",
+    "Compiler handling of the empty literal and all fixture outcomes remain unverified because case checks have not been executed."
+  ]
+}

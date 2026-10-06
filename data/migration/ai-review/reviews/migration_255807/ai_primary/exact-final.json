@@ -1,0 +1,49 @@
+{
+  "schema_version": "migration-ai-review-response-v1",
+  "case_id": "migration_255807",
+  "role": "ai_primary",
+  "decision": "needs_revision",
+  "rationale": "The source supports D1_stale_threshold: REFADJ2 computes min(0.01 * credit_limit, 6000), whereas clause 31 requires a 5000 cap. The strict greater-than consent comparison matches 'beyond'. The cutoff hypothesis is sound, but the case-level intended behavior and regression descriptions exceed or contradict the supplied finite evidence.",
+  "scope_judgment": "WSCUTOFF.cpy line 4 contains the stale cap and provides a sufficient remediation locus. REFADJ2.cbl line 21 compares against that cap and is relevant, although changing it is not necessary to correct the constant. The supplied affected-host scope contains only REFADJ2; no broader copybook fanout is established. Consent timing, requested bank-account reversal and qualifying transaction provenance are outside the demonstrated scope.",
+  "intended_fixture_judgment": "The 1000000 credit-limit and 5500 refund fixture correctly distinguishes the stale cap from the regulatory cap: original behavior is ADJUST and the required cutoff behavior is CONSENT. It tests only the cutoff leaf, not the entire clause. Narrow the intended-regulatory-behavior description to match the proposal's explicit cutoff-only caveat.",
+  "regression_fixture_judgment": "The low-limit fixtures plausibly preserve existing behavior, and the 5000/5001 fixtures test equality and just-above behavior at the corrected cap. However, above-cap-consent at 5001 changes original behavior from ADJUST to CONSENT, contradicting the claim that every above-threshold decision retains prior behavior. Treat it as corrected-behavior coverage. Add concrete percentage-branch equality and just-above fixtures, coverage around the 500000 branch crossover, and a refund above the old 6000 cap to substantiate preserved high-amount behavior. No concrete fixtures demonstrate preservation of untargeted deadline leaves.",
+  "capability_judgment": "The declared GnuCOBOL backend supports batch_executable and copybook_fanout, making the supplied paragraph-level fixtures plausibly executable. case_checks_executed is false, so no execution pass is established. Its finite observed-variable scope and explicit lack of complete semantic-equivalence proof cannot establish comprehensive clause compliance or unlisted-host preservation.",
+  "duplicate_source_judgment": "Preselection before detector results provides a defensible reason to retain repeated bundles conditionally. The packet appropriately requires dependent grouping, disclosure of both case and distinct-bundle counts, and no independent-case interval claim. This packet alone cannot establish that all required reviewers approved retention; those conditions must remain enforced.",
+  "unresolved_issues": [
+    "Narrow the case-level intended behavior to the cutoff leaf.",
+    "Revise the regression preservation claim because the 5001 fixture intentionally changes original behavior.",
+    "Strengthen percentage-branch and crossover boundary coverage and include a preserved above-old-cap case.",
+    "Remove or explicitly mark unsupported untargeted deadline preservation claims.",
+    "Execution results are unavailable; supplied fixtures are proposals, not passes."
+  ],
+  "evidence": [
+    {
+      "path": "inputs/migration_255807/sources/REFADJ2.cbl",
+      "sha256": "cb871a67b94f05fc4fc912f5d6daf3912458397d7e1e4cf157ed2cc843c1900c"
+    },
+    {
+      "path": "inputs/migration_255807/sources/WSCUTOFF.cpy",
+      "sha256": "570027ed74e195dbe7fe367024ebbffd4920da4d354983dc6e19acc6f90113e3"
+    },
+    {
+      "path": "inputs/migration_255807/regulation.json",
+      "sha256": "6b5662f2b5e5e6c070e99c3e3133726f8dff5ea34150775645f4eb5613921d84"
+    },
+    {
+      "path": "inputs/migration_255807/fixtures.json",
+      "sha256": "365ede9c36914c111fe912a7461d5d86869e4928e87f2ef1218cf5dc8704322b"
+    },
+    {
+      "path": "inputs/migration_255807/proposal.json",
+      "sha256": "67e5df17f9d6b0bd6bbbd057b666edf8457fee715ed3522d9a0684fdad0a2a4f"
+    },
+    {
+      "path": "inputs/migration_255807/backend-capability.json",
+      "sha256": "bd3c43a9ef49e5dd131167bea808dfe25276ea4b17086254b77afd40a8af2277"
+    },
+    {
+      "path": "inputs/migration_255807/fixture-authoring.json",
+      "sha256": "3ebcbd2fb012e26e4da7bbb2c5537b2b125d64711eb2f90ff651e7698a141388"
+    }
+  ]
+}

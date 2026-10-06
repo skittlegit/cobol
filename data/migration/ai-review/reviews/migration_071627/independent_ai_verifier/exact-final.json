@@ -1,0 +1,51 @@
+{
+  "schema_version": "migration-ai-review-response-v1",
+  "case_id": "migration_071627",
+  "role": "independent_ai_verifier",
+  "decision": "exclude",
+  "rationale": "The supplied source computes a fixed 500-per-day penalty and does not implement Minimum Amount Due, unpaid charges, levies, taxes, an interest base, or capitalization. Consequently, restoring penalty-path reachability cannot establish compliance with clause 23(2). The D6_dead_code hypothesis is also unsupported as an unconditional source property: BATCHCT2 accepts the control flag as input, and its accrual paragraph is reachable when that input is Y. No execution or transport evidence establishes an interprocedural chain that makes this path dead.",
+  "scope_judgment": "The allowlist restricts changes to BATCHCT1 line 13 and BATCHCT2 line 14. These locations control the penalty flag and accrual guard, but neither represents the supplied clause's regulated calculations. The packet supplies no defensible mapping from these loci to minimum-payment or capitalization behavior.",
+  "intended_fixture_judgment": "The intended-regulatory-behavior check is empty and therefore unavailable, not passed. There are no concrete inputs, expected outcomes, or boundary fixtures for negative amortization or capitalization. Flag values, cycle-day boundaries, and delay-day boundaries are also untested; such tests alone would not resolve the regulatory mismatch.",
+  "regression_fixture_judgment": "Both unaffected-outside-locus and class-specific-regression checks are empty. The sole source assertion preserves the PROCEDURE DIVISION literal and does not demonstrate preservation of batch output or downstream control flow. No concrete regression or boundary coverage supports inclusion.",
+  "capability_judgment": "The packet identifies GnuCOBOL 3.2.0 and batch execution capability, but explicitly reports that case checks were not executed. Compiler availability supplies no behavioral result. The backend's finite-fixture scope and listed static limitations cannot establish complete semantic equivalence or the missing interprocedural value flow, and cannot compensate for empty fixtures or a mismatched clause.",
+  "duplicate_source_judgment": "Preselection before detector results and the commitment to disclose dependent source bundles provide a defensible sampling justification, but repeated bundles remain dependent observations. Retaining the original candidate order requires all reviewers' approval, which this exclusion does not provide. Any future reporting must disclose case and distinct-bundle counts and avoid independent-case interval claims.",
+  "unresolved_issues": [
+    "No source-grounded relationship between the penalty control chain and clause 23(2).",
+    "No evidence establishes that the accrual path is dead across the actual batch chain; BATCHCT2 can reach it with an accepted Y flag.",
+    "All intended and regression execution checks are empty, with no boundary coverage or executed case results."
+  ],
+  "evidence": [
+    {
+      "path": "inputs/migration_071627/sources/BATCHCT1.cbl",
+      "sha256": "373d61d92bb8507e59f9aa886d27ec26d1d90b3089d50f78a3aabf86d674ce70"
+    },
+    {
+      "path": "inputs/migration_071627/sources/BATCHCT2.cbl",
+      "sha256": "7cab3dc8bed684150a41743edad45085c7b400c519fe807e0476d6dbbc973b88"
+    },
+    {
+      "path": "inputs/migration_071627/sources/WSCTLFLG.cpy",
+      "sha256": "b9eb4fa4821ff9d4ce5bde90f0b8e80e66a951fedfa569b584945b04780af467"
+    },
+    {
+      "path": "inputs/migration_071627/regulation.json",
+      "sha256": "027f487613b41f26b2002e01c6ab2851f830aca83aed1609ddcf360874ea7d2f"
+    },
+    {
+      "path": "inputs/migration_071627/fixtures.json",
+      "sha256": "087715060167bd39d54068d15aab2b313613d3c6af0d967a8ab2d199fae78a29"
+    },
+    {
+      "path": "inputs/migration_071627/proposal.json",
+      "sha256": "86f05badba0e948d73c6df8c08a98b099d1dd46b3515212bcc6fc13297b1c56a"
+    },
+    {
+      "path": "inputs/migration_071627/backend-capability.json",
+      "sha256": "125093bf47d7b7c6cbe401bc90441f7b2acaed9cd88470b054eca08b4883e345"
+    },
+    {
+      "path": "inputs/migration_071627/fixture-authoring.json",
+      "sha256": "c9eb718ef7f96e9149423beac29185a3f3ab41a15cebd9a20c0c75ed3694ad73"
+    }
+  ]
+}

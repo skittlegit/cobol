@@ -1,0 +1,59 @@
+{
+  "schema_version": "migration-ai-review-response-v1",
+  "case_id": "migration_071627",
+  "role": "ai_adjudicator",
+  "decision": "exclude",
+  "rationale": "Both retained independent finals recommend exclusion, and there is no substantive disagreement to resolve. Their conclusions are supported by the frozen evidence: the source calculates a 500-per-day penalty without implementing minimum amount due, negative amortization, or capitalization of unpaid charges, levies and taxes for interest. The D6_dead_code hypothesis is also unproven: BATCHCT2 accepts its flag and reaches 2000-ACCRUE when the input is Y. Shared copybook declarations and chain comments do not establish runtime flag transfer between the standalone programs. Restoring penalty-path reachability would not establish compliance with clause 23(2).",
+  "scope_judgment": "The allowed scope is limited to BATCHCT1 line 13 and BATCHCT2 line 14, controlling the flag assignment and accrual guard. Neither locus implements the supplied clause's regulated calculations, and no source-grounded mapping establishes that changes within this scope can satisfy the intended regulatory behavior.",
+  "intended_fixture_judgment": "The intended-regulatory-behavior checks are empty and unavailable, not passes. No concrete inputs, expected outputs, or boundary coverage establish prevention of negative amortization or capitalization of unpaid charges, levies and taxes. Both prior reviewers correctly identify this absence; penalty reachability fixtures alone would not resolve the source-clause mismatch.",
+  "regression_fixture_judgment": "Both unaffected regression check arrays are empty. The PROCEDURE DIVISION literal assertion establishes only structural preservation, not preservation of batch output or downstream control flow. No executable fixtures cover flag values, cycle-day boundaries, delay-day boundaries, or behavior outside the allowed loci.",
+  "capability_judgment": "The declared GnuCOBOL 3.2.0 backend supports batch execution, but case_checks_executed is false. Availability of the compiler is not behavioral validation. Finite-fixture scope and the listed static limitations do not establish interprogram flag transfer, complete semantic equivalence, or regulatory compliance, and cannot compensate for empty checks.",
+  "duplicate_source_judgment": "Preselection before detector results and explicit reporting of dependent source bundles provide a defensible sampling rationale, conditional on continued dependence disclosure, reporting case and distinct-bundle counts, and avoiding independent-case interval claims. Both prior reviews agree on this conditional rationale. Repeated sources remain dependent observations, and the all-reviewers-approve condition for retaining original candidate order is not satisfied.",
+  "evidence": [
+    {
+      "path": "inputs/migration_071627/sources/BATCHCT1.cbl",
+      "sha256": "373d61d92bb8507e59f9aa886d27ec26d1d90b3089d50f78a3aabf86d674ce70"
+    },
+    {
+      "path": "inputs/migration_071627/sources/BATCHCT2.cbl",
+      "sha256": "7cab3dc8bed684150a41743edad45085c7b400c519fe807e0476d6dbbc973b88"
+    },
+    {
+      "path": "inputs/migration_071627/sources/WSCTLFLG.cpy",
+      "sha256": "b9eb4fa4821ff9d4ce5bde90f0b8e80e66a951fedfa569b584945b04780af467"
+    },
+    {
+      "path": "inputs/migration_071627/regulation.json",
+      "sha256": "027f487613b41f26b2002e01c6ab2851f830aca83aed1609ddcf360874ea7d2f"
+    },
+    {
+      "path": "inputs/migration_071627/fixtures.json",
+      "sha256": "087715060167bd39d54068d15aab2b313613d3c6af0d967a8ab2d199fae78a29"
+    },
+    {
+      "path": "inputs/migration_071627/proposal.json",
+      "sha256": "86f05badba0e948d73c6df8c08a98b099d1dd46b3515212bcc6fc13297b1c56a"
+    },
+    {
+      "path": "inputs/migration_071627/backend-capability.json",
+      "sha256": "125093bf47d7b7c6cbe401bc90441f7b2acaed9cd88470b054eca08b4883e345"
+    },
+    {
+      "path": "inputs/migration_071627/fixture-authoring.json",
+      "sha256": "c9eb718ef7f96e9149423beac29185a3f3ab41a15cebd9a20c0c75ed3694ad73"
+    },
+    {
+      "path": "reviews/migration_071627/ai_primary/exact-final.json",
+      "sha256": "481356f03f2d649c8b3ef6c0b131e2ac3f634816c952a9a2ee410eab0cec5518"
+    },
+    {
+      "path": "reviews/migration_071627/independent_ai_verifier/exact-final.json",
+      "sha256": "bbf8af36c26218bec5d8d13768d9f05fd074a1663773fa0ded722e4f58f41ed4"
+    }
+  ],
+  "unresolved_issues": [
+    "No source-grounded connection between the penalty control chain and clause 23(2).",
+    "No evidence establishes dead accrual code or actual interprogram flag transfer; BATCHCT2 permits accrual when its accepted flag is Y.",
+    "No concrete intended or unaffected regression execution fixtures, boundary coverage, or executed case results."
+  ]
+}

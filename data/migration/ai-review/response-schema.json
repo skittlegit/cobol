@@ -1,0 +1,115 @@
+{
+  "$defs": {
+    "MigrationEvidencePin": {
+      "additionalProperties": false,
+      "description": "Contained path and exact hash for an external migration artifact.",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "title": "MigrationEvidencePin",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "capability_judgment": {
+      "minLength": 1,
+      "title": "Capability Judgment",
+      "type": "string"
+    },
+    "case_id": {
+      "title": "Case Id",
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "include",
+        "exclude",
+        "needs_revision"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "duplicate_source_judgment": {
+      "minLength": 1,
+      "title": "Duplicate Source Judgment",
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/MigrationEvidencePin"
+      },
+      "minItems": 1,
+      "title": "Evidence",
+      "type": "array"
+    },
+    "intended_fixture_judgment": {
+      "minLength": 1,
+      "title": "Intended Fixture Judgment",
+      "type": "string"
+    },
+    "rationale": {
+      "minLength": 1,
+      "title": "Rationale",
+      "type": "string"
+    },
+    "regression_fixture_judgment": {
+      "minLength": 1,
+      "title": "Regression Fixture Judgment",
+      "type": "string"
+    },
+    "role": {
+      "enum": [
+        "ai_primary",
+        "independent_ai_verifier",
+        "ai_adjudicator"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "migration-ai-review-response-v1",
+      "default": "migration-ai-review-response-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scope_judgment": {
+      "minLength": 1,
+      "title": "Scope Judgment",
+      "type": "string"
+    },
+    "unresolved_issues": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Unresolved Issues",
+      "type": "array"
+    }
+  },
+  "required": [
+    "case_id",
+    "role",
+    "decision",
+    "rationale",
+    "scope_judgment",
+    "intended_fixture_judgment",
+    "regression_fixture_judgment",
+    "capability_judgment",
+    "duplicate_source_judgment",
+    "evidence"
+  ],
+  "title": "AIReviewResponse",
+  "type": "object"
+}

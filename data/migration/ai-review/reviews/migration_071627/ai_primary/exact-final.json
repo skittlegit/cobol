@@ -1,0 +1,51 @@
+{
+  "schema_version": "migration-ai-review-response-v1",
+  "case_id": "migration_071627",
+  "role": "ai_primary",
+  "decision": "exclude",
+  "rationale": "The source implements a flag-controlled penalty of 500 per delay day, with no minimum amount due, unpaid-charge capitalization, or interest-compounding logic connecting it to clause 23(2). D6_dead_code is also unsupported: BATCHCT2 accepts the flag as input, so supplying Y makes 2000-ACCRUE reachable. The packet does not establish execution or flag transfer between the two standalone programs.",
+  "scope_judgment": "The allowlist covers only BATCHCT1 line 13 and BATCHCT2 line 14. These control reachability but cannot establish the supplied clause's minimum-payment and capitalization requirements within the frozen source.",
+  "intended_fixture_judgment": "The intended-regulatory-behavior checks are empty and unavailable, not passing. No concrete inputs, expected outputs, or boundary coverage establish prevention of negative amortization or capitalization of unpaid charges, levies, and taxes.",
+  "regression_fixture_judgment": "Both unaffected regression check arrays are empty. Preserving the PROCEDURE DIVISION literal is a structural assertion, not evidence that batch output or downstream control flow remains unchanged. Flag values, cycle-day boundaries, and delay-day boundaries have no executable regression coverage.",
+  "capability_judgment": "The declared GnuCOBOL backend supports batch execution, but no case checks were executed. Backend availability alone supplies no behavioral evidence. Its finite-fixture scope and stated static limitations do not establish interprogram flag transfer, complete semantic equivalence, or regulatory compliance.",
+  "duplicate_source_judgment": "Preselection before detector results and explicit dependent-group reporting provide a defensible sampling rationale, conditional on preserving dependence disclosure and avoiding independent-case interval claims. This does not justify inclusion of a source-clause mismatch, and the all-reviewers-approve retention condition is not satisfied by this review.",
+  "evidence": [
+    {
+      "path": "inputs/migration_071627/sources/BATCHCT1.cbl",
+      "sha256": "373d61d92bb8507e59f9aa886d27ec26d1d90b3089d50f78a3aabf86d674ce70"
+    },
+    {
+      "path": "inputs/migration_071627/sources/BATCHCT2.cbl",
+      "sha256": "7cab3dc8bed684150a41743edad45085c7b400c519fe807e0476d6dbbc973b88"
+    },
+    {
+      "path": "inputs/migration_071627/sources/WSCTLFLG.cpy",
+      "sha256": "b9eb4fa4821ff9d4ce5bde90f0b8e80e66a951fedfa569b584945b04780af467"
+    },
+    {
+      "path": "inputs/migration_071627/regulation.json",
+      "sha256": "027f487613b41f26b2002e01c6ab2851f830aca83aed1609ddcf360874ea7d2f"
+    },
+    {
+      "path": "inputs/migration_071627/fixtures.json",
+      "sha256": "087715060167bd39d54068d15aab2b313613d3c6af0d967a8ab2d199fae78a29"
+    },
+    {
+      "path": "inputs/migration_071627/proposal.json",
+      "sha256": "86f05badba0e948d73c6df8c08a98b099d1dd46b3515212bcc6fc13297b1c56a"
+    },
+    {
+      "path": "inputs/migration_071627/backend-capability.json",
+      "sha256": "125093bf47d7b7c6cbe401bc90441f7b2acaed9cd88470b054eca08b4883e345"
+    },
+    {
+      "path": "inputs/migration_071627/fixture-authoring.json",
+      "sha256": "c9eb718ef7f96e9149423beac29185a3f3ab41a15cebd9a20c0c75ed3694ad73"
+    }
+  ],
+  "unresolved_issues": [
+    "No source-grounded connection to clause 23(2).",
+    "No proof of dead code or interprogram flag transfer.",
+    "No concrete intended or regression execution fixtures or boundary coverage."
+  ]
+}

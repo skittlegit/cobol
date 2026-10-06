@@ -1,0 +1,38 @@
+{
+  "schema_version": "migration-ai-review-response-v1",
+  "case_id": "migration_qualification_transport",
+  "role": "ai_primary",
+  "decision": "include",
+  "rationale": "The packet is suitable for synthetic review transport qualification. The source comparison at line 11 conflicts with the supplied policy, and the fixtures distinguish the stale threshold from the intended strict boundary. Inclusion is limited to qualification and does not establish measured execution or full compliance.",
+  "scope_judgment": "The allowed scope is QTHRESH.cbl line 11, containing the stale numeric threshold. The embedded source supports this localization. Fixtures explicitly invoke 2000-CHECK because the original main stops before that paragraph; their proof scope is paragraph behavior under initialized fixture state.",
+  "intended_fixture_judgment": "The value 95 lies above the source threshold of 90 and below the policy threshold of 100. Expected N follows the supplied policy, while the frozen source would produce Y by inspection. This is an appropriate discriminating intended-behavior fixture.",
+  "regression_fixture_judgment": "The 0 and 101 fixtures preserve behavior expected under both thresholds. The 100 fixture checks strict greater-than semantics and correctly expects N under the policy, although it is a required behavior change rather than an unchanged regression relative to the frozen source. Coverage is finite and does not prove all numeric inputs.",
+  "capability_judgment": "The capability artifact reports GnuCOBOL 3.2.0 and batch-executable support, but explicitly states case_checks_executed is false. It establishes reported backend availability only; compilation and fixture execution have not been demonstrated by this packet. CICS static proof is unavailable and unnecessary for this synthetic batch case.",
+  "duplicate_source_judgment": "The packet declares a unique synthetic source bundle excluded from all official denominators. No duplicate dependence is apparent within the supplied evidence; uniqueness outside this packet was not independently inspected.",
+  "evidence": [
+    {
+      "path": "qualification/transport-v1/sources/QTHRESH.cbl",
+      "sha256": "a336b5d004e64c341f148a80ef552abe5d4c4563ede0450146280b0646dd6098"
+    },
+    {
+      "path": "qualification/transport-v1/regulation.json",
+      "sha256": "ffc51d0a8debef7680663706e479b53a921776d7b5b0c0f3003bd0875344dd52"
+    },
+    {
+      "path": "qualification/transport-v1/fixtures.json",
+      "sha256": "a5589438321256862dbb93ed52601b7178e29fff8c99538adebc576590d56592"
+    },
+    {
+      "path": "qualification/transport-v1/backend-capability.json",
+      "sha256": "64794f051945f8b337395ead20d9680ed58c67742b6d7ae41080faa1d6ec104e"
+    },
+    {
+      "path": "qualification/transport-v1/fixture-authoring.json",
+      "sha256": "53d08bacbab85c18d3e90ca1acdb178e1ad529054e06773f85dba463cb44d74b"
+    }
+  ],
+  "unresolved_issues": [
+    "Actual compilation and fixture execution remain unmeasured.",
+    "The boundary check is grouped under unaffected regressions despite requiring changed behavior at 100; its expected result is correct."
+  ]
+}

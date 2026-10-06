@@ -1,0 +1,137 @@
+{
+  "case_id": "migration_345332",
+  "checks": {
+    "class-specific-regression": [
+      {
+        "expected_stdout": "Y\n",
+        "fixture_id": "profit-above",
+        "host": "BOIDENT2.cbl",
+        "initialize": [
+          "MOVE 0 TO WS-CAPITAL-PCT",
+          "MOVE 11 TO WS-PROFIT-PCT",
+          "MOVE 'N' TO WS-CONTROL-IND"
+        ],
+        "observe": [
+          "WS-IS-BO"
+        ],
+        "perform": [
+          "2000-IDENTIFY-BO"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      },
+      {
+        "expected_stdout": "Y\n",
+        "fixture_id": "control-preserved",
+        "host": "BOIDENT2.cbl",
+        "initialize": [
+          "MOVE 0 TO WS-CAPITAL-PCT",
+          "MOVE 0 TO WS-PROFIT-PCT",
+          "MOVE 'Y' TO WS-CONTROL-IND"
+        ],
+        "observe": [
+          "WS-IS-BO"
+        ],
+        "perform": [
+          "2000-IDENTIFY-BO"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      },
+      {
+        "expected_stdout": "N\n",
+        "fixture_id": "profit-exact",
+        "host": "BOIDENT2.cbl",
+        "initialize": [
+          "MOVE 0 TO WS-CAPITAL-PCT",
+          "MOVE 10 TO WS-PROFIT-PCT",
+          "MOVE 'N' TO WS-CONTROL-IND"
+        ],
+        "observe": [
+          "WS-IS-BO"
+        ],
+        "perform": [
+          "2000-IDENTIFY-BO"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      }
+    ],
+    "intended-regulatory-behavior": [
+      {
+        "expected_stdout": "N\n",
+        "fixture_id": "exact-capital-boundary",
+        "host": "BOIDENT2.cbl",
+        "initialize": [
+          "MOVE 10 TO WS-CAPITAL-PCT",
+          "MOVE 0 TO WS-PROFIT-PCT",
+          "MOVE 'N' TO WS-CONTROL-IND"
+        ],
+        "observe": [
+          "WS-IS-BO"
+        ],
+        "perform": [
+          "2000-IDENTIFY-BO"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      }
+    ],
+    "unaffected-outside-locus": [
+      {
+        "expected_stdout": "N\n",
+        "fixture_id": "below-threshold",
+        "host": "BOIDENT2.cbl",
+        "initialize": [
+          "MOVE 9 TO WS-CAPITAL-PCT",
+          "MOVE 9 TO WS-PROFIT-PCT",
+          "MOVE 'N' TO WS-CONTROL-IND"
+        ],
+        "observe": [
+          "WS-IS-BO"
+        ],
+        "perform": [
+          "2000-IDENTIFY-BO"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      },
+      {
+        "expected_stdout": "Y\n",
+        "fixture_id": "above-threshold",
+        "host": "BOIDENT2.cbl",
+        "initialize": [
+          "MOVE 11 TO WS-CAPITAL-PCT",
+          "MOVE 0 TO WS-PROFIT-PCT",
+          "MOVE 'N' TO WS-CONTROL-IND"
+        ],
+        "observe": [
+          "WS-IS-BO"
+        ],
+        "perform": [
+          "2000-IDENTIFY-BO"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      }
+    ]
+  },
+  "fixture_authoring_evidence_sha256": "488a48d736a4e9831318d180522761a3c5bdddadb9528554799b0dec48557843",
+  "frozen_sources": [
+    {
+      "path": "BOIDENT2.cbl",
+      "sha256": "bc55584432b3f53a6f586c7b787777ad893773aab778befa6071a742e483ba90"
+    }
+  ],
+  "proof_scope": "finite_case_execution_fixtures",
+  "schema_version": "migration-execution-fixtures-v1",
+  "source_assertions": [
+    {
+      "assertion_id": "procedure-division-preserved",
+      "host": "BOIDENT2.cbl",
+      "literal": "PROCEDURE DIVISION.",
+      "paragraph": null,
+      "required": true
+    }
+  ]
+}

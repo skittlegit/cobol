@@ -1,0 +1,83 @@
+{
+  "case_id": "migration_479846",
+  "checks": {
+    "class-specific-regression": [
+      {
+        "expected_stdout": "0009\n0000500.00\n",
+        "fixture_id": "one-day-after-window",
+        "host": "CLOSPEN3.cbl",
+        "initialize": [
+          "MOVE 10 TO WS-CAL-DAYS-ELAPSED",
+          "MOVE 8 TO WS-WORK-DAYS-ELAPSED"
+        ],
+        "observe": [
+          "WS-SLA-BREACH-DAY",
+          "WS-PENALTY-AMT"
+        ],
+        "perform": [
+          "2000-PEN"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      }
+    ],
+    "intended-regulatory-behavior": [
+      {
+        "expected_stdout": "0000\n0000000.00\n",
+        "fixture_id": "within-seven-no-breach-marker",
+        "host": "CLOSPEN3.cbl",
+        "initialize": [
+          "MOVE 9 TO WS-CAL-DAYS-ELAPSED",
+          "MOVE 7 TO WS-WORK-DAYS-ELAPSED"
+        ],
+        "observe": [
+          "WS-SLA-BREACH-DAY",
+          "WS-PENALTY-AMT"
+        ],
+        "perform": [
+          "2000-PEN"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      }
+    ],
+    "unaffected-outside-locus": [
+      {
+        "expected_stdout": "0000\n0000000.00\n",
+        "fixture_id": "within-six",
+        "host": "CLOSPEN3.cbl",
+        "initialize": [
+          "MOVE 8 TO WS-CAL-DAYS-ELAPSED",
+          "MOVE 6 TO WS-WORK-DAYS-ELAPSED"
+        ],
+        "observe": [
+          "WS-SLA-BREACH-DAY",
+          "WS-PENALTY-AMT"
+        ],
+        "perform": [
+          "2000-PEN"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      }
+    ]
+  },
+  "fixture_authoring_evidence_sha256": "808a5f8b68f37c6cd9dc6f554b846a07e088bca9c0dfc6daad032c1c131dc739",
+  "frozen_sources": [
+    {
+      "path": "CLOSPEN3.cbl",
+      "sha256": "3e11e1499210e167458354fe80c65f52c0f4e1ed2735fbd8d315a2fd0f9b4bd9"
+    }
+  ],
+  "proof_scope": "finite_case_execution_fixtures",
+  "schema_version": "migration-execution-fixtures-v1",
+  "source_assertions": [
+    {
+      "assertion_id": "procedure-division-preserved",
+      "host": "CLOSPEN3.cbl",
+      "literal": "PROCEDURE DIVISION.",
+      "paragraph": null,
+      "required": true
+    }
+  ]
+}

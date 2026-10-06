@@ -1,0 +1,51 @@
+{
+  "schema_version": "migration-ai-review-response-v1",
+  "case_id": "migration_052199",
+  "role": "ai_primary",
+  "decision": "exclude",
+  "rationale": "The source computes a penalty of 500 per delay day and contains no minimum-amount-due, unpaid-charge capitalization, or interest-compounding logic establishing a relationship to clause 23(2). The D6_dead_code hypothesis is also unsupported: BATCHCT2 accepts its flag from input, so an input of 'Y' reaches 2000-ACCRUE. No execution or interprogram transfer evidence establishes that BATCHCT1 makes this path unreachable.",
+  "scope_judgment": "The allowlist covers only BATCHCT1 line 13, which sets the flag to 'N', and BATCHCT2 line 14, which guards accrual. These loci could alter penalty reachability, but neither establishes the supplied regulatory behavior. The shared copybook defines separate working-storage declarations; it does not itself transfer the flag between the two programs.",
+  "intended_fixture_judgment": "The intended-regulatory-behavior fixture list is empty and therefore unavailable, not passing. No concrete inputs, expected outputs, or boundary cases demonstrate prevention of negative amortization or capitalization of unpaid charges, levies, and taxes. The proposal explicitly acknowledges this evidentiary gap.",
+  "regression_fixture_judgment": "Both regression fixture lists are empty. Preservation of the PROCEDURE DIVISION literal does not verify batch output or downstream control flow. Flag values, cycle-day boundaries, zero and nonzero delay days, and the connection between the batch steps have no concrete regression coverage.",
+  "capability_judgment": "The backend reports batch-executable support and a GnuCOBOL compiler, but case_checks_executed is false. Its finite-fixture scope and incomplete static semantics cannot establish regulatory compliance or interprogram reachability without suitable fixtures and transfer evidence.",
+  "duplicate_source_judgment": "Preselection before detector results and retention of repeated bundles as dependent groups provide a defensible sampling justification, conditional on continued disclosure of both case and distinct-bundle counts and no independent-case interval claim. This does not remedy the case's missing semantic and fixture evidence; original-order retention requires all reviewers to approve.",
+  "evidence": [
+    {
+      "path": "inputs/migration_052199/sources/BATCHCT1.cbl",
+      "sha256": "373d61d92bb8507e59f9aa886d27ec26d1d90b3089d50f78a3aabf86d674ce70"
+    },
+    {
+      "path": "inputs/migration_052199/sources/BATCHCT2.cbl",
+      "sha256": "7cab3dc8bed684150a41743edad45085c7b400c519fe807e0476d6dbbc973b88"
+    },
+    {
+      "path": "inputs/migration_052199/sources/WSCTLFLG.cpy",
+      "sha256": "b9eb4fa4821ff9d4ce5bde90f0b8e80e66a951fedfa569b584945b04780af467"
+    },
+    {
+      "path": "inputs/migration_052199/regulation.json",
+      "sha256": "027f487613b41f26b2002e01c6ab2851f830aca83aed1609ddcf360874ea7d2f"
+    },
+    {
+      "path": "inputs/migration_052199/fixtures.json",
+      "sha256": "479c96fe6168ce4441de00f8c8cd44aadbd6414107da412979eb294e8809d238"
+    },
+    {
+      "path": "inputs/migration_052199/proposal.json",
+      "sha256": "448a2380e1d6343221df85283360eea28684eb4a7b8b5dc548536f611e711c43"
+    },
+    {
+      "path": "inputs/migration_052199/backend-capability.json",
+      "sha256": "3f3271468885c0b52537b0859ac785e40a84ce7fb7b4d23049dd8aa253933062"
+    },
+    {
+      "path": "inputs/migration_052199/fixture-authoring.json",
+      "sha256": "83e57815c7cfaf59c7fc2a1d10863da1a977f34fa6687e69ece385df163a2d5a"
+    }
+  ],
+  "unresolved_issues": [
+    "No source-grounded connection between penalty accrual and clause 23(2).",
+    "No evidence that the accrual paragraph is dead across the batch chain.",
+    "No concrete intended or regression fixtures, boundary coverage, or executed case checks."
+  ]
+}

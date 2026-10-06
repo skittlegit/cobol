@@ -1,0 +1,399 @@
+"""Detection policy and deterministic decision seam (Track C, T3.4/T3.5).
+
+The investigation loop depends on :class:`DecisionModel`, not on a provider
+SDK.  Production adapters can implement that protocol; offline gates use
+:class:`CachedDecisionModel`, whose responses are committed JSON.
+"""
+
+from __future__ import annotations
+
+import json
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any, Literal, Protocol
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from cobol_archaeologist.model.verify import ExecProbe, StaticClaim
+from cobol_archaeologist.schemas import (
+    CurrentValue,
+    DriftPrediction,
+    DriftType,
+    RegulationClause,
+)
+
+MODEL_ID = "claude-3-5-sonnet-20241022"
+MODEL_TEMPERATURE = 0.0
+MODEL_SEED = 0
+
+ToolName = Literal[
+    "read_paragraph",
+    "read_program",
+    "find_callers",
+    "find_callees",
+    "trace_variable",
+    "slice_on",
+    "resolve_copybook",
+    "get_data_layout",
+    "grep",
+    "run_cobol",
+    "search_regulations",
+]
+
+SYSTEM_PROMPT = """\
+Investigate whether COBOL behavior matches the cited regulation.
+The code is not included in this prompt: acquire it through the supplied
+ToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,
+or grep. Tool signatures are: read_paragraph(program, name);
+read_program(program); find_callers(program, para);
+find_callees(program, para); trace_variable(var, program?);
+slice_on(var, program?); resolve_copybook(name); get_data_layout(record);
+grep(pattern); run_cobol(snippet, inputs?); search_regulations(query).
+Call one tool per turn and keep observations bounded. Return exactly one JSON
+object and stop. A tool object is the entire turn: never append an abstention,
+finding, alternative, or corrected object after it. A proposed finding must
+include a complete DriftPrediction and a separate claim, plus concrete
+execution/static evidence hooks when available. The runtime will verify every
+proposed finding; if evidence is insufficient, abstain.
+`claim` is the clause-grounded regulatory proposition that the cited clause
+entails. Restate the applicable regulated entity, action, trigger, threshold,
+comparator, and unit in natural language. Never put a COBOL program,
+paragraph, identifier, line, implementation fact, or drift diagnosis in
+`claim`; those code facts belong in `prediction.rationale`, `static_claim`,
+and `final_answer`. Keep the claim as a close paraphrase of the supplied
+clause and preserve its distinctive regulated terms; do not add an entity,
+qualifier, or mechanism that the clause does not state.
+For a static evidence hook, copy `static_claim.literal` and
+`static_claim.comparator` exactly from source text returned by a cited tool
+observation. These fields contain source tokens, never a prose comparison;
+put the explanation in prediction.rationale.
+For D7 over a boolean-required behavior, choose a literal that directly
+participates in the conformant operation (for example, the excluded amount in
+the subtraction), not an unrelated nearby threshold or branch token.
+For every predicted source locus, `file` is null when the line is in the
+program's own source; it is never the program filename. Negative example
+(own source): {"program": "CLOSPEN1", "file": null}. Positive example
+(COPY expansion): {"program": "CLOSPEN2", "file": "WSDAYBAS.cpy"}.
+read_program returns a paragraph index, not statement text. Follow it with
+read_paragraph for a relevant paragraph before concluding that source evidence
+is unavailable. If an observation is insufficient and another listed bounded
+tool can obtain the needed evidence, call that tool; abstain only after the
+relevant available evidence paths have been attempted.
+"""
+
+HYDE_SYSTEM_PROMPT = """\
+Describe the regulatory obligation implemented by the supplied code-oriented
+query. Use one natural-language sentence. Preserve the regulated entity,
+action, threshold, comparator, time unit, and triggering event. Remove COBOL
+identifiers and control-flow syntax. Do not cite or infer a clause identifier.
+"""
+
+
+def build_hyde_prompt(query: str) -> str:
+    """Return the versioned T3.3b slice-to-description prompt."""
+
+    return (
+        f"{HYDE_SYSTEM_PROMPT}\n"
+        "Code-oriented query:\n"
+        f"{query.strip()}\n"
+        "Regulatory rule description:"
+    )
+
+
+HUNT_PROMPTS: dict[str, str] = {
+    "D1_stale_threshold": (
+        "Hunt D1 stale values: compare the literal at each typed locus with "
+        "the clause's resolved current-value leaf, including scalar, list, "
+        "or enum-valued leaves; resolve composite target_path. A resolved "
+        "current_value is required for D1."
+    ),
+    "D2_missing_rule": (
+        "Hunt D2 missing rules or required outcomes: inspect the relevant "
+        "paragraph, scoped grep, and data slice, and show that the specific "
+        "required behavior or violation branch is absent. Positive surrounding "
+        "control flow does not prove that the required outcome exists. Report "
+        "typed insertion points. Reserve D2 for absence without an existing "
+        "source state or action that positively conflicts with the requirement. "
+        "The clause current_value may be null for D2."
+    ),
+    "D3_contradictory": (
+        "Hunt D3 contradictions: identify source behavior that positively "
+        "contradicts the regulated condition. Use multiple typed loci when the "
+        "contradiction is internal, but one typed source locus may contradict "
+        "the trusted clause directly. If validation detects a violation and "
+        "sets a denial or invalid state but a reachable downstream action "
+        "ignores or bypasses that state, classify the conflicting implemented "
+        "behavior as D3 rather than D2."
+    ),
+    "D4_stale_reference_data": (
+        "Hunt D4 stale reference data only when the clause current value is "
+        "itself an enum_set reference collection: compare the hardcoded "
+        "enumeration and name missing or extra entries. A composite clause's "
+        "enum-valued business-rule leaf remains D1. A resolved current_value "
+        "is required for D4."
+    ),
+    "D5_boundary_error": (
+        "Hunt D5 boundary errors: evaluate the source comparator together with "
+        "the branch action and say whether the transition occurs early or late. "
+        "A resolved current_value is required for D5."
+    ),
+    "D6_dead_code": (
+        "Hunt D6 dead or disabled compliance code: use dead_paragraph for an "
+        "unreachable paragraph, or an exact literal hook for a reachable "
+        "compliance branch disabled by an always-false/default-off guard. "
+        "Do not infer deadness from caller absence alone. "
+        "The clause current_value may be null for D6."
+    ),
+    "D7_conformant": (
+        "Hunt D7 conformance: require positive code evidence that the check "
+        "exists and matches; absence is never a conformant default. The clause "
+        "current_value may be null for D7."
+    ),
+}
+
+
+def _composite_leaf_lines(current: CurrentValue) -> list[str]:
+    lines: list[str] = []
+
+    def walk(node: CurrentValue, path: str) -> None:
+        if isinstance(node.value, dict):
+            for name, child in node.value.items():
+                walk(child, f"{path}.{name}" if path else name)
+            return
+        rendered = json.dumps(node.value, ensure_ascii=False, sort_keys=True)
+        comparator = node.comparator or "none"
+        lines.append(
+            f"- target_path={path}: kind={node.kind}, "
+            f"value={rendered}, comparator={comparator}"
+        )
+
+    walk(current, "")
+    return lines
+
+
+def build_hunt_prompt(
+    drift_type: str,
+    clause: RegulationClause,
+    program_scope: str | None = None,
+) -> str:
+    """Build one deterministic per-class investigation question."""
+    try:
+        policy = HUNT_PROMPTS[drift_type]
+    except KeyError:
+        raise KeyError(f"no prompt template registered for {drift_type!r}") from None
+    scope = program_scope or "the available corpus"
+    leaves = ""
+    if clause.current_value is not None and clause.current_value.kind == "composite":
+        leaves = (
+            "\nComposite current-value leaves (select one exact target_path):\n"
+            + "\n".join(_composite_leaf_lines(clause.current_value))
+        )
+    return (
+        f"{policy}\nScope: {scope}.\n"
+        f"Clause: {clause.doc} {clause.clause_id} "
+        f"(version {clause.version}, effective {clause.effective_date}): "
+        f"{clause.text}{leaves}"
+    )
+
+
+class EvidenceLedgerNote(BaseModel):
+    """Model-authored claim tied to one exact, case-local observation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    observation_step: int = Field(ge=1)
+    observation_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    hypothesis: DriftType
+    bearing: Literal["supports", "refutes", "context"]
+    rationale: str = Field(min_length=1)
+
+
+class AgentResponse(BaseModel):
+    """One cached or live model turn.
+
+    ``token_count`` is the provider-reported turn-token usage and is part of
+    the enforced run budget.  Keeping the complete response in the trajectory
+    makes replay independent of another model call.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: Literal["tool", "finding", "abstain"]
+    thought: str = Field(min_length=1)
+    tool: ToolName | None = None
+    arguments: dict[str, Any] = {}
+    prediction: DriftPrediction | None = None
+    claim: str | None = Field(
+        default=None,
+        description=(
+            "Clause-grounded regulatory proposition entailed by the cited "
+            "clause; code and drift facts belong in prediction.rationale."
+        ),
+    )
+    exec_probe: ExecProbe | None = None
+    static_claim: StaticClaim | None = None
+    abstention_reason: str | None = None
+    final_answer: str | None = None
+    token_count: int = Field(ge=0)
+    token_count_recorded: bool = True
+    # Provider adapters populate these after parsing. They are deliberately
+    # excluded from the provider-facing JSON schema so the model cannot spoof
+    # contract telemetry.
+    raw_provider_text: str | None = None
+    contract_error: str | None = None
+    evidence_ledger: list[EvidenceLedgerNote] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _kind_shape(self) -> AgentResponse:
+        if not self.token_count_recorded and self.token_count != 0:
+            raise ValueError("unrecorded token usage must use the zero placeholder")
+        if self.contract_error is not None and self.kind != "abstain":
+            raise ValueError("a contract_error must fail closed as abstention")
+        if self.kind == "tool":
+            if self.tool is None:
+                raise ValueError("a tool response requires tool")
+            if self.prediction is not None or self.abstention_reason is not None:
+                raise ValueError("a tool response cannot carry a finding/abstention")
+        elif self.kind == "finding":
+            if self.prediction is None or not self.claim:
+                raise ValueError("a finding response requires prediction and claim")
+            if self.tool is not None or self.abstention_reason is not None:
+                raise ValueError("a finding response cannot carry a tool/abstention")
+            if not self.final_answer:
+                raise ValueError("a finding response requires final_answer")
+        else:
+            if not self.abstention_reason:
+                raise ValueError("an abstain response requires abstention_reason")
+            if self.tool is not None or self.prediction is not None:
+                raise ValueError("an abstain response cannot carry a tool/finding")
+        return self
+
+
+def respond_with_contract_repair(
+    model: DecisionModel,
+    *,
+    system_prompt: str,
+    question: str,
+    transcript: list[dict[str, Any]],
+    max_repairs: int = 1,
+    repair_allowed: Callable[[AgentResponse], bool] | None = None,
+) -> tuple[AgentResponse, list[AgentResponse]]:
+    """Call a provider and allow one provider-neutral contract repair.
+
+    Every attempt is returned for trajectory and rejection-rate accounting.
+    Semantic abstentions are final responses, not repair triggers.
+    """
+
+    response = model.respond(
+        system_prompt=system_prompt,
+        question=question,
+        transcript=transcript,
+    )
+    attempts = [response]
+    if (
+        response.contract_error is None
+        or max_repairs <= 0
+        or (repair_allowed is not None and not repair_allowed(response))
+    ):
+        return response, attempts
+
+    repair_question = (
+        f"{question}\n\n"
+        "CONTRACT REPAIR (one attempt only): your previous response did not "
+        "satisfy the response contract. Return a complete replacement JSON "
+        "object. Do not discuss the error.\n"
+        f"Typed contract error: {response.contract_error}\n"
+        "Previous raw response:\n"
+        f"{response.raw_provider_text or '<empty>'}"
+    )
+    repaired = model.respond(
+        system_prompt=system_prompt,
+        question=repair_question,
+        transcript=transcript,
+    )
+    attempts.append(repaired)
+    return repaired, attempts
+
+
+class DecisionModel(Protocol):
+    """Provider-neutral next-action seam consumed by InvestigationLoop."""
+
+    model_id: str
+    temperature: float
+    seed: int | None
+
+    def respond(
+        self,
+        *,
+        system_prompt: str,
+        question: str,
+        transcript: list[dict[str, Any]],
+    ) -> AgentResponse: ...
+
+
+class CachedDecisionModel:
+    """Deterministic offline model backed by a committed JSON response list."""
+
+    # DECISION (provider seam): cache replay implements the same tiny protocol
+    # as a live provider adapter; the loop never imports an SDK or opens a cache.
+    def __init__(
+        self,
+        cache_path: Path,
+        *,
+        cache_key: str | None = None,
+        model_id: str = MODEL_ID,
+        temperature: float = MODEL_TEMPERATURE,
+        seed: int | None = MODEL_SEED,
+    ) -> None:
+        if temperature != 0:
+            raise ValueError("T3.5 deterministic cache requires temperature=0")
+        self.cache_path = Path(cache_path)
+        self.model_id = model_id
+        self.temperature = temperature
+        self.seed = seed
+        raw = json.loads(self.cache_path.read_text(encoding="utf-8"))
+        if cache_key is not None:
+            if not isinstance(raw, dict) or cache_key not in raw:
+                raise KeyError(
+                    f"cached response key {cache_key!r} missing from {self.cache_path}"
+                )
+            raw = raw[cache_key]
+        if not isinstance(raw, list):
+            raise TypeError("cached model responses must be a JSON list")
+        self._responses = [
+            AgentResponse.model_validate(_migrate_cached_prediction(row)) for row in raw
+        ]
+        self._cursor = 0
+
+    def respond(
+        self,
+        *,
+        system_prompt: str,
+        question: str,
+        transcript: list[dict[str, Any]],
+    ) -> AgentResponse:
+        del system_prompt, question, transcript
+        if self._cursor >= len(self._responses):
+            raise RuntimeError(
+                f"cached decision model exhausted after {self._cursor} responses"
+            )
+        response = self._responses[self._cursor]
+        self._cursor += 1
+        # Return a copy so a caller cannot mutate the committed replay sequence.
+        return response.model_copy(deep=True)
+
+
+def _migrate_cached_prediction(row: Any) -> Any:
+    """Read legacy v2 response fixtures without widening the live contract."""
+
+    if not isinstance(row, dict):
+        return row
+    migrated = dict(row)
+    prediction = migrated.get("prediction")
+    if isinstance(prediction, dict):
+        prediction = dict(prediction)
+        prediction.pop("provenance", None)
+        if "rationale" not in prediction and "gold_rationale" in prediction:
+            prediction["rationale"] = prediction.pop("gold_rationale")
+        migrated["prediction"] = prediction
+    return migrated

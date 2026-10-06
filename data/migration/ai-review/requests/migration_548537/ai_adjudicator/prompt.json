@@ -1,0 +1,262 @@
+{
+  "case": {
+    "affected_hosts": [],
+    "allowed_source_scope": [
+      {
+        "line_spans": [
+          [
+            16,
+            17
+          ],
+          [
+            23,
+            23
+          ],
+          [
+            26,
+            26
+          ]
+        ],
+        "path": "TRNVAL1.cbl"
+      }
+    ],
+    "case_id": "migration_548537",
+    "detector_input_ref": "inputs/migration_548537/detector-envelope.json",
+    "drift_type": "D3_contradictory",
+    "duplicate_source_justification": "Preselected before detector results; repeated source bundles remain dependent groups. Retain original candidate order only if all reviewers approve; future reporting discloses cases and distinct bundles and makes no independent-case interval claim.",
+    "fixture_evidence": [
+      {
+        "path": "inputs/migration_548537/fixtures.json",
+        "sha256": "0cb056bf9f8106753c52f96bba5c9b6a741309d4b90348e467157b7ab414d8a8"
+      },
+      {
+        "path": "inputs/migration_548537/proposal.json",
+        "sha256": "d8f970f847b0febc512468eedd6f17d9523267e536595c12c99ce9e56b1d4982"
+      },
+      {
+        "path": "inputs/migration_548537/backend-capability.json",
+        "sha256": "2ba445f936115c96b682887ac706580d63a3bd7a81c0100a1770295ec067ba90"
+      },
+      {
+        "path": "inputs/migration_548537/fixture-authoring.json",
+        "sha256": "4ed5686823ef7c2e3a18b28e5f973d88552b2eb7f97c108a4f470f574f75b904"
+      }
+    ],
+    "frozen_sources": [
+      {
+        "path": "TRNVAL1.cbl",
+        "sha256": "1cefaf9ad9cd35745e03df6864981d52312d0e82baa716d854728e72be6a8389"
+      }
+    ],
+    "instance_id": "drift_548537",
+    "intended_behavior": {
+      "check_id": "intended-regulatory-behavior",
+      "description": "The remediated case satisfies RBI-Commercial-Banks-CC-DC-Directions-2025 clause 12(5): The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder."
+    },
+    "oracle_evidence_ref": "inputs/migration_548537/proposal.json",
+    "primary_program": "TRNVAL1.cbl",
+    "regulation_evidence": {
+      "path": "inputs/migration_548537/regulation.json",
+      "sha256": "16220c6358c531fecf655d8f9737b72ff7d32024ff3e412d6de1af659f2ec57d"
+    },
+    "schema_version": "migration-ai-review-case-input-v1",
+    "source_bundle_group": "159ebc656b178df4d6cf1a37b47582698fc667a01ab48c7890c9f74a27dcc5dc",
+    "source_evidence": [
+      {
+        "path": "inputs/migration_548537/sources/TRNVAL1.cbl",
+        "sha256": "1cefaf9ad9cd35745e03df6864981d52312d0e82baa716d854728e72be6a8389"
+      }
+    ],
+    "stratum": "interprocedural",
+    "unaffected_regressions": [
+      {
+        "check_id": "unaffected-outside-locus",
+        "description": "Behavior outside the candidate's allowlisted source loci remains unchanged under the frozen regression fixtures."
+      },
+      {
+        "check_id": "class-specific-regression",
+        "description": "Non-conflicting acceptance and rejection paths retain their prior outcomes after the contradictory branch is repaired."
+      }
+    ],
+    "validation_capability": "batch_executable",
+    "validation_protocol_sha256": "2ba445f936115c96b682887ac706580d63a3bd7a81c0100a1770295ec067ba90"
+  },
+  "evidence": [
+    {
+      "exact_utf8_content": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. TRNVAL1.\n      * VALIDATE / GATE / POST SHAPE (OVERLIMIT BLOCKER + GATE)\n       ENVIRONMENT DIVISION.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01  WS-LIMIT                  PIC 9(9)V99 VALUE ZERO.\n       01  WS-PROJ-BAL               PIC S9(9)V99 VALUE ZERO.\n       01  WS-FAIL-REASON            PIC 9(3) VALUE ZERO.\n       01  WS-POSTED                 PIC X(1) VALUE 'N'.\n       PROCEDURE DIVISION.\n       1000-MAIN.\n           ACCEPT WS-LIMIT\n           ACCEPT WS-PROJ-BAL\n           PERFORM 2000-VALIDATE\n           OR WS-LIMIT = ZERO\n              PERFORM 3000-POST\n           END-IF\n           DISPLAY 'POSTED: ' WS-POSTED\n           STOP RUN.\n       2000-VALIDATE.\n           IF WS-LIMIT >= WS-PROJ-BAL\n              CONTINUE\n           ELSE\n              MOVE 102 TO WS-FAIL-REASON\n           END-IF.\n       3000-POST.\n           MOVE 'Y' TO WS-POSTED.\n",
+      "pin": {
+        "path": "inputs/migration_548537/sources/TRNVAL1.cbl",
+        "sha256": "1cefaf9ad9cd35745e03df6864981d52312d0e82baa716d854728e72be6a8389"
+      }
+    },
+    {
+      "exact_utf8_content": "{\n  \"clause_id\": \"12(5)\",\n  \"current_value\": {\n    \"comparator\": null,\n    \"kind\": \"boolean_required\",\n    \"note\": null,\n    \"value\": \"explicit_consent_before_overlimit\"\n  },\n  \"doc\": \"RBI-Commercial-Banks-CC-DC-Directions-2025\",\n  \"effective_date\": \"2025-11-28\",\n  \"text\": \"The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.\",\n  \"version\": \"2025-11-28\"\n}\n",
+      "pin": {
+        "path": "inputs/migration_548537/regulation.json",
+        "sha256": "16220c6358c531fecf655d8f9737b72ff7d32024ff3e412d6de1af659f2ec57d"
+      }
+    },
+    {
+      "exact_utf8_content": "{\n  \"case_id\": \"migration_548537\",\n  \"checks\": {\n    \"class-specific-regression\": [\n      {\n        \"expected_stdout\": \"POSTED: Y\\n\",\n        \"fixture_id\": \"allow-equal-limit\",\n        \"host\": \"TRNVAL1.cbl\",\n        \"initialize\": [],\n        \"observe\": [],\n        \"perform\": [],\n        \"run_original_main\": true,\n        \"stdin\": \"100\\n100\\n\"\n      },\n      {\n        \"expected_stdout\": \"POSTED: N\\n\",\n        \"fixture_id\": \"zero-limit-no-consent\",\n        \"host\": \"TRNVAL1.cbl\",\n        \"initialize\": [],\n        \"observe\": [],\n        \"perform\": [],\n        \"run_original_main\": true,\n        \"stdin\": \"0\\n50\\n\"\n      }\n    ],\n    \"intended-regulatory-behavior\": [\n      {\n        \"expected_stdout\": \"POSTED: N\\n\",\n        \"fixture_id\": \"block-overlimit\",\n        \"host\": \"TRNVAL1.cbl\",\n        \"initialize\": [],\n        \"observe\": [],\n        \"perform\": [],\n        \"run_original_main\": true,\n        \"stdin\": \"100\\n200\\n\"\n      }\n    ],\n    \"unaffected-outside-locus\": [\n      {\n        \"expected_stdout\": \"POSTED: Y\\n\",\n        \"fixture_id\": \"allow-underlimit\",\n        \"host\": \"TRNVAL1.cbl\",\n        \"initialize\": [],\n        \"observe\": [],\n        \"perform\": [],\n        \"run_original_main\": true,\n        \"stdin\": \"100\\n50\\n\"\n      }\n    ]\n  },\n  \"fixture_authoring_evidence_sha256\": \"4ed5686823ef7c2e3a18b28e5f973d88552b2eb7f97c108a4f470f574f75b904\",\n  \"frozen_sources\": [\n    {\n      \"path\": \"TRNVAL1.cbl\",\n      \"sha256\": \"1cefaf9ad9cd35745e03df6864981d52312d0e82baa716d854728e72be6a8389\"\n    }\n  ],\n  \"proof_scope\": \"finite_case_execution_fixtures\",\n  \"schema_version\": \"migration-execution-fixtures-v1\",\n  \"source_assertions\": [\n    {\n      \"assertion_id\": \"procedure-division-preserved\",\n      \"host\": \"TRNVAL1.cbl\",\n      \"literal\": \"PROCEDURE DIVISION.\",\n      \"paragraph\": null,\n      \"required\": true\n    }\n  ],\n  \"static_targets\": {\n    \"TRNVAL1.cbl\": [\n      \"WS-POSTED\",\n      \"WS-FAIL-REASON\",\n      \"WS-LIMIT\",\n      \"WS-PROJ-BAL\"\n    ]\n  }\n}\n",
+      "pin": {
+        "path": "inputs/migration_548537/fixtures.json",
+        "sha256": "0cb056bf9f8106753c52f96bba5c9b6a741309d4b90348e467157b7ab414d8a8"
+      }
+    },
+    {
+      "exact_utf8_content": "{\n  \"allowed_source_scope\": [\n    {\n      \"line_spans\": [\n        [\n          16,\n          17\n        ],\n        [\n          23,\n          23\n        ],\n        [\n          26,\n          26\n        ]\n      ],\n      \"path\": \"TRNVAL1.cbl\"\n    }\n  ],\n  \"case_id\": \"migration_548537\",\n  \"caveats\": [\n    \"Frozen source has an orphan OR/END-IF; minimal syntax repair within the proposed scope is required. No consent input is modeled; these fixtures assume no explicit consent.\"\n  ],\n  \"full_compliance_claim\": false,\n  \"proposed_class\": \"D3_contradictory\",\n  \"review_status\": \"PENDING\"\n}\n",
+      "pin": {
+        "path": "inputs/migration_548537/proposal.json",
+        "sha256": "d8f970f847b0febc512468eedd6f17d9523267e536595c12c99ce9e56b1d4982"
+      }
+    },
+    {
+      "exact_utf8_content": "{\n  \"backend_identity_sha256\": \"fb315bd26c57610ffd96852764970be8a8aeeb804a23d946269efc8c4c782b23\",\n  \"behavior_scope\": \"finite_case_execution_fixtures\",\n  \"case_checks_executed\": false,\n  \"cics_static\": \"unavailable_no_complete_static_proof_backend\",\n  \"compiler\": {\n    \"banner\": \"cobc (GnuCOBOL) 3.2.0\",\n    \"binary\": \"C:\\\\Users\\\\deepa\\\\.local\\\\bin\\\\cobc.cmd\",\n    \"binary_sha256\": \"431243e1e5c1121c265162a9b6b34d53c56b16a20390bd96e16d41e30270dd93\",\n    \"cob_environment_sha256\": \"44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a\",\n    \"native_binary\": \"C:\\\\Users\\\\deepa\\\\.local\\\\share\\\\gnucobol-3.2\\\\bin\\\\cobc.exe\",\n    \"native_binary_sha256\": \"447869c2ca53ec892bb07a6b71cb699c07185ba2ba515c41e7f597d53b447cd8\",\n    \"version\": \"3.2.0\"\n  },\n  \"compiler_error\": null,\n  \"fixture_protocol_sha256\": \"e1c1dcd0e291be9d6da05dcf9c2c82179e6441934b49076325dcf2ec8efdf146\",\n  \"schema_version\": \"migration-real-backend-capability-v1\",\n  \"static_limitations\": [\n    \"no_LINKAGE_or_COMMAREA_value_flow\",\n    \"no_procedure_COPY_analysis\",\n    \"no_REDEFINES_alias_proof\",\n    \"no_complete_semantic_equivalence\"\n  ],\n  \"static_scope\": \"finite_same_host_observed_or_reviewed_variables_original_source_provenance\",\n  \"supported\": [\n    \"batch_executable\",\n    \"copybook_fanout\"\n  ]\n}\n",
+      "pin": {
+        "path": "inputs/migration_548537/backend-capability.json",
+        "sha256": "2ba445f936115c96b682887ac706580d63a3bd7a81c0100a1770295ec067ba90"
+      }
+    },
+    {
+      "exact_utf8_content": "{\n  \"case_id\": \"migration_548537\",\n  \"policy\": \"Source-grounded finite test proposal. No original repair or hidden metadata is supplied. Independent AI review may exclude or revise it; empty fixtures remain unavailable.\",\n  \"provider_calls\": 0,\n  \"regulation\": {\n    \"path\": \"inputs/migration_548537/regulation.json\",\n    \"sha256\": \"16220c6358c531fecf655d8f9737b72ff7d32024ff3e412d6de1af659f2ec57d\"\n  },\n  \"sources\": [\n    {\n      \"path\": \"inputs/migration_548537/sources/TRNVAL1.cbl\",\n      \"sha256\": \"1cefaf9ad9cd35745e03df6864981d52312d0e82baa716d854728e72be6a8389\"\n    }\n  ],\n  \"status\": \"PROPOSED_NOT_REVIEWED_NOT_EVALUATION_ELIGIBLE\"\n}\n",
+      "pin": {
+        "path": "inputs/migration_548537/fixture-authoring.json",
+        "sha256": "4ed5686823ef7c2e3a18b28e5f973d88552b2eb7f97c108a4f470f574f75b904"
+      }
+    }
+  ],
+  "instructions": "Read only this single-case packet. Do not inspect repository history, other cases, other reviews, or hidden benchmark metadata. Do not write files, propose a patch, spawn agents, or call providers. Independently assess actual source and clause, allowed scope, intended regulatory behavior, concrete intended and unaffected regression fixtures, boundary coverage, validation capability and its limitations, and repeated-source dependence. The proposed class, behavior and fixtures are hypotheses; reject unsupported claims. Empty or unavailable fixture checks are not passes. Require a defensible justification for repeated-source pairs; dependence must remain disclosed. Return only one JSON object matching the exact response schema, the supplied case_id and role, and every exact source, regulation and fixture evidence pin. Include, exclude or needs_revision are valid judgments. Do not assert human identity or measured provider usage. Adjudicate the two retained independent finals and explain disagreements; preserve unresolved issues.",
+  "prior_responses": [
+    {
+      "exact_utf8_content": "{\n  \"schema_version\": \"migration-ai-review-response-v1\",\n  \"case_id\": \"migration_548537\",\n  \"role\": \"ai_primary\",\n  \"decision\": \"needs_revision\",\n  \"rationale\": \"The clause supports blocking a projected balance above the sanctioned limit when explicit consent is absent. However, the frozen source contains an orphan OR and END-IF, so it does not establish executable prior acceptance or rejection behavior. The validator itself correctly flags overlimit balances; the proposed contradictory gate interpretation is plausible but not demonstrated by a complete conditional. The packet needs to distinguish syntax restoration, inferred gate behavior, and regulatory remediation before treating this as a D3 contradictory case with preserved regressions.\",\n  \"scope_judgment\": \"The allowlisted lines contain the orphan gate and validator branch bodies, allowing a local repair consistent with the finite no-consent fixtures. They do not contain a consent input or establish an explicit-consent pathway. Scope is defensible for conservative overlimit blocking, but does not support a full compliance claim or an independently established original gate.\",\n  \"intended_fixture_judgment\": \"The 100-limit, 200-projected-balance fixture has a clause-grounded expected result of POSTED: N under the stated no-consent assumption. It is a proposed expectation, not an executed pass. Equality and zero-limit coverage are present elsewhere, but coverage should also include the smallest representable excess above the limit and fractional balances to exercise the declared cent precision. No consent-present behavior is modeled or tested.\",\n  \"regression_fixture_judgment\": \"Underlimit and equality posting expectations are reasonable intended acceptance behavior, but cannot be described as preserving observed prior outcomes because the frozen main is syntactically incomplete. The zero-limit, positive-balance rejection fixture is regulatory remediation coverage, not an unaffected prior rejection path: its input directly exercises the orphan zero-limit bypass. Revise fixture categorization and preservation claims, and document the basis for the inferred acceptance behavior.\",\n  \"capability_judgment\": \"The pinned GnuCOBOL capability supports batch execution of this same-host program after a compilable candidate exists. The packet explicitly reports that case checks have not executed, so no fixture is a pass. Finite stdout fixtures can establish only their tested outcomes; they do not establish complete semantic equivalence, all possible balances, or explicit-consent compliance. The listed static limitations must remain disclosed.\",\n  \"duplicate_source_judgment\": \"Preselection before detector results provides a defensible procedural justification for retaining repeated bundles conditionally. Repeated-source cases remain dependent observations; preserve bundle grouping, disclose both case and distinct-bundle counts, and avoid independent-case interval claims. This packet alone cannot verify preselection or other reviewers' approval, and this needs_revision judgment does not satisfy the stated all-reviewers-approve retention condition.\",\n  \"evidence\": [\n    {\n      \"path\": \"inputs/migration_548537/sources/TRNVAL1.cbl\",\n      \"sha256\": \"1cefaf9ad9cd35745e03df6864981d52312d0e82baa716d854728e72be6a8389\"\n    },\n    {\n      \"path\": \"inputs/migration_548537/regulation.json\",\n      \"sha256\": \"16220c6358c531fecf655d8f9737b72ff7d32024ff3e412d6de1af659f2ec57d\"\n    },\n    {\n      \"path\": \"inputs/migration_548537/fixtures.json\",\n      \"sha256\": \"0cb056bf9f8106753c52f96bba5c9b6a741309d4b90348e467157b7ab414d8a8\"\n    },\n    {\n      \"path\": \"inputs/migration_548537/proposal.json\",\n      \"sha256\": \"d8f970f847b0febc512468eedd6f17d9523267e536595c12c99ce9e56b1d4982\"\n    },\n    {\n      \"path\": \"inputs/migration_548537/backend-capability.json\",\n      \"sha256\": \"2ba445f936115c96b682887ac706580d63a3bd7a81c0100a1770295ec067ba90\"\n    },\n    {\n      \"path\": \"inputs/migration_548537/fixture-authoring.json\",\n      \"sha256\": \"4ed5686823ef7c2e3a18b28e5f973d88552b2eb7f97c108a4f470f574f75b904\"\n    }\n  ],\n  \"unresolved_issues\": [\n    \"The syntactically incomplete frozen gate does not establish the asserted D3 contradictory behavior or executable prior regression outcomes.\",\n    \"Zero-limit rejection is categorized as regression preservation despite exercising the proposed contradictory bypass.\",\n    \"Cent-precision boundary fixtures are absent.\",\n    \"Case checks have not executed; batch capability is not validation evidence.\",\n    \"Consent behavior remains outside the finite no-consent proof scope.\"\n  ]\n}",
+      "pin": {
+        "path": "reviews/migration_548537/ai_primary/exact-final.json",
+        "sha256": "17d814e30d19d54ba9437c5eceeca3efcbd2b460ea749d1edaa56c7f108c988d"
+      }
+    },
+    {
+      "exact_utf8_content": "{\n  \"schema_version\": \"migration-ai-review-response-v1\",\n  \"case_id\": \"migration_548537\",\n  \"role\": \"independent_ai_verifier\",\n  \"decision\": \"needs_revision\",\n  \"rationale\": \"The validation paragraph rejects projected balances above the limit, but the main paragraph contains an orphan OR and END-IF and cannot establish executable contradictory behavior. The proposed D3 classification therefore needs qualification. Blocking overlimit posting without consent is supported by the supplied clause, but the fixtures establish only finite no-consent scenarios, not the broadly stated regulatory behavior.\",\n  \"scope_judgment\": \"The allowlisted lines encompass the malformed posting gate and validation branch bodies, making a bounded syntax and gate repair plausible. Preserve the existing limit comparison and require validation that edits remain within these exact loci. No consent input exists, and the scope cannot establish a consent-dependent implementation.\",\n  \"intended_fixture_judgment\": \"The 100/200 fixture correctly expects no posting when consent is absent. It is concrete and nonempty, but does not cover the smallest representable overlimit increment, a zero projected balance at a zero limit, or consent-present behavior. Narrow the intended-behavior claim to finite no-consent execution and strengthen boundary fixtures.\",\n  \"regression_fixture_judgment\": \"Underlimit acceptance and equality acceptance are defensible intended outcomes. The 0/50 rejection is a regulatory repair fixture, not demonstrated preservation of a prior rejection: the frozen source is syntactically invalid, and the apparent zero-limit bypass conflicts with that expected outcome. None of these fixtures establishes unchanged executable baseline behavior. Relabel the zero-limit check and qualify regression claims.\",\n  \"capability_judgment\": \"The recorded GnuCOBOL backend supports batch execution, which is appropriate for this standalone program. Case checks have not been executed, so capability evidence supplies no passing results. The original malformed source also prevents executable baseline comparison. Finite executions and the stated static limitations cannot prove complete equivalence or full regulatory compliance.\",\n  \"duplicate_source_judgment\": \"Preselection before detector results and explicit grouping provide a defensible reason to retain repeated bundles conditionally. Retention must remain contingent on reviewer approval, disclose case and distinct-bundle counts, preserve dependence grouping, and avoid independent-case interval claims. This packet does not establish the other reviewers' approvals.\",\n  \"evidence\": [\n    {\n      \"path\": \"inputs/migration_548537/sources/TRNVAL1.cbl\",\n      \"sha256\": \"1cefaf9ad9cd35745e03df6864981d52312d0e82baa716d854728e72be6a8389\"\n    },\n    {\n      \"path\": \"inputs/migration_548537/regulation.json\",\n      \"sha256\": \"16220c6358c531fecf655d8f9737b72ff7d32024ff3e412d6de1af659f2ec57d\"\n    },\n    {\n      \"path\": \"inputs/migration_548537/fixtures.json\",\n      \"sha256\": \"0cb056bf9f8106753c52f96bba5c9b6a741309d4b90348e467157b7ab414d8a8\"\n    },\n    {\n      \"path\": \"inputs/migration_548537/proposal.json\",\n      \"sha256\": \"d8f970f847b0febc512468eedd6f17d9523267e536595c12c99ce9e56b1d4982\"\n    },\n    {\n      \"path\": \"inputs/migration_548537/backend-capability.json\",\n      \"sha256\": \"2ba445f936115c96b682887ac706580d63a3bd7a81c0100a1770295ec067ba90\"\n    },\n    {\n      \"path\": \"inputs/migration_548537/fixture-authoring.json\",\n      \"sha256\": \"4ed5686823ef7c2e3a18b28e5f973d88552b2eb7f97c108a4f470f574f75b904\"\n    }\n  ],\n  \"unresolved_issues\": [\n    \"Qualify the contradictory classification because the original posting gate is syntactically incomplete.\",\n    \"Restrict intended behavior to the modeled no-consent finite cases.\",\n    \"Separate zero-limit repair expectations from preservation claims and acknowledge the unavailable executable baseline.\",\n    \"Add monetary boundary coverage for a minimal overlimit increment and zero-limit equality.\",\n    \"Execution results and all-reviewer approval for dependent-bundle retention remain unavailable.\"\n  ]\n}",
+      "pin": {
+        "path": "reviews/migration_548537/independent_ai_verifier/exact-final.json",
+        "sha256": "57d3e8c06f8aadd49e5846a126de8f86d1a00322c9dda760c64620a046ec9ea7"
+      }
+    }
+  ],
+  "purpose": "Nonhuman migration review only; not patch generation or evaluation promotion.",
+  "response_schema": {
+    "$defs": {
+      "MigrationEvidencePin": {
+        "additionalProperties": false,
+        "description": "Contained path and exact hash for an external migration artifact.",
+        "properties": {
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "title": "MigrationEvidencePin",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "capability_judgment": {
+        "minLength": 1,
+        "title": "Capability Judgment",
+        "type": "string"
+      },
+      "case_id": {
+        "title": "Case Id",
+        "type": "string"
+      },
+      "decision": {
+        "enum": [
+          "include",
+          "exclude",
+          "needs_revision"
+        ],
+        "title": "Decision",
+        "type": "string"
+      },
+      "duplicate_source_judgment": {
+        "minLength": 1,
+        "title": "Duplicate Source Judgment",
+        "type": "string"
+      },
+      "evidence": {
+        "items": {
+          "$ref": "#/$defs/MigrationEvidencePin"
+        },
+        "minItems": 1,
+        "title": "Evidence",
+        "type": "array"
+      },
+      "intended_fixture_judgment": {
+        "minLength": 1,
+        "title": "Intended Fixture Judgment",
+        "type": "string"
+      },
+      "rationale": {
+        "minLength": 1,
+        "title": "Rationale",
+        "type": "string"
+      },
+      "regression_fixture_judgment": {
+        "minLength": 1,
+        "title": "Regression Fixture Judgment",
+        "type": "string"
+      },
+      "role": {
+        "enum": [
+          "ai_primary",
+          "independent_ai_verifier",
+          "ai_adjudicator"
+        ],
+        "title": "Role",
+        "type": "string"
+      },
+      "schema_version": {
+        "const": "migration-ai-review-response-v1",
+        "default": "migration-ai-review-response-v1",
+        "title": "Schema Version",
+        "type": "string"
+      },
+      "scope_judgment": {
+        "minLength": 1,
+        "title": "Scope Judgment",
+        "type": "string"
+      },
+      "unresolved_issues": {
+        "default": [],
+        "items": {
+          "type": "string"
+        },
+        "title": "Unresolved Issues",
+        "type": "array"
+      }
+    },
+    "required": [
+      "case_id",
+      "role",
+      "decision",
+      "rationale",
+      "scope_judgment",
+      "intended_fixture_judgment",
+      "regression_fixture_judgment",
+      "capability_judgment",
+      "duplicate_source_judgment",
+      "evidence"
+    ],
+    "title": "AIReviewResponse",
+    "type": "object"
+  },
+  "role": "ai_adjudicator"
+}

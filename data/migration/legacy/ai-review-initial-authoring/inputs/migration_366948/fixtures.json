@@ -1,0 +1,81 @@
+{
+  "case_id": "migration_366948",
+  "checks": {
+    "class-specific-regression": [
+      {
+        "expected_stdout": "CLEAR\n",
+        "fixture_id": "unrelated-source-clear",
+        "host": "SCRNGATE1.cbl",
+        "initialize": [
+          "MOVE 'ZZZ' TO WS-LIST-SOURCE"
+        ],
+        "observe": [
+          "WS-SCREEN-RESULT"
+        ],
+        "perform": [
+          "2000-SCREEN-SANCTIONS"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      }
+    ],
+    "intended-regulatory-behavior": [
+      {
+        "expected_stdout": "BLOCK\n",
+        "fixture_id": "mandated-1988-source-blocked",
+        "host": "SCRNGATE1.cbl",
+        "initialize": [
+          "MOVE 'S88' TO WS-LIST-SOURCE"
+        ],
+        "observe": [
+          "WS-SCREEN-RESULT"
+        ],
+        "perform": [
+          "2000-SCREEN-SANCTIONS"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      }
+    ],
+    "unaffected-outside-locus": [
+      {
+        "expected_stdout": "BLOCK\n",
+        "fixture_id": "1267-source-preserved",
+        "host": "SCRNGATE1.cbl",
+        "initialize": [
+          "MOVE 'S67' TO WS-LIST-SOURCE"
+        ],
+        "observe": [
+          "WS-SCREEN-RESULT"
+        ],
+        "perform": [
+          "2000-SCREEN-SANCTIONS"
+        ],
+        "run_original_main": false,
+        "stdin": ""
+      }
+    ]
+  },
+  "fixture_authoring_evidence_sha256": "80640618134dd6584a8f045ac8e2542ff6d1386adcdf79ff3c92e2fcf430e255",
+  "frozen_sources": [
+    {
+      "path": "SANCREG.cpy",
+      "sha256": "9f5bb232cb2c7dac44774c8731d42c40bf6d38b455e682db4aa6516e879203f8"
+    },
+    {
+      "path": "SCRNGATE1.cbl",
+      "sha256": "7036dbac0167c7590e0f4e008408735ed346a2aa0c74fb85aa96710886edf726"
+    }
+  ],
+  "proof_scope": "finite_case_execution_fixtures",
+  "schema_version": "migration-execution-fixtures-v1",
+  "source_assertions": [
+    {
+      "assertion_id": "procedure-division-preserved",
+      "host": "SCRNGATE1.cbl",
+      "literal": "PROCEDURE DIVISION.",
+      "paragraph": null,
+      "required": true
+    }
+  ]
+}
