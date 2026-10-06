@@ -1,0 +1,163 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The clause current value is an enum_set reference collection; no D1 stale scalar or composite-leaf comparison is established.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The clause current value is an enum_set reference collection; no D1 stale scalar or composite-leaf comparison is established.",
+        "final_answer": "I abstain because the clause current value is an enum_set reference collection; no D1 stale scalar or composite-leaf comparison is established."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The required absence showing is incomplete: the screening paragraph has a caller, its main paragraph calls it, and D2 requires all four reserved observations to be negative.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The required absence showing is incomplete: the screening paragraph has a caller, its main paragraph calls it, and D2 requires all four reserved observations to be negative.",
+        "final_answer": "I abstain because the required absence showing is incomplete: the screening paragraph has a caller, its main paragraph calls it, and D2 requires all four reserved observations to be negative."
+      },
+      "D3_contradictory": {
+        "kind": "finding",
+        "thought": "The accepted predicate includes an empty value and the screen returns ACCEPT when that predicate is true.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "OVDCHK1",
+                "paragraph": null,
+                "file": "OVDLIST.cpy",
+                "line_span": [
+                  5,
+                  5
+                ]
+              },
+              {
+                "program": "OVDCHK1",
+                "paragraph": "2000-SCREEN-OVD",
+                "file": "OVDCHK1.cbl",
+                "line_span": [
+                  20,
+                  21
+                ]
+              }
+            ],
+            "slice_vars": [
+              "ACCEPTED-OVD"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": "current_value.value",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "OVDCHK1",
+                "line": 5,
+                "file": "OVDLIST.cpy"
+              },
+              {
+                "program": "OVDCHK1",
+                "line": 21,
+                "file": "OVDCHK1.cbl"
+              }
+            ]
+          },
+          "rationale": "The registry includes the empty literal at OVDLIST.cpy line 5, and 2000-SCREEN-OVD moves 'ACCEPT' when ACCEPTED-OVD is true at OVDCHK1.cbl line 21. Treating an empty code as an OVD contradicts the clause's definition by named document types."
+        },
+        "claim": "An OVD is one of the document types listed in the clause, including a letter issued by the National Population Register containing details of name and address.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "''",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The registry includes the empty literal at OVDLIST.cpy line 5, and 2000-SCREEN-OVD moves 'ACCEPT' when ACCEPTED-OVD is true at OVDCHK1.cbl line 21. Treating an empty code as an OVD contradicts the clause's definition by named document types."
+      },
+      "D4_stale_reference_data": {
+        "kind": "finding",
+        "thought": "The resolved OVD registry omits an item from the clause's document reference set.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "OVDCHK1",
+                "paragraph": null,
+                "file": "OVDLIST.cpy",
+                "line_span": [
+                  5,
+                  5
+                ]
+              }
+            ],
+            "slice_vars": [
+              "ACCEPTED-OVD"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D4_stale_reference_data",
+          "target_path": "current_value.value",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "OVDCHK1",
+                "line": 5,
+                "file": "OVDLIST.cpy"
+              }
+            ]
+          },
+          "rationale": "OVDLIST.cpy line 5 lists 'PSP', 'DLC', 'ADH', 'VTR', 'NRG', and ''; it has no NPR-letter entry. The clause's enum_set includes npr-letter, so this hardcoded reference collection is missing the required NPR letter."
+        },
+        "claim": "An OVD includes a letter issued by the National Population Register containing details of name and address.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "'PSP' 'DLC' 'ADH' 'VTR' 'NRG' ''",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "OVDLIST.cpy line 5 lists 'PSP', 'DLC', 'ADH', 'VTR', 'NRG', and ''; it has no NPR-letter entry. The clause's enum_set includes npr-letter, so this hardcoded reference collection is missing the required NPR letter."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The screening branch uses the ACCEPTED-OVD condition without a threshold comparator, so no early or late boundary transition is established.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The screening branch uses the ACCEPTED-OVD condition without a threshold comparator, so no early or late boundary transition is established.",
+        "final_answer": "I abstain because the screening branch uses the ACCEPTED-OVD condition without a threshold comparator, so no early or late boundary transition is established."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The inspected screening paragraph is called from 1000-MAIN; no unreachable compliance paragraph or disabled-guard literal is established.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The inspected screening paragraph is called from 1000-MAIN; no unreachable compliance paragraph or disabled-guard literal is established.",
+        "final_answer": "I abstain because the inspected screening paragraph is called from 1000-MAIN; no unreachable compliance paragraph or disabled-guard literal is established."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "Positive source evidence does not match the clause's document set: the registry contains an empty value and omits the NPR letter.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Positive source evidence does not match the clause's document set: the registry contains an empty value and omits the NPR letter.",
+        "final_answer": "I abstain because positive source evidence does not match the clause's document set: the registry contains an empty value and omits the NPR letter."
+      }
+    }
+  ]
+}

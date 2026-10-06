@@ -1,0 +1,102 @@
+{
+  "instance_id": "drift_000015",
+  "gold": {
+    "instance_id": "drift_000015",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC2",
+          "paragraph": "2000-CHECK-SLA",
+          "file": null,
+          "line_span": [
+            26,
+            31
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD",
+        "WS-SLA-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "Clause 65(8) requires CKYCR updates within 7 days (at_most 7). 2000-CHECK-SLA flags OVERDUE exactly when WS-DAYS-SINCE-UPD > 7 (line 27), i.e. compliant (INSLA) whenever days-since-update <= 7, which directly matches the clause's threshold and comparator.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "KYCSYNC2.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"score\":0.8152306609113623}],\"program\":\"FILE KYCSYNC2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. KYCSYNC2.\\n0003:       *----------------------------------------------------------------\\n0004:       * CKYCR RECORD SYNC - UPLOAD WITHIN SEVEN DAYS OF RECEIVING\\n0005:       * UPDATED KYC INFORMATION FROM CUSTOMER\\n0006:       *----------------------------------------------------------------\\n0007:        ENVIRONMENT DIVISION.\\n0008:        DATA DIVISION.\\n0009:        WORKING-STORAGE SECTION.\\n0010:        01  WS-CUST-REC.\\n0011:            05  WS-CUST-ID            PIC X(10) VALUE SPACES.\\n0012:            05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\\n0013:        01  WS-FLAGS.\\n0014:            05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.\\n0015:        01  WS-RPT-HEADING            PIC X(2)\\n0016:            VALUE SPACES.\\n0017:        01  WS-PRINT-AREA.\\n0018:            05  WS-PRINT-LINE OCCURS 2 PIC X(2).\\n0019:        PROCEDURE DIVISION.\\n0020:        1000-MAIN.\\nFILE KYCSYNC2.cbl LINES 21-31\\n0021:            ACCEPT WS-CUST-ID\\n0022:            ACCEPT WS-DAYS-SINCE-UPD\\n0023:            PERFORM 2000-CHECK-SLA\\n0024:            DISPLAY 'SLA: ' WS-SLA-STATUS\\n0025:            STOP RUN.\\n0026:        2000-CHECK-SLA.\\n0027:            IF WS-DAYS-SINCE-UPD > 7\\n0028:               MOVE 'OVERDUE' TO WS-SLA-STATUS\\n0029:            ELSE\\n0030:               MOVE 'INSLA' TO WS-SLA-STATUS\\n0031:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible SLA check marks elapsed time above seven days overdue and values through seven days in-SLA, matching the clause’s timing threshold.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_00...n as within the limit.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_00...n as within the limit.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible SLA check marks elapsed time above seven days overdue and values through seven days in-SLA, matching the clause’s timing threshold.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSYNC2\",\"paragraph\":\"2000-CHECK-SLA\",\"file\":\"KYCSYNC2.cbl\",\"line_span\":[26,31]}],\"slice_vars\":[\"WS-DAYS-SINCE-UPD\",\"WS-SLA-STATUS\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[{\"program\":\"KYCSYNC2\",\"line\":27,\"file\":\"KYCSYNC2.cbl\"},{\"program\":\"KYCSYNC2\",\"line\":29,\"file\":\"KYCSYNC2.cbl\"},{\"program\":\"KYCSYNC2\",\"line\":30,\"file\":\"KYCSYNC2.cbl\"},{\"program\":\"KYCSYNC2\",\"line\":31,\"file\":\"KYCSYNC2.cbl\"}]},\"rationale\":\"The clause sets a seven-day limit. The source uses `> 7` to mark the status overdue and otherwise marks it in-SLA, so its visible timing check treats day seven as within the limit.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.\",\"exec_probe\":{\"stdin\":\"1234567890\\n0008\\n\",\"expect_substring\":\"SLA: OVERDUE\",\"description\":\"Check that an elapsed time above seven days is marked overdue.\"},\"static_claim\":null,\"abstention_reason\":null,\"final_answer\":\"The visible SLA check matches the clause’s seven-day boundary: it marks more than seven days overdue and treats seven days or less as in-SLA.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_00...n as within the limit.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_00...n as within the limit.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_00...n as within the limit.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "e28421426c4cf2eed810253fd8ba07197279aa86c6e5d63c81104636f6a5406c",
+  "run_key": "2cfccafe70d7f772e3fef36fe22cd195969d3957c483d825242453fd9ec5371f"
+}

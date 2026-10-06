@@ -1,0 +1,899 @@
+{
+  "instance_id": "drift_000010",
+  "gold": {
+    "instance_id": "drift_000010",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC1",
+          "paragraph": "2000-QUEUE-UPLOAD",
+          "file": null,
+          "line_span": [
+            22,
+            27
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-UPD-RECEIVED",
+        "WS-QUEUE-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSYNC1",
+          "line": 23,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 65(8) (footnote-148 insertion into the 2016 MD, now 2025 clause 65(8)) requires CKYCR updates within 7 days of receiving updated customer information (duration_days=7, at_most). KYCSYNC1's WORKING-STORAGE (lines 10-14) has no elapsed-day or date field at all, and 2000-QUEUE-UPLOAD only branches on the boolean WS-UPD-RECEIVED (line 23); there is no 7-day deadline check anywhere in the program's reachable logic.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "KYCSYNC1.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: KYCSYNC1.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "KYCSYNC1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 21, \"line_start\": 16, \"name\": \"1000-MAIN\"}, {\"line_end\": 27, \"line_start\": 22, \"name\": \"2000-QUEUE-UPLOAD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\59de7960e5709b4488ac6b41b70f9743a6dc3ea598474c4644bc0c2325506014\\\\cases\\\\drift_900000\\\\KYCSYNC1.cbl\", \"program\": \"KYCSYNC1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "KYCSYNC1",
+          "name": "2000-QUEUE-UPLOAD"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}], \"code\": \"       2000-QUEUE-UPLOAD.\\n           IF WS-UPD-RECEIVED = 'Y'\\n              MOVE 'QUEUED' TO WS-QUEUE-STATUS\\n           ELSE\\n              MOVE 'NOCHANGE' TO WS-QUEUE-STATUS\\n           END-IF.\", \"name\": \"2000-QUEUE-UPLOAD\", \"ref\": {\"line_end\": 27, \"line_start\": 22, \"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "KYCSYNC1",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUST-ID\\n           ACCEPT WS-UPD-RECEIVED\\n           PERFORM 2000-QUEUE-UPLOAD\\n           DISPLAY 'QUEUE: ' WS-QUEUE-STATUS\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 21, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "7"
+        },
+        "observation_summary": "{\"matches\": [], \"pattern\": \"7\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied current value resolves to 7 days. The bounded program map and both executable paragraphs show a receive flag and queue-status flow, while the scoped search for the literal 7 found no matches. No source threshold literal is available for comparison.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No source threshold literal at a typed locus can be compared with the resolved 7-day value.",
+        "final_answer": "The clause requires an update within seven days, while the inspected flow accepts an updated-information flag and sets a queue status. There is no source threshold literal, so a stale-threshold finding is unsupported.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value resolves to 7 days. The bounded program map and both executable paragraphs show a receive flag and queue-status flow, while the scoped search for the literal 7 found no matches. No source threshold literal is available for comparison.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No source threshold literal at a typed locus can be compared with the resolved 7-day value.\",\"final_answer\":\"The clause requires an update within seven days, while the inspected flow accepts an updated-information flag and sets a queue status. There is no source threshold literal, so a stale-threshold finding is unsupported.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "No source threshold literal at a typed locus can be compared with the resolved 7-day value.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: No source threshold literal at a typed locus can be compared with the resolved 7-day value.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: KYCSYNC1.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSYNC1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 21, \"line_start\": 16, \"name\": \"1000-MAIN\"}, {\"line_end\": 27, \"line_start\": 22, \"name\": \"2000-QUEUE-UPLOAD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\59de7960e5709b4488ac6b41b70f9743a6dc3ea598474c4644bc0c2325506014\\\\cases\\\\drift_900000\\\\KYCSYNC1.cbl\", \"program\": \"KYCSYNC1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "name": "2000-QUEUE-UPLOAD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}], \"code\": \"       2000-QUEUE-UPLOAD.\\n           IF WS-UPD-RECEIVED = 'Y'\\n              MOVE 'QUEUED' TO WS-QUEUE-STATUS\\n           ELSE\\n              MOVE 'NOCHANGE' TO WS-QUEUE-STATUS\\n           END-IF.\", \"name\": \"2000-QUEUE-UPLOAD\", \"ref\": {\"line_end\": 27, \"line_start\": 22, \"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUST-ID\\n           ACCEPT WS-UPD-RECEIVED\\n           PERFORM 2000-QUEUE-UPLOAD\\n           DISPLAY 'QUEUE: ' WS-QUEUE-STATUS\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 21, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "7"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"7\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current value resolves to 7 days. The bounded program map and both executable paragraphs show a receive flag and queue-status flow, while the scoped search for the literal 7 found no matches. No source threshold literal is available for comparison.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No source threshold literal at a typed locus can be compared with the resolved 7-day value.",
+            "final_answer": "The clause requires an update within seven days, while the inspected flow accepts an updated-information flag and sets a queue status. There is no source threshold literal, so a stale-threshold finding is unsupported.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value resolves to 7 days. The bounded program map and both executable paragraphs show a receive flag and queue-status flow, while the scoped search for the literal 7 found no matches. No source threshold literal is available for comparison.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No source threshold literal at a typed locus can be compared with the resolved 7-day value.\",\"final_answer\":\"The clause requires an update within seven days, while the inspected flow accepts an updated-information flag and sets a queue status. There is no source threshold literal, so a stale-threshold finding is unsupported.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No source threshold literal at a typed locus can be compared with the resolved 7-day value.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No source threshold literal at a typed locus can be compared with the resolved 7-day value.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No source threshold literal at a typed locus can be compared with the resolved 7-day value."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": {
+        "verified": true,
+        "tier": 3,
+        "evidence": "clause RBI-KYC-Directions-2025 65(8) entails the claim (P=0.9936, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)",
+        "citation_ok": true,
+        "entailment_probability": 0.9936,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "unavailable",
+            "detail": "no static claim; Tier-2 not applicable to this finding"
+          },
+          {
+            "tier": 3,
+            "outcome": "verified",
+            "detail": "clause RBI-KYC-Directions-2025 65(8) entails the claim (P=0.9936, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)"
+          }
+        ]
+      },
+      "verification_tier": 3,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: KYCSYNC1.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "CKYCR"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 4, \"program\": \"KYCSYNC1\", \"text\": \"      * CKYCR RECORD SYNC - QUEUES UPDATED KYC DATA FOR UPLOAD\"}, {\"line\": 5, \"program\": \"KYCSYNC1\", \"text\": \"      * REF: KYC MD 2016 PARA 56 - FILE ELECTRONICALLY TO CKYCR\"}], \"pattern\": \"CKYCR\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "para": "2000-QUEUE-UPLOAD"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "REGISTRY"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"REGISTRY\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 5,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-QUEUE-STATUS",
+              "program": "KYCSYNC1"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}, {\"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}], \"scoped_program\": \"KYCSYNC1\", \"statements\": [{\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": null, \"program\": \"KYCSYNC1\"}, \"text\": \"05  WS-UPD-RECEIVED       PIC X(1) VALUE 'N'.\"}, {\"ref\": {\"line_end\": 14, \"line_start\": 14, \"paragraph\": null, \"program\": \"KYCSYNC1\"}, \"text\": \"05  WS-QUEUE-STATUS       PIC X(8) VALUE SPACES.\"}, {\"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}, \"text\": \"ACCEPT WS-UPD-RECEIVED\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 19, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}, \"text\": \"PERFORM 2000-QUEUE-UPLOAD\"}, {\"ref\": {\"line_end\": 24, \"line_start\": 23, \"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}, \"text\": \"IF WS-UPD-RECEIVED = 'Y'\\n              MOVE 'QUEUED' TO WS-QUEUE-STATUS\"}, {\"ref\": {\"line_end\": 24, \"line_start\": 24, \"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}, \"text\": \"MOVE 'QUEUED' TO WS-QUEUE-STATUS\"}, {\"ref\": {\"line_end\": 26, \"line_start\": 26, \"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}, \"text\": \"MOVE 'NOCHANGE' TO WS-QUEUE-STATUS\"}], \"variable\": \"WS-QUEUE-STATUS\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 6,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "name": "2000-QUEUE-UPLOAD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}], \"code\": \"       2000-QUEUE-UPLOAD.\\n           IF WS-UPD-RECEIVED = 'Y'\\n              MOVE 'QUEUED' TO WS-QUEUE-STATUS\\n           ELSE\\n              MOVE 'NOCHANGE' TO WS-QUEUE-STATUS\\n           END-IF.\", \"name\": \"2000-QUEUE-UPLOAD\", \"ref\": {\"line_end\": 27, \"line_start\": 22, \"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "1000-MAIN accepts the customer ID and update flag, then performs 2000-QUEUE-UPLOAD. That paragraph only maps the flag to QUEUED or NOCHANGE. A scoped REGISTRY search returned no matches, the WS-QUEUE-STATUS slice contains only the flag and status flow, and the selected caller/callee observations show no additional update routine. The required registry update and seven-day timing are absent, with no positive conflicting action.\n[policy telemetry: SourceLocus.file normalized; loci=2; line_refs=5]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_000010",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "65(8)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+                "current_value": {
+                  "kind": "duration_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "KYCSYNC1",
+                    "paragraph": "1000-MAIN",
+                    "file": null,
+                    "line_span": [
+                      18,
+                      19
+                    ]
+                  },
+                  {
+                    "program": "KYCSYNC1",
+                    "paragraph": "2000-QUEUE-UPLOAD",
+                    "file": null,
+                    "line_span": [
+                      23,
+                      27
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-UPD-RECEIVED",
+                  "WS-QUEUE-STATUS"
+                ],
+                "is_interprocedural": true
+              },
+              "drift_type": "D2_missing_rule",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "KYCSYNC1",
+                    "line": 18,
+                    "file": null
+                  },
+                  {
+                    "program": "KYCSYNC1",
+                    "line": 19,
+                    "file": null
+                  },
+                  {
+                    "program": "KYCSYNC1",
+                    "line": 23,
+                    "file": null
+                  },
+                  {
+                    "program": "KYCSYNC1",
+                    "line": 24,
+                    "file": null
+                  },
+                  {
+                    "program": "KYCSYNC1",
+                    "line": 26,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "Clause 65(8) requires updating KYC records in the Central KYC Records Registry within 7 days of receiving updated customer information. Executable lines 18-19 receive the flag and perform the queue paragraph; lines 23-27 only set QUEUED or NOCHANGE, and the scoped REGISTRY search has no matches. The WS-QUEUE-STATUS slice shows no registry-update action or timing state. This is an omission without an implemented contradictory outcome. Typed insertion point: KYCSYNC1.cbl, paragraph 2000-QUEUE-UPLOAD, after the QUEUED assignment at line 24."
+            },
+            "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": null,
+            "final_answer": "The clause requires a Central KYC Records Registry update within 7 days. The executable path only receives an update flag and sets QUEUED or NOCHANGE; it contains no registry-update step or seven-day timing control. Add the required update and timing behavior in 2000-QUEUE-UPLOAD after line 24.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"1000-MAIN accepts the customer ID and update flag, then performs 2000-QUEUE-UPLOAD. That paragraph only maps the flag to QUEUED or NOCHANGE. A scoped REGISTRY search returned no matches, the WS-QUEUE-STATUS slice contains only the flag and status flow, and the selected caller/callee observations show no additional update routine. The required registry update and seven-day timing are absent, with no positive conflicting action.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSYNC1\",\"paragraph\":\"1000-MAIN\",\"file\":\"KYCSYNC1.cbl\",\"line_span\":[18,19]},{\"program\":\"KYCSYNC1\",\"paragraph\":\"2000-QUEUE-UPLOAD\",\"file\":\"KYCSYNC1.cbl\",\"line_span\":[23,27]}],\"slice_vars\":[\"WS-UPD-RECEIVED\",\"WS-QUEUE-STATUS\"],\"is_interprocedural\":true},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"KYCSYNC1\",\"line\":18,\"file\":\"KYCSYNC1.cbl\"},{\"program\":\"KYCSYNC1\",\"line\":19,\"file\":\"KYCSYNC1.cbl\"},{\"program\":\"KYCSYNC1\",\"line\":23,\"file\":\"KYCSYNC1.cbl\"},{\"program\":\"KYCSYNC1\",\"line\":24,\"file\":\"KYCSYNC1.cbl\"},{\"program\":\"KYCSYNC1\",\"line\":26,\"file\":\"KYCSYNC1.cbl\"}]},\"rationale\":\"Clause 65(8) requires updating KYC records in the Central KYC Records Registry within 7 days of receiving updated customer information. Executable lines 18-19 receive the flag and perform the queue paragraph; lines 23-27 only set QUEUED or NOCHANGE, and the scoped REGISTRY search has no matches. The WS-QUEUE-STATUS slice shows no registry-update action or timing state. This is an omission without an implemented contradictory outcome. Typed insertion point: KYCSYNC1.cbl, paragraph 2000-QUEUE-UPLOAD, after the QUEUED assignment at line 24.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":null,\"final_answer\":\"The clause requires a Central KYC Records Registry update within 7 days. The executable path only receives an update flag and sets QUEUED or NOCHANGE; it contains no registry-update step or seven-day timing control. Add the required update and timing behavior in 2000-QUEUE-UPLOAD after line 24.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 3,
+          "evidence": "clause RBI-KYC-Directions-2025 65(8) entails the claim (P=0.9936, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)",
+          "citation_ok": true,
+          "entailment_probability": 0.9936,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "unavailable",
+              "detail": "no static claim; Tier-2 not applicable to this finding"
+            },
+            {
+              "tier": 3,
+              "outcome": "verified",
+              "detail": "clause RBI-KYC-Directions-2025 65(8) entails the claim (P=0.9936, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)"
+            }
+          ]
+        },
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy result guard: Tier-3-only finding lacks required Tier-2 code-fact verification",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy result guard: Tier-3-only finding lacks required Tier-2 code-fact verification",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy result guard: Tier-3-only finding lacks required Tier-2 code-fact verification"
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: KYCSYNC1.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSYNC1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 21, \"line_start\": 16, \"name\": \"1000-MAIN\"}, {\"line_end\": 27, \"line_start\": 22, \"name\": \"2000-QUEUE-UPLOAD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\59de7960e5709b4488ac6b41b70f9743a6dc3ea598474c4644bc0c2325506014\\\\cases\\\\drift_900000\\\\KYCSYNC1.cbl\", \"program\": \"KYCSYNC1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUST-ID\\n           ACCEPT WS-UPD-RECEIVED\\n           PERFORM 2000-QUEUE-UPLOAD\\n           DISPLAY 'QUEUE: ' WS-QUEUE-STATUS\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 21, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "name": "2000-QUEUE-UPLOAD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}], \"code\": \"       2000-QUEUE-UPLOAD.\\n           IF WS-UPD-RECEIVED = 'Y'\\n              MOVE 'QUEUED' TO WS-QUEUE-STATUS\\n           ELSE\\n              MOVE 'NOCHANGE' TO WS-QUEUE-STATUS\\n           END-IF.\", \"name\": \"2000-QUEUE-UPLOAD\", \"ref\": {\"line_end\": 27, \"line_start\": 22, \"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The inspected path accepts an update flag and assigns QUEUED or NOCHANGE. It does not positively state a later deadline, reject a timely update, or bypass a denial state.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No executable behavior was found that affirmatively contradicts the seven-day update obligation; the observed gap is an omission.",
+            "final_answer": "The clause requires the registry update within seven days. The source only records queue status and does not implement a conflicting deadline or denial action, so D3 is unsupported.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The inspected path accepts an update flag and assigns QUEUED or NOCHANGE. It does not positively state a later deadline, reject a timely update, or bypass a denial state.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No executable behavior was found that affirmatively contradicts the seven-day update obligation; the observed gap is an omission.\",\"final_answer\":\"The clause requires the registry update within seven days. The source only records queue status and does not implement a conflicting deadline or denial action, so D3 is unsupported.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No executable behavior was found that affirmatively contradicts the seven-day update obligation; the observed gap is an omission.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No executable behavior was found that affirmatively contradicts the seven-day update obligation; the observed gap is an omission.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No executable behavior was found that affirmatively contradicts the seven-day update obligation; the observed gap is an omission."
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: KYCSYNC1.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current_value is duration_days with value 7, not an enum_set reference collection.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only when the supplied current value is an enum_set reference collection; this clause supplies a duration_days value.",
+            "final_answer": "The clause supplies a seven-day duration, not an enumerated reference collection, so a D4 stale-reference-data comparison does not apply.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current_value is duration_days with value 7, not an enum_set reference collection.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only when the supplied current value is an enum_set reference collection; this clause supplies a duration_days value.\",\"final_answer\":\"The clause supplies a seven-day duration, not an enumerated reference collection, so a D4 stale-reference-data comparison does not apply.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: KYCSYNC1.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSYNC1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 21, \"line_start\": 16, \"name\": \"1000-MAIN\"}, {\"line_end\": 27, \"line_start\": 22, \"name\": \"2000-QUEUE-UPLOAD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\59de7960e5709b4488ac6b41b70f9743a6dc3ea598474c4644bc0c2325506014\\\\cases\\\\drift_900000\\\\KYCSYNC1.cbl\", \"program\": \"KYCSYNC1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "name": "2000-QUEUE-UPLOAD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}], \"code\": \"       2000-QUEUE-UPLOAD.\\n           IF WS-UPD-RECEIVED = 'Y'\\n              MOVE 'QUEUED' TO WS-QUEUE-STATUS\\n           ELSE\\n              MOVE 'NOCHANGE' TO WS-QUEUE-STATUS\\n           END-IF.\", \"name\": \"2000-QUEUE-UPLOAD\", \"ref\": {\"line_end\": 27, \"line_start\": 22, \"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "DAYS"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"DAYS\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The inspected queue branch compares WS-UPD-RECEIVED with Y and assigns a status. The scoped DAYS search is empty; no source date comparator and resulting update boundary are available to assess.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No temporal comparator and branch action at a source locus establish an early or late seven-day transition.",
+            "final_answer": "The clause sets a seven-day update limit, but the source branch only tests whether the update flag is Y and changes queue status. Without a date comparison, an early or late boundary error cannot be established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The inspected queue branch compares WS-UPD-RECEIVED with Y and assigns a status. The scoped DAYS search is empty; no source date comparator and resulting update boundary are available to assess.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No temporal comparator and branch action at a source locus establish an early or late seven-day transition.\",\"final_answer\":\"The clause sets a seven-day update limit, but the source branch only tests whether the update flag is Y and changes queue status. Without a date comparison, an early or late boundary error cannot be established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No temporal comparator and branch action at a source locus establish an early or late seven-day transition.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No temporal comparator and branch action at a source locus establish an early or late seven-day transition.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No temporal comparator and branch action at a source locus establish an early or late seven-day transition."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: KYCSYNC1.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSYNC1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 21, \"line_start\": 16, \"name\": \"1000-MAIN\"}, {\"line_end\": 27, \"line_start\": 22, \"name\": \"2000-QUEUE-UPLOAD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\59de7960e5709b4488ac6b41b70f9743a6dc3ea598474c4644bc0c2325506014\\\\cases\\\\drift_900000\\\\KYCSYNC1.cbl\", \"program\": \"KYCSYNC1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUST-ID\\n           ACCEPT WS-UPD-RECEIVED\\n           PERFORM 2000-QUEUE-UPLOAD\\n           DISPLAY 'QUEUE: ' WS-QUEUE-STATUS\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 21, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "name": "2000-QUEUE-UPLOAD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}], \"code\": \"       2000-QUEUE-UPLOAD.\\n           IF WS-UPD-RECEIVED = 'Y'\\n              MOVE 'QUEUED' TO WS-QUEUE-STATUS\\n           ELSE\\n              MOVE 'NOCHANGE' TO WS-QUEUE-STATUS\\n           END-IF.\", \"name\": \"2000-QUEUE-UPLOAD\", \"ref\": {\"line_end\": 27, \"line_start\": 22, \"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The program map contains 1000-MAIN and 2000-QUEUE-UPLOAD. The main paragraph performs the queue paragraph, whose observed caller is 1000-MAIN; the inspected branch is controlled by the received-update flag.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No unreachable paragraph or exact always-false/default-off compliance guard was established.",
+            "final_answer": "The clause requires a timely registry update. The observed main-to-queue flow is reachable, and no disabled compliance branch was identified, so D6 is unsupported.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The program map contains 1000-MAIN and 2000-QUEUE-UPLOAD. The main paragraph performs the queue paragraph, whose observed caller is 1000-MAIN; the inspected branch is controlled by the received-update flag.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No unreachable paragraph or exact always-false/default-off compliance guard was established.\",\"final_answer\":\"The clause requires a timely registry update. The observed main-to-queue flow is reachable, and no disabled compliance branch was identified, so D6 is unsupported.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No unreachable paragraph or exact always-false/default-off compliance guard was established.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No unreachable paragraph or exact always-false/default-off compliance guard was established.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No unreachable paragraph or exact always-false/default-off compliance guard was established."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: KYCSYNC1.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSYNC1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 21, \"line_start\": 16, \"name\": \"1000-MAIN\"}, {\"line_end\": 27, \"line_start\": 22, \"name\": \"2000-QUEUE-UPLOAD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\59de7960e5709b4488ac6b41b70f9743a6dc3ea598474c4644bc0c2325506014\\\\cases\\\\drift_900000\\\\KYCSYNC1.cbl\", \"program\": \"KYCSYNC1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC1",
+              "name": "2000-QUEUE-UPLOAD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC1\"}], \"code\": \"       2000-QUEUE-UPLOAD.\\n           IF WS-UPD-RECEIVED = 'Y'\\n              MOVE 'QUEUED' TO WS-QUEUE-STATUS\\n           ELSE\\n              MOVE 'NOCHANGE' TO WS-QUEUE-STATUS\\n           END-IF.\", \"name\": \"2000-QUEUE-UPLOAD\", \"ref\": {\"line_end\": 27, \"line_start\": 22, \"paragraph\": \"2000-QUEUE-UPLOAD\", \"program\": \"KYCSYNC1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "7"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"7\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The clause requires a seven-day update. The inspected queue flow only assigns queue status, and the scoped search for 7 returned no matches, so there is no positive literal/comparator evidence of conformance.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Positive source evidence matching the seven-day obligation is absent; absence cannot support a conformant verdict.",
+            "final_answer": "The clause requires a registry update within seven days. The source contains no matching deadline check or registry-update evidence, so conformance cannot be affirmed.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause requires a seven-day update. The inspected queue flow only assigns queue status, and the scoped search for 7 returned no matches, so there is no positive literal/comparator evidence of conformance.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Positive source evidence matching the seven-day obligation is absent; absence cannot support a conformant verdict.\",\"final_answer\":\"The clause requires a registry update within seven days. The source contains no matching deadline check or registry-update evidence, so conformance cannot be affirmed.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "Positive source evidence matching the seven-day obligation is absent; absence cannot support a conformant verdict.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: Positive source evidence matching the seven-day obligation is absent; absence cannot support a conformant verdict.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "Positive source evidence matching the seven-day obligation is absent; absence cannot support a conformant verdict."
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "No source threshold literal at a typed locus can be compared with the resolved 7-day value.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "005c9c39fd7f10da8654c2c2010153b36869a5cffdebf55d8f19dcd8539e210c",
+  "run_key": "1fe3312b8ce4933ed79f015ce5f01d85cc3b77c98ff6648ee5c0e5d1e88b36a3"
+}

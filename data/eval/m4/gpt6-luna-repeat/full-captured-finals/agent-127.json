@@ -1,0 +1,145 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "finding",
+        "thought": "The clause sets the grace threshold at three days, while the charge branch compares against ZERO.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": "LATEFEE1.cbl",
+                "line_span": [26, 26]
+              }
+            ],
+            "slice_vars": ["WS-DAYS-PAST-DUE"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 26,
+                "file": "LATEFEE1.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause resolves past_due_grace to 3 days with a strictly_greater comparator. In 2000-ASSESS, the charge branch uses WS-DAYS-PAST-DUE > ZERO, so the source threshold operand is ZERO rather than 3 and permits the charge too early."
+        },
+        "claim": "A card account may be reported past due or charged only when it is more than three days past due; days-past-due and late charges are computed from the payment due date.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "2000-ASSESS applies a late charge when WS-DAYS-PAST-DUE > ZERO. The clause permits a charge only after more than three days past due, so the implemented threshold is stale."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The charge branch is present, and the observed discrepancy is an existing conflicting threshold.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D2 requires an absent required outcome without a source action that positively conflicts. The source contains an active charge calculation branch, so absence is not established.",
+        "final_answer": "D2 requires an absent required outcome without a source action that positively conflicts. The source contains an active charge calculation branch, so absence is not established."
+      },
+      "D3_contradictory": {
+        "kind": "finding",
+        "thought": "The calculation uses Total Amount Due even though the source also accepts an outstanding amount.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "1000-MAIN",
+                "file": "LATEFEE1.cbl",
+                "line_span": [20, 20]
+              },
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": "LATEFEE1.cbl",
+                "line_span": [28, 28]
+              }
+            ],
+            "slice_vars": ["WS-OUTSTANDING-AMT", "WS-TOTAL-AMT-DUE"],
+            "is_interprocedural": true
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": "charge_base",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 28,
+                "file": "LATEFEE1.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause's charge_base leaf restricts late charges to the outstanding amount after the due date, not the Total Amount Due. 1000-MAIN accepts WS-OUTSTANDING-AMT, but 2000-ASSESS calculates WS-LATE-RATE * WS-TOTAL-AMT-DUE, which positively conflicts with that restriction."
+        },
+        "claim": "Late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "WS-TOTAL-AMT-DUE",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The source accepts WS-OUTSTANDING-AMT, then calculates the charge from WS-TOTAL-AMT-DUE. The clause requires charges to apply only to the outstanding amount after the due date, so this source behavior contradicts the clause."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied clause value is composite, with an enum-valued business-rule leaf.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only when the clause current_value itself is an enum_set reference collection; here the root current_value is composite.",
+        "final_answer": "D4 applies only when the clause current_value itself is an enum_set reference collection; here the root current_value is composite."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The source comparator is strict greater-than; the observed mismatch is the threshold operand.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied clause requires strictly greater than three days, and the source uses > ZERO. The evidence identifies a stale threshold value rather than a distinct comparator-boundary defect.",
+        "final_answer": "The supplied clause requires strictly greater than three days, and the source uses > ZERO. The evidence identifies a stale threshold value rather than a distinct comparator-boundary defect."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The assessment paragraph is called from the main paragraph and contains an active conditional.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observations show 2000-ASSESS called by 1000-MAIN and an active IF/ELSE branch; no unreachable paragraph or disabled compliance guard is evidenced.",
+        "final_answer": "The observations show 2000-ASSESS called by 1000-MAIN and an active IF/ELSE branch; no unreachable paragraph or disabled compliance guard is evidenced."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The observed source uses ZERO as the grace threshold and Total Amount Due as the charge base.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D7 requires positive source evidence that the implementation matches the clause. The observed threshold and charge base do not match the supplied values.",
+        "final_answer": "D7 requires positive source evidence that the implementation matches the clause. The observed threshold and charge base do not match the supplied values."
+      }
+    }
+  ]
+}

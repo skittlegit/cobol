@@ -1,0 +1,301 @@
+{
+  "instance_id": "drift_000008",
+  "gold": {
+    "instance_id": "drift_000008",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT1",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            17,
+            18
+          ]
+        },
+        {
+          "program": "BOIDENT1",
+          "paragraph": "2000-IDENTIFY-BO",
+          "file": null,
+          "line_span": [
+            26,
+            30
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAPITAL-PCT",
+        "WS-PROFIT-PCT",
+        "WS-BO-THRESHOLD",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "BOIDENT1",
+          "line": 18,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 5(iv)(b) lowers the threshold to strictly_greater 10 percent (per the 2023-10-17 amendment). BOIDENT1 (byte-identical to the 2016-clause candidate) still declares WS-BO-THRESHOLD VALUE 15.00 (line 18) and compares against 15, not 10 -- a stale threshold value.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "BOIDENT1.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_000008",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT1",
+          "paragraph": null,
+          "file": "BOIDENT1.cbl",
+          "line_span": [
+            18,
+            18
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-BO-THRESHOLD"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "BOIDENT1",
+          "line": 18,
+          "file": "BOIDENT1.cbl"
+        }
+      ]
+    },
+    "rationale": "BOIDENT1.cbl line 18 declares WS-BO-THRESHOLD as 15.00, but the selected clause requires ownership of or entitlement to more than 10 percent of capital or profits. The visible declaration is stale; its downstream use is not shown."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "BOIDENT1:BOIDENT1.cbl — literal '15.00' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9941,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "BOIDENT1:BOIDENT1.cbl — literal '15.00' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"score\":0.9192063751120164}],\"program\":\"FILE BOIDENT1.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. BOIDENT1.\\n0003:       *----------------------------------------------------------------\\n0004:       * BENEFICIAL OWNER IDENTIFICATION - PARTNERSHIP FIRMS\\n0005:       * REF: KYC MD 2016 SEC 3(A)(IV)(B) - NATURAL PERSON WITH\\n0006:       * OWNERSHIP/ENTITLEMENT OF MORE THAN 15 PER CENT OF CAPITAL\\n0007:       * OR PROFITS OF THE PARTNERSHIP\\n0008:       *----------------------------------------------------------------\\n0009:        ENVIRONMENT DIVISION.\\n0010:        DATA DIVISION.\\n0011:        WORKING-STORAGE SECTION.\\n0012:        01  WS-PARTNER-REC.\\n0013:            05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\\n0014:            05  WS-PROFIT-PCT         PIC 9(3)V99 VALUE ZERO.\\n0015:        01  WS-FLAGS.\\n0016:            05  WS-IS-BO              PIC X(1) VALUE 'N'.\\n0017:        01  WS-CONSTANTS.\\n0018:            05  WS-BO-THRESHOLD       PIC 9(3)V99 VALUE 15.00.\\n0019:        PROCEDURE DIVISION.\\n0020:        1000-MAIN.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The visible threshold declaration is 15.00, while the retrieved clause sets the partnership threshold at more than 10 percent. The declaration is a stale threshold setting.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_000008",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "BOIDENT1",
+                "paragraph": null,
+                "file": "BOIDENT1.cbl",
+                "line_span": [
+                  18,
+                  18
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-BO-THRESHOLD"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "BOIDENT1",
+                "line": 18,
+                "file": "BOIDENT1.cbl"
+              }
+            ]
+          },
+          "rationale": "BOIDENT1.cbl line 18 declares WS-BO-THRESHOLD as 15.00, but the selected clause requires ownership of or entitlement to more than 10 percent of capital or profits. The visible declaration is stale; its downstream use is not shown."
+        },
+        "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "15.00",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "BOIDENT1.cbl line 18 declares a 15.00 threshold, while the selected clause sets the partnership beneficial-owner threshold at more than 10 percent. This is a stale threshold declaration; the visible excerpt does not show its downstream use.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible threshold declaration is 15.00, while the retrieved clause sets the partnership threshold at more than 10 percent. The declaration is a stale threshold setting.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"BOIDENT1\",\"paragraph\":null,\"file\":\"BOIDENT1.cbl\",\"line_span\":[18,18]}],\"slice_vars\":[\"WS-BO-THRESHOLD\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"BOIDENT1\",\"line\":18,\"file\":\"BOIDENT1.cbl\"}]},\"rationale\":\"BOIDENT1.cbl line 18 declares WS-BO-THRESHOLD as 15.00, but the selected clause requires ownership of or entitlement to more than 10 percent of capital or profits. The visible declaration is stale; its downstream use is not shown.\"},\"claim\":\"For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15.00\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"BOIDENT1.cbl line 18 declares a 15.00 threshold, while the selected clause sets the partnership beneficial-owner threshold at more than 10 percent. This is a stale threshold declaration; the visible excerpt does not show its downstream use.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "BOIDENT1:BOIDENT1.cbl — literal '15.00' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9941,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "BOIDENT1:BOIDENT1.cbl — literal '15.00' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_000008",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "5(iv)(b)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "current_value": {
+          "kind": "percentage",
+          "value": 10,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "BOIDENT1",
+            "paragraph": null,
+            "file": "BOIDENT1.cbl",
+            "line_span": [
+              18,
+              18
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-BO-THRESHOLD"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "BOIDENT1",
+            "line": 18,
+            "file": "BOIDENT1.cbl"
+          }
+        ]
+      },
+      "rationale": "BOIDENT1.cbl line 18 declares WS-BO-THRESHOLD as 15.00, but the selected clause requires ownership of or entitlement to more than 10 percent of capital or profits. The visible declaration is stale; its downstream use is not shown."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "BOIDENT1.cbl line 18 declares a 15.00 threshold, while the selected clause sets the partnership beneficial-owner threshold at more than 10 percent. This is a stale threshold declaration; the visible excerpt does not show its downstream use.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "5a93d9b3e2681c3c69e304ed82c55184b22a2e21246765e1db6c4940e5f65e7c",
+  "run_key": "1ac965fc393af080cf660bc8ef60732d402dcdf0c65650e20053855c230d8570"
+}

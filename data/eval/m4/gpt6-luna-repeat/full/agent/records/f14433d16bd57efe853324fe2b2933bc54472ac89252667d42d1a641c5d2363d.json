@@ -1,0 +1,1366 @@
+{
+  "instance_id": "drift_629034",
+  "gold": {
+    "instance_id": "drift_629034",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "31",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "cutoff": {
+            "kind": "formula",
+            "value": "min(0.01 * credit_limit, 5000_inr)",
+            "comparator": null,
+            "note": null
+          },
+          "consent_window": {
+            "kind": "duration_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "reversal_window": {
+            "kind": "duration_working_days",
+            "value": 3,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "REFADJ2",
+          "paragraph": "2000-CUTOFF",
+          "file": null,
+          "line_span": [
+            21,
+            21
+          ]
+        },
+        {
+          "program": "REFADJ2",
+          "paragraph": null,
+          "file": "WSCUTOFF.cpy",
+          "line_span": [
+            4,
+            4
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CUTOFF",
+        "WS-REFUND-AMT"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "cutoff",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "REFADJ2",
+          "line": 4,
+          "file": "WSCUTOFF.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-1× changes '5000' to '6000' at REFADJ2:2000-CUTOFF:21-21+REFADJ2:WSCUTOFF.cpy:4-4, producing D1_stale_threshold.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "REFADJ2.cbl",
+      "mutation": "MO-1×; locus=REFADJ2:2000-CUTOFF:21-21+REFADJ2:WSCUTOFF.cpy:4-4; old='5000'; new='6000'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: REFADJ2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 31 (version 2025-11-28, effective 2025-11-28): Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\nComposite current-value leaves (select one exact target_path):\n- target_path=cutoff: kind=formula, value=\"min(0.01 * credit_limit, 5000_inr)\", comparator=none\n- target_path=consent_window: kind=duration_days, value=7, comparator=at_most\n- target_path=reversal_window: kind=duration_working_days, value=3, comparator=at_most",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "REFADJ2"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 13, \"name\": \"1000-MAIN\"}, {\"line_end\": 28, \"line_start\": 19, \"name\": \"2000-CUTOFF\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\728342c745266bc4772022d2d3ab8e691099f437ed21cc9d548c5f5d8a6eb60a\\\\cases\\\\drift_900000\\\\REFADJ2.cbl\", \"program\": \"REFADJ2\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "REFADJ2",
+          "name": "2000-CUTOFF"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}], \"code\": \"       2000-CUTOFF.\\n           COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * WS-CUTOFF-PCT\\n           IF WS-CUTOFF > WS-CUTOFF-CAP\\n              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\\n           END-IF\\n           IF WS-REFUND-AMT > WS-CUTOFF\\n              MOVE 'CONSENT' TO WS-ACTION\\n           ELSE\\n              MOVE 'ADJUST' TO WS-ACTION\\n           END-IF.\", \"name\": \"2000-CUTOFF\", \"ref\": {\"line_end\": 28, \"line_start\": 19, \"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "CUTOFF"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 3, \"program\": \"REFADJ2\", \"text\": \"      * REFUND ADJUSTMENT - CUTOFF CONSTANTS FROM WSCUTOFF COPYBOOK\"}, {\"line\": 7, \"program\": \"REFADJ2\", \"text\": \"       COPY WSCUTOFF.\"}, {\"line\": 10, \"program\": \"REFADJ2\", \"text\": \"       01  WS-CUTOFF                 PIC 9(7)V99 VALUE ZERO.\"}, {\"line\": 16, \"program\": \"REFADJ2\", \"text\": \"           PERFORM 2000-CUTOFF\"}, {\"line\": 19, \"program\": \"REFADJ2\", \"text\": \"       2000-CUTOFF.\"}, {\"line\": 20, \"program\": \"REFADJ2\", \"text\": \"           COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * WS-CUTOFF-PCT\"}, {\"line\": 21, \"program\": \"REFADJ2\", \"text\": \"           IF WS-CUTOFF > WS-CUTOFF-CAP\"}, {\"line\": 22, \"program\": \"REFADJ2\", \"text\": \"              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\"}, {\"line\": 24, \"program\": \"REFADJ2\", \"text\": \"           IF WS-REFUND-AMT > WS-CUTOFF\"}, {\"line\": 1, \"program\": \"WSCUTOFF\", \"text\": \"      * REFUND-ADJUSTMENT CUTOFF CONSTANTS (SHARED CONFIG)\"}, {\"line\": 2, \"program\": \"WSCUTOFF\", \"text\": \"       01  WS-CUTOFF-CONFIG.\"}, {\"line\": 3, \"program\": \"WSCUTOFF\", \"text\": \"           05  WS-CUTOFF-PCT         PIC V99 VALUE .01.\"}, {\"line\": 4, \"program\": \"WSCUTOFF\", \"text\": \"           05  WS-CUTOFF-CAP         PIC 9(5) VALUE 6000.\"}], \"pattern\": \"CUTOFF\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "resolve_copybook",
+        "arguments": {
+          "name": "WSCUTOFF"
+        },
+        "observation_summary": "{\"line_map\": [{\"expanded_end\": 5, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\728342c745266bc4772022d2d3ab8e691099f437ed21cc9d548c5f5d8a6eb60a\\\\cases\\\\drift_900000\\\\WSCUTOFF.cpy\", \"source_line_start\": 1}], \"name\": \"WSCUTOFF\", \"text\": \"      * REFUND-ADJUSTMENT CUTOFF CONSTANTS (SHARED CONFIG)\\n       01  WS-CUTOFF-CONFIG.\\n           05  WS-CUTOFF-PCT         PIC V99 VALUE .01.\\n           05  WS-CUTOFF-CAP         PIC 9(5) VALUE 6000.\\n           05  WS-CONSENT-WINDOW     PIC 9(2) VALUE 7.\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The supplied cutoff leaf is min(1% of credit limit, Rs 5,000), while the source copybook provides a 6,000 cap used by the cutoff paragraph.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=2]",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_629034",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "31",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "cutoff": {
+                  "kind": "formula",
+                  "value": "min(0.01 * credit_limit, 5000_inr)",
+                  "comparator": null,
+                  "note": null
+                },
+                "consent_window": {
+                  "kind": "duration_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "reversal_window": {
+                  "kind": "duration_working_days",
+                  "value": 3,
+                  "comparator": "at_most",
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "REFADJ2",
+                "paragraph": "2000-CUTOFF",
+                "file": null,
+                "line_span": [
+                  20,
+                  22
+                ]
+              },
+              {
+                "program": "REFADJ2",
+                "paragraph": null,
+                "file": "WSCUTOFF.cpy",
+                "line_span": [
+                  4,
+                  4
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CUTOFF",
+              "WS-CUTOFF-CAP"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "cutoff",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "REFADJ2",
+                "line": 4,
+                "file": "WSCUTOFF.cpy"
+              },
+              {
+                "program": "REFADJ2",
+                "line": 21,
+                "file": null
+              },
+              {
+                "program": "REFADJ2",
+                "line": 22,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "Clause 31's cutoff leaf is the lower of 1% of the credit limit and Rs 5,000. REFADJ2 computes the percentage and clamps it at the WSCUTOFF literal 6000, so its threshold can exceed the clause's cap."
+        },
+        "claim": "Explicit consent is required to adjust the specified paid credits above the lower of 1% of the credit limit or Rs 5,000.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "6000",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Clause 31 caps the no-consent adjustment threshold at the lower of 1% of the credit limit or Rs 5,000. REFADJ2 computes the percentage but clamps at WSCUTOFF's 6,000 value, so its cutoff can exceed the clause's cap.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The supplied cutoff leaf is min(1% of credit limit, Rs 5,000), while the source copybook provides a 6,000 cap used by the cutoff paragraph.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"REFADJ2\",\"paragraph\":\"2000-CUTOFF\",\"file\":\"REFADJ2.cbl\",\"line_span\":[20,22]},{\"program\":\"REFADJ2\",\"paragraph\":null,\"file\":\"WSCUTOFF.cpy\",\"line_span\":[4,4]}],\"slice_vars\":[\"WS-CUTOFF\",\"WS-CUTOFF-CAP\"],\"is_interprocedural\":true},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"cutoff\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"REFADJ2\",\"line\":4,\"file\":\"WSCUTOFF.cpy\"},{\"program\":\"REFADJ2\",\"line\":21,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":22,\"file\":\"REFADJ2.cbl\"}]},\"rationale\":\"Clause 31's cutoff leaf is the lower of 1% of the credit limit and Rs 5,000. REFADJ2 computes the percentage and clamps it at the WSCUTOFF literal 6000, so its threshold can exceed the clause's cap.\"},\"claim\":\"Explicit consent is required to adjust the specified paid credits above the lower of 1% of the credit limit or Rs 5,000.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"6000\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Clause 31 caps the no-consent adjustment threshold at the lower of 1% of the credit limit or Rs 5,000. REFADJ2 computes the percentage but clamps at WSCUTOFF's 6,000 value, so its cutoff can exceed the clause's cap.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "policy evidence guard: D1 rationale must compare against the current target value",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: policy evidence guard: D1 rationale must compare against the current target value",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: REFADJ2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 31 (version 2025-11-28, effective 2025-11-28): Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\nComposite current-value leaves (select one exact target_path):\n- target_path=cutoff: kind=formula, value=\"min(0.01 * credit_limit, 5000_inr)\", comparator=none\n- target_path=consent_window: kind=duration_days, value=7, comparator=at_most\n- target_path=reversal_window: kind=duration_working_days, value=3, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "REFADJ2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 13, \"name\": \"1000-MAIN\"}, {\"line_end\": 28, \"line_start\": 19, \"name\": \"2000-CUTOFF\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\728342c745266bc4772022d2d3ab8e691099f437ed21cc9d548c5f5d8a6eb60a\\\\cases\\\\drift_900000\\\\REFADJ2.cbl\", \"program\": \"REFADJ2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "REFADJ2",
+              "name": "2000-CUTOFF"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}], \"code\": \"       2000-CUTOFF.\\n           COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * WS-CUTOFF-PCT\\n           IF WS-CUTOFF > WS-CUTOFF-CAP\\n              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\\n           END-IF\\n           IF WS-REFUND-AMT > WS-CUTOFF\\n              MOVE 'CONSENT' TO WS-ACTION\\n           ELSE\\n              MOVE 'ADJUST' TO WS-ACTION\\n           END-IF.\", \"name\": \"2000-CUTOFF\", \"ref\": {\"line_end\": 28, \"line_start\": 19, \"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "CUTOFF"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 3, \"program\": \"REFADJ2\", \"text\": \"      * REFUND ADJUSTMENT - CUTOFF CONSTANTS FROM WSCUTOFF COPYBOOK\"}, {\"line\": 7, \"program\": \"REFADJ2\", \"text\": \"       COPY WSCUTOFF.\"}, {\"line\": 10, \"program\": \"REFADJ2\", \"text\": \"       01  WS-CUTOFF                 PIC 9(7)V99 VALUE ZERO.\"}, {\"line\": 16, \"program\": \"REFADJ2\", \"text\": \"           PERFORM 2000-CUTOFF\"}, {\"line\": 19, \"program\": \"REFADJ2\", \"text\": \"       2000-CUTOFF.\"}, {\"line\": 20, \"program\": \"REFADJ2\", \"text\": \"           COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * WS-CUTOFF-PCT\"}, {\"line\": 21, \"program\": \"REFADJ2\", \"text\": \"           IF WS-CUTOFF > WS-CUTOFF-CAP\"}, {\"line\": 22, \"program\": \"REFADJ2\", \"text\": \"              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\"}, {\"line\": 24, \"program\": \"REFADJ2\", \"text\": \"           IF WS-REFUND-AMT > WS-CUTOFF\"}, {\"line\": 1, \"program\": \"WSCUTOFF\", \"text\": \"      * REFUND-ADJUSTMENT CUTOFF CONSTANTS (SHARED CONFIG)\"}, {\"line\": 2, \"program\": \"WSCUTOFF\", \"text\": \"       01  WS-CUTOFF-CONFIG.\"}, {\"line\": 3, \"program\": \"WSCUTOFF\", \"text\": \"           05  WS-CUTOFF-PCT         PIC V99 VALUE .01.\"}, {\"line\": 4, \"program\": \"WSCUTOFF\", \"text\": \"           05  WS-CUTOFF-CAP         PIC 9(5) VALUE 6000.\"}], \"pattern\": \"CUTOFF\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "resolve_copybook",
+            "arguments": {
+              "name": "WSCUTOFF"
+            },
+            "observation_summary": "{\"line_map\": [{\"expanded_end\": 5, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\728342c745266bc4772022d2d3ab8e691099f437ed21cc9d548c5f5d8a6eb60a\\\\cases\\\\drift_900000\\\\WSCUTOFF.cpy\", \"source_line_start\": 1}], \"name\": \"WSCUTOFF\", \"text\": \"      * REFUND-ADJUSTMENT CUTOFF CONSTANTS (SHARED CONFIG)\\n       01  WS-CUTOFF-CONFIG.\\n           05  WS-CUTOFF-PCT         PIC V99 VALUE .01.\\n           05  WS-CUTOFF-CAP         PIC 9(5) VALUE 6000.\\n           05  WS-CONSENT-WINDOW     PIC 9(2) VALUE 7.\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The supplied cutoff leaf is min(1% of credit limit, Rs 5,000), while the source copybook provides a 6,000 cap used by the cutoff paragraph.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=2]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_629034",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "31",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "cutoff": {
+                      "kind": "formula",
+                      "value": "min(0.01 * credit_limit, 5000_inr)",
+                      "comparator": null,
+                      "note": null
+                    },
+                    "consent_window": {
+                      "kind": "duration_days",
+                      "value": 7,
+                      "comparator": "at_most",
+                      "note": null
+                    },
+                    "reversal_window": {
+                      "kind": "duration_working_days",
+                      "value": 3,
+                      "comparator": "at_most",
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "REFADJ2",
+                    "paragraph": "2000-CUTOFF",
+                    "file": null,
+                    "line_span": [
+                      20,
+                      22
+                    ]
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "paragraph": null,
+                    "file": "WSCUTOFF.cpy",
+                    "line_span": [
+                      4,
+                      4
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-CUTOFF",
+                  "WS-CUTOFF-CAP"
+                ],
+                "is_interprocedural": true
+              },
+              "drift_type": "D1_stale_threshold",
+              "target_path": "cutoff",
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "REFADJ2",
+                    "line": 4,
+                    "file": "WSCUTOFF.cpy"
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 21,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 22,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "Clause 31's cutoff leaf is the lower of 1% of the credit limit and Rs 5,000. REFADJ2 computes the percentage and clamps it at the WSCUTOFF literal 6000, so its threshold can exceed the clause's cap."
+            },
+            "claim": "Explicit consent is required to adjust the specified paid credits above the lower of 1% of the credit limit or Rs 5,000.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "6000",
+              "comparator": null,
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "Clause 31 caps the no-consent adjustment threshold at the lower of 1% of the credit limit or Rs 5,000. REFADJ2 computes the percentage but clamps at WSCUTOFF's 6,000 value, so its cutoff can exceed the clause's cap.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The supplied cutoff leaf is min(1% of credit limit, Rs 5,000), while the source copybook provides a 6,000 cap used by the cutoff paragraph.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"REFADJ2\",\"paragraph\":\"2000-CUTOFF\",\"file\":\"REFADJ2.cbl\",\"line_span\":[20,22]},{\"program\":\"REFADJ2\",\"paragraph\":null,\"file\":\"WSCUTOFF.cpy\",\"line_span\":[4,4]}],\"slice_vars\":[\"WS-CUTOFF\",\"WS-CUTOFF-CAP\"],\"is_interprocedural\":true},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"cutoff\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"REFADJ2\",\"line\":4,\"file\":\"WSCUTOFF.cpy\"},{\"program\":\"REFADJ2\",\"line\":21,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":22,\"file\":\"REFADJ2.cbl\"}]},\"rationale\":\"Clause 31's cutoff leaf is the lower of 1% of the credit limit and Rs 5,000. REFADJ2 computes the percentage and clamps it at the WSCUTOFF literal 6000, so its threshold can exceed the clause's cap.\"},\"claim\":\"Explicit consent is required to adjust the specified paid credits above the lower of 1% of the credit limit or Rs 5,000.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"6000\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Clause 31 caps the no-consent adjustment threshold at the lower of 1% of the credit limit or Rs 5,000. REFADJ2 computes the percentage but clamps at WSCUTOFF's 6,000 value, so its cutoff can exceed the clause's cap.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: D1 rationale must compare against the current target value",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: D1 rationale must compare against the current target value",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: D1 rationale must compare against the current target value"
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": {
+        "verified": true,
+        "tier": 3,
+        "evidence": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 31 entails the claim (P=0.9961, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)",
+        "citation_ok": true,
+        "entailment_probability": 0.9961,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "unavailable",
+            "detail": "no static claim; Tier-2 not applicable to this finding"
+          },
+          {
+            "tier": 3,
+            "outcome": "verified",
+            "detail": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 31 entails the claim (P=0.9961, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)"
+          }
+        ]
+      },
+      "verification_tier": 3,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: REFADJ2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 31 (version 2025-11-28, effective 2025-11-28): Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\nComposite current-value leaves (select one exact target_path):\n- target_path=cutoff: kind=formula, value=\"min(0.01 * credit_limit, 5000_inr)\", comparator=none\n- target_path=consent_window: kind=duration_days, value=7, comparator=at_most\n- target_path=reversal_window: kind=duration_working_days, value=3, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "REFADJ2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CREDIT-LIMIT\\n           ACCEPT WS-REFUND-AMT\\n           PERFORM 2000-CUTOFF\\n           DISPLAY 'ACTION: ' WS-ACTION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-CONSENT-WINDOW"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 5, \"program\": \"WSCUTOFF\", \"text\": \"           05  WS-CONSENT-WINDOW     PIC 9(2) VALUE 7.\"}], \"pattern\": \"WS-CONSENT-WINDOW\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "REFADJ2",
+              "para": "2000-CUTOFF"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 4,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "REFADJ2",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[{\"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 5,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-CONSENT-WINDOW",
+              "program": "REFADJ2"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [], \"scoped_program\": \"REFADJ2\", \"statements\": [], \"variable\": \"WS-CONSENT-WINDOW\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 6,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "REFADJ2",
+              "name": "2000-CUTOFF"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}], \"code\": \"       2000-CUTOFF.\\n           COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * WS-CUTOFF-PCT\\n           IF WS-CUTOFF > WS-CUTOFF-CAP\\n              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\\n           END-IF\\n           IF WS-REFUND-AMT > WS-CUTOFF\\n              MOVE 'CONSENT' TO WS-ACTION\\n           ELSE\\n              MOVE 'ADJUST' TO WS-ACTION\\n           END-IF.\", \"name\": \"2000-CUTOFF\", \"ref\": {\"line_end\": 28, \"line_start\": 19, \"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 7,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "REVERSAL"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"REVERSAL\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 8,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-REVERSAL",
+              "program": "REFADJ2"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [], \"scoped_program\": \"REFADJ2\", \"statements\": [], \"variable\": \"WS-REVERSAL\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The main flow reaches a cutoff decision and displays its action, but the supplied rule also requires a request-triggered bank-account reversal within three working days. The scoped reversal search and slice show no such source path.\n[policy telemetry: SourceLocus.file normalized; loci=2; line_refs=7]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_629034",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "31",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "cutoff": {
+                      "kind": "formula",
+                      "value": "min(0.01 * credit_limit, 5000_inr)",
+                      "comparator": null,
+                      "note": null
+                    },
+                    "consent_window": {
+                      "kind": "duration_days",
+                      "value": 7,
+                      "comparator": "at_most",
+                      "note": null
+                    },
+                    "reversal_window": {
+                      "kind": "duration_working_days",
+                      "value": 3,
+                      "comparator": "at_most",
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "REFADJ2",
+                    "paragraph": "1000-MAIN",
+                    "file": null,
+                    "line_span": [
+                      14,
+                      17
+                    ]
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "paragraph": "2000-CUTOFF",
+                    "file": null,
+                    "line_span": [
+                      24,
+                      27
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-REVERSAL"
+                ],
+                "is_interprocedural": true
+              },
+              "drift_type": "D2_missing_rule",
+              "target_path": "reversal_window",
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "REFADJ2",
+                    "line": 14,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 15,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 16,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 17,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 24,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 25,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 27,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "Clause 31 requires a bank-account reversal within 3 working days when the cardholder requests it. The main flow accepts only the credit limit and refund amount, then runs 2000-CUTOFF; that paragraph chooses CONSENT or ADJUST. The REVERSAL grep and WS-REVERSAL slice are empty, so the required outcome is absent and no contrary reversal action is shown."
+            },
+            "claim": "On a cardholder's request, reversal to the bank account is required within 3 working days.",
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": null,
+            "final_answer": "Clause 31 requires a bank-account reversal within 3 working days when the cardholder requests it. REFADJ2's main flow accepts the credit limit and refund amount, runs 2000-CUTOFF, then displays an action; that paragraph selects CONSENT or ADJUST. The scoped REVERSAL grep and WS-REVERSAL slice return no matches or statements, leaving the requested reversal outcome absent.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The main flow reaches a cutoff decision and displays its action, but the supplied rule also requires a request-triggered bank-account reversal within three working days. The scoped reversal search and slice show no such source path.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"REFADJ2\",\"paragraph\":\"1000-MAIN\",\"file\":\"REFADJ2.cbl\",\"line_span\":[14,17]},{\"program\":\"REFADJ2\",\"paragraph\":\"2000-CUTOFF\",\"file\":\"REFADJ2.cbl\",\"line_span\":[24,27]}],\"slice_vars\":[\"WS-REVERSAL\"],\"is_interprocedural\":true},\"drift_type\":\"D2_missing_rule\",\"target_path\":\"reversal_window\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"REFADJ2\",\"line\":14,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":15,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":16,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":17,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":24,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":25,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":27,\"file\":\"REFADJ2.cbl\"}]},\"rationale\":\"Clause 31 requires a bank-account reversal within 3 working days when the cardholder requests it. The main flow accepts only the credit limit and refund amount, then runs 2000-CUTOFF; that paragraph chooses CONSENT or ADJUST. The REVERSAL grep and WS-REVERSAL slice are empty, so the required outcome is absent and no contrary reversal action is shown.\"},\"claim\":\"On a cardholder's request, reversal to the bank account is required within 3 working days.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":null,\"final_answer\":\"Clause 31 requires a bank-account reversal within 3 working days when the cardholder requests it. REFADJ2's main flow accepts the credit limit and refund amount, runs 2000-CUTOFF, then displays an action; that paragraph selects CONSENT or ADJUST. The scoped REVERSAL grep and WS-REVERSAL slice return no matches or statements, leaving the requested reversal outcome absent.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 3,
+          "evidence": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 31 entails the claim (P=0.9961, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)",
+          "citation_ok": true,
+          "entailment_probability": 0.9961,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "unavailable",
+              "detail": "no static claim; Tier-2 not applicable to this finding"
+            },
+            {
+              "tier": 3,
+              "outcome": "verified",
+              "detail": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 31 entails the claim (P=0.9961, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)"
+            }
+          ]
+        },
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy result guard: Tier-3-only finding lacks required Tier-2 code-fact verification",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy result guard: Tier-3-only finding lacks required Tier-2 code-fact verification",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy result guard: Tier-3-only finding lacks required Tier-2 code-fact verification"
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: REFADJ2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 31 (version 2025-11-28, effective 2025-11-28): Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\nComposite current-value leaves (select one exact target_path):\n- target_path=cutoff: kind=formula, value=\"min(0.01 * credit_limit, 5000_inr)\", comparator=none\n- target_path=consent_window: kind=duration_days, value=7, comparator=at_most\n- target_path=reversal_window: kind=duration_working_days, value=3, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "REFADJ2",
+              "name": "2000-CUTOFF"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}], \"code\": \"       2000-CUTOFF.\\n           COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * WS-CUTOFF-PCT\\n           IF WS-CUTOFF > WS-CUTOFF-CAP\\n              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\\n           END-IF\\n           IF WS-REFUND-AMT > WS-CUTOFF\\n              MOVE 'CONSENT' TO WS-ACTION\\n           ELSE\\n              MOVE 'ADJUST' TO WS-ACTION\\n           END-IF.\", \"name\": \"2000-CUTOFF\", \"ref\": {\"line_end\": 28, \"line_start\": 19, \"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-REFUND-AMT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"REFADJ2\", \"text\": \"       01  WS-REFUND-AMT             PIC 9(7)V99 VALUE ZERO.\"}, {\"line\": 15, \"program\": \"REFADJ2\", \"text\": \"           ACCEPT WS-REFUND-AMT\"}, {\"line\": 24, \"program\": \"REFADJ2\", \"text\": \"           IF WS-REFUND-AMT > WS-CUTOFF\"}], \"pattern\": \"WS-REFUND-AMT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-CUTOFF",
+              "program": "REFADJ2"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}, {\"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}], \"scoped_program\": \"REFADJ2\", \"statements\": [{\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"REFADJ2\"}, \"text\": \"01  WS-CREDIT-LIMIT           PIC 9(9)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 10, \"line_start\": 10, \"paragraph\": null, \"program\": \"REFADJ2\"}, \"text\": \"01  WS-CUTOFF                 PIC 9(7)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 14, \"line_start\": 14, \"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}, \"text\": \"ACCEPT WS-CREDIT-LIMIT\"}, {\"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}, \"text\": \"PERFORM 2000-CUTOFF\"}, {\"ref\": {\"line_end\": 20, \"line_start\": 20, \"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}, \"text\": \"COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * WS-CUTOFF-PCT\"}, {\"ref\": {\"line_end\": 22, \"line_start\": 21, \"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}, \"text\": \"IF WS-CUTOFF > WS-CUTOFF-CAP\\n              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\"}, {\"ref\": {\"line_end\": 22, \"line_start\": 22, \"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}, \"text\": \"MOVE WS-CUTOFF-CAP TO WS-CUTOFF\"}], \"variable\": \"WS-CUTOFF\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The 6,000 cap can make the code authorize an adjustment above the supplied Rs 5,000 cutoff.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=5]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_629034",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "31",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "cutoff": {
+                      "kind": "formula",
+                      "value": "min(0.01 * credit_limit, 5000_inr)",
+                      "comparator": null,
+                      "note": null
+                    },
+                    "consent_window": {
+                      "kind": "duration_days",
+                      "value": 7,
+                      "comparator": "at_most",
+                      "note": null
+                    },
+                    "reversal_window": {
+                      "kind": "duration_working_days",
+                      "value": 3,
+                      "comparator": "at_most",
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "REFADJ2",
+                    "paragraph": "2000-CUTOFF",
+                    "file": null,
+                    "line_span": [
+                      21,
+                      27
+                    ]
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "paragraph": null,
+                    "file": "WSCUTOFF.cpy",
+                    "line_span": [
+                      4,
+                      4
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-CUTOFF",
+                  "WS-REFUND-AMT",
+                  "WS-ACTION"
+                ],
+                "is_interprocedural": true
+              },
+              "drift_type": "D3_contradictory",
+              "target_path": "cutoff",
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "REFADJ2",
+                    "line": 4,
+                    "file": "WSCUTOFF.cpy"
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 21,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 22,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 24,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 25,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 27,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "At a Rs 600,000 credit limit, 1% is Rs 6,000 and the source cap leaves that threshold at Rs 6,000. A Rs 5,500 adjustment does not satisfy the source `>` test and takes ADJUST, although it exceeds clause 31's Rs 5,000 cutoff."
+            },
+            "claim": "Explicit consent is required to adjust the specified paid credits above the lower of 1% of the credit limit or Rs 5,000.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "6000",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "Clause 31 requires consent above the lower of 1% of the limit or Rs 5,000. With a Rs 600,000 limit, REFADJ2 clamps the cutoff at Rs 6,000 and sends a Rs 5,500 adjustment through ADJUST, contradicting the required consent threshold.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The 6,000 cap can make the code authorize an adjustment above the supplied Rs 5,000 cutoff.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"REFADJ2\",\"paragraph\":\"2000-CUTOFF\",\"file\":\"REFADJ2.cbl\",\"line_span\":[21,27]},{\"program\":\"REFADJ2\",\"paragraph\":null,\"file\":\"WSCUTOFF.cpy\",\"line_span\":[4,4]}],\"slice_vars\":[\"WS-CUTOFF\",\"WS-REFUND-AMT\",\"WS-ACTION\"],\"is_interprocedural\":true},\"drift_type\":\"D3_contradictory\",\"target_path\":\"cutoff\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"REFADJ2\",\"line\":4,\"file\":\"WSCUTOFF.cpy\"},{\"program\":\"REFADJ2\",\"line\":21,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":22,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":24,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":25,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":27,\"file\":\"REFADJ2.cbl\"}]},\"rationale\":\"At a Rs 600,000 credit limit, 1% is Rs 6,000 and the source cap leaves that threshold at Rs 6,000. A Rs 5,500 adjustment does not satisfy the source `>` test and takes ADJUST, although it exceeds clause 31's Rs 5,000 cutoff.\"},\"claim\":\"Explicit consent is required to adjust the specified paid credits above the lower of 1% of the credit limit or Rs 5,000.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"6000\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Clause 31 requires consent above the lower of 1% of the limit or Rs 5,000. With a Rs 600,000 limit, REFADJ2 clamps the cutoff at Rs 6,000 and sends a Rs 5,500 adjustment through ADJUST, contradicting the required consent threshold.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: static-claim source-token validator: literal '6000' is not an exact substring of any source-bearing observation bound to the claimed loci; required tool evidence missing: 2 read_paragraph calls (one per unique D3 paragraph); D3 rationale must name the conflicting outcomes",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: static-claim source-token validator: literal '6000' is not an exact substring of any source-bearing observation bound to the claimed loci; required tool evidence missing: 2 read_paragraph calls (one per unique D3 paragraph); D3 rationale must name the conflicting outcomes",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: static-claim source-token validator: literal '6000' is not an exact substring of any source-bearing observation bound to the claimed loci; required tool evidence missing: 2 read_paragraph calls (one per unique D3 paragraph); D3 rationale must name the conflicting outcomes"
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: REFADJ2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 31 (version 2025-11-28, effective 2025-11-28): Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\nComposite current-value leaves (select one exact target_path):\n- target_path=cutoff: kind=formula, value=\"min(0.01 * credit_limit, 5000_inr)\", comparator=none\n- target_path=consent_window: kind=duration_days, value=7, comparator=at_most\n- target_path=reversal_window: kind=duration_working_days, value=3, comparator=at_most",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current_value is composite and has no enum_set reference collection for D4 to compare.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only to enum_set reference collections; the supplied clause has a composite value with formula and duration leaves.",
+            "final_answer": "Abstain: the clause's current_value is composite, not an enum_set reference collection, so D4 has no enumeration to compare.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current_value is composite and has no enum_set reference collection for D4 to compare.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only to enum_set reference collections; the supplied clause has a composite value with formula and duration leaves.\",\"final_answer\":\"Abstain: the clause's current_value is composite, not an enum_set reference collection, so D4 has no enumeration to compare.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: REFADJ2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 31 (version 2025-11-28, effective 2025-11-28): Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\nComposite current-value leaves (select one exact target_path):\n- target_path=cutoff: kind=formula, value=\"min(0.01 * credit_limit, 5000_inr)\", comparator=none\n- target_path=consent_window: kind=duration_days, value=7, comparator=at_most\n- target_path=reversal_window: kind=duration_working_days, value=3, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "REFADJ2",
+              "name": "2000-CUTOFF"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}], \"code\": \"       2000-CUTOFF.\\n           COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * WS-CUTOFF-PCT\\n           IF WS-CUTOFF > WS-CUTOFF-CAP\\n              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\\n           END-IF\\n           IF WS-REFUND-AMT > WS-CUTOFF\\n              MOVE 'CONSENT' TO WS-ACTION\\n           ELSE\\n              MOVE 'ADJUST' TO WS-ACTION\\n           END-IF.\", \"name\": \"2000-CUTOFF\", \"ref\": {\"line_end\": 28, \"line_start\": 19, \"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-CUTOFF-CAP"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 21, \"program\": \"REFADJ2\", \"text\": \"           IF WS-CUTOFF > WS-CUTOFF-CAP\"}, {\"line\": 22, \"program\": \"REFADJ2\", \"text\": \"              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\"}, {\"line\": 4, \"program\": \"WSCUTOFF\", \"text\": \"           05  WS-CUTOFF-CAP         PIC 9(5) VALUE 6000.\"}], \"pattern\": \"WS-CUTOFF-CAP\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "resolve_copybook",
+            "arguments": {
+              "name": "WSCUTOFF"
+            },
+            "observation_summary": "{\"line_map\": [{\"expanded_end\": 5, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\728342c745266bc4772022d2d3ab8e691099f437ed21cc9d548c5f5d8a6eb60a\\\\cases\\\\drift_900000\\\\WSCUTOFF.cpy\", \"source_line_start\": 1}], \"name\": \"WSCUTOFF\", \"text\": \"      * REFUND-ADJUSTMENT CUTOFF CONSTANTS (SHARED CONFIG)\\n       01  WS-CUTOFF-CONFIG.\\n           05  WS-CUTOFF-PCT         PIC V99 VALUE .01.\\n           05  WS-CUTOFF-CAP         PIC 9(5) VALUE 6000.\\n           05  WS-CONSENT-WINDOW     PIC 9(2) VALUE 7.\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The strict comparison is paired with an ADJUST branch below the source threshold, but that threshold is capped at Rs 6,000 rather than the clause's Rs 5,000.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=5]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_629034",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "31",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "cutoff": {
+                      "kind": "formula",
+                      "value": "min(0.01 * credit_limit, 5000_inr)",
+                      "comparator": null,
+                      "note": null
+                    },
+                    "consent_window": {
+                      "kind": "duration_days",
+                      "value": 7,
+                      "comparator": "at_most",
+                      "note": null
+                    },
+                    "reversal_window": {
+                      "kind": "duration_working_days",
+                      "value": 3,
+                      "comparator": "at_most",
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "REFADJ2",
+                    "paragraph": "2000-CUTOFF",
+                    "file": null,
+                    "line_span": [
+                      21,
+                      27
+                    ]
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "paragraph": null,
+                    "file": "WSCUTOFF.cpy",
+                    "line_span": [
+                      4,
+                      4
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-REFUND-AMT",
+                  "WS-CUTOFF",
+                  "WS-CUTOFF-CAP",
+                  "WS-ACTION"
+                ],
+                "is_interprocedural": true
+              },
+              "drift_type": "D5_boundary_error",
+              "target_path": "cutoff",
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "REFADJ2",
+                    "line": 4,
+                    "file": "WSCUTOFF.cpy"
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 21,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 22,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 24,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 25,
+                    "file": null
+                  },
+                  {
+                    "program": "REFADJ2",
+                    "line": 27,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The source comparator is `WS-REFUND-AMT > WS-CUTOFF`; its ELSE branch sets ADJUST. Because the source cutoff can be Rs 6,000 while clause 31 caps it at Rs 5,000, the transition to CONSENT occurs late: amounts above Rs 5,000 through Rs 6,000 still take ADJUST."
+            },
+            "claim": "Explicit consent is required to adjust the specified paid credits above the lower of 1% of the credit limit or Rs 5,000.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "6000",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "Clause 31 requires consent above the lower of 1% of the limit or Rs 5,000. The source tests whether the refund amount is greater than WS-CUTOFF and selects ADJUST in the ELSE branch; with the 6,000 source cap, the transition occurs late for amounts above Rs 5,000 through Rs 6,000.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The strict comparison is paired with an ADJUST branch below the source threshold, but that threshold is capped at Rs 6,000 rather than the clause's Rs 5,000.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"REFADJ2\",\"paragraph\":\"2000-CUTOFF\",\"file\":\"REFADJ2.cbl\",\"line_span\":[21,27]},{\"program\":\"REFADJ2\",\"paragraph\":null,\"file\":\"WSCUTOFF.cpy\",\"line_span\":[4,4]}],\"slice_vars\":[\"WS-REFUND-AMT\",\"WS-CUTOFF\",\"WS-CUTOFF-CAP\",\"WS-ACTION\"],\"is_interprocedural\":true},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"cutoff\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"REFADJ2\",\"line\":4,\"file\":\"WSCUTOFF.cpy\"},{\"program\":\"REFADJ2\",\"line\":21,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":22,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":24,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":25,\"file\":\"REFADJ2.cbl\"},{\"program\":\"REFADJ2\",\"line\":27,\"file\":\"REFADJ2.cbl\"}]},\"rationale\":\"The source comparator is `WS-REFUND-AMT > WS-CUTOFF`; its ELSE branch sets ADJUST. Because the source cutoff can be Rs 6,000 while clause 31 caps it at Rs 5,000, the transition to CONSENT occurs late: amounts above Rs 5,000 through Rs 6,000 still take ADJUST.\"},\"claim\":\"Explicit consent is required to adjust the specified paid credits above the lower of 1% of the credit limit or Rs 5,000.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"6000\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Clause 31 requires consent above the lower of 1% of the limit or Rs 5,000. The source tests whether the refund amount is greater than WS-CUTOFF and selects ADJUST in the ELSE branch; with the 6,000 source cap, the transition occurs late for amounts above Rs 5,000 through Rs 6,000.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: D5 target leaf requires a typed comparator",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: D5 target leaf requires a typed comparator",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: D5 target leaf requires a typed comparator"
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: REFADJ2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 31 (version 2025-11-28, effective 2025-11-28): Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\nComposite current-value leaves (select one exact target_path):\n- target_path=cutoff: kind=formula, value=\"min(0.01 * credit_limit, 5000_inr)\", comparator=none\n- target_path=consent_window: kind=duration_days, value=7, comparator=at_most\n- target_path=reversal_window: kind=duration_working_days, value=3, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "REFADJ2",
+              "name": "2000-CUTOFF"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}], \"code\": \"       2000-CUTOFF.\\n           COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * WS-CUTOFF-PCT\\n           IF WS-CUTOFF > WS-CUTOFF-CAP\\n              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\\n           END-IF\\n           IF WS-REFUND-AMT > WS-CUTOFF\\n              MOVE 'CONSENT' TO WS-ACTION\\n           ELSE\\n              MOVE 'ADJUST' TO WS-ACTION\\n           END-IF.\", \"name\": \"2000-CUTOFF\", \"ref\": {\"line_end\": 28, \"line_start\": 19, \"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "FALSE"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"FALSE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "REFADJ2",
+              "para": "2000-CUTOFF"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "2000-CUTOFF is called from 1000-MAIN, and the observations show no always-false guard or dead-paragraph evidence.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The paragraph is reachable from 1000-MAIN; the evidence does not establish a dead paragraph or a reachable compliance branch disabled by an always-false guard.",
+            "final_answer": "Clause 31 requires explicit consent above the stated cutoff. The source paragraph is reachable from 1000-MAIN, and the observations do not show a disabled guard or dead-paragraph evidence for D6.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"2000-CUTOFF is called from 1000-MAIN, and the observations show no always-false guard or dead-paragraph evidence.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The paragraph is reachable from 1000-MAIN; the evidence does not establish a dead paragraph or a reachable compliance branch disabled by an always-false guard.\",\"final_answer\":\"Clause 31 requires explicit consent above the stated cutoff. The source paragraph is reachable from 1000-MAIN, and the observations do not show a disabled guard or dead-paragraph evidence for D6.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The paragraph is reachable from 1000-MAIN; the evidence does not establish a dead paragraph or a reachable compliance branch disabled by an always-false guard.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The paragraph is reachable from 1000-MAIN; the evidence does not establish a dead paragraph or a reachable compliance branch disabled by an always-false guard.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The paragraph is reachable from 1000-MAIN; the evidence does not establish a dead paragraph or a reachable compliance branch disabled by an always-false guard."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: REFADJ2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 31 (version 2025-11-28, effective 2025-11-28): Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\nComposite current-value leaves (select one exact target_path):\n- target_path=cutoff: kind=formula, value=\"min(0.01 * credit_limit, 5000_inr)\", comparator=none\n- target_path=consent_window: kind=duration_days, value=7, comparator=at_most\n- target_path=reversal_window: kind=duration_working_days, value=3, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "REFADJ2",
+              "name": "2000-CUTOFF"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"REFADJ2\"}], \"code\": \"       2000-CUTOFF.\\n           COMPUTE WS-CUTOFF = WS-CREDIT-LIMIT * WS-CUTOFF-PCT\\n           IF WS-CUTOFF > WS-CUTOFF-CAP\\n              MOVE WS-CUTOFF-CAP TO WS-CUTOFF\\n           END-IF\\n           IF WS-REFUND-AMT > WS-CUTOFF\\n              MOVE 'CONSENT' TO WS-ACTION\\n           ELSE\\n              MOVE 'ADJUST' TO WS-ACTION\\n           END-IF.\", \"name\": \"2000-CUTOFF\", \"ref\": {\"line_end\": 28, \"line_start\": 19, \"paragraph\": \"2000-CUTOFF\", \"program\": \"REFADJ2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-REFUND-AMT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"REFADJ2\", \"text\": \"       01  WS-REFUND-AMT             PIC 9(7)V99 VALUE ZERO.\"}, {\"line\": 15, \"program\": \"REFADJ2\", \"text\": \"           ACCEPT WS-REFUND-AMT\"}, {\"line\": 24, \"program\": \"REFADJ2\", \"text\": \"           IF WS-REFUND-AMT > WS-CUTOFF\"}], \"pattern\": \"WS-REFUND-AMT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "resolve_copybook",
+            "arguments": {
+              "name": "WSCUTOFF"
+            },
+            "observation_summary": "{\"line_map\": [{\"expanded_end\": 5, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\728342c745266bc4772022d2d3ab8e691099f437ed21cc9d548c5f5d8a6eb60a\\\\cases\\\\drift_900000\\\\WSCUTOFF.cpy\", \"source_line_start\": 1}], \"name\": \"WSCUTOFF\", \"text\": \"      * REFUND-ADJUSTMENT CUTOFF CONSTANTS (SHARED CONFIG)\\n       01  WS-CUTOFF-CONFIG.\\n           05  WS-CUTOFF-PCT         PIC V99 VALUE .01.\\n           05  WS-CUTOFF-CAP         PIC 9(5) VALUE 6000.\\n           05  WS-CONSENT-WINDOW     PIC 9(2) VALUE 7.\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The code has a percentage check and a strict greater-than branch, but its 6,000 cap does not match the clause's 5,000 leaf, so conformance is not supported.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Positive evidence exists for a cutoff check, but its resolved cap conflicts with the supplied clause; D7 conformance cannot be asserted.",
+            "final_answer": "Clause 31 sets the cutoff at the lower of 1% of the limit or Rs 5,000. The source uses a percentage check but caps it at Rs 6,000, so the positive code evidence does not support D7 conformance.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The code has a percentage check and a strict greater-than branch, but its 6,000 cap does not match the clause's 5,000 leaf, so conformance is not supported.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Positive evidence exists for a cutoff check, but its resolved cap conflicts with the supplied clause; D7 conformance cannot be asserted.\",\"final_answer\":\"Clause 31 sets the cutoff at the lower of 1% of the limit or Rs 5,000. The source uses a percentage check but caps it at Rs 6,000, so the positive code evidence does not support D7 conformance.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "Positive evidence exists for a cutoff check, but its resolved cap conflicts with the supplied clause; D7 conformance cannot be asserted.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: Positive evidence exists for a cutoff check, but its resolved cap conflicts with the supplied clause; D7 conformance cannot be asserted.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "Positive evidence exists for a cutoff check, but its resolved cap conflicts with the supplied clause; D7 conformance cannot be asserted."
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "policy evidence guard: D1 rationale must compare against the current target value",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "b8c627120e5693c987a97e8e24312f25935a74dae3cea0bead9a7e2ea27969d5",
+  "run_key": "f14433d16bd57efe853324fe2b2933bc54472ac89252667d42d1a641c5d2363d"
+}

@@ -1,0 +1,1603 @@
+{
+  "instance_id": "drift_881400",
+  "gold": {
+    "instance_id": "drift_881400",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN3",
+          "paragraph": "2000-PEN",
+          "file": null,
+          "line_span": [
+            30,
+            30
+          ]
+        },
+        {
+          "program": "CLOSPEN3",
+          "paragraph": "2000-PEN",
+          "file": null,
+          "line_span": [
+            32,
+            32
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-WORK-DAYS-ELAPSED"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "closure_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN3",
+          "line": 30,
+          "file": null
+        },
+        {
+          "program": "CLOSPEN3",
+          "line": 32,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-1 changes '7' to '10' at CLOSPEN3:2000-PEN:30-30+CLOSPEN3:2000-PEN:32-32, producing D1_stale_threshold.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CLOSPEN3.cbl",
+      "mutation": "MO-1; locus=CLOSPEN3:2000-PEN:30-30+CLOSPEN3:2000-PEN:32-32; old='7'; new='10'; validation=compiled; stale_source=grid_fallback; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_881400",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN3",
+          "paragraph": "2000-PEN",
+          "file": null,
+          "line_span": [
+            30,
+            30
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-WORK-DAYS-ELAPSED",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": "closure_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN3",
+          "line": 30,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9876,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: CLOSPEN3.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "CLOSPEN3"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 28, \"line_start\": 23, \"name\": \"1000-MAIN\"}, {\"line_end\": 38, \"line_start\": 29, \"name\": \"2000-PEN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\3f99072452c8c6c8ac03b80b2ca67a8d7191bda2a79c0a00436917dfd9f67968\\\\cases\\\\drift_900000\\\\CLOSPEN3.cbl\", \"program\": \"CLOSPEN3\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "CLOSPEN3",
+          "name": "2000-PEN"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}], \"code\": \"       2000-PEN.\\n           IF WS-WORK-DAYS-ELAPSED > 10\\n              COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n                      - (WS-WORK-DAYS-ELAPSED - 10)\\n              COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n                      - WS-SLA-BREACH-DAY\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-PENALTY-AMT\\n           END-IF.\", \"name\": \"2000-PEN\", \"ref\": {\"line_end\": 38, \"line_start\": 29, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-WORK-DAYS-ELAPSED >"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 30, \"program\": \"CLOSPEN3\", \"text\": \"           IF WS-WORK-DAYS-ELAPSED > 10\"}], \"pattern\": \"WS-WORK-DAYS-ELAPSED >\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=1]",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_881400",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "19",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "penalty_per_day": {
+                  "kind": "amount_inr",
+                  "value": 500,
+                  "comparator": "at_least",
+                  "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                },
+                "day_basis": {
+                  "kind": "enum_set",
+                  "value": [
+                    "calendar_day"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN3",
+                "paragraph": "2000-PEN",
+                "file": null,
+                "line_span": [
+                  30,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-WORK-DAYS-ELAPSED",
+              "WS-PENALTY-AMT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLOSPEN3",
+                "line": 30,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late."
+        },
+        "claim": "A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "10",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The source enters the penalty branch only after 10 working days; the clause's 7-day limit makes that transition late.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CLOSPEN3\",\"paragraph\":\"2000-PEN\",\"file\":\"CLOSPEN3.cbl\",\"line_span\":[30,30]}],\"slice_vars\":[\"WS-WORK-DAYS-ELAPSED\",\"WS-PENALTY-AMT\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"closure_window\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"CLOSPEN3\",\"line\":30,\"file\":\"CLOSPEN3.cbl\"}]},\"rationale\":\"The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late.\"},\"claim\":\"A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"10\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The source enters the penalty branch only after 10 working days; the clause's 7-day limit makes that transition late.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9876,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_881400",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "19",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "closure_window": {
+              "kind": "duration_working_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            },
+            "penalty_per_day": {
+              "kind": "amount_inr",
+              "value": 500,
+              "comparator": "at_least",
+              "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+            },
+            "day_basis": {
+              "kind": "enum_set",
+              "value": [
+                "calendar_day"
+              ],
+              "comparator": null,
+              "note": null
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "CLOSPEN3",
+            "paragraph": "2000-PEN",
+            "file": null,
+            "line_span": [
+              30,
+              30
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-WORK-DAYS-ELAPSED",
+          "WS-PENALTY-AMT"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D5_boundary_error",
+      "target_path": "closure_window",
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "CLOSPEN3",
+            "line": 30,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The source enters the penalty branch only after 10 working days; the clause's 7-day limit makes that transition late.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": false,
+      "finding": {
+        "instance_id": "drift_881400",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "19",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+          "current_value": {
+            "kind": "composite",
+            "value": {
+              "closure_window": {
+                "kind": "duration_working_days",
+                "value": 7,
+                "comparator": "at_most",
+                "note": null
+              },
+              "penalty_per_day": {
+                "kind": "amount_inr",
+                "value": 500,
+                "comparator": "at_least",
+                "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+              },
+              "day_basis": {
+                "kind": "enum_set",
+                "value": [
+                  "calendar_day"
+                ],
+                "comparator": null,
+                "note": null
+              }
+            },
+            "comparator": null,
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "CLOSPEN3",
+              "paragraph": "2000-PEN",
+              "file": null,
+              "line_span": [
+                30,
+                30
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-WORK-DAYS-ELAPSED"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D1_stale_threshold",
+        "target_path": "closure_window",
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "CLOSPEN3",
+              "line": 30,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "The closure_window leaf permits at most 7 working days. 2000-PEN tests WS-WORK-DAYS-ELAPSED > 10 before computing the penalty, so days 8 through 10 still bypass that branch; the source threshold is stale."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present",
+        "citation_ok": true,
+        "entailment_probability": 0.9876,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: CLOSPEN3.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN3"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 28, \"line_start\": 23, \"name\": \"1000-MAIN\"}, {\"line_end\": 38, \"line_start\": 29, \"name\": \"2000-PEN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\3f99072452c8c6c8ac03b80b2ca67a8d7191bda2a79c0a00436917dfd9f67968\\\\cases\\\\drift_900000\\\\CLOSPEN3.cbl\", \"program\": \"CLOSPEN3\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN3",
+              "name": "2000-PEN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}], \"code\": \"       2000-PEN.\\n           IF WS-WORK-DAYS-ELAPSED > 10\\n              COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n                      - (WS-WORK-DAYS-ELAPSED - 10)\\n              COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n                      - WS-SLA-BREACH-DAY\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-PENALTY-AMT\\n           END-IF.\", \"name\": \"2000-PEN\", \"ref\": {\"line_end\": 38, \"line_start\": 29, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-WORK-DAYS-ELAPSED"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 13, \"program\": \"CLOSPEN3\", \"text\": \"           05  WS-WORK-DAYS-ELAPSED  PIC 9(4) VALUE ZERO.\"}, {\"line\": 25, \"program\": \"CLOSPEN3\", \"text\": \"           ACCEPT WS-WORK-DAYS-ELAPSED\"}, {\"line\": 30, \"program\": \"CLOSPEN3\", \"text\": \"           IF WS-WORK-DAYS-ELAPSED > 10\"}, {\"line\": 32, \"program\": \"CLOSPEN3\", \"text\": \"                      - (WS-WORK-DAYS-ELAPSED - 10)\"}], \"pattern\": \"WS-WORK-DAYS-ELAPSED\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The closure_window leaf permits at most 7 working days. 2000-PEN tests WS-WORK-DAYS-ELAPSED > 10 before computing the penalty, so days 8 through 10 still bypass that branch; the source threshold is stale.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=1]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_881400",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "19",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "closure_window": {
+                      "kind": "duration_working_days",
+                      "value": 7,
+                      "comparator": "at_most",
+                      "note": null
+                    },
+                    "penalty_per_day": {
+                      "kind": "amount_inr",
+                      "value": 500,
+                      "comparator": "at_least",
+                      "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                    },
+                    "day_basis": {
+                      "kind": "enum_set",
+                      "value": [
+                        "calendar_day"
+                      ],
+                      "comparator": null,
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "CLOSPEN3",
+                    "paragraph": "2000-PEN",
+                    "file": null,
+                    "line_span": [
+                      30,
+                      30
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-WORK-DAYS-ELAPSED"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D1_stale_threshold",
+              "target_path": "closure_window",
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "CLOSPEN3",
+                    "line": 30,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The closure_window leaf permits at most 7 working days. 2000-PEN tests WS-WORK-DAYS-ELAPSED > 10 before computing the penalty, so days 8 through 10 still bypass that branch; the source threshold is stale."
+            },
+            "claim": "A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "10",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The 2000-PEN guard uses 10 working days, leaving days 8 through 10 outside the penalty branch even though the clause requires closure within 7 working days.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The closure_window leaf permits at most 7 working days. 2000-PEN tests WS-WORK-DAYS-ELAPSED > 10 before computing the penalty, so days 8 through 10 still bypass that branch; the source threshold is stale.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CLOSPEN3\",\"paragraph\":\"2000-PEN\",\"file\":\"CLOSPEN3.cbl\",\"line_span\":[30,30]}],\"slice_vars\":[\"WS-WORK-DAYS-ELAPSED\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"closure_window\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"CLOSPEN3\",\"line\":30,\"file\":\"CLOSPEN3.cbl\"}]},\"rationale\":\"The closure_window leaf permits at most 7 working days. 2000-PEN tests WS-WORK-DAYS-ELAPSED > 10 before computing the penalty, so days 8 through 10 still bypass that branch; the source threshold is stale.\"},\"claim\":\"A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"10\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The 2000-PEN guard uses 10 working days, leaving days 8 through 10 outside the penalty branch even though the clause requires closure within 7 working days.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present",
+          "citation_ok": true,
+          "entailment_probability": 0.9876,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_881400",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "19",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "penalty_per_day": {
+                  "kind": "amount_inr",
+                  "value": 500,
+                  "comparator": "at_least",
+                  "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                },
+                "day_basis": {
+                  "kind": "enum_set",
+                  "value": [
+                    "calendar_day"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN3",
+                "paragraph": "2000-PEN",
+                "file": null,
+                "line_span": [
+                  30,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-WORK-DAYS-ELAPSED"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLOSPEN3",
+                "line": 30,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The closure_window leaf permits at most 7 working days. 2000-PEN tests WS-WORK-DAYS-ELAPSED > 10 before computing the penalty, so days 8 through 10 still bypass that branch; the source threshold is stale."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "The 2000-PEN guard uses 10 working days, leaving days 8 through 10 outside the penalty branch even though the clause requires closure within 7 working days.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: CLOSPEN3.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "DUE"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"DUE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "CLOSPEN3",
+              "para": "2000-PEN"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "CLOSPEN3",
+              "para": "2000-PEN"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-PENALTY-AMT",
+              "program": "CLOSPEN3"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}, {\"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}], \"scoped_program\": \"CLOSPEN3\", \"statements\": [{\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": null, \"program\": \"CLOSPEN3\"}, \"text\": \"05  WS-CAL-DAYS-ELAPSED   PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": null, \"program\": \"CLOSPEN3\"}, \"text\": \"05  WS-WORK-DAYS-ELAPSED  PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 15, \"line_start\": 15, \"paragraph\": null, \"program\": \"CLOSPEN3\"}, \"text\": \"05  WS-DELAY-CAL-DAYS     PIC S9(5) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": null, \"program\": \"CLOSPEN3\"}, \"text\": \"05  WS-SLA-BREACH-DAY     PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": null, \"program\": \"CLOSPEN3\"}, \"text\": \"05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 24, \"line_start\": 24, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}, \"text\": \"ACCEPT WS-CAL-DAYS-ELAPSED\"}, {\"ref\": {\"line_end\": 25, \"line_start\": 25, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}, \"text\": \"ACCEPT WS-WORK-DAYS-ELAPSED\"}, {\"ref\": {\"line_end\": 26, \"line_start\": 26, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}, \"text\": \"PERFORM 2000-PEN\"}, {\"ref\": {\"line_end\": 35, \"line_start\": 30, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"text\": \"IF WS-WORK-DAYS-ELAPSED > 10\\n              COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n                      - (WS-WORK-DAYS-ELAPSED - 10)\\n              COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n                      - WS-SLA-BREACH-DAY\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\"}, {\"ref\": {\"line_end\": 32, \"line_start\": 31, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"text\": \"COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n                      - (WS-WORK-DAYS-ELAPSED - 10)\"}, {\"ref\": {\"line_end\": 34, \"line_start\": 33, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"text\": \"COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n                      - WS-SLA-BREACH-DAY\"}, {\"ref\": {\"line_end\": 35, \"line_start\": 35, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"text\": \"COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\"}, {\"ref\": {\"line_end\": 37, \"line_start\": 37, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"text\": \"MOVE ZERO TO WS-PENALTY-AMT\"}], \"variable\": \"WS-PENALTY-AMT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The scoped D2 search and slice show no dues field or helper, but the reachable penalty computation is a positive action that can conflict with the clause's dues condition.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D2 is reserved for missing behavior without a conflicting source action; the unguarded penalty computation belongs under D3.",
+            "final_answer": "Abstain from D2 because the reachable amount computation is an existing conflicting action, handled under D3.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The scoped D2 search and slice show no dues field or helper, but the reachable penalty computation is a positive action that can conflict with the clause's dues condition.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D2 is reserved for missing behavior without a conflicting source action; the unguarded penalty computation belongs under D3.\",\"final_answer\":\"Abstain from D2 because the reachable amount computation is an existing conflicting action, handled under D3.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D2 is reserved for missing behavior without a conflicting source action; the unguarded penalty computation belongs under D3.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D2 is reserved for missing behavior without a conflicting source action; the unguarded penalty computation belongs under D3.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D2 is reserved for missing behavior without a conflicting source action; the unguarded penalty computation belongs under D3."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: CLOSPEN3.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN3",
+              "name": "2000-PEN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}], \"code\": \"       2000-PEN.\\n           IF WS-WORK-DAYS-ELAPSED > 10\\n              COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n                      - (WS-WORK-DAYS-ELAPSED - 10)\\n              COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n                      - WS-SLA-BREACH-DAY\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-PENALTY-AMT\\n           END-IF.\", \"name\": \"2000-PEN\", \"ref\": {\"line_end\": 38, \"line_start\": 29, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "DUE"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"DUE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-PENALTY-AMT",
+              "program": "CLOSPEN3"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}, {\"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}], \"scoped_program\": \"CLOSPEN3\", \"statements\": [{\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": null, \"program\": \"CLOSPEN3\"}, \"text\": \"05  WS-CAL-DAYS-ELAPSED   PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": null, \"program\": \"CLOSPEN3\"}, \"text\": \"05  WS-WORK-DAYS-ELAPSED  PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 15, \"line_start\": 15, \"paragraph\": null, \"program\": \"CLOSPEN3\"}, \"text\": \"05  WS-DELAY-CAL-DAYS     PIC S9(5) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": null, \"program\": \"CLOSPEN3\"}, \"text\": \"05  WS-SLA-BREACH-DAY     PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": null, \"program\": \"CLOSPEN3\"}, \"text\": \"05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 24, \"line_start\": 24, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}, \"text\": \"ACCEPT WS-CAL-DAYS-ELAPSED\"}, {\"ref\": {\"line_end\": 25, \"line_start\": 25, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}, \"text\": \"ACCEPT WS-WORK-DAYS-ELAPSED\"}, {\"ref\": {\"line_end\": 26, \"line_start\": 26, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}, \"text\": \"PERFORM 2000-PEN\"}, {\"ref\": {\"line_end\": 35, \"line_start\": 30, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"text\": \"IF WS-WORK-DAYS-ELAPSED > 10\\n              COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n                      - (WS-WORK-DAYS-ELAPSED - 10)\\n              COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n                      - WS-SLA-BREACH-DAY\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\"}, {\"ref\": {\"line_end\": 32, \"line_start\": 31, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"text\": \"COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n                      - (WS-WORK-DAYS-ELAPSED - 10)\"}, {\"ref\": {\"line_end\": 34, \"line_start\": 33, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"text\": \"COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n                      - WS-SLA-BREACH-DAY\"}, {\"ref\": {\"line_end\": 35, \"line_start\": 35, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"text\": \"COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\"}, {\"ref\": {\"line_end\": 37, \"line_start\": 37, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"text\": \"MOVE ZERO TO WS-PENALTY-AMT\"}], \"variable\": \"WS-PENALTY-AMT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "1000-MAIN accepts only calendar-day and working-day counts and performs 2000-PEN. That paragraph computes the penalty when the work-day test passes, with no outstanding-dues input or condition, so the reachable calculation can apply when dues remain; clause 19 limits the penalty to cases with no outstanding dues.\n[policy telemetry: SourceLocus.file normalized; loci=2; line_refs=5]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_881400",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "19",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "closure_window": {
+                      "kind": "duration_working_days",
+                      "value": 7,
+                      "comparator": "at_most",
+                      "note": null
+                    },
+                    "penalty_per_day": {
+                      "kind": "amount_inr",
+                      "value": 500,
+                      "comparator": "at_least",
+                      "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                    },
+                    "day_basis": {
+                      "kind": "enum_set",
+                      "value": [
+                        "calendar_day"
+                      ],
+                      "comparator": null,
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "CLOSPEN3",
+                    "paragraph": "1000-MAIN",
+                    "file": null,
+                    "line_span": [
+                      24,
+                      26
+                    ]
+                  },
+                  {
+                    "program": "CLOSPEN3",
+                    "paragraph": "2000-PEN",
+                    "file": null,
+                    "line_span": [
+                      30,
+                      35
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-CAL-DAYS-ELAPSED",
+                  "WS-WORK-DAYS-ELAPSED",
+                  "WS-PENALTY-AMT"
+                ],
+                "is_interprocedural": true
+              },
+              "drift_type": "D3_contradictory",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "CLOSPEN3",
+                    "line": 24,
+                    "file": null
+                  },
+                  {
+                    "program": "CLOSPEN3",
+                    "line": 25,
+                    "file": null
+                  },
+                  {
+                    "program": "CLOSPEN3",
+                    "line": 26,
+                    "file": null
+                  },
+                  {
+                    "program": "CLOSPEN3",
+                    "line": 30,
+                    "file": null
+                  },
+                  {
+                    "program": "CLOSPEN3",
+                    "line": 35,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "1000-MAIN accepts only calendar-day and working-day counts and performs 2000-PEN. That paragraph computes the penalty when the work-day test passes, with no outstanding-dues input or condition, so the reachable calculation can apply when dues remain; clause 19 limits the penalty to cases with no outstanding dues."
+            },
+            "claim": "A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "500",
+              "comparator": null,
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The reachable penalty calculation has no outstanding-dues condition, while clause 19 makes the penalty applicable only when there are no outstanding dues.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"1000-MAIN accepts only calendar-day and working-day counts and performs 2000-PEN. That paragraph computes the penalty when the work-day test passes, with no outstanding-dues input or condition, so the reachable calculation can apply when dues remain; clause 19 limits the penalty to cases with no outstanding dues.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CLOSPEN3\",\"paragraph\":\"1000-MAIN\",\"file\":\"CLOSPEN3.cbl\",\"line_span\":[24,26]},{\"program\":\"CLOSPEN3\",\"paragraph\":\"2000-PEN\",\"file\":\"CLOSPEN3.cbl\",\"line_span\":[30,35]}],\"slice_vars\":[\"WS-CAL-DAYS-ELAPSED\",\"WS-WORK-DAYS-ELAPSED\",\"WS-PENALTY-AMT\"],\"is_interprocedural\":true},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"CLOSPEN3\",\"line\":24,\"file\":\"CLOSPEN3.cbl\"},{\"program\":\"CLOSPEN3\",\"line\":25,\"file\":\"CLOSPEN3.cbl\"},{\"program\":\"CLOSPEN3\",\"line\":26,\"file\":\"CLOSPEN3.cbl\"},{\"program\":\"CLOSPEN3\",\"line\":30,\"file\":\"CLOSPEN3.cbl\"},{\"program\":\"CLOSPEN3\",\"line\":35,\"file\":\"CLOSPEN3.cbl\"}]},\"rationale\":\"1000-MAIN accepts only calendar-day and working-day counts and performs 2000-PEN. That paragraph computes the penalty when the work-day test passes, with no outstanding-dues input or condition, so the reachable calculation can apply when dues remain; clause 19 limits the penalty to cases with no outstanding dues.\"},\"claim\":\"A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"500\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The reachable penalty calculation has no outstanding-dues condition, while clause 19 makes the penalty applicable only when there are no outstanding dues.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: required tool evidence missing: 2 read_paragraph calls (one per unique D3 paragraph); D3 rationale must name the conflicting outcomes",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: required tool evidence missing: 2 read_paragraph calls (one per unique D3 paragraph); D3 rationale must name the conflicting outcomes",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: required tool evidence missing: 2 read_paragraph calls (one per unique D3 paragraph); D3 rationale must name the conflicting outcomes"
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: CLOSPEN3.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current_value is composite; day_basis is an enum-valued business-rule leaf.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only when current_value itself is an enum_set reference collection, which this clause does not supply.",
+            "final_answer": "Abstain from D4 because the clause's enum_set leaf is inside a composite business rule.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current_value is composite; day_basis is an enum-valued business-rule leaf.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only when current_value itself is an enum_set reference collection, which this clause does not supply.\",\"final_answer\":\"Abstain from D4 because the clause's enum_set leaf is inside a composite business rule.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": true,
+      "finding": {
+        "instance_id": "drift_881400",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "19",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+          "current_value": {
+            "kind": "composite",
+            "value": {
+              "closure_window": {
+                "kind": "duration_working_days",
+                "value": 7,
+                "comparator": "at_most",
+                "note": null
+              },
+              "penalty_per_day": {
+                "kind": "amount_inr",
+                "value": 500,
+                "comparator": "at_least",
+                "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+              },
+              "day_basis": {
+                "kind": "enum_set",
+                "value": [
+                  "calendar_day"
+                ],
+                "comparator": null,
+                "note": null
+              }
+            },
+            "comparator": null,
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "CLOSPEN3",
+              "paragraph": "2000-PEN",
+              "file": null,
+              "line_span": [
+                30,
+                30
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-WORK-DAYS-ELAPSED",
+            "WS-PENALTY-AMT"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D5_boundary_error",
+        "target_path": "closure_window",
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "CLOSPEN3",
+              "line": 30,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present",
+        "citation_ok": true,
+        "entailment_probability": 0.9876,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: CLOSPEN3.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN3"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 28, \"line_start\": 23, \"name\": \"1000-MAIN\"}, {\"line_end\": 38, \"line_start\": 29, \"name\": \"2000-PEN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\3f99072452c8c6c8ac03b80b2ca67a8d7191bda2a79c0a00436917dfd9f67968\\\\cases\\\\drift_900000\\\\CLOSPEN3.cbl\", \"program\": \"CLOSPEN3\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN3",
+              "name": "2000-PEN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}], \"code\": \"       2000-PEN.\\n           IF WS-WORK-DAYS-ELAPSED > 10\\n              COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n                      - (WS-WORK-DAYS-ELAPSED - 10)\\n              COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n                      - WS-SLA-BREACH-DAY\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-PENALTY-AMT\\n           END-IF.\", \"name\": \"2000-PEN\", \"ref\": {\"line_end\": 38, \"line_start\": 29, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-WORK-DAYS-ELAPSED >"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 30, \"program\": \"CLOSPEN3\", \"text\": \"           IF WS-WORK-DAYS-ELAPSED > 10\"}], \"pattern\": \"WS-WORK-DAYS-ELAPSED >\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=1]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_881400",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "19",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "closure_window": {
+                      "kind": "duration_working_days",
+                      "value": 7,
+                      "comparator": "at_most",
+                      "note": null
+                    },
+                    "penalty_per_day": {
+                      "kind": "amount_inr",
+                      "value": 500,
+                      "comparator": "at_least",
+                      "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                    },
+                    "day_basis": {
+                      "kind": "enum_set",
+                      "value": [
+                        "calendar_day"
+                      ],
+                      "comparator": null,
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "CLOSPEN3",
+                    "paragraph": "2000-PEN",
+                    "file": null,
+                    "line_span": [
+                      30,
+                      30
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-WORK-DAYS-ELAPSED",
+                  "WS-PENALTY-AMT"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D5_boundary_error",
+              "target_path": "closure_window",
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "CLOSPEN3",
+                    "line": 30,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late."
+            },
+            "claim": "A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "10",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The source enters the penalty branch only after 10 working days; the clause's 7-day limit makes that transition late.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CLOSPEN3\",\"paragraph\":\"2000-PEN\",\"file\":\"CLOSPEN3.cbl\",\"line_span\":[30,30]}],\"slice_vars\":[\"WS-WORK-DAYS-ELAPSED\",\"WS-PENALTY-AMT\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"closure_window\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"CLOSPEN3\",\"line\":30,\"file\":\"CLOSPEN3.cbl\"}]},\"rationale\":\"The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late.\"},\"claim\":\"A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"10\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The source enters the penalty branch only after 10 working days; the clause's 7-day limit makes that transition late.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present",
+          "citation_ok": true,
+          "entailment_probability": 0.9876,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "CLOSPEN3:2000-PEN — literal '10' present; comparator '>' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_881400",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "19",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "penalty_per_day": {
+                  "kind": "amount_inr",
+                  "value": 500,
+                  "comparator": "at_least",
+                  "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                },
+                "day_basis": {
+                  "kind": "enum_set",
+                  "value": [
+                    "calendar_day"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN3",
+                "paragraph": "2000-PEN",
+                "file": null,
+                "line_span": [
+                  30,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-WORK-DAYS-ELAPSED",
+              "WS-PENALTY-AMT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLOSPEN3",
+                "line": 30,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "The source enters the penalty branch only after 10 working days; the clause's 7-day limit makes that transition late.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: CLOSPEN3.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN3"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 28, \"line_start\": 23, \"name\": \"1000-MAIN\"}, {\"line_end\": 38, \"line_start\": 29, \"name\": \"2000-PEN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\3f99072452c8c6c8ac03b80b2ca67a8d7191bda2a79c0a00436917dfd9f67968\\\\cases\\\\drift_900000\\\\CLOSPEN3.cbl\", \"program\": \"CLOSPEN3\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN3",
+              "name": "2000-PEN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}], \"code\": \"       2000-PEN.\\n           IF WS-WORK-DAYS-ELAPSED > 10\\n              COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n                      - (WS-WORK-DAYS-ELAPSED - 10)\\n              COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n                      - WS-SLA-BREACH-DAY\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-PENALTY-AMT\\n           END-IF.\", \"name\": \"2000-PEN\", \"ref\": {\"line_end\": 38, \"line_start\": 29, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "CLOSPEN3",
+              "para": "2000-PEN"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The bounded call graph shows 2000-PEN is called by 1000-MAIN.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The compliance paragraph is reachable, and no dead-paragraph or disabled-guard evidence supports D6.",
+            "final_answer": "Abstain from D6 because the penalty paragraph is reachable and no disabled compliance guard was observed.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The bounded call graph shows 2000-PEN is called by 1000-MAIN.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The compliance paragraph is reachable, and no dead-paragraph or disabled-guard evidence supports D6.\",\"final_answer\":\"Abstain from D6 because the penalty paragraph is reachable and no disabled compliance guard was observed.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The compliance paragraph is reachable, and no dead-paragraph or disabled-guard evidence supports D6.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The compliance paragraph is reachable, and no dead-paragraph or disabled-guard evidence supports D6.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The compliance paragraph is reachable, and no dead-paragraph or disabled-guard evidence supports D6."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: CLOSPEN3.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN3"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 28, \"line_start\": 23, \"name\": \"1000-MAIN\"}, {\"line_end\": 38, \"line_start\": 29, \"name\": \"2000-PEN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\3f99072452c8c6c8ac03b80b2ca67a8d7191bda2a79c0a00436917dfd9f67968\\\\cases\\\\drift_900000\\\\CLOSPEN3.cbl\", \"program\": \"CLOSPEN3\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN3",
+              "name": "2000-PEN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN3\"}], \"code\": \"       2000-PEN.\\n           IF WS-WORK-DAYS-ELAPSED > 10\\n              COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n                      - (WS-WORK-DAYS-ELAPSED - 10)\\n              COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n                      - WS-SLA-BREACH-DAY\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-PENALTY-AMT\\n           END-IF.\", \"name\": \"2000-PEN\", \"ref\": {\"line_end\": 38, \"line_start\": 29, \"paragraph\": \"2000-PEN\", \"program\": \"CLOSPEN3\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-WORK-DAYS-ELAPSED >"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 30, \"program\": \"CLOSPEN3\", \"text\": \"           IF WS-WORK-DAYS-ELAPSED > 10\"}], \"pattern\": \"WS-WORK-DAYS-ELAPSED >\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observed closure check requires more than 10 working days before the penalty branch; it does not match the clause's 7-working-day limit.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D7 requires positive code evidence of a matching check, but the observed threshold does not match.",
+            "final_answer": "Abstain from D7 because the observed 10-day guard does not conform to the clause's 7-day limit.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed closure check requires more than 10 working days before the penalty branch; it does not match the clause's 7-working-day limit.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D7 requires positive code evidence of a matching check, but the observed threshold does not match.\",\"final_answer\":\"Abstain from D7 because the observed 10-day guard does not conform to the clause's 7-day limit.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D7 requires positive code evidence of a matching check, but the observed threshold does not match.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D7 requires positive code evidence of a matching check, but the observed threshold does not match.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D7 requires positive code evidence of a matching check, but the observed threshold does not match."
+    }
+  ],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "a787666c9ffc550ebe8954ea02367e595ba1cec383bd131f1bb4e8bd770f2132",
+  "run_key": "e3a7736cbdbee7a4cd18ce7212f9b265f6a82553b59e457a04b34a290654cad9"
+}

@@ -1,0 +1,798 @@
+{
+  "instance_id": "drift_110013",
+  "gold": {
+    "instance_id": "drift_110013",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "Section 3(a)(iv)(b)",
+      "version": "2016-02-25",
+      "effective_date": "2016-02-25",
+      "text": "Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+      "current_value": {
+        "kind": "percentage",
+        "value": 15,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO02",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            6,
+            7
+          ]
+        },
+        {
+          "program": "T6BO02",
+          "paragraph": "2100-CHECK-PROFIT-SHARE",
+          "file": null,
+          "line_span": [
+            17,
+            22
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PROFIT-SHARE",
+        "WS-LEGACY-BO-LIMIT",
+        "WS-OWNER-RESULT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO02",
+          "line": 18,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "The 2016 clause identifies a beneficial owner by entitlement to more than 15 percent of CAPITAL OR PROFITS. T6BO02's WORKING-STORAGE (lines 6-10) has only WS-PROFIT-SHARE -- no capital-percentage field exists anywhere in the program -- and 2100-CHECK-PROFIT-SHARE tests only the profit leg (line 18). The capital-ownership half of the disjunctive obligation is entirely unimplemented, even though the profit check itself uses the correct 2016 threshold.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6BO02.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: T6BO02.\nClause: RBI-KYC-Master-Direction-2016 Section 3(a)(iv)(b) (version 2016-02-25, effective 2016-02-25): Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "T6BO02"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 16, \"line_start\": 12, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 17, \"name\": \"2100-CHECK-PROFIT-SHARE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\d673e8ba7c2d2cdc9e9845eacf0ee5c2c3fb6ef2ac90b5bb4c7731b9d74f0cb1\\\\cases\\\\drift_900000\\\\T6BO02.cbl\", \"program\": \"T6BO02\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "T6BO02",
+          "name": "2100-CHECK-PROFIT-SHARE"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}], \"code\": \"       2100-CHECK-PROFIT-SHARE.\\n           IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\\n              MOVE 'Y' TO WS-OWNER-RESULT\\n           ELSE\\n              MOVE 'N' TO WS-OWNER-RESULT\\n           END-IF.\", \"name\": \"2100-CHECK-PROFIT-SHARE\", \"ref\": {\"line_end\": 22, \"line_start\": 17, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-LEGACY-BO-LIMIT",
+          "program": "T6BO02"
+        },
+        "observation_summary": "{\"scoped_program\": \"T6BO02\", \"sites\": [{\"excerpt\": \"05  WS-LEGACY-BO-LIMIT   PIC 9(3)V99 VALUE 15.\", \"kind\": \"def\", \"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6BO02\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\", \"kind\": \"use\", \"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-LEGACY-BO-LIMIT\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The threshold literal matches the supplied 15 percent value, so the evidence does not support a stale-threshold finding.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.",
+        "final_answer": "T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The threshold literal matches the supplied 15 percent value, so the evidence does not support a stale-threshold finding.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.\",\"final_answer\":\"T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: T6BO02.\nClause: RBI-KYC-Master-Direction-2016 Section 3(a)(iv)(b) (version 2016-02-25, effective 2016-02-25): Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO02"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 16, \"line_start\": 12, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 17, \"name\": \"2100-CHECK-PROFIT-SHARE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\d673e8ba7c2d2cdc9e9845eacf0ee5c2c3fb6ef2ac90b5bb4c7731b9d74f0cb1\\\\cases\\\\drift_900000\\\\T6BO02.cbl\", \"program\": \"T6BO02\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO02",
+              "name": "2100-CHECK-PROFIT-SHARE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}], \"code\": \"       2100-CHECK-PROFIT-SHARE.\\n           IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\\n              MOVE 'Y' TO WS-OWNER-RESULT\\n           ELSE\\n              MOVE 'N' TO WS-OWNER-RESULT\\n           END-IF.\", \"name\": \"2100-CHECK-PROFIT-SHARE\", \"ref\": {\"line_end\": 22, \"line_start\": 17, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "WS-LEGACY-BO-LIMIT",
+              "program": "T6BO02"
+            },
+            "observation_summary": "{\"scoped_program\": \"T6BO02\", \"sites\": [{\"excerpt\": \"05  WS-LEGACY-BO-LIMIT   PIC 9(3)V99 VALUE 15.\", \"kind\": \"def\", \"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6BO02\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\", \"kind\": \"use\", \"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-LEGACY-BO-LIMIT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The threshold literal matches the supplied 15 percent value, so the evidence does not support a stale-threshold finding.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.",
+            "final_answer": "T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The threshold literal matches the supplied 15 percent value, so the evidence does not support a stale-threshold finding.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.\",\"final_answer\":\"T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: T6BO02.\nClause: RBI-KYC-Master-Direction-2016 Section 3(a)(iv)(b) (version 2016-02-25, effective 2016-02-25): Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-OWNER-RESULT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 10, \"program\": \"T6BO02\", \"text\": \"           05  WS-OWNER-RESULT      PIC X VALUE 'N'.\"}, {\"line\": 15, \"program\": \"T6BO02\", \"text\": \"           DISPLAY WS-OWNER-RESULT\"}, {\"line\": 19, \"program\": \"T6BO02\", \"text\": \"              MOVE 'Y' TO WS-OWNER-RESULT\"}, {\"line\": 21, \"program\": \"T6BO02\", \"text\": \"              MOVE 'N' TO WS-OWNER-RESULT\"}], \"pattern\": \"WS-OWNER-RESULT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6BO02",
+              "para": "2100-CHECK-PROFIT-SHARE"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "T6BO02",
+              "para": "2100-CHECK-PROFIT-SHARE"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-OWNER-RESULT",
+              "program": "T6BO02"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}, {\"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}], \"scoped_program\": \"T6BO02\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6BO02\"}, \"text\": \"05  WS-LEGACY-BO-LIMIT   PIC 9(3)V99 VALUE 15.\"}, {\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"T6BO02\"}, \"text\": \"05  WS-PROFIT-SHARE      PIC 9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 10, \"line_start\": 10, \"paragraph\": null, \"program\": \"T6BO02\"}, \"text\": \"05  WS-OWNER-RESULT      PIC X VALUE 'N'.\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}, \"text\": \"ACCEPT WS-PROFIT-SHARE\"}, {\"ref\": {\"line_end\": 14, \"line_start\": 14, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}, \"text\": \"PERFORM 2100-CHECK-PROFIT-SHARE\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 18, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"text\": \"IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\\n              MOVE 'Y' TO WS-OWNER-RESULT\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 19, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"text\": \"MOVE 'Y' TO WS-OWNER-RESULT\"}, {\"ref\": {\"line_end\": 21, \"line_start\": 21, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"text\": \"MOVE 'N' TO WS-OWNER-RESULT\"}], \"variable\": \"WS-OWNER-RESULT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The required behavior cannot be shown absent under the D2 evidence contract: the scoped grep and data slice show a populated result and an implemented decision branch, while the caller observation is positive.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The four required D2 observations are not all negative, so I cannot report a missing-rule finding.",
+            "final_answer": "The four required D2 observations are not all negative, so I cannot report a missing-rule finding.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The required behavior cannot be shown absent under the D2 evidence contract: the scoped grep and data slice show a populated result and an implemented decision branch, while the caller observation is positive.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The four required D2 observations are not all negative, so I cannot report a missing-rule finding.\",\"final_answer\":\"The four required D2 observations are not all negative, so I cannot report a missing-rule finding.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The four required D2 observations are not all negative, so I cannot report a missing-rule finding.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The four required D2 observations are not all negative, so I cannot report a missing-rule finding.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The four required D2 observations are not all negative, so I cannot report a missing-rule finding."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: T6BO02.\nClause: RBI-KYC-Master-Direction-2016 Section 3(a)(iv)(b) (version 2016-02-25, effective 2016-02-25): Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO02"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 16, \"line_start\": 12, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 17, \"name\": \"2100-CHECK-PROFIT-SHARE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\d673e8ba7c2d2cdc9e9845eacf0ee5c2c3fb6ef2ac90b5bb4c7731b9d74f0cb1\\\\cases\\\\drift_900000\\\\T6BO02.cbl\", \"program\": \"T6BO02\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO02",
+              "name": "2100-CHECK-PROFIT-SHARE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}], \"code\": \"       2100-CHECK-PROFIT-SHARE.\\n           IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\\n              MOVE 'Y' TO WS-OWNER-RESULT\\n           ELSE\\n              MOVE 'N' TO WS-OWNER-RESULT\\n           END-IF.\", \"name\": \"2100-CHECK-PROFIT-SHARE\", \"ref\": {\"line_end\": 22, \"line_start\": 17, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-PROFIT-SHARE",
+              "program": "T6BO02"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}], \"scoped_program\": \"T6BO02\", \"statements\": [{\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"T6BO02\"}, \"text\": \"05  WS-PROFIT-SHARE      PIC 9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}, \"text\": \"ACCEPT WS-PROFIT-SHARE\"}], \"variable\": \"WS-PROFIT-SHARE\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The implementation denies a person whose profit share does not exceed 15 percent, even though the clause also qualifies a person whose capital ownership or entitlement exceeds 15 percent.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=2]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_110013",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Master-Direction-2016",
+                "clause_id": "Section 3(a)(iv)(b)",
+                "version": "2016-02-25",
+                "effective_date": "2016-02-25",
+                "text": "Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+                "current_value": {
+                  "kind": "percentage",
+                  "value": 15,
+                  "comparator": "strictly_greater",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "T6BO02",
+                    "paragraph": "2100-CHECK-PROFIT-SHARE",
+                    "file": null,
+                    "line_span": [
+                      18,
+                      21
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-PROFIT-SHARE",
+                  "WS-LEGACY-BO-LIMIT",
+                  "WS-OWNER-RESULT"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D3_contradictory",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "T6BO02",
+                    "line": 18,
+                    "file": null
+                  },
+                  {
+                    "program": "T6BO02",
+                    "line": 21,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The clause qualifies a partnership-firm beneficial owner when ownership of or entitlement to more than 15 percent of capital or profits is met. T6BO02 tests only WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT and moves 'N' to WS-OWNER-RESULT in the other branch, so a person meeting the capital limb with profit share at or below 15 percent is denied."
+            },
+            "claim": "For a partnership firm, a beneficial owner is the natural person or persons who, alone or together, directly or through one or more juridical persons, has or have ownership of or entitlement to more than 15 percent of the firm's capital or profits.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "MOVE 'N' TO WS-OWNER-RESULT",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The clause accepts either the capital or profit criterion above 15 percent. T6BO02 tests only profit share and sets the result to N otherwise, denying a person who meets the capital criterion while not exceeding the profit-share threshold.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The implementation denies a person whose profit share does not exceed 15 percent, even though the clause also qualifies a person whose capital ownership or entitlement exceeds 15 percent.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO02\",\"paragraph\":\"2100-CHECK-PROFIT-SHARE\",\"file\":\"T6BO02.cbl\",\"line_span\":[18,21]}],\"slice_vars\":[\"WS-PROFIT-SHARE\",\"WS-LEGACY-BO-LIMIT\",\"WS-OWNER-RESULT\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO02\",\"line\":18,\"file\":\"T6BO02.cbl\"},{\"program\":\"T6BO02\",\"line\":21,\"file\":\"T6BO02.cbl\"}]},\"rationale\":\"The clause qualifies a partnership-firm beneficial owner when ownership of or entitlement to more than 15 percent of capital or profits is met. T6BO02 tests only WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT and moves 'N' to WS-OWNER-RESULT in the other branch, so a person meeting the capital limb with profit share at or below 15 percent is denied.\"},\"claim\":\"For a partnership firm, a beneficial owner is the natural person or persons who, alone or together, directly or through one or more juridical persons, has or have ownership of or entitlement to more than 15 percent of the firm's capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"MOVE 'N' TO WS-OWNER-RESULT\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause accepts either the capital or profit criterion above 15 percent. T6BO02 tests only profit share and sets the result to N otherwise, denying a person who meets the capital criterion while not exceeding the profit-share threshold.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: D3 rationale must name the conflicting outcomes",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: D3 rationale must name the conflicting outcomes",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: D3 rationale must name the conflicting outcomes"
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: T6BO02.\nClause: RBI-KYC-Master-Direction-2016 Section 3(a)(iv)(b) (version 2016-02-25, effective 2016-02-25): Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current value is a percentage threshold, not an enum_set reference collection.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 stale reference-data hunting does not apply to this clause value.",
+            "final_answer": "D4 stale reference-data hunting does not apply to this clause value.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value is a percentage threshold, not an enum_set reference collection.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 stale reference-data hunting does not apply to this clause value.\",\"final_answer\":\"D4 stale reference-data hunting does not apply to this clause value.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: T6BO02.\nClause: RBI-KYC-Master-Direction-2016 Section 3(a)(iv)(b) (version 2016-02-25, effective 2016-02-25): Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO02"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 16, \"line_start\": 12, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 17, \"name\": \"2100-CHECK-PROFIT-SHARE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\d673e8ba7c2d2cdc9e9845eacf0ee5c2c3fb6ef2ac90b5bb4c7731b9d74f0cb1\\\\cases\\\\drift_900000\\\\T6BO02.cbl\", \"program\": \"T6BO02\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO02",
+              "name": "2100-CHECK-PROFIT-SHARE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}], \"code\": \"       2100-CHECK-PROFIT-SHARE.\\n           IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\\n              MOVE 'Y' TO WS-OWNER-RESULT\\n           ELSE\\n              MOVE 'N' TO WS-OWNER-RESULT\\n           END-IF.\", \"name\": \"2100-CHECK-PROFIT-SHARE\", \"ref\": {\"line_end\": 22, \"line_start\": 17, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "WS-LEGACY-BO-LIMIT",
+              "program": "T6BO02"
+            },
+            "observation_summary": "{\"scoped_program\": \"T6BO02\", \"sites\": [{\"excerpt\": \"05  WS-LEGACY-BO-LIMIT   PIC 9(3)V99 VALUE 15.\", \"kind\": \"def\", \"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6BO02\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\", \"kind\": \"use\", \"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-LEGACY-BO-LIMIT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The source uses a strict greater-than comparison and sets the positive result only in that branch, matching the clause's strictly-greater boundary.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No D5 early or late boundary transition is evidenced.",
+            "final_answer": "No D5 early or late boundary transition is evidenced.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source uses a strict greater-than comparison and sets the positive result only in that branch, matching the clause's strictly-greater boundary.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No D5 early or late boundary transition is evidenced.\",\"final_answer\":\"No D5 early or late boundary transition is evidenced.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No D5 early or late boundary transition is evidenced.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No D5 early or late boundary transition is evidenced.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No D5 early or late boundary transition is evidenced."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: T6BO02.\nClause: RBI-KYC-Master-Direction-2016 Section 3(a)(iv)(b) (version 2016-02-25, effective 2016-02-25): Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO02",
+              "name": "2100-CHECK-PROFIT-SHARE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}], \"code\": \"       2100-CHECK-PROFIT-SHARE.\\n           IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\\n              MOVE 'Y' TO WS-OWNER-RESULT\\n           ELSE\\n              MOVE 'N' TO WS-OWNER-RESULT\\n           END-IF.\", \"name\": \"2100-CHECK-PROFIT-SHARE\", \"ref\": {\"line_end\": 22, \"line_start\": 17, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6BO02",
+              "para": "2100-CHECK-PROFIT-SHARE"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO02",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-PROFIT-SHARE\\n           PERFORM 2100-CHECK-PROFIT-SHARE\\n           DISPLAY WS-OWNER-RESULT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 16, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The check paragraph has a caller from 1000-MAIN, and 1000-MAIN performs it before displaying the result.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The bounded observations show the compliance paragraph is reachable, with no disabled-guard evidence.",
+            "final_answer": "The bounded observations show the compliance paragraph is reachable, with no disabled-guard evidence.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The check paragraph has a caller from 1000-MAIN, and 1000-MAIN performs it before displaying the result.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The bounded observations show the compliance paragraph is reachable, with no disabled-guard evidence.\",\"final_answer\":\"The bounded observations show the compliance paragraph is reachable, with no disabled-guard evidence.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The bounded observations show the compliance paragraph is reachable, with no disabled-guard evidence.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The bounded observations show the compliance paragraph is reachable, with no disabled-guard evidence.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The bounded observations show the compliance paragraph is reachable, with no disabled-guard evidence."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: T6BO02.\nClause: RBI-KYC-Master-Direction-2016 Section 3(a)(iv)(b) (version 2016-02-25, effective 2016-02-25): Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO02"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 16, \"line_start\": 12, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 17, \"name\": \"2100-CHECK-PROFIT-SHARE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\d673e8ba7c2d2cdc9e9845eacf0ee5c2c3fb6ef2ac90b5bb4c7731b9d74f0cb1\\\\cases\\\\drift_900000\\\\T6BO02.cbl\", \"program\": \"T6BO02\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO02",
+              "name": "2100-CHECK-PROFIT-SHARE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO02\"}], \"code\": \"       2100-CHECK-PROFIT-SHARE.\\n           IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\\n              MOVE 'Y' TO WS-OWNER-RESULT\\n           ELSE\\n              MOVE 'N' TO WS-OWNER-RESULT\\n           END-IF.\", \"name\": \"2100-CHECK-PROFIT-SHARE\", \"ref\": {\"line_end\": 22, \"line_start\": 17, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "WS-LEGACY-BO-LIMIT",
+              "program": "T6BO02"
+            },
+            "observation_summary": "{\"scoped_program\": \"T6BO02\", \"sites\": [{\"excerpt\": \"05  WS-LEGACY-BO-LIMIT   PIC 9(3)V99 VALUE 15.\", \"kind\": \"def\", \"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6BO02\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\", \"kind\": \"use\", \"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": \"2100-CHECK-PROFIT-SHARE\", \"program\": \"T6BO02\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-LEGACY-BO-LIMIT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The 15 percent strict threshold is present, but the bounded evidence shows only a profit-share test and does not establish the clause's alternative capital criterion or its other stated scope conditions.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Positive threshold evidence alone is insufficient to establish full conformance with the supplied clause.",
+            "final_answer": "Positive threshold evidence alone is insufficient to establish full conformance with the supplied clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The 15 percent strict threshold is present, but the bounded evidence shows only a profit-share test and does not establish the clause's alternative capital criterion or its other stated scope conditions.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Positive threshold evidence alone is insufficient to establish full conformance with the supplied clause.\",\"final_answer\":\"Positive threshold evidence alone is insufficient to establish full conformance with the supplied clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "Positive threshold evidence alone is insufficient to establish full conformance with the supplied clause.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: Positive threshold evidence alone is insufficient to establish full conformance with the supplied clause.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "Positive threshold evidence alone is insufficient to establish full conformance with the supplied clause."
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "4a182b2e461484ec45eed948f2795bc7d863471b180da66c3440c3046fd64e34",
+  "run_key": "1277020bd0273e5c1234765c17a0435e30605770b9a8205b91ef1b312adcde78"
+}

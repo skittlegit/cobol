@@ -1,0 +1,287 @@
+{
+  "instance_id": "drift_110017",
+  "gold": {
+    "instance_id": "drift_110017",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "Section 3(a)(iv)(b)",
+      "version": "2016-02-25",
+      "effective_date": "2016-02-25",
+      "text": "Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+      "current_value": {
+        "kind": "percentage",
+        "value": 15,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO04",
+          "paragraph": "2300-CLASSIFY-PARTNER",
+          "file": null,
+          "line_span": [
+            15,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAPITAL-INTEREST",
+        "WS-CLASSIFICATION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO04",
+          "line": 17,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "The 2016 clause covers entitlement to more than 15 percent of capital OR profits. T6BO04's only data field is WS-CAPITAL-INTEREST (line 7), explicitly capital-scoped by name; no profit-share field or check exists anywhere in the program (2300-CLASSIFY-PARTNER tests only WS-CAPITAL-INTEREST > 15, line 17). The profits leg of the disjunctive obligation is unimplemented.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6BO04.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110017",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO04",
+          "paragraph": "2300-CLASSIFY-PARTNER",
+          "file": "T6BO04.cbl",
+          "line_span": [
+            16,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAPITAL-INTEREST",
+        "WS-CLASSIFICATION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO04",
+          "line": 17,
+          "file": "T6BO04.cbl"
+        }
+      ]
+    },
+    "rationale": "RBI-KYC-Directions-2025 clause 5(iv)(b) sets the partnership beneficial-owner threshold above 10 percent. T6BO04 tests whether capital interest exceeds 15 at line 17, so interests above 10 and up to 15 percent are classified as NONOWNER."
+  },
+  "confidence": 0.95,
+  "verification": {
+    "verified": true,
+    "tier": 1,
+    "evidence": "ran T6BO04; observed 'NONOWNER' in output ('NONOWNER')",
+    "citation_ok": true,
+    "entailment_probability": 0.9955,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "verified",
+        "detail": "ran T6BO04; observed 'NONOWNER' in output ('NONOWNER')"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: RAG+reranker single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"score\":8.301251411437988}],\"program\":\"FILE T6BO04.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6BO04.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-DECLARATION.\\n0007:            05  WS-CAPITAL-INTEREST   PIC 9(3)V99 VALUE ZERO.\\n0008:            05  WS-CLASSIFICATION     PIC X(8) VALUE 'NONOWNER'.\\n0009:        PROCEDURE DIVISION.\\n0010:        1000-MAIN.\\n0011:            ACCEPT WS-CAPITAL-INTEREST\\n0012:            PERFORM 2300-CLASSIFY-PARTNER\\n0013:            DISPLAY WS-CLASSIFICATION\\n0014:            STOP RUN.\\n0015:        2300-CLASSIFY-PARTNER.\\n0016:            EVALUATE TRUE\\n0017:               WHEN WS-CAPITAL-INTEREST > 15\\n0018:                  MOVE 'OWNER' TO WS-CLASSIFICATION\\n0019:               WHEN OTHER\\n0020:                  MOVE 'NONOWNER' TO WS-CLASSIFICATION\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The retrieved clause sets the threshold above 10 percent. The source classifies as owner only when capital interest exceeds 15.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110017",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO04",
+                "paragraph": "2300-CLASSIFY-PARTNER",
+                "file": "T6BO04.cbl",
+                "line_span": [
+                  16,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CAPITAL-INTEREST",
+              "WS-CLASSIFICATION"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO04",
+                "line": 17,
+                "file": "T6BO04.cbl"
+              }
+            ]
+          },
+          "rationale": "RBI-KYC-Directions-2025 clause 5(iv)(b) sets the partnership beneficial-owner threshold above 10 percent. T6BO04 tests whether capital interest exceeds 15 at line 17, so interests above 10 and up to 15 percent are classified as NONOWNER."
+        },
+        "claim": "For a partnership firm, a natural person with ownership of or entitlement to more than 10 percent of its capital or profits is a beneficial owner.",
+        "exec_probe": {
+          "stdin": "11",
+          "expect_substring": "NONOWNER",
+          "description": "An 11 percent input should show that the source still classifies the person as NONOWNER under its 15 percent threshold."
+        },
+        "static_claim": {
+          "literal": "15",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The selected clause sets the partnership beneficial-owner threshold above 10 percent. T6BO04 classifies only capital interests above 15 percent as OWNER, so interests above 10 and up to 15 percent are missed.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The retrieved clause sets the threshold above 10 percent. The source classifies as owner only when capital interest exceeds 15.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO04\",\"paragraph\":\"2300-CLASSIFY-PARTNER\",\"file\":\"T6BO04.cbl\",\"line_span\":[16,20]}],\"slice_vars\":[\"WS-CAPITAL-INTEREST\",\"WS-CLASSIFICATION\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO04\",\"line\":17,\"file\":\"T6BO04.cbl\"}]},\"rationale\":\"RBI-KYC-Directions-2025 clause 5(iv)(b) sets the partnership beneficial-owner threshold above 10 percent. T6BO04 tests whether capital interest exceeds 15 at line 17, so interests above 10 and up to 15 percent are classified as NONOWNER.\"},\"claim\":\"For a partnership firm, a natural person with ownership of or entitlement to more than 10 percent of its capital or profits is a beneficial owner.\",\"exec_probe\":{\"stdin\":\"11\",\"expect_substring\":\"NONOWNER\",\"description\":\"An 11 percent input should show that the source still classifies the person as NONOWNER under its 15 percent threshold.\"},\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The selected clause sets the partnership beneficial-owner threshold above 10 percent. T6BO04 classifies only capital interests above 15 percent as OWNER, so interests above 10 and up to 15 percent are missed.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 1,
+      "evidence": "ran T6BO04; observed 'NONOWNER' in output ('NONOWNER')",
+      "citation_ok": true,
+      "entailment_probability": 0.9955,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "verified",
+          "detail": "ran T6BO04; observed 'NONOWNER' in output ('NONOWNER')"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110017",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "5(iv)(b)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "current_value": {
+          "kind": "percentage",
+          "value": 10,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6BO04",
+            "paragraph": "2300-CLASSIFY-PARTNER",
+            "file": "T6BO04.cbl",
+            "line_span": [
+              16,
+              20
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CAPITAL-INTEREST",
+          "WS-CLASSIFICATION"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6BO04",
+            "line": 17,
+            "file": "T6BO04.cbl"
+          }
+        ]
+      },
+      "rationale": "RBI-KYC-Directions-2025 clause 5(iv)(b) sets the partnership beneficial-owner threshold above 10 percent. T6BO04 tests whether capital interest exceeds 15 at line 17, so interests above 10 and up to 15 percent are classified as NONOWNER."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The selected clause sets the partnership beneficial-owner threshold above 10 percent. T6BO04 classifies only capital interests above 15 percent as OWNER, so interests above 10 and up to 15 percent are missed.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_reranker",
+  "source_sha256": "3795d7f3d38a3c08cd4ad7e75528b40318e0b5ed4dfe99706a74c5670a9690a7",
+  "run_key": "8283e03d4c6f2124f707ac15ca2175aee18444f0eb1fd76df1d97574fc646d0e"
+}

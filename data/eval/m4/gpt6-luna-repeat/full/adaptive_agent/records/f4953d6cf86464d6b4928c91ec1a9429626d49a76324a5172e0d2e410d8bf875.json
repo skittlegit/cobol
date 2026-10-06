@@ -1,0 +1,331 @@
+{
+  "instance_id": "drift_558956",
+  "gold": {
+    "instance_id": "drift_558956",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(2)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "no_capitalization_of_unpaid_charges",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BATCHCT1",
+          "paragraph": "1000-MAIN",
+          "file": "BATCHCT1.cbl",
+          "line_span": [
+            13,
+            13
+          ]
+        },
+        {
+          "program": "BATCHCT2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            14,
+            14
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PENALTY"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "BATCHCT1",
+          "line": 13,
+          "file": "BATCHCT1.cbl"
+        }
+      ]
+    },
+    "gold_rationale": "MO-6× changes \"MOVE 'Y' TO WS-PEN-RUN-FLAG\" to \"MOVE 'N' TO WS-PEN-RUN-FLAG\" at BATCHCT1:BATCHCT1.cbl:13-13+BATCHCT2:1000-MAIN:14-14, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "BATCHCT2.cbl",
+      "mutation": "MO-6×; locus=BATCHCT1:BATCHCT1.cbl:13-13+BATCHCT2:1000-MAIN:14-14; old=\"MOVE 'Y' TO WS-PEN-RUN-FLAG\"; new=\"MOVE 'N' TO WS-PEN-RUN-FLAG\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`. Keep the claim as a close paraphrase of the supplied\nclause and preserve its distinctive regulated terms; do not add an entity,\nqualifier, or mechanism that the clause does not state.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor D7 over a boolean-required behavior, choose a literal that directly\nparticipates in the conformant operation (for example, the excluded amount in\nthe subtraction), not an unrelated nearby threshold or branch token.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 when the specific regulated behavior or required violation outcome\n  is absent. Inspect the relevant paragraph, scoped grep, and data slice,\n  but distinguish positive surrounding control flow from positive evidence of\n  the required outcome itself. A present compliant branch does not cure a\n  missing breach/overdue/denial branch. Do not invent an unstated date\n  derivation, preprocessing step, or implementation mechanism as a missing\n  rule. If complete positive code evidence matches the clause and no supported\n  drift remains, consider D7.\n  Treat a one-sided state machine as incomplete when the regulated outcome for\n  the other side is absent: `days <= 30 -> UPDATE` without an explicit\n  `days > 30 -> BREACH` outcome is D2, and `today <= due -> OK` without an\n  explicit overdue outcome is D2. A zero-day `NEW` special case does not\n  implement a required seven-day SLA. Do not call these partial machines D7.\n- Choose D3 when reachable source behavior positively contradicts the trusted\n  clause. Two source loci are required only for an internal source conflict;\n  one typed computation can contradict the clause directly. For a required\n  exclusion, accepting a regulated amount and then computing the base without\n  excluding it is contradictory, not conformant-by-absence.\n  A validation rule that detects the regulated violation and sets a denial or\n  invalid state, followed by a reachable action that ignores or bypasses that\n  state, is also D3: the implemented validation and action conflict. Do not\n  relabel that case D2 merely because the final gate is malformed or absent.\n  Reserve D2 for a required outcome that is absent without an existing source\n  state or action that positively conflicts with the requirement.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- For D7, put the positive source location in `code_locus`, but set\n  `labels.program_level` and `labels.paragraph_level` to `conformant` and set\n  `labels.line_level` to an empty list. D7 line labels identify drift and must\n  therefore stay empty. When the clause current value is composite, set\n  `target_path` to the exact matching non-composite leaf.\n- Interpret a comparator together with the branch action and control-flow\n  polarity. Do not call D5 from a token-only comparison between a clause's\n  typed comparator and a source predicate. In an elapsed-window state machine,\n  `elapsed > limit` can be the conformant transition after the full allowed\n  window, while `elapsed >= limit` can fire one boundary unit early. Trace the\n  resulting action and use a boundary probe when possible before choosing D5.\n  Apply these exact elapsed-window checks: `delay > 7` is conformant for a\n  seven-day allowed window and `delay >= 7` is one unit early; `elapsed > 30`\n  is conformant for an at-most-30-day window and `elapsed >= 30` is early;\n  `notice >= 30` is conformant for an at-least-30-day requirement and\n  `notice > 30` is late. Do not cancel an early transition merely because a\n  downstream arithmetic expression happens to evaluate to zero at the edge.\n- Choose D6 when the relevant compliance action is unreachable, including a\n  reachable paragraph whose compliance branch is disabled by an always-false\n  or default-off flag. A paragraph caller does not make guarded statements\n  live. Inspect the guard definition and its uses. Use `dead_paragraph` only\n  for a truly unreachable paragraph; for a disabled guard use an exact source\n  literal as the static hook and explain why the action cannot execute.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"BATCHCT2\",\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(2)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"no_capitalization_of_unpaid_charges\",\"comparator\":null,\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "BATCHCT2"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 19, \"name\": \"2000-ACCRUE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\adaptive_agent\\\\task-staging\\\\f4953d6cf86464d6b4928c91ec1a9429626d49a76324a5172e0d2e410d8bf875\\\\cases\\\\drift_900000\\\\BATCHCT2.cbl\", \"program\": \"BATCHCT2\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "BATCHCT2",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-PEN-RUN-FLAG\\n           ACCEPT WS-DELAY-DAYS\\n           IF PEN-RUN-ON\\n              PERFORM 2000-ACCRUE\\n           END-IF\\n           DISPLAY 'PEN: ' WS-PENALTY\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "BATCHCT2",
+          "name": "2000-ACCRUE"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}], \"code\": \"       2000-ACCRUE.\\n           COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.\", \"name\": \"2000-ACCRUE\", \"ref\": {\"line_end\": 20, \"line_start\": 19, \"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "CHARGE|INTEREST|CAPITAL|PENALTY|DELAY"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 3, \"program\": \"BATCHCT1\", \"text\": \"      * CHAIN STEP 1 - SETS THE PENALTY-RUN CONTROL FLAG\"}, {\"line\": 3, \"program\": \"BATCHCT2\", \"text\": \"      * CHAIN STEP 2 - PENALTY ACCRUAL GUARDED BY CONTROL FLAG\"}, {\"line\": 8, \"program\": \"BATCHCT2\", \"text\": \"       01  WS-DELAY-DAYS             PIC 9(4) VALUE ZERO.\"}, {\"line\": 9, \"program\": \"BATCHCT2\", \"text\": \"       01  WS-PENALTY                PIC 9(9)V99 VALUE ZERO.\"}, {\"line\": 13, \"program\": \"BATCHCT2\", \"text\": \"           ACCEPT WS-DELAY-DAYS\"}, {\"line\": 17, \"program\": \"BATCHCT2\", \"text\": \"           DISPLAY 'PEN: ' WS-PENALTY\"}, {\"line\": 20, \"program\": \"BATCHCT2\", \"text\": \"           COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.\"}, {\"line\": 1, \"program\": \"WSCTLFLG\", \"text\": \"      * BATCH CONTROL FLAGS SHARED ACROSS THE PENALTY CHAIN\"}], \"pattern\": \"CHARGE|INTEREST|CAPITAL|PENALTY|DELAY\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 5,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-PENALTY",
+          "program": "BATCHCT2"
+        },
+        "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, {\"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}], \"scoped_program\": \"BATCHCT2\", \"statements\": [{\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"BATCHCT2\"}, \"text\": \"01  WS-DELAY-DAYS             PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"BATCHCT2\"}, \"text\": \"01  WS-PENALTY                PIC 9(9)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, \"text\": \"ACCEPT WS-DELAY-DAYS\"}, {\"ref\": {\"line_end\": 15, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, \"text\": \"PERFORM 2000-ACCRUE\"}, {\"ref\": {\"line_end\": 20, \"line_start\": 20, \"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}, \"text\": \"COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.\"}], \"variable\": \"WS-PENALTY\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 6,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "PEN-RUN-ON|WS-PEN-RUN-FLAG"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 13, \"program\": \"BATCHCT1\", \"text\": \"              MOVE 'N' TO WS-PEN-RUN-FLAG\"}, {\"line\": 15, \"program\": \"BATCHCT1\", \"text\": \"           DISPLAY 'PENFLAG: ' WS-PEN-RUN-FLAG\"}, {\"line\": 12, \"program\": \"BATCHCT2\", \"text\": \"           ACCEPT WS-PEN-RUN-FLAG\"}, {\"line\": 14, \"program\": \"BATCHCT2\", \"text\": \"           IF PEN-RUN-ON\"}, {\"line\": 3, \"program\": \"WSCTLFLG\", \"text\": \"           05  WS-PEN-RUN-FLAG       PIC X(1) VALUE 'N'.\"}, {\"line\": 4, \"program\": \"WSCTLFLG\", \"text\": \"               88  PEN-RUN-ON        VALUE 'Y'.\"}], \"pattern\": \"PEN-RUN-ON|WS-PEN-RUN-FLAG\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 7,
+        "tool": "resolve_copybook",
+        "arguments": {
+          "name": "WSCTLFLG"
+        },
+        "observation_summary": "{\"line_map\": [{\"expanded_end\": 4, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\adaptive_agent\\\\task-staging\\\\f4953d6cf86464d6b4928c91ec1a9429626d49a76324a5172e0d2e410d8bf875\\\\cases\\\\drift_900000\\\\WSCTLFLG.cpy\", \"source_line_start\": 1}], \"name\": \"WSCTLFLG\", \"text\": \"      * BATCH CONTROL FLAGS SHARED ACROSS THE PENALTY CHAIN\\n       01  WS-CTL-FLAGS.\\n           05  WS-PEN-RUN-FLAG       PIC X(1) VALUE 'N'.\\n               88  PEN-RUN-ON        VALUE 'Y'.\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 8,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "UNPAID|CHARG|LEVY|TAX|INTEREST|MINIMUM|AMOUNT"
+        },
+        "observation_summary": "{\"matches\": [], \"pattern\": \"UNPAID|CHARG|LEVY|TAX|INTEREST|MINIMUM|AMOUNT\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The reachable flow only computes a delay-based penalty, and the scoped paragraphs, source search, and data slice contain no minimum-amount-due or unpaid-charge interest treatment. D2 is the best-supported class.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_558956",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "23(2)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+            "current_value": {
+              "kind": "boolean_required",
+              "value": "no_capitalization_of_unpaid_charges",
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "BATCHCT2",
+                "paragraph": "2000-ACCRUE",
+                "file": null,
+                "line_span": [
+                  19,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-PENALTY",
+              "WS-DELAY-DAYS"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": []
+          },
+          "rationale": "BATCHCT2 accepts delay days and, when the run flag is on, computes WS-PENALTY as 500 times WS-DELAY-DAYS. Its reachable flow and data slice show no minimum-amount-due calculation, unpaid-charge, levy, or tax amount, interest base, or exclusion step. The required behavior is absent; the observed formula alone does not show that a charge is capitalized."
+        },
+        "claim": "The Minimum Amount Due must be stipulated so there is no negative amortization, and unpaid charges, levies and taxes must not be capitalized for charging or compounding interest.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "BATCHCT2 lacks a Minimum Amount Due calculation and any handling that excludes unpaid charges, levies, or taxes from interest capitalization.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The reachable flow only computes a delay-based penalty, and the scoped paragraphs, source search, and data slice contain no minimum-amount-due or unpaid-charge interest treatment. D2 is the best-supported class.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"BATCHCT2\",\"paragraph\":\"2000-ACCRUE\",\"file\":null,\"line_span\":[19,20]}],\"slice_vars\":[\"WS-PENALTY\",\"WS-DELAY-DAYS\"],\"is_interprocedural\":true},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[]},\"rationale\":\"BATCHCT2 accepts delay days and, when the run flag is on, computes WS-PENALTY as 500 times WS-DELAY-DAYS. Its reachable flow and data slice show no minimum-amount-due calculation, unpaid-charge, levy, or tax amount, interest base, or exclusion step. The required behavior is absent; the observed formula alone does not show that a charge is capitalized.\"},\"claim\":\"The Minimum Amount Due must be stipulated so there is no negative amortization, and unpaid charges, levies and taxes must not be capitalized for charging or compounding interest.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"BATCHCT2 lacks a Minimum Amount Due calculation and any handling that excludes unpaid charges, levies, or taxes from interest capitalization.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 1,
+            "observation_sha256": "c8312079ba8bda4481f704fcb3e0e51b76fe0e4e1d0db7f5527cbb4a3108b8c7",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "context",
+            "rationale": "The program index identifies 1000-MAIN and 2000-ACCRUE as the complete paragraph paths to inspect; the index itself establishes scope but shows no behavior."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "9f50571b3283295cb531d280ef3aa41dbe661c313460479618039371c1296ae8",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "1000-MAIN accepts a run flag and delay days, conditionally performs 2000-ACCRUE, and displays a penalty; this flow contains no minimum-amount-due or charge/interest handling."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "a9d844b83011febc148495bb35f201bb0b5bfbe09c9aa53866fd3db7eb47b906",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "2000-ACCRUE's only operation computes WS-PENALTY as 500 times WS-DELAY-DAYS, with no amount-due or charge/interest rule."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "ef83f44b5b2d8ccff0a2fac8ff2126a966759b42a76690602ee473d8fcc4fd00",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "The matching BATCHCT2 source tokens are the delay and penalty fields, acceptance, display, and computation; no charge, interest, or capitalization source token appears in this search."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "1cd1b5be8e342dd5be46830a3223b2823a3b84f37433bd0062c555ad01124b87",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "The WS-PENALTY data slice covers its declaration, the accepted delay input, the call to accrual, and the delay-based computation; no unpaid-charge or interest value participates."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "9f50571b3283295cb531d280ef3aa41dbe661c313460479618039371c1296ae8",
+            "hypothesis": "D6_dead_code",
+            "bearing": "context",
+            "rationale": "The program accepts WS-PEN-RUN-FLAG before testing PEN-RUN-ON, so the guarded branch depends on the accepted value and is not shown to be permanently disabled."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "cf729492ea0e919c42ff4eed09603c5ace5da5092d5847f387083fa4b7dd9854",
+            "hypothesis": "D6_dead_code",
+            "bearing": "context",
+            "rationale": "The flag is accepted before the guard and its condition is PEN-RUN-ON; the default value alone does not establish that this branch is unreachable."
+          },
+          {
+            "observation_step": 7,
+            "observation_sha256": "f9d175682d8a51bdd3f2957d1db5740376cd5d7d66c406ef5ee9d78b6b387d76",
+            "hypothesis": "D6_dead_code",
+            "bearing": "context",
+            "rationale": "The copybook defines an initial 'N' value and a true condition at 'Y', clarifying the guard's values but not proving the branch is disabled after the input is accepted."
+          },
+          {
+            "observation_step": 8,
+            "observation_sha256": "235691bc5ebc483238023787f64366fd74f4b44456246c466cdf8200c77a0f89",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "The case-local source search for unpaid charges, charges, levies, taxes, interest, minimum, and amount returns no matches, consistent with the relevant paragraphs and slice lacking these required behaviors."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "a9d844b83011febc148495bb35f201bb0b5bfbe09c9aa53866fd3db7eb47b906",
+            "hypothesis": "D3_contradictory",
+            "bearing": "refutes",
+            "rationale": "The observed calculation is based on delay days and does not add an unpaid charge to an interest base, so this locus does not positively contradict the clause."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "1cd1b5be8e342dd5be46830a3223b2823a3b84f37433bd0062c555ad01124b87",
+            "hypothesis": "D7_conformant",
+            "bearing": "refutes",
+            "rationale": "The complete available penalty slice shows no check or operation that excludes unpaid charges from interest or stipulates a minimum amount due; there is no positive evidence for conformance."
+          }
+        ]
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "policy evidence guard: D2 requires typed insertion-point line labels",
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: policy evidence guard: D2 requires typed insertion-point line labels",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "policy evidence guard: D2 requires typed insertion-point line labels",
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "6b07cf5a4909c16671ed88b387cbcfc6a67df2ab0d5b765f37bf46e979147219",
+  "run_key": "f4953d6cf86464d6b4928c91ec1a9429626d49a76324a5172e0d2e410d8bf875"
+}

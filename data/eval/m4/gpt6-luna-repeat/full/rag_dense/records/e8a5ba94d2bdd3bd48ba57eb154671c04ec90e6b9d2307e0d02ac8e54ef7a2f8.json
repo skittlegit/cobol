@@ -1,0 +1,371 @@
+{
+  "instance_id": "drift_953617",
+  "gold": {
+    "instance_id": "drift_953617",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "42(1)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "high_risk": {
+            "kind": "duration_years",
+            "value": 2,
+            "comparator": "at_most",
+            "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+          },
+          "medium_risk": {
+            "kind": "duration_years",
+            "value": 8,
+            "comparator": "at_most",
+            "note": null
+          },
+          "low_risk": {
+            "kind": "duration_years",
+            "value": 10,
+            "comparator": "at_most",
+            "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSCHED1",
+          "paragraph": "2000-CHECK-DUE",
+          "file": null,
+          "line_span": [
+            27,
+            27
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-YEARS-SINCE-KYC"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "high_risk",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSCHED1",
+          "line": 27,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-1 changes '2' to '5' at KYCSCHED1:2000-CHECK-DUE:27-27, producing D1_stale_threshold.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSCHED1.cbl",
+      "mutation": "MO-1; locus=KYCSCHED1:2000-CHECK-DUE:27-27; old='2'; new='5'; validation=compiled; stale_source=grid_fallback; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_953617",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "42(1)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "high_risk": {
+            "kind": "duration_years",
+            "value": 2,
+            "comparator": "at_most",
+            "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+          },
+          "medium_risk": {
+            "kind": "duration_years",
+            "value": 8,
+            "comparator": "at_most",
+            "note": null
+          },
+          "low_risk": {
+            "kind": "duration_years",
+            "value": 10,
+            "comparator": "at_most",
+            "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSCHED1",
+          "paragraph": "2000-CHECK-DUE",
+          "file": "KYCSCHED1.cbl",
+          "line_span": [
+            25,
+            29
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-RISK-RATING",
+        "WS-YEARS-SINCE-KYC",
+        "WS-KYC-DUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "high_risk",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSCHED1",
+          "line": 27,
+          "file": "KYCSCHED1.cbl"
+        }
+      ]
+    },
+    "rationale": "The clause requires high-risk KYC updation at least once every two years. KYCSCHED1 waits until WS-YEARS-SINCE-KYC is greater than or equal to 5 before setting WS-KYC-DUE for high-risk customers at line 27, so this threshold is too lax. The selected composite leaf is high_risk."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "KYCSCHED1:2000-CHECK-DUE — literal '5' present; comparator '>=' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9916,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "KYCSCHED1:2000-CHECK-DUE — literal '5' present; comparator '>=' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"42(1)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"high_risk\":{\"kind\":\"duration_years\",\"value\":2,\"comparator\":\"at_most\",\"note\":\"Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right.\"},\"medium_risk\":{\"kind\":\"duration_years\",\"value\":8,\"comparator\":\"at_most\",\"note\":null},\"low_risk\":{\"kind\":\"duration_years\",\"value\":10,\"comparator\":\"at_most\",\"note\":\"10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side.\"}},\"comparator\":null,\"note\":null}},\"score\":0.9073542864046651},{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"score\":0.7290645119381041}],\"program\":\"FILE KYCSCHED1.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. KYCSCHED1.\\n0003:       *----------------------------------------------------------------\\n0004:       * PERIODIC KYC UPDATION SCHEDULER\\n0005:       * HIGH RISK 2 YRS / MEDIUM 8 YRS / LOW 10 YRS\\n0006:       *----------------------------------------------------------------\\n0007:        ENVIRONMENT DIVISION.\\n0008:        DATA DIVISION.\\n0009:        WORKING-STORAGE SECTION.\\n0010:        01  WS-CUST-REC.\\n0011:            05  WS-RISK-RATING        PIC X(1) VALUE SPACE.\\n0012:            05  WS-YEARS-SINCE-KYC    PIC 9(2) VALUE ZERO.\\n0013:        01  WS-FLAGS.\\n0014:            05  WS-KYC-DUE            PIC X(1) VALUE 'N'.\\n0015:        01  FILLER                    PIC X(7) VALUE SPACES.\\n0016:        01  FILLER                    PIC X(7) VALUE SPACES.\\n0017:        PROCEDURE DIVISION.\\n0018:        1000-MAIN.\\n0019:            ACCEPT WS-RISK-RATING\\n0020:            ACCEPT WS-YEARS-SINCE-KYC\\nFILE KYCSCHED1.cbl LINES 21-38\\n0021:            PERFORM 2000-CHECK-DUE\\n0022:            DISPLAY 'KYC-DUE: ' WS-KYC-DUE\\n0023:            STOP RUN.\\n0024:        2000-CHECK-DUE.\\n0025:            EVALUATE WS-RISK-RATING\\n0026:              WHEN 'H'\\n0027:                IF WS-YEARS-SINCE-KYC >= 5\\n0028:                   MOVE 'Y' TO WS-KYC-DUE\\n0029:                END-IF\\n0030:              WHEN 'M'\\n0031:                IF WS-YEARS-SINCE-KYC >= 8\\n0032:                   MOVE 'Y' TO WS-KYC-DUE\\n0033:                END-IF\\n0034:              WHEN OTHER\\n0035:                IF WS-YEARS-SINCE-KYC >= 10\\n0036:                   MOVE 'Y' TO WS-KYC-DUE\\n0037:                END-IF\\n0038:            END-EVALUATE.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The clause requires periodic updation at least once every two years for high-risk customers. The code waits until five years have elapsed for the high-risk branch, exceeding the permitted interval.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_953617",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "42(1)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "high_risk": {
+                  "kind": "duration_years",
+                  "value": 2,
+                  "comparator": "at_most",
+                  "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+                },
+                "medium_risk": {
+                  "kind": "duration_years",
+                  "value": 8,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "low_risk": {
+                  "kind": "duration_years",
+                  "value": 10,
+                  "comparator": "at_most",
+                  "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSCHED1",
+                "paragraph": "2000-CHECK-DUE",
+                "file": "KYCSCHED1.cbl",
+                "line_span": [
+                  25,
+                  29
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-RISK-RATING",
+              "WS-YEARS-SINCE-KYC",
+              "WS-KYC-DUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "high_risk",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSCHED1",
+                "line": 27,
+                "file": "KYCSCHED1.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause requires high-risk KYC updation at least once every two years. KYCSCHED1 waits until WS-YEARS-SINCE-KYC is greater than or equal to 5 before setting WS-KYC-DUE for high-risk customers at line 27, so this threshold is too lax. The selected composite leaf is high_risk."
+        },
+        "claim": "Periodic KYC updation shall occur at least once every two years for high-risk customers, measured from account opening or the last KYC updation.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "5",
+          "comparator": ">=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "For high-risk customers, the code waits five years before marking KYC due, while the clause requires updation at least once every two years.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The clause requires periodic updation at least once every two years for high-risk customers. The code waits until five years have elapsed for the high-risk branch, exceeding the permitted interval.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"file\":\"KYCSCHED1.cbl\",\"line_span\":[25,29]}],\"slice_vars\":[\"WS-RISK-RATING\",\"WS-YEARS-SINCE-KYC\",\"WS-KYC-DUE\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"high_risk\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"KYCSCHED1\",\"line\":27,\"file\":\"KYCSCHED1.cbl\"}]},\"rationale\":\"The clause requires high-risk KYC updation at least once every two years. KYCSCHED1 waits until WS-YEARS-SINCE-KYC is greater than or equal to 5 before setting WS-KYC-DUE for high-risk customers at line 27, so this threshold is too lax. The selected composite leaf is high_risk.\"},\"claim\":\"Periodic KYC updation shall occur at least once every two years for high-risk customers, measured from account opening or the last KYC updation.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"5\",\"comparator\":\">=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"For high-risk customers, the code waits five years before marking KYC due, while the clause requires updation at least once every two years.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "KYCSCHED1:2000-CHECK-DUE — literal '5' present; comparator '>=' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9916,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "KYCSCHED1:2000-CHECK-DUE — literal '5' present; comparator '>=' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_953617",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "42(1)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "high_risk": {
+              "kind": "duration_years",
+              "value": 2,
+              "comparator": "at_most",
+              "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+            },
+            "medium_risk": {
+              "kind": "duration_years",
+              "value": 8,
+              "comparator": "at_most",
+              "note": null
+            },
+            "low_risk": {
+              "kind": "duration_years",
+              "value": 10,
+              "comparator": "at_most",
+              "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "KYCSCHED1",
+            "paragraph": "2000-CHECK-DUE",
+            "file": "KYCSCHED1.cbl",
+            "line_span": [
+              25,
+              29
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-RISK-RATING",
+          "WS-YEARS-SINCE-KYC",
+          "WS-KYC-DUE"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": "high_risk",
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "KYCSCHED1",
+            "line": 27,
+            "file": "KYCSCHED1.cbl"
+          }
+        ]
+      },
+      "rationale": "The clause requires high-risk KYC updation at least once every two years. KYCSCHED1 waits until WS-YEARS-SINCE-KYC is greater than or equal to 5 before setting WS-KYC-DUE for high-risk customers at line 27, so this threshold is too lax. The selected composite leaf is high_risk."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "For high-risk customers, the code waits five years before marking KYC due, while the clause requires updation at least once every two years.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "0bbc9c446b7e44c41493bd962afb10da38a1f1ac4dda76eb30cbf0148336f655",
+  "run_key": "e8a5ba94d2bdd3bd48ba57eb154671c04ec90e6b9d2307e0d02ac8e54ef7a2f8"
+}

@@ -1,0 +1,1151 @@
+{
+  "instance_id": "drift_669403",
+  "gold": {
+    "instance_id": "drift_669403",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            21,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-BO-THRESHOLD",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at BOIDENT2:<source>:21-21; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "BOIDENT2.cbl",
+      "mutation": "MO-0; locus=BOIDENT2:<source>:21-21; old='01  FILLER                    PIC X(7) VALUE SPACES.'; new='01  FILLER                    PIC X(10) VALUE SPACES.'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_669403",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT2",
+          "paragraph": "2000-IDENTIFY-BO",
+          "file": null,
+          "line_span": [
+            31,
+            34
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CONTROL-IND",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "BOIDENT2",
+          "line": 33,
+          "file": null
+        },
+        {
+          "program": "BOIDENT2",
+          "line": 34,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The supplied clause sets the partnership threshold at strictly more than 10 percent of capital or profits. The cited IF also accepts WS-CONTROL-IND = 'Y' as an independent OR condition, and the branch then marks the person as a beneficial owner; this route does so when both percentage comparisons are false, contradicting the stated threshold condition."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "BOIDENT2:2000-IDENTIFY-BO — literal \"'Y'\" present; comparator '=' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9962,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "BOIDENT2:2000-IDENTIFY-BO — literal \"'Y'\" present; comparator '=' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: BOIDENT2.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "BOIDENT2",
+          "name": "2000-IDENTIFY-BO"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}], \"code\": \"       2000-IDENTIFY-BO.\\n           IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\\n              MOVE 'Y' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-BO\", \"ref\": {\"line_end\": 35, \"line_start\": 30, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-CONTROL-IND",
+          "program": "BOIDENT2"
+        },
+        "observation_summary": "{\"scoped_program\": \"BOIDENT2\", \"sites\": [{\"excerpt\": \"05  WS-CONTROL-IND        PIC X(1) VALUE 'N'.\", \"kind\": \"def\", \"ref\": {\"line_end\": 14, \"line_start\": 14, \"paragraph\": null, \"program\": \"BOIDENT2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"ACCEPT WS-CONTROL-IND\", \"kind\": \"def\", \"ref\": {\"line_end\": 26, \"line_start\": 26, \"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"ACCEPT\"}, {\"excerpt\": \"IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\", \"kind\": \"use\", \"ref\": {\"line_end\": 33, \"line_start\": 31, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-CONTROL-IND\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "trace_variable",
+        "arguments": {
+          "var": "WS-IS-BO",
+          "program": "BOIDENT2"
+        },
+        "observation_summary": "{\"scoped_program\": \"BOIDENT2\", \"sites\": [{\"excerpt\": \"05  WS-IS-BO              PIC X(1) VALUE 'N'.\", \"kind\": \"def\", \"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": null, \"program\": \"BOIDENT2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"DISPLAY 'BO: ' WS-IS-BO\", \"kind\": \"use\", \"ref\": {\"line_end\": 28, \"line_start\": 28, \"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"DISPLAY\"}, {\"excerpt\": \"MOVE 'Y' TO WS-IS-BO\", \"kind\": \"def\", \"ref\": {\"line_end\": 34, \"line_start\": 34, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"MOVE\"}], \"variable\": \"WS-IS-BO\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The control-indicator branch can independently set beneficial-owner status without either percentage comparison being true.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=2]",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_669403",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "BOIDENT2",
+                "paragraph": "2000-IDENTIFY-BO",
+                "file": null,
+                "line_span": [
+                  31,
+                  34
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CONTROL-IND",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "BOIDENT2",
+                "line": 33,
+                "file": null
+              },
+              {
+                "program": "BOIDENT2",
+                "line": 34,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The supplied clause sets the partnership threshold at strictly more than 10 percent of capital or profits. The cited IF also accepts WS-CONTROL-IND = 'Y' as an independent OR condition, and the branch then marks the person as a beneficial owner; this route does so when both percentage comparisons are false, contradicting the stated threshold condition."
+        },
+        "claim": "For partnership firms, a beneficial owner is the natural person who owns or is entitled to more than 10 percent of capital or profits.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "'Y'",
+          "comparator": "=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The source marks a person as a beneficial owner when the control indicator is Y, even if both percentage tests fail. The supplied clause defines partnership beneficial ownership by ownership or entitlement above 10 percent of capital or profits, so this alternate path contradicts that condition.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The control-indicator branch can independently set beneficial-owner status without either percentage comparison being true.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"BOIDENT2\",\"paragraph\":\"2000-IDENTIFY-BO\",\"file\":\"BOIDENT2.cbl\",\"line_span\":[31,34]}],\"slice_vars\":[\"WS-CONTROL-IND\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"BOIDENT2\",\"line\":33,\"file\":\"BOIDENT2.cbl\"},{\"program\":\"BOIDENT2\",\"line\":34,\"file\":\"BOIDENT2.cbl\"}]},\"rationale\":\"The supplied clause sets the partnership threshold at strictly more than 10 percent of capital or profits. The cited IF also accepts WS-CONTROL-IND = 'Y' as an independent OR condition, and the branch then marks the person as a beneficial owner; this route does so when both percentage comparisons are false, contradicting the stated threshold condition.\"},\"claim\":\"For partnership firms, a beneficial owner is the natural person who owns or is entitled to more than 10 percent of capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"'Y'\",\"comparator\":\"=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The source marks a person as a beneficial owner when the control indicator is Y, even if both percentage tests fail. The supplied clause defines partnership beneficial ownership by ownership or entitlement above 10 percent of capital or profits, so this alternate path contradicts that condition.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "BOIDENT2:2000-IDENTIFY-BO — literal \"'Y'\" present; comparator '=' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9962,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "BOIDENT2:2000-IDENTIFY-BO — literal \"'Y'\" present; comparator '=' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_669403",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "5(iv)(b)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "current_value": {
+          "kind": "percentage",
+          "value": 10,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "BOIDENT2",
+            "paragraph": "2000-IDENTIFY-BO",
+            "file": null,
+            "line_span": [
+              31,
+              34
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CONTROL-IND",
+          "WS-IS-BO"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D3_contradictory",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "BOIDENT2",
+            "line": 33,
+            "file": null
+          },
+          {
+            "program": "BOIDENT2",
+            "line": 34,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The supplied clause sets the partnership threshold at strictly more than 10 percent of capital or profits. The cited IF also accepts WS-CONTROL-IND = 'Y' as an independent OR condition, and the branch then marks the person as a beneficial owner; this route does so when both percentage comparisons are false, contradicting the stated threshold condition."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The source marks a person as a beneficial owner when the control indicator is Y, even if both percentage tests fail. The supplied clause defines partnership beneficial ownership by ownership or entitlement above 10 percent of capital or profits, so this alternate path contradicts that condition.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: BOIDENT2.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "BOIDENT2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 29, \"line_start\": 23, \"name\": \"1000-MAIN\"}, {\"line_end\": 35, \"line_start\": 30, \"name\": \"2000-IDENTIFY-BO\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\66d5efa93591cfaab3fe6a7e5d153f5e5829e80733c006c39860fcce12176cbd\\\\cases\\\\drift_900000\\\\BOIDENT2.cbl\", \"program\": \"BOIDENT2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "15"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"15\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BOIDENT2",
+              "name": "2000-IDENTIFY-BO"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}], \"code\": \"       2000-IDENTIFY-BO.\\n           IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\\n              MOVE 'Y' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-BO\", \"ref\": {\"line_end\": 35, \"line_start\": 30, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "WS-BO-THRESHOLD",
+              "program": "BOIDENT2"
+            },
+            "observation_summary": "{\"scoped_program\": \"BOIDENT2\", \"sites\": [{\"excerpt\": \"05  WS-BO-THRESHOLD       PIC 9(3)V99 VALUE 10.00.\", \"kind\": \"def\", \"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": null, \"program\": \"BOIDENT2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\", \"kind\": \"use\", \"ref\": {\"line_end\": 33, \"line_start\": 31, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"IF\"}, {\"excerpt\": \"IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\", \"kind\": \"use\", \"ref\": {\"line_end\": 33, \"line_start\": 31, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-BO-THRESHOLD\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observed threshold is 10.00 and the source uses a strict greater-than comparison, matching the supplied current value and comparator.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No stale threshold was observed: 10.00 and the strict greater-than test match the supplied clause.",
+            "final_answer": "The threshold value and comparison match the supplied clause, so this hunt found no stale-threshold drift.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed threshold is 10.00 and the source uses a strict greater-than comparison, matching the supplied current value and comparator.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No stale threshold was observed: 10.00 and the strict greater-than test match the supplied clause.\",\"final_answer\":\"The threshold value and comparison match the supplied clause, so this hunt found no stale-threshold drift.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No stale threshold was observed: 10.00 and the strict greater-than test match the supplied clause.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No stale threshold was observed: 10.00 and the strict greater-than test match the supplied clause.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No stale threshold was observed: 10.00 and the strict greater-than test match the supplied clause."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: BOIDENT2.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "NATURAL"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"NATURAL\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "BOIDENT2",
+              "para": "2000-IDENTIFY-BO"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "BOIDENT2",
+              "para": "2000-IDENTIFY-BO"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-CAPITAL-PCT",
+              "program": "BOIDENT2"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}], \"scoped_program\": \"BOIDENT2\", \"statements\": [{\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": null, \"program\": \"BOIDENT2\"}, \"text\": \"05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 24, \"line_start\": 24, \"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}, \"text\": \"ACCEPT WS-CAPITAL-PCT\"}], \"variable\": \"WS-CAPITAL-PCT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 5,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BOIDENT2",
+              "name": "2000-IDENTIFY-BO"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}], \"code\": \"       2000-IDENTIFY-BO.\\n           IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\\n              MOVE 'Y' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-BO\", \"ref\": {\"line_end\": 35, \"line_start\": 30, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The required D2 evidence gate was not met: the scoped grep and callee search were empty, while the caller search and data slice returned positive observations.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The four required D2 observations were not all negative.",
+            "final_answer": "The bounded observations do not satisfy the D2 absence evidence contract.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The required D2 evidence gate was not met: the scoped grep and callee search were empty, while the caller search and data slice returned positive observations.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The four required D2 observations were not all negative.\",\"final_answer\":\"The bounded observations do not satisfy the D2 absence evidence contract.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The four required D2 observations were not all negative.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The four required D2 observations were not all negative.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The four required D2 observations were not all negative."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": true,
+      "finding": {
+        "instance_id": "drift_669403",
+        "regulation_clause": {
+          "doc": "RBI-KYC-Directions-2025",
+          "clause_id": "5(iv)(b)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+          "current_value": {
+            "kind": "percentage",
+            "value": 10,
+            "comparator": "strictly_greater",
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "BOIDENT2",
+              "paragraph": "2000-IDENTIFY-BO",
+              "file": null,
+              "line_span": [
+                31,
+                34
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-CONTROL-IND",
+            "WS-IS-BO"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D3_contradictory",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "BOIDENT2",
+              "line": 33,
+              "file": null
+            },
+            {
+              "program": "BOIDENT2",
+              "line": 34,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "The supplied clause sets the partnership threshold at strictly more than 10 percent of capital or profits. The cited IF also accepts WS-CONTROL-IND = 'Y' as an independent OR condition, and the branch then marks the person as a beneficial owner; this route does so when both percentage comparisons are false, contradicting the stated threshold condition."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "BOIDENT2:2000-IDENTIFY-BO — literal \"'Y'\" present; comparator '=' present",
+        "citation_ok": true,
+        "entailment_probability": 0.9962,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "BOIDENT2:2000-IDENTIFY-BO — literal \"'Y'\" present; comparator '=' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: BOIDENT2.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BOIDENT2",
+              "name": "2000-IDENTIFY-BO"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}], \"code\": \"       2000-IDENTIFY-BO.\\n           IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\\n              MOVE 'Y' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-BO\", \"ref\": {\"line_end\": 35, \"line_start\": 30, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "WS-CONTROL-IND",
+              "program": "BOIDENT2"
+            },
+            "observation_summary": "{\"scoped_program\": \"BOIDENT2\", \"sites\": [{\"excerpt\": \"05  WS-CONTROL-IND        PIC X(1) VALUE 'N'.\", \"kind\": \"def\", \"ref\": {\"line_end\": 14, \"line_start\": 14, \"paragraph\": null, \"program\": \"BOIDENT2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"ACCEPT WS-CONTROL-IND\", \"kind\": \"def\", \"ref\": {\"line_end\": 26, \"line_start\": 26, \"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"ACCEPT\"}, {\"excerpt\": \"IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\", \"kind\": \"use\", \"ref\": {\"line_end\": 33, \"line_start\": 31, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-CONTROL-IND\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "WS-IS-BO",
+              "program": "BOIDENT2"
+            },
+            "observation_summary": "{\"scoped_program\": \"BOIDENT2\", \"sites\": [{\"excerpt\": \"05  WS-IS-BO              PIC X(1) VALUE 'N'.\", \"kind\": \"def\", \"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": null, \"program\": \"BOIDENT2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"DISPLAY 'BO: ' WS-IS-BO\", \"kind\": \"use\", \"ref\": {\"line_end\": 28, \"line_start\": 28, \"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"DISPLAY\"}, {\"excerpt\": \"MOVE 'Y' TO WS-IS-BO\", \"kind\": \"def\", \"ref\": {\"line_end\": 34, \"line_start\": 34, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"MOVE\"}], \"variable\": \"WS-IS-BO\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The control-indicator branch can independently set beneficial-owner status without either percentage comparison being true.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=2]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_669403",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "5(iv)(b)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+                "current_value": {
+                  "kind": "percentage",
+                  "value": 10,
+                  "comparator": "strictly_greater",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "BOIDENT2",
+                    "paragraph": "2000-IDENTIFY-BO",
+                    "file": null,
+                    "line_span": [
+                      31,
+                      34
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-CONTROL-IND",
+                  "WS-IS-BO"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D3_contradictory",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "BOIDENT2",
+                    "line": 33,
+                    "file": null
+                  },
+                  {
+                    "program": "BOIDENT2",
+                    "line": 34,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The supplied clause sets the partnership threshold at strictly more than 10 percent of capital or profits. The cited IF also accepts WS-CONTROL-IND = 'Y' as an independent OR condition, and the branch then marks the person as a beneficial owner; this route does so when both percentage comparisons are false, contradicting the stated threshold condition."
+            },
+            "claim": "For partnership firms, a beneficial owner is the natural person who owns or is entitled to more than 10 percent of capital or profits.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "'Y'",
+              "comparator": "=",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The source marks a person as a beneficial owner when the control indicator is Y, even if both percentage tests fail. The supplied clause defines partnership beneficial ownership by ownership or entitlement above 10 percent of capital or profits, so this alternate path contradicts that condition.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The control-indicator branch can independently set beneficial-owner status without either percentage comparison being true.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"BOIDENT2\",\"paragraph\":\"2000-IDENTIFY-BO\",\"file\":\"BOIDENT2.cbl\",\"line_span\":[31,34]}],\"slice_vars\":[\"WS-CONTROL-IND\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"BOIDENT2\",\"line\":33,\"file\":\"BOIDENT2.cbl\"},{\"program\":\"BOIDENT2\",\"line\":34,\"file\":\"BOIDENT2.cbl\"}]},\"rationale\":\"The supplied clause sets the partnership threshold at strictly more than 10 percent of capital or profits. The cited IF also accepts WS-CONTROL-IND = 'Y' as an independent OR condition, and the branch then marks the person as a beneficial owner; this route does so when both percentage comparisons are false, contradicting the stated threshold condition.\"},\"claim\":\"For partnership firms, a beneficial owner is the natural person who owns or is entitled to more than 10 percent of capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"'Y'\",\"comparator\":\"=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The source marks a person as a beneficial owner when the control indicator is Y, even if both percentage tests fail. The supplied clause defines partnership beneficial ownership by ownership or entitlement above 10 percent of capital or profits, so this alternate path contradicts that condition.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "BOIDENT2:2000-IDENTIFY-BO — literal \"'Y'\" present; comparator '=' present",
+          "citation_ok": true,
+          "entailment_probability": 0.9962,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "BOIDENT2:2000-IDENTIFY-BO — literal \"'Y'\" present; comparator '=' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_669403",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "BOIDENT2",
+                "paragraph": "2000-IDENTIFY-BO",
+                "file": null,
+                "line_span": [
+                  31,
+                  34
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CONTROL-IND",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "BOIDENT2",
+                "line": 33,
+                "file": null
+              },
+              {
+                "program": "BOIDENT2",
+                "line": 34,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The supplied clause sets the partnership threshold at strictly more than 10 percent of capital or profits. The cited IF also accepts WS-CONTROL-IND = 'Y' as an independent OR condition, and the branch then marks the person as a beneficial owner; this route does so when both percentage comparisons are false, contradicting the stated threshold condition."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "The source marks a person as a beneficial owner when the control indicator is Y, even if both percentage tests fail. The supplied clause defines partnership beneficial ownership by ownership or entitlement above 10 percent of capital or profits, so this alternate path contradicts that condition.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: BOIDENT2.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "D4 applies only when the supplied current value is an enum_set reference collection; this clause supplies a percentage value.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The clause current value is a percentage, not an enum_set reference collection.",
+            "final_answer": "This clause does not supply an enum_set reference collection for a D4 stale-reference-data finding.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"D4 applies only when the supplied current value is an enum_set reference collection; this clause supplies a percentage value.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The clause current value is a percentage, not an enum_set reference collection.\",\"final_answer\":\"This clause does not supply an enum_set reference collection for a D4 stale-reference-data finding.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: BOIDENT2.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BOIDENT2",
+              "name": "2000-IDENTIFY-BO"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}], \"code\": \"       2000-IDENTIFY-BO.\\n           IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\\n              MOVE 'Y' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-BO\", \"ref\": {\"line_end\": 35, \"line_start\": 30, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "WS-BO-THRESHOLD",
+              "program": "BOIDENT2"
+            },
+            "observation_summary": "{\"scoped_program\": \"BOIDENT2\", \"sites\": [{\"excerpt\": \"05  WS-BO-THRESHOLD       PIC 9(3)V99 VALUE 10.00.\", \"kind\": \"def\", \"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": null, \"program\": \"BOIDENT2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\", \"kind\": \"use\", \"ref\": {\"line_end\": 33, \"line_start\": 31, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"IF\"}, {\"excerpt\": \"IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\", \"kind\": \"use\", \"ref\": {\"line_end\": 33, \"line_start\": 31, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-BO-THRESHOLD\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-CAPITAL-PCT",
+              "program": "BOIDENT2"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}], \"scoped_program\": \"BOIDENT2\", \"statements\": [{\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": null, \"program\": \"BOIDENT2\"}, \"text\": \"05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 24, \"line_start\": 24, \"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}, \"text\": \"ACCEPT WS-CAPITAL-PCT\"}], \"variable\": \"WS-CAPITAL-PCT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The source compares the percentage against 10.00 using a strict greater-than test, so the transition occurs only above the clause threshold.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No early or late boundary transition was observed.",
+            "final_answer": "The observed comparator places the transition at the boundary required by the clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source compares the percentage against 10.00 using a strict greater-than test, so the transition occurs only above the clause threshold.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No early or late boundary transition was observed.\",\"final_answer\":\"The observed comparator places the transition at the boundary required by the clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No early or late boundary transition was observed.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No early or late boundary transition was observed.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No early or late boundary transition was observed."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: BOIDENT2.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BOIDENT2",
+              "name": "2000-IDENTIFY-BO"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}], \"code\": \"       2000-IDENTIFY-BO.\\n           IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\\n              MOVE 'Y' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-BO\", \"ref\": {\"line_end\": 35, \"line_start\": 30, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "BOIDENT2",
+              "para": "2000-IDENTIFY-BO"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "WS-IS-BO",
+              "program": "BOIDENT2"
+            },
+            "observation_summary": "{\"scoped_program\": \"BOIDENT2\", \"sites\": [{\"excerpt\": \"05  WS-IS-BO              PIC X(1) VALUE 'N'.\", \"kind\": \"def\", \"ref\": {\"line_end\": 16, \"line_start\": 16, \"paragraph\": null, \"program\": \"BOIDENT2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"DISPLAY 'BO: ' WS-IS-BO\", \"kind\": \"use\", \"ref\": {\"line_end\": 28, \"line_start\": 28, \"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"DISPLAY\"}, {\"excerpt\": \"MOVE 'Y' TO WS-IS-BO\", \"kind\": \"def\", \"ref\": {\"line_end\": 34, \"line_start\": 34, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"MOVE\"}], \"variable\": \"WS-IS-BO\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The paragraph has a caller in 1000-MAIN and contains the assignment that marks the beneficial-owner result; no disabled guard was observed.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The relevant paragraph is reachable, and the observed compliance branch is not disabled.",
+            "final_answer": "The bounded evidence does not show dead or disabled compliance code.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The paragraph has a caller in 1000-MAIN and contains the assignment that marks the beneficial-owner result; no disabled guard was observed.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The relevant paragraph is reachable, and the observed compliance branch is not disabled.\",\"final_answer\":\"The bounded evidence does not show dead or disabled compliance code.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The relevant paragraph is reachable, and the observed compliance branch is not disabled.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The relevant paragraph is reachable, and the observed compliance branch is not disabled.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The relevant paragraph is reachable, and the observed compliance branch is not disabled."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: BOIDENT2.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "WS-BO-THRESHOLD",
+              "program": "BOIDENT2"
+            },
+            "observation_summary": "{\"scoped_program\": \"BOIDENT2\", \"sites\": [{\"excerpt\": \"05  WS-BO-THRESHOLD       PIC 9(3)V99 VALUE 10.00.\", \"kind\": \"def\", \"ref\": {\"line_end\": 18, \"line_start\": 18, \"paragraph\": null, \"program\": \"BOIDENT2\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\", \"kind\": \"use\", \"ref\": {\"line_end\": 33, \"line_start\": 31, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"IF\"}, {\"excerpt\": \"IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\", \"kind\": \"use\", \"ref\": {\"line_end\": 33, \"line_start\": 31, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"statement_kind\": \"IF\"}], \"variable\": \"WS-BO-THRESHOLD\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BOIDENT2",
+              "name": "2000-IDENTIFY-BO"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BOIDENT2\"}], \"code\": \"       2000-IDENTIFY-BO.\\n           IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n              OR WS-CONTROL-IND = 'Y'\\n              MOVE 'Y' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-BO\", \"ref\": {\"line_end\": 35, \"line_start\": 30, \"paragraph\": \"2000-IDENTIFY-BO\", \"program\": \"BOIDENT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-BO-THRESHOLD"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 18, \"program\": \"BOIDENT2\", \"text\": \"           05  WS-BO-THRESHOLD       PIC 9(3)V99 VALUE 10.00.\"}, {\"line\": 31, \"program\": \"BOIDENT2\", \"text\": \"           IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\"}, {\"line\": 32, \"program\": \"BOIDENT2\", \"text\": \"              OR WS-PROFIT-PCT > WS-BO-THRESHOLD\"}], \"pattern\": \"WS-BO-THRESHOLD\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The threshold literal and strict greater-than comparison match the clause, but the paragraph also contains an independent control-indicator route, so overall conformance is not established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The threshold check matches, but the alternate classification route prevents a conformance finding.",
+            "final_answer": "The threshold check is aligned with the clause; the alternate route leaves overall conformance unresolved.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The threshold literal and strict greater-than comparison match the clause, but the paragraph also contains an independent control-indicator route, so overall conformance is not established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The threshold check matches, but the alternate classification route prevents a conformance finding.\",\"final_answer\":\"The threshold check is aligned with the clause; the alternate route leaves overall conformance unresolved.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The threshold check matches, but the alternate classification route prevents a conformance finding.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The threshold check matches, but the alternate classification route prevents a conformance finding.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The threshold check matches, but the alternate classification route prevents a conformance finding."
+    }
+  ],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "23b91a8a374603e4e9e66398f13e364f061a9c1e931a3586e1d49ab67f13e917",
+  "run_key": "54743e23bb99d6c2303365507a7bb95c911fe03f6cb19be5492bb4e3e3188de5"
+}

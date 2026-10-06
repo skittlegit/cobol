@@ -1,0 +1,142 @@
+{
+  "instance_id": "drift_891432",
+  "gold": {
+    "instance_id": "drift_891432",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN3",
+          "paragraph": "2000-PEN",
+          "file": null,
+          "line_span": [
+            30,
+            30
+          ]
+        },
+        {
+          "program": "CLOSPEN3",
+          "paragraph": "2000-PEN",
+          "file": null,
+          "line_span": [
+            32,
+            32
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-WORK-DAYS-ELAPSED"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "closure_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN3",
+          "line": 30,
+          "file": null
+        },
+        {
+          "program": "CLOSPEN3",
+          "line": 32,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-1 changes '7' to '10' at CLOSPEN3:2000-PEN:30-30+CLOSPEN3:2000-PEN:32-32, producing D1_stale_threshold.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CLOSPEN3.cbl",
+      "mutation": "MO-1; locus=CLOSPEN3:2000-PEN:30-30+CLOSPEN3:2000-PEN:32-32; old='7'; new='10'; validation=compiled; stale_source=grid_fallback; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"CLOSPEN3\",\"slices\":[{\"variable\":\"WS-WORK-DAYS-ELAPSED\",\"scoped_program\":\"CLOSPEN3\",\"statements\":[{\"ref\":{\"program\":\"CLOSPEN3\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-WORK-DAYS-ELAPSED  PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPEN3\",\"paragraph\":\"1000-MAIN\",\"line_start\":25,\"line_end\":25},\"text\":\"ACCEPT WS-WORK-DAYS-ELAPSED\"}],\"paragraphs\":[{\"program\":\"CLOSPEN3\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied statements show that elapsed working days are accepted, but do not show closure handling or any penalty calculation. This is insufficient to determine whether the required working-day closure period and calendar-day penalty are implemented.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied source evidence does not show closure handling or penalty logic, so it cannot establish a missing or incorrect rule.",
+        "final_answer": "The clause requires closure within 7 working days and, when there are no outstanding dues, a Rs 500 penalty per calendar day of delay. The supplied code only shows elapsed working days being accepted; it does not show how closure or penalties are handled. There is not enough evidence to determine whether the implementation complies.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied statements show that elapsed working days are accepted, but do not show closure handling or any penalty calculation. This is insufficient to determine whether the required working-day closure period and calendar-day penalty are implemented.\",\"prediction\":null,\"claim\":\"Closure requests must be honoured within 7 working days, subject to dues; when there are no outstanding dues, a delay incurs a penalty of Rs 500 per calendar day until closure.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied source evidence does not show closure handling or penalty logic, so it cannot establish a missing or incorrect rule.\",\"final_answer\":\"The clause requires closure within 7 working days and, when there are no outstanding dues, a Rs 500 penalty per calendar day of delay. The supplied code only shows elapsed working days being accepted; it does not show how closure or penalties are handled. There is not enough evidence to determine whether the implementation complies.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied source evidence does not show closure handling or penalty logic, so it cannot establish a missing or incorrect rule.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires closure within 7 working days and, when there are no outstanding dues, a Rs 500 penalty per calendar day of delay. The supplied code only shows elapsed working days being accepted; it does not show how closure or penalties are handled. There is not enough evidence to determine whether the implementation complies.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied source evidence does not show closure handling or penalty logic, so it cannot establish a missing or incorrect rule.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "a787666c9ffc550ebe8954ea02367e595ba1cec383bd131f1bb4e8bd770f2132",
+  "run_key": "4b3bbe36f35110b5c8fe035eba9fbb5c4757cb744228a143bb38dd07942db70e"
+}

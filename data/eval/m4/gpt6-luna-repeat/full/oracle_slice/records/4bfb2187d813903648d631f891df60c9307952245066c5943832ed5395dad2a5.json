@@ -1,0 +1,140 @@
+{
+  "instance_id": "drift_016555",
+  "gold": {
+    "instance_id": "drift_016555",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLSRUN7",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            7,
+            7
+          ]
+        },
+        {
+          "program": "CLSRUN7",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            15,
+            15
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CLOSURE-PENALTY-FLAG",
+        "CLOSURE-PENALTY-ON",
+        "WS-CLOSE-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": "penalty_per_day",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLSRUN7",
+          "line": 7,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-6 changes \"VALUE 'Y'\" to \"VALUE 'N'\" at CLSRUN7:<source>:7-7+CLSRUN7:1000-MAIN:15-15, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CLSRUN7.cbl",
+      "mutation": "MO-6; locus=CLSRUN7:<source>:7-7+CLSRUN7:1000-MAIN:15-15; old=\"VALUE 'Y'\"; new=\"VALUE 'N'\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"CLSRUN7\",\"slices\":[{\"variable\":\"WS-CLOSURE-PENALTY-FLAG\",\"scoped_program\":\"CLSRUN7\",\"statements\":[{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-CLOSURE-PENALTY-FLAG PIC X VALUE 'N'.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"CLOSURE-PENALTY-ON\",\"scoped_program\":\"CLSRUN7\",\"statements\":[{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-CLOSURE-PENALTY-FLAG PIC X VALUE 'N'.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"WS-CLOSE-DAYS\",\"scoped_program\":\"CLSRUN7\",\"statements\":[{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-CLOSE-DAYS   PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":\"1000-MAIN\",\"line_start\":14,\"line_end\":14},\"text\":\"ACCEPT WS-CLOSE-DAYS\"}],\"paragraphs\":[{\"program\":\"CLSRUN7\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-PENALTY-AMT\",\"scoped_program\":\"CLSRUN7\",\"statements\":[{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"01  WS-CLOSURE-PENALTY-FLAG PIC X VALUE 'N'.\"},{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"01  WS-CLOSE-DAYS   PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":null,\"line_start\":10,\"line_end\":10},\"text\":\"01  WS-DELAY-DAYS   PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":null,\"line_start\":11,\"line_end\":11},\"text\":\"01  WS-PENALTY-AMT  PIC 9(9) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":\"1000-MAIN\",\"line_start\":14,\"line_end\":14},\"text\":\"ACCEPT WS-CLOSE-DAYS\"},{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":\"1000-MAIN\",\"line_start\":15,\"line_end\":18},\"text\":\"IF CLOSURE-PENALTY-ON\\n              IF WS-CLOSE-DAYS > 7\\n                 COMPUTE WS-DELAY-DAYS = WS-CLOSE-DAYS - 7\\n                 COMPUTE WS-PENALTY-AMT = WS-DELAY-DAYS * 500\"},{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":\"1000-MAIN\",\"line_start\":16,\"line_end\":18},\"text\":\"IF WS-CLOSE-DAYS > 7\\n                 COMPUTE WS-DELAY-DAYS = WS-CLOSE-DAYS - 7\\n                 COMPUTE WS-PENALTY-AMT = WS-DELAY-DAYS * 500\"},{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":\"1000-MAIN\",\"line_start\":17,\"line_end\":17},\"text\":\"COMPUTE WS-DELAY-DAYS = WS-CLOSE-DAYS - 7\"},{\"ref\":{\"program\":\"CLSRUN7\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"COMPUTE WS-PENALTY-AMT = WS-DELAY-DAYS * 500\"}],\"paragraphs\":[{\"program\":\"CLSRUN7\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible arithmetic uses a seven-day threshold and Rs 500 per excess day, matching the clause numerically. The code context does not establish whether the count uses working days for the closure window and calendar days for the penalty, or whether the penalty gate represents the dues condition.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The day bases and the relationship between the penalty gate and the clause’s dues condition are not established by the supplied code context.",
+        "final_answer": "The clause sets a 7-working-day closure window and a Rs 500 penalty per calendar day of delay, subject to the stated dues condition. The visible code uses a threshold of 7 and an amount of 500, but does not establish the day bases or the condition governing the penalty. Abstain.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible arithmetic uses a seven-day threshold and Rs 500 per excess day, matching the clause numerically. The code context does not establish whether the count uses working days for the closure window and calendar days for the penalty, or whether the penalty gate represents the dues condition.\",\"prediction\":null,\"claim\":\"Closure requests must be honoured within 7 working days, subject to dues; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding amount is due.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The day bases and the relationship between the penalty gate and the clause’s dues condition are not established by the supplied code context.\",\"final_answer\":\"The clause sets a 7-working-day closure window and a Rs 500 penalty per calendar day of delay, subject to the stated dues condition. The visible code uses a threshold of 7 and an amount of 500, but does not establish the day bases or the condition governing the penalty. Abstain.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The day bases and the relationship between the penalty gate and the clause’s dues condition are not established by the supplied code context.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause sets a 7-working-day closure window and a Rs 500 penalty per calendar day of delay, subject to the stated dues condition. The visible code uses a threshold of 7 and an amount of 500, but does not establish the day bases or the condition governing the penalty. Abstain.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The day bases and the relationship between the penalty gate and the clause’s dues condition are not established by the supplied code context.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "0a76846beae7efddebee61a324254de05f86bb75d5ebe46ac35bb359dfb03e0e",
+  "run_key": "4bfb2187d813903648d631f891df60c9307952245066c5943832ed5395dad2a5"
+}

@@ -1,0 +1,206 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "clause_index": 0,
+      "response": {
+        "kind": "finding",
+        "thought": "The rule permits updating within seven days. The program marks the case overdue as soon as the elapsed days equal seven.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSYNC2",
+                "paragraph": "2000-CHECK-SLA",
+                "file": "KYCSYNC2.cbl",
+                "line_span": [27, 30]
+              }
+            ],
+            "slice_vars": ["WS-DAYS-SINCE-UPD", "WS-SLA-STATUS"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {"program": "KYCSYNC2", "line": 27, "file": "KYCSYNC2.cbl"},
+              {"program": "KYCSYNC2", "line": 28, "file": "KYCSYNC2.cbl"}
+            ]
+          },
+          "rationale": "Clause 65(8) allows up to seven days. At line 27, `>= 7` treats day seven itself as overdue; the boundary should identify elapsed time beyond seven days."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.",
+        "exec_probe": {
+          "stdin": "CUST000001\n0007\n",
+          "expect_substring": "SLA: OVERDUE",
+          "description": "Check the status produced at the seven-day limit."
+        },
+        "static_claim": null,
+        "abstention_reason": null,
+        "final_answer": "Clause 65(8) allows KYC updates within seven days, while KYCSYNC2 marks an elapsed value of exactly seven as overdue through its `>= 7` comparison."
+      }
+    },
+    {
+      "alias": "drift_900001",
+      "clause_index": 0,
+      "response": {
+        "kind": "finding",
+        "thought": "The closure limit in the rule is seven working days, but the program starts its penalty calculation only after ten working days.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN3",
+                "paragraph": "2000-PEN",
+                "file": "CLOSPEN3.cbl",
+                "line_span": [30, 35]
+              }
+            ],
+            "slice_vars": [
+              "WS-WORK-DAYS-ELAPSED",
+              "WS-CAL-DAYS-ELAPSED",
+              "WS-SLA-BREACH-DAY",
+              "WS-DELAY-CAL-DAYS",
+              "WS-PENALTY-AMT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {"program": "CLOSPEN3", "line": 30, "file": "CLOSPEN3.cbl"},
+              {"program": "CLOSPEN3", "line": 32, "file": "CLOSPEN3.cbl"}
+            ]
+          },
+          "rationale": "Clause 19 sets a maximum closure window of seven working days. CLOSPEN3 tests for more than ten working days at line 30 and uses that threshold to calculate the breach point, delaying the penalty compared with the clause."
+        },
+        "claim": "Closure requests must be honoured within seven working days, subject to dues; when the conditions in the clause apply, failure incurs a penalty of at least Rs 500 per calendar day of delay until closure.",
+        "exec_probe": {
+          "stdin": "0008\n0008\n",
+          "expect_substring": "PENALTY: 000000000",
+          "description": "Check the result after eight elapsed working days, when the clause's seven-working-day limit has passed."
+        },
+        "static_claim": {
+          "literal": "10",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Clause 19 sets the closure limit at seven working days. CLOSPEN3 waits until more than ten working days have elapsed before calculating a penalty, allowing delay beyond the stated limit."
+      }
+    },
+    {
+      "alias": "drift_900002",
+      "clause_index": 0,
+      "response": {
+        "kind": "finding",
+        "thought": "The program uses the correct seven-working-day trigger, but its penalty-day calculation reduces to working days beyond seven, despite the clause specifying calendar days.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN3",
+                "paragraph": "2000-PEN",
+                "file": "CLOSPEN3.cbl",
+                "line_span": [30, 35]
+              }
+            ],
+            "slice_vars": [
+              "WS-WORK-DAYS-ELAPSED",
+              "WS-CAL-DAYS-ELAPSED",
+              "WS-SLA-BREACH-DAY",
+              "WS-DELAY-CAL-DAYS",
+              "WS-PENALTY-AMT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {"program": "CLOSPEN3", "line": 32, "file": "CLOSPEN3.cbl"},
+              {"program": "CLOSPEN3", "line": 34, "file": "CLOSPEN3.cbl"},
+              {"program": "CLOSPEN3", "line": 35, "file": "CLOSPEN3.cbl"}
+            ]
+          },
+          "rationale": "Clause 19 specifies a penalty per calendar day of delay. Lines 31–34 derive `WS-DELAY-CAL-DAYS` as calendar days elapsed minus a breach day computed by subtracting excess working days; the calendar-day terms cancel, leaving only working days beyond seven to be charged."
+        },
+        "claim": "Closure requests must be honoured within seven working days, subject to dues; when the conditions in the clause apply, failure incurs a penalty of at least Rs 500 per calendar day of delay until closure.",
+        "exec_probe": {
+          "stdin": "0013\n0009\n",
+          "expect_substring": "PENALTY: 000100000",
+          "description": "Check the penalty calculated for thirteen elapsed calendar days and nine elapsed working days."
+        },
+        "static_claim": null,
+        "abstention_reason": null,
+        "final_answer": "Clause 19 requires a penalty of at least Rs 500 per calendar day of delay. CLOSPEN3's calculation reduces the charged delay to working days beyond seven, so it does not count calendar days of delay as required."
+      }
+    },
+    {
+      "alias": "drift_900003",
+      "clause_index": 0,
+      "response": {
+        "kind": "finding",
+        "thought": "The clause sets the high-risk KYC interval at two years. The high-risk branch marks KYC due only when the elapsed interval reaches five years.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSCHED1",
+                "paragraph": "2000-CHECK-DUE",
+                "file": "KYCSCHED1.cbl",
+                "line_span": [25, 29]
+              }
+            ],
+            "slice_vars": ["WS-RISK-RATING", "WS-YEARS-SINCE-KYC", "WS-KYC-DUE"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "high_risk",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {"program": "KYCSCHED1", "line": 27, "file": "KYCSCHED1.cbl"}
+            ]
+          },
+          "rationale": "Clause 42(1) requires periodic KYC updation at least once every two years for high-risk customers, encoding a maximum two-year interval. KYCSCHED1 instead uses a five-year threshold in the high-risk branch, allowing the interval to exceed the clause's limit."
+        },
+        "claim": "Periodic KYC updation must be carried out at least once every two years for high-risk customers, from the date of account opening or last KYC updation.",
+        "exec_probe": {
+          "stdin": "H\n02\n",
+          "expect_substring": "KYC-DUE: N",
+          "description": "Check the high-risk due status at the two-year interval specified by the clause."
+        },
+        "static_claim": {
+          "literal": "5",
+          "comparator": ">=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Clause 42(1) sets a two-year interval for high-risk customers. KYCSCHED1 uses a five-year threshold before marking high-risk KYC as due."
+      }
+    },
+    {
+      "alias": "drift_900004",
+      "clause_index": null,
+      "response": {
+        "kind": "abstain",
+        "thought": "The supplied source ends before the called SLA-check paragraph, so its behavior cannot be assessed.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied KYCSY202 source ends at line 20 after calling 2000-CHECK-SLA; the paragraph implementation is not visible, so there is insufficient evidence to classify it.",
+        "final_answer": "Insufficient evidence: the supplied source shows a call to 2000-CHECK-SLA but not the paragraph implementation needed to compare its behavior with clause 65(8)."
+      }
+    }
+  ]
+}

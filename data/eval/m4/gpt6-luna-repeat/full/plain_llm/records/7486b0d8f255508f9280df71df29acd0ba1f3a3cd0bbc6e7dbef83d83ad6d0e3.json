@@ -1,0 +1,317 @@
+{
+  "instance_id": "drift_110011",
+  "gold": {
+    "instance_id": "drift_110011",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "Section 3(a)(iv)(b)",
+      "version": "2016-02-25",
+      "effective_date": "2016-02-25",
+      "text": "Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+      "current_value": {
+        "kind": "percentage",
+        "value": 15,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO01",
+          "paragraph": "2000-IDENTIFY-OWNER",
+          "file": null,
+          "line_span": [
+            15,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAPITAL-PCT",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "The 2016 clause requires strictly_greater 15 percent. T6BO01 checks IF WS-CAPITAL-PCT > 15 (line 16), matching the value and comparator exactly.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6BO01.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110011",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "Section 3(a)(iv)(b)",
+      "version": "2016-02-25",
+      "effective_date": "2016-02-25",
+      "text": "Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+      "current_value": {
+        "kind": "percentage",
+        "value": 15,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO01",
+          "paragraph": "2000-IDENTIFY-OWNER",
+          "file": "T6BO01.cbl",
+          "line_span": [
+            16,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAPITAL-PCT",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO01",
+          "line": 16,
+          "file": "T6BO01.cbl"
+        },
+        {
+          "program": "T6BO01",
+          "line": 17,
+          "file": "T6BO01.cbl"
+        },
+        {
+          "program": "T6BO01",
+          "line": 19,
+          "file": "T6BO01.cbl"
+        }
+      ]
+    },
+    "rationale": "The clause covers beneficial owners with more than 15 per cent of capital or profits, including ownership or entitlement held alone, together, or through juridical persons. The shown logic tests only WS-CAPITAL-PCT > 15 to set WS-IS-BO; it contains no corresponding profit-share or combined/indirect ownership rule."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9945,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Master-Direction-2016\",\"clause_id\":\"Section 3(a)(iv)(b)\",\"version\":\"2016-02-25\",\"effective_date\":\"2016-02-25\",\"text\":\"Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.\",\"current_value\":{\"kind\":\"percentage\",\"value\":15,\"comparator\":\"strictly_greater\",\"note\":null}},\"program\":\"FILE T6BO01.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6BO01.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-PARTNER.\\n0007:            05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\\n0008:            05  WS-IS-BO              PIC X VALUE 'N'.\\n0009:        PROCEDURE DIVISION.\\n0010:        1000-MAIN.\\n0011:            ACCEPT WS-CAPITAL-PCT\\n0012:            PERFORM 2000-IDENTIFY-OWNER\\n0013:            DISPLAY WS-IS-BO\\n0014:            STOP RUN.\\n0015:        2000-IDENTIFY-OWNER.\\n0016:            IF WS-CAPITAL-PCT > 15\\n0017:               MOVE 'Y' TO WS-IS-BO\\n0018:            ELSE\\n0019:               MOVE 'N' TO WS-IS-BO\\n0020:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The code determines the result from the capital percentage alone. The clause also covers profit ownership or entitlement and persons acting together or through juridical persons.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110011",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Master-Direction-2016",
+            "clause_id": "Section 3(a)(iv)(b)",
+            "version": "2016-02-25",
+            "effective_date": "2016-02-25",
+            "text": "Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+            "current_value": {
+              "kind": "percentage",
+              "value": 15,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO01",
+                "paragraph": "2000-IDENTIFY-OWNER",
+                "file": "T6BO01.cbl",
+                "line_span": [
+                  16,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CAPITAL-PCT",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO01",
+                "line": 16,
+                "file": "T6BO01.cbl"
+              },
+              {
+                "program": "T6BO01",
+                "line": 17,
+                "file": "T6BO01.cbl"
+              },
+              {
+                "program": "T6BO01",
+                "line": 19,
+                "file": "T6BO01.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause covers beneficial owners with more than 15 per cent of capital or profits, including ownership or entitlement held alone, together, or through juridical persons. The shown logic tests only WS-CAPITAL-PCT > 15 to set WS-IS-BO; it contains no corresponding profit-share or combined/indirect ownership rule."
+        },
+        "claim": "For a partnership firm, the beneficial owner is the natural person or persons with ownership of or entitlement to more than 15 per cent of capital or profits, whether acting alone or together or through one or more juridical persons.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "15",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The clause includes ownership or entitlement above 15 per cent of capital or profits, including combined or indirect holdings. The code tests only capital percentage above 15, leaving those other covered bases unimplemented in the shown logic.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The code determines the result from the capital percentage alone. The clause also covers profit ownership or entitlement and persons acting together or through juridical persons.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO01\",\"paragraph\":\"2000-IDENTIFY-OWNER\",\"file\":\"T6BO01.cbl\",\"line_span\":[16,20]}],\"slice_vars\":[\"WS-CAPITAL-PCT\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO01\",\"line\":16,\"file\":\"T6BO01.cbl\"},{\"program\":\"T6BO01\",\"line\":17,\"file\":\"T6BO01.cbl\"},{\"program\":\"T6BO01\",\"line\":19,\"file\":\"T6BO01.cbl\"}]},\"rationale\":\"The clause covers beneficial owners with more than 15 per cent of capital or profits, including ownership or entitlement held alone, together, or through juridical persons. The shown logic tests only WS-CAPITAL-PCT > 15 to set WS-IS-BO; it contains no corresponding profit-share or combined/indirect ownership rule.\"},\"claim\":\"For a partnership firm, the beneficial owner is the natural person or persons with ownership of or entitlement to more than 15 per cent of capital or profits, whether acting alone or together or through one or more juridical persons.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause includes ownership or entitlement above 15 per cent of capital or profits, including combined or indirect holdings. The code tests only capital percentage above 15, leaving those other covered bases unimplemented in the shown logic.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9945,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110011",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Master-Direction-2016",
+        "clause_id": "Section 3(a)(iv)(b)",
+        "version": "2016-02-25",
+        "effective_date": "2016-02-25",
+        "text": "Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+        "current_value": {
+          "kind": "percentage",
+          "value": 15,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6BO01",
+            "paragraph": "2000-IDENTIFY-OWNER",
+            "file": "T6BO01.cbl",
+            "line_span": [
+              16,
+              20
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CAPITAL-PCT",
+          "WS-IS-BO"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D2_missing_rule",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6BO01",
+            "line": 16,
+            "file": "T6BO01.cbl"
+          },
+          {
+            "program": "T6BO01",
+            "line": 17,
+            "file": "T6BO01.cbl"
+          },
+          {
+            "program": "T6BO01",
+            "line": 19,
+            "file": "T6BO01.cbl"
+          }
+        ]
+      },
+      "rationale": "The clause covers beneficial owners with more than 15 per cent of capital or profits, including ownership or entitlement held alone, together, or through juridical persons. The shown logic tests only WS-CAPITAL-PCT > 15 to set WS-IS-BO; it contains no corresponding profit-share or combined/indirect ownership rule."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause includes ownership or entitlement above 15 per cent of capital or profits, including combined or indirect holdings. The code tests only capital percentage above 15, leaving those other covered bases unimplemented in the shown logic.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "48672f5e81b246b2214d5bda162a28151eda8d46bf29a209306c2c87a464371c",
+  "run_key": "7486b0d8f255508f9280df71df29acd0ba1f3a3cd0bbc6e7dbef83d83ad6d0e3"
+}

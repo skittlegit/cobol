@@ -1,0 +1,1525 @@
+{
+  "instance_id": "drift_110012",
+  "gold": {
+    "instance_id": "drift_110012",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO01",
+          "paragraph": "2000-IDENTIFY-OWNER",
+          "file": null,
+          "line_span": [
+            15,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAPITAL-PCT",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO01",
+          "line": 16,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 5(iv)(b) lowers the threshold to strictly_greater 10 percent. T6BO01 (byte-identical code) still checks IF WS-CAPITAL-PCT > 15 (line 16), a stale threshold.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6BO01.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110012",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO01",
+          "paragraph": "2000-IDENTIFY-OWNER",
+          "file": null,
+          "line_span": [
+            16,
+            17
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAPITAL-PCT",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO01",
+          "line": 16,
+          "file": null
+        },
+        {
+          "program": "T6BO01",
+          "line": 17,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The >15 comparator and Y assignment on its true branch move the transition to above 15; the clause requires a transition for values above 10, so it occurs late."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9968,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: T6BO01.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "T6BO01"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2000-IDENTIFY-OWNER\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\eb1abf75890bc5953c54e2c897957cd607f8faaa3ba9f0fc9050c8bb77a15189\\\\cases\\\\drift_900000\\\\T6BO01.cbl\", \"program\": \"T6BO01\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "T6BO01",
+          "name": "2000-IDENTIFY-OWNER"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO01\"}], \"code\": \"       2000-IDENTIFY-OWNER.\\n           IF WS-CAPITAL-PCT > 15\\n              MOVE 'Y' TO WS-IS-BO\\n           ELSE\\n              MOVE 'N' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-OWNER\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2000-IDENTIFY-OWNER\", \"program\": \"T6BO01\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-CAPITAL-PCT"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 7, \"program\": \"T6BO01\", \"text\": \"           05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"}, {\"line\": 11, \"program\": \"T6BO01\", \"text\": \"           ACCEPT WS-CAPITAL-PCT\"}, {\"line\": 16, \"program\": \"T6BO01\", \"text\": \"           IF WS-CAPITAL-PCT > 15\"}], \"pattern\": \"WS-CAPITAL-PCT\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The true branch switches the flag only above 15, later than the clause's above-10 transition.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=2]",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110012",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO01",
+                "paragraph": "2000-IDENTIFY-OWNER",
+                "file": null,
+                "line_span": [
+                  16,
+                  17
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CAPITAL-PCT",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO01",
+                "line": 16,
+                "file": null
+              },
+              {
+                "program": "T6BO01",
+                "line": 17,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The >15 comparator and Y assignment on its true branch move the transition to above 15; the clause requires a transition for values above 10, so it occurs late."
+        },
+        "claim": "For partnership firms, a natural person with ownership of or entitlement to more than 10 percent of capital or profits qualifies as a beneficial owner.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "15",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The source switches the flag to Y only above 15, while the clause requires the transition above 10 percent. The boundary occurs late.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The true branch switches the flag only above 15, later than the clause's above-10 transition.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO01\",\"paragraph\":\"2000-IDENTIFY-OWNER\",\"file\":\"T6BO01.cbl\",\"line_span\":[16,17]}],\"slice_vars\":[\"WS-CAPITAL-PCT\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO01\",\"line\":16,\"file\":\"T6BO01.cbl\"},{\"program\":\"T6BO01\",\"line\":17,\"file\":\"T6BO01.cbl\"}]},\"rationale\":\"The >15 comparator and Y assignment on its true branch move the transition to above 15; the clause requires a transition for values above 10, so it occurs late.\"},\"claim\":\"For partnership firms, a natural person with ownership of or entitlement to more than 10 percent of capital or profits qualifies as a beneficial owner.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The source switches the flag to Y only above 15, while the clause requires the transition above 10 percent. The boundary occurs late.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9968,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110012",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "5(iv)(b)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "current_value": {
+          "kind": "percentage",
+          "value": 10,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6BO01",
+            "paragraph": "2000-IDENTIFY-OWNER",
+            "file": null,
+            "line_span": [
+              16,
+              17
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CAPITAL-PCT",
+          "WS-IS-BO"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D5_boundary_error",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6BO01",
+            "line": 16,
+            "file": null
+          },
+          {
+            "program": "T6BO01",
+            "line": 17,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The >15 comparator and Y assignment on its true branch move the transition to above 15; the clause requires a transition for values above 10, so it occurs late."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The source switches the flag to Y only above 15, while the clause requires the transition above 10 percent. The boundary occurs late.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": false,
+      "finding": {
+        "instance_id": "drift_110012",
+        "regulation_clause": {
+          "doc": "RBI-KYC-Directions-2025",
+          "clause_id": "5(iv)(b)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+          "current_value": {
+            "kind": "percentage",
+            "value": 10,
+            "comparator": "strictly_greater",
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "T6BO01",
+              "paragraph": "2000-IDENTIFY-OWNER",
+              "file": null,
+              "line_span": [
+                16,
+                16
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-CAPITAL-PCT",
+            "WS-IS-BO"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D1_stale_threshold",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "T6BO01",
+              "line": 16,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "T6BO01 tests WS-CAPITAL-PCT > 15 and sets WS-IS-BO to Y on that branch, while the clause sets the partnership threshold at more than 10 percent. The 15 cutoff is stale and delays recognition for values above 10 through 15."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+        "citation_ok": true,
+        "entailment_probability": 0.9968,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: T6BO01.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO01"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2000-IDENTIFY-OWNER\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\eb1abf75890bc5953c54e2c897957cd607f8faaa3ba9f0fc9050c8bb77a15189\\\\cases\\\\drift_900000\\\\T6BO01.cbl\", \"program\": \"T6BO01\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO01",
+              "name": "2000-IDENTIFY-OWNER"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO01\"}], \"code\": \"       2000-IDENTIFY-OWNER.\\n           IF WS-CAPITAL-PCT > 15\\n              MOVE 'Y' TO WS-IS-BO\\n           ELSE\\n              MOVE 'N' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-OWNER\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2000-IDENTIFY-OWNER\", \"program\": \"T6BO01\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-CAPITAL-PCT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 7, \"program\": \"T6BO01\", \"text\": \"           05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"}, {\"line\": 11, \"program\": \"T6BO01\", \"text\": \"           ACCEPT WS-CAPITAL-PCT\"}, {\"line\": 16, \"program\": \"T6BO01\", \"text\": \"           IF WS-CAPITAL-PCT > 15\"}], \"pattern\": \"WS-CAPITAL-PCT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The source literal is 15, while the supplied percentage leaf is 10; the greater-than operator matches the clause's strict threshold.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=1]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_110012",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "5(iv)(b)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+                "current_value": {
+                  "kind": "percentage",
+                  "value": 10,
+                  "comparator": "strictly_greater",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "T6BO01",
+                    "paragraph": "2000-IDENTIFY-OWNER",
+                    "file": null,
+                    "line_span": [
+                      16,
+                      16
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-CAPITAL-PCT",
+                  "WS-IS-BO"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D1_stale_threshold",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "T6BO01",
+                    "line": 16,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "T6BO01 tests WS-CAPITAL-PCT > 15 and sets WS-IS-BO to Y on that branch, while the clause sets the partnership threshold at more than 10 percent. The 15 cutoff is stale and delays recognition for values above 10 through 15."
+            },
+            "claim": "For partnership firms, a natural person with ownership of or entitlement to more than 10 percent of capital or profits qualifies as a beneficial owner.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "15",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The code uses >15 where the clause requires strictly more than 10 percent, so a partnership beneficial owner whose applicable percentage is above 10 through 15 is not identified by this check.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The source literal is 15, while the supplied percentage leaf is 10; the greater-than operator matches the clause's strict threshold.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO01\",\"paragraph\":\"2000-IDENTIFY-OWNER\",\"file\":\"T6BO01.cbl\",\"line_span\":[16,16]}],\"slice_vars\":[\"WS-CAPITAL-PCT\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO01\",\"line\":16,\"file\":\"T6BO01.cbl\"}]},\"rationale\":\"T6BO01 tests WS-CAPITAL-PCT > 15 and sets WS-IS-BO to Y on that branch, while the clause sets the partnership threshold at more than 10 percent. The 15 cutoff is stale and delays recognition for values above 10 through 15.\"},\"claim\":\"For partnership firms, a natural person with ownership of or entitlement to more than 10 percent of capital or profits qualifies as a beneficial owner.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The code uses >15 where the clause requires strictly more than 10 percent, so a partnership beneficial owner whose applicable percentage is above 10 through 15 is not identified by this check.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+          "citation_ok": true,
+          "entailment_probability": 0.9968,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_110012",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO01",
+                "paragraph": "2000-IDENTIFY-OWNER",
+                "file": null,
+                "line_span": [
+                  16,
+                  16
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CAPITAL-PCT",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO01",
+                "line": 16,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "T6BO01 tests WS-CAPITAL-PCT > 15 and sets WS-IS-BO to Y on that branch, while the clause sets the partnership threshold at more than 10 percent. The 15 cutoff is stale and delays recognition for values above 10 through 15."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "The code uses >15 where the clause requires strictly more than 10 percent, so a partnership beneficial owner whose applicable percentage is above 10 through 15 is not identified by this check.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: T6BO01.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-CAPITAL-PCT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 7, \"program\": \"T6BO01\", \"text\": \"           05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"}, {\"line\": 11, \"program\": \"T6BO01\", \"text\": \"           ACCEPT WS-CAPITAL-PCT\"}, {\"line\": 16, \"program\": \"T6BO01\", \"text\": \"           IF WS-CAPITAL-PCT > 15\"}], \"pattern\": \"WS-CAPITAL-PCT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6BO01",
+              "para": "2000-IDENTIFY-OWNER"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO01\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "T6BO01",
+              "para": "2000-IDENTIFY-OWNER"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-CAPITAL-PCT",
+              "program": "T6BO01"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO01\"}], \"scoped_program\": \"T6BO01\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6BO01\"}, \"text\": \"05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 11, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO01\"}, \"text\": \"ACCEPT WS-CAPITAL-PCT\"}], \"variable\": \"WS-CAPITAL-PCT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "D2 requires negative grep, caller, callee, and data-slice observations; the scoped grep and slice are positive for the threshold input and check.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The D2 observations are not all negative: grep finds WS-CAPITAL-PCT at its declaration, input, and threshold test, and slice_on shows its declaration and ACCEPT statement. Missing behavior is not established.",
+            "final_answer": "The D2 observations are not all negative: grep finds WS-CAPITAL-PCT at its declaration, input, and threshold test, and slice_on shows its declaration and ACCEPT statement. Missing behavior is not established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"D2 requires negative grep, caller, callee, and data-slice observations; the scoped grep and slice are positive for the threshold input and check.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The D2 observations are not all negative: grep finds WS-CAPITAL-PCT at its declaration, input, and threshold test, and slice_on shows its declaration and ACCEPT statement. Missing behavior is not established.\",\"final_answer\":\"The D2 observations are not all negative: grep finds WS-CAPITAL-PCT at its declaration, input, and threshold test, and slice_on shows its declaration and ACCEPT statement. Missing behavior is not established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The D2 observations are not all negative: grep finds WS-CAPITAL-PCT at its declaration, input, and threshold test, and slice_on shows its declaration and ACCEPT statement. Missing behavior is not established.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The D2 observations are not all negative: grep finds WS-CAPITAL-PCT at its declaration, input, and threshold test, and slice_on shows its declaration and ACCEPT statement. Missing behavior is not established.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The D2 observations are not all negative: grep finds WS-CAPITAL-PCT at its declaration, input, and threshold test, and slice_on shows its declaration and ACCEPT statement. Missing behavior is not established."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": {
+        "instance_id": "drift_110012",
+        "regulation_clause": {
+          "doc": "RBI-KYC-Directions-2025",
+          "clause_id": "5(iv)(b)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+          "current_value": {
+            "kind": "percentage",
+            "value": 10,
+            "comparator": "strictly_greater",
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "T6BO01",
+              "paragraph": "2000-IDENTIFY-OWNER",
+              "file": null,
+              "line_span": [
+                16,
+                20
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-CAPITAL-PCT",
+            "WS-IS-BO"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D3_contradictory",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "T6BO01",
+              "line": 16,
+              "file": null
+            },
+            {
+              "program": "T6BO01",
+              "line": 17,
+              "file": null
+            },
+            {
+              "program": "T6BO01",
+              "line": 19,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "The source's >15 test assigns N on the ELSE branch for percentages from above 10 through 15, directly conflicting with the clause's more-than-10-percent condition."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+        "citation_ok": true,
+        "entailment_probability": 0.9968,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: T6BO01.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO01"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2000-IDENTIFY-OWNER\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\eb1abf75890bc5953c54e2c897957cd607f8faaa3ba9f0fc9050c8bb77a15189\\\\cases\\\\drift_900000\\\\T6BO01.cbl\", \"program\": \"T6BO01\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO01",
+              "name": "2000-IDENTIFY-OWNER"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO01\"}], \"code\": \"       2000-IDENTIFY-OWNER.\\n           IF WS-CAPITAL-PCT > 15\\n              MOVE 'Y' TO WS-IS-BO\\n           ELSE\\n              MOVE 'N' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-OWNER\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2000-IDENTIFY-OWNER\", \"program\": \"T6BO01\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-CAPITAL-PCT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 7, \"program\": \"T6BO01\", \"text\": \"           05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"}, {\"line\": 11, \"program\": \"T6BO01\", \"text\": \"           ACCEPT WS-CAPITAL-PCT\"}, {\"line\": 16, \"program\": \"T6BO01\", \"text\": \"           IF WS-CAPITAL-PCT > 15\"}], \"pattern\": \"WS-CAPITAL-PCT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "For values above 10 through 15, the source assigns N even though the clause defines those partnership beneficial owners as above the 10 percent threshold.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=3]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_110012",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "5(iv)(b)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+                "current_value": {
+                  "kind": "percentage",
+                  "value": 10,
+                  "comparator": "strictly_greater",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "T6BO01",
+                    "paragraph": "2000-IDENTIFY-OWNER",
+                    "file": null,
+                    "line_span": [
+                      16,
+                      20
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-CAPITAL-PCT",
+                  "WS-IS-BO"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D3_contradictory",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "T6BO01",
+                    "line": 16,
+                    "file": null
+                  },
+                  {
+                    "program": "T6BO01",
+                    "line": 17,
+                    "file": null
+                  },
+                  {
+                    "program": "T6BO01",
+                    "line": 19,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The source's >15 test assigns N on the ELSE branch for percentages from above 10 through 15, directly conflicting with the clause's more-than-10-percent condition."
+            },
+            "claim": "For partnership firms, a natural person with ownership of or entitlement to more than 10 percent of capital or profits qualifies as a beneficial owner.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "15",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The code assigns the non-beneficial-owner state to partnership percentages above 10 through 15, which conflicts with the clause's more-than-10-percent condition.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"For values above 10 through 15, the source assigns N even though the clause defines those partnership beneficial owners as above the 10 percent threshold.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO01\",\"paragraph\":\"2000-IDENTIFY-OWNER\",\"file\":\"T6BO01.cbl\",\"line_span\":[16,20]}],\"slice_vars\":[\"WS-CAPITAL-PCT\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO01\",\"line\":16,\"file\":\"T6BO01.cbl\"},{\"program\":\"T6BO01\",\"line\":17,\"file\":\"T6BO01.cbl\"},{\"program\":\"T6BO01\",\"line\":19,\"file\":\"T6BO01.cbl\"}]},\"rationale\":\"The source's >15 test assigns N on the ELSE branch for percentages from above 10 through 15, directly conflicting with the clause's more-than-10-percent condition.\"},\"claim\":\"For partnership firms, a natural person with ownership of or entitlement to more than 10 percent of capital or profits qualifies as a beneficial owner.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The code assigns the non-beneficial-owner state to partnership percentages above 10 through 15, which conflicts with the clause's more-than-10-percent condition.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+          "citation_ok": true,
+          "entailment_probability": 0.9968,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_110012",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO01",
+                "paragraph": "2000-IDENTIFY-OWNER",
+                "file": null,
+                "line_span": [
+                  16,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CAPITAL-PCT",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO01",
+                "line": 16,
+                "file": null
+              },
+              {
+                "program": "T6BO01",
+                "line": 17,
+                "file": null
+              },
+              {
+                "program": "T6BO01",
+                "line": 19,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The source's >15 test assigns N on the ELSE branch for percentages from above 10 through 15, directly conflicting with the clause's more-than-10-percent condition."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "The code assigns the non-beneficial-owner state to partnership percentages above 10 through 15, which conflicts with the clause's more-than-10-percent condition.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: T6BO01.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current value is a percentage, not an enum_set reference collection.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only when the clause current value is an enum_set reference collection; this clause supplies a percentage value.",
+            "final_answer": "D4 applies only when the clause current value is an enum_set reference collection; this clause supplies a percentage value.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value is a percentage, not an enum_set reference collection.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only when the clause current value is an enum_set reference collection; this clause supplies a percentage value.\",\"final_answer\":\"D4 applies only when the clause current value is an enum_set reference collection; this clause supplies a percentage value.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": true,
+      "finding": {
+        "instance_id": "drift_110012",
+        "regulation_clause": {
+          "doc": "RBI-KYC-Directions-2025",
+          "clause_id": "5(iv)(b)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+          "current_value": {
+            "kind": "percentage",
+            "value": 10,
+            "comparator": "strictly_greater",
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "T6BO01",
+              "paragraph": "2000-IDENTIFY-OWNER",
+              "file": null,
+              "line_span": [
+                16,
+                17
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-CAPITAL-PCT",
+            "WS-IS-BO"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D5_boundary_error",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "T6BO01",
+              "line": 16,
+              "file": null
+            },
+            {
+              "program": "T6BO01",
+              "line": 17,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "The >15 comparator and Y assignment on its true branch move the transition to above 15; the clause requires a transition for values above 10, so it occurs late."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+        "citation_ok": true,
+        "entailment_probability": 0.9968,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: T6BO01.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO01"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2000-IDENTIFY-OWNER\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\eb1abf75890bc5953c54e2c897957cd607f8faaa3ba9f0fc9050c8bb77a15189\\\\cases\\\\drift_900000\\\\T6BO01.cbl\", \"program\": \"T6BO01\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO01",
+              "name": "2000-IDENTIFY-OWNER"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO01\"}], \"code\": \"       2000-IDENTIFY-OWNER.\\n           IF WS-CAPITAL-PCT > 15\\n              MOVE 'Y' TO WS-IS-BO\\n           ELSE\\n              MOVE 'N' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-OWNER\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2000-IDENTIFY-OWNER\", \"program\": \"T6BO01\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-CAPITAL-PCT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 7, \"program\": \"T6BO01\", \"text\": \"           05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"}, {\"line\": 11, \"program\": \"T6BO01\", \"text\": \"           ACCEPT WS-CAPITAL-PCT\"}, {\"line\": 16, \"program\": \"T6BO01\", \"text\": \"           IF WS-CAPITAL-PCT > 15\"}], \"pattern\": \"WS-CAPITAL-PCT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The true branch switches the flag only above 15, later than the clause's above-10 transition.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=2]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_110012",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "5(iv)(b)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+                "current_value": {
+                  "kind": "percentage",
+                  "value": 10,
+                  "comparator": "strictly_greater",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "T6BO01",
+                    "paragraph": "2000-IDENTIFY-OWNER",
+                    "file": null,
+                    "line_span": [
+                      16,
+                      17
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-CAPITAL-PCT",
+                  "WS-IS-BO"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D5_boundary_error",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "T6BO01",
+                    "line": 16,
+                    "file": null
+                  },
+                  {
+                    "program": "T6BO01",
+                    "line": 17,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The >15 comparator and Y assignment on its true branch move the transition to above 15; the clause requires a transition for values above 10, so it occurs late."
+            },
+            "claim": "For partnership firms, a natural person with ownership of or entitlement to more than 10 percent of capital or profits qualifies as a beneficial owner.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "15",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The source switches the flag to Y only above 15, while the clause requires the transition above 10 percent. The boundary occurs late.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The true branch switches the flag only above 15, later than the clause's above-10 transition.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO01\",\"paragraph\":\"2000-IDENTIFY-OWNER\",\"file\":\"T6BO01.cbl\",\"line_span\":[16,17]}],\"slice_vars\":[\"WS-CAPITAL-PCT\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO01\",\"line\":16,\"file\":\"T6BO01.cbl\"},{\"program\":\"T6BO01\",\"line\":17,\"file\":\"T6BO01.cbl\"}]},\"rationale\":\"The >15 comparator and Y assignment on its true branch move the transition to above 15; the clause requires a transition for values above 10, so it occurs late.\"},\"claim\":\"For partnership firms, a natural person with ownership of or entitlement to more than 10 percent of capital or profits qualifies as a beneficial owner.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The source switches the flag to Y only above 15, while the clause requires the transition above 10 percent. The boundary occurs late.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+          "citation_ok": true,
+          "entailment_probability": 0.9968,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_110012",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO01",
+                "paragraph": "2000-IDENTIFY-OWNER",
+                "file": null,
+                "line_span": [
+                  16,
+                  17
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CAPITAL-PCT",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO01",
+                "line": 16,
+                "file": null
+              },
+              {
+                "program": "T6BO01",
+                "line": 17,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The >15 comparator and Y assignment on its true branch move the transition to above 15; the clause requires a transition for values above 10, so it occurs late."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "The source switches the flag to Y only above 15, while the clause requires the transition above 10 percent. The boundary occurs late.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: T6BO01.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO01"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2000-IDENTIFY-OWNER\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\eb1abf75890bc5953c54e2c897957cd607f8faaa3ba9f0fc9050c8bb77a15189\\\\cases\\\\drift_900000\\\\T6BO01.cbl\", \"program\": \"T6BO01\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO01",
+              "name": "2000-IDENTIFY-OWNER"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO01\"}], \"code\": \"       2000-IDENTIFY-OWNER.\\n           IF WS-CAPITAL-PCT > 15\\n              MOVE 'Y' TO WS-IS-BO\\n           ELSE\\n              MOVE 'N' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-OWNER\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2000-IDENTIFY-OWNER\", \"program\": \"T6BO01\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6BO01",
+              "para": "2000-IDENTIFY-OWNER"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO01\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The paragraph is present and has 1000-MAIN as a caller; its source shows no always-false or default-off guard.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The read_paragraph observation shows 2000-IDENTIFY-OWNER called from 1000-MAIN, and the paragraph has no disabled guard. There is no evidence of dead or disabled compliance code.",
+            "final_answer": "The read_paragraph observation shows 2000-IDENTIFY-OWNER called from 1000-MAIN, and the paragraph has no disabled guard. There is no evidence of dead or disabled compliance code.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The paragraph is present and has 1000-MAIN as a caller; its source shows no always-false or default-off guard.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The read_paragraph observation shows 2000-IDENTIFY-OWNER called from 1000-MAIN, and the paragraph has no disabled guard. There is no evidence of dead or disabled compliance code.\",\"final_answer\":\"The read_paragraph observation shows 2000-IDENTIFY-OWNER called from 1000-MAIN, and the paragraph has no disabled guard. There is no evidence of dead or disabled compliance code.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The read_paragraph observation shows 2000-IDENTIFY-OWNER called from 1000-MAIN, and the paragraph has no disabled guard. There is no evidence of dead or disabled compliance code.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The read_paragraph observation shows 2000-IDENTIFY-OWNER called from 1000-MAIN, and the paragraph has no disabled guard. There is no evidence of dead or disabled compliance code.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The read_paragraph observation shows 2000-IDENTIFY-OWNER called from 1000-MAIN, and the paragraph has no disabled guard. There is no evidence of dead or disabled compliance code."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: T6BO01.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO01"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2000-IDENTIFY-OWNER\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\eb1abf75890bc5953c54e2c897957cd607f8faaa3ba9f0fc9050c8bb77a15189\\\\cases\\\\drift_900000\\\\T6BO01.cbl\", \"program\": \"T6BO01\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO01",
+              "name": "2000-IDENTIFY-OWNER"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO01\"}], \"code\": \"       2000-IDENTIFY-OWNER.\\n           IF WS-CAPITAL-PCT > 15\\n              MOVE 'Y' TO WS-IS-BO\\n           ELSE\\n              MOVE 'N' TO WS-IS-BO\\n           END-IF.\", \"name\": \"2000-IDENTIFY-OWNER\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2000-IDENTIFY-OWNER\", \"program\": \"T6BO01\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-CAPITAL-PCT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 7, \"program\": \"T6BO01\", \"text\": \"           05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\"}, {\"line\": 11, \"program\": \"T6BO01\", \"text\": \"           ACCEPT WS-CAPITAL-PCT\"}, {\"line\": 16, \"program\": \"T6BO01\", \"text\": \"           IF WS-CAPITAL-PCT > 15\"}], \"pattern\": \"WS-CAPITAL-PCT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The positive source observations show a 15-percent test, so the implemented threshold does not match the clause's 10-percent leaf.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D7 requires positive evidence that the implemented literal and comparator match the clause; the source tests >15 while the clause requires strictly more than 10 percent.",
+            "final_answer": "D7 requires positive evidence that the implemented literal and comparator match the clause; the source tests >15 while the clause requires strictly more than 10 percent.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The positive source observations show a 15-percent test, so the implemented threshold does not match the clause's 10-percent leaf.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D7 requires positive evidence that the implemented literal and comparator match the clause; the source tests >15 while the clause requires strictly more than 10 percent.\",\"final_answer\":\"D7 requires positive evidence that the implemented literal and comparator match the clause; the source tests >15 while the clause requires strictly more than 10 percent.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D7 requires positive evidence that the implemented literal and comparator match the clause; the source tests >15 while the clause requires strictly more than 10 percent.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D7 requires positive evidence that the implemented literal and comparator match the clause; the source tests >15 while the clause requires strictly more than 10 percent.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D7 requires positive evidence that the implemented literal and comparator match the clause; the source tests >15 while the clause requires strictly more than 10 percent."
+    }
+  ],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "48672f5e81b246b2214d5bda162a28151eda8d46bf29a209306c2c87a464371c",
+  "run_key": "2dda87bed82fe97b0fc0fc826f393f4186d347e9af077b786950ff493d4b8618"
+}

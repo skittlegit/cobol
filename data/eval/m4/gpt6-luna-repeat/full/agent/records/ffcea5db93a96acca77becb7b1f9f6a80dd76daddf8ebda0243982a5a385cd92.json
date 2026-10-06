@@ -1,0 +1,1740 @@
+{
+  "instance_id": "drift_948904",
+  "gold": {
+    "instance_id": "drift_948904",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "past_due_grace": {
+            "kind": "duration_days",
+            "value": 3,
+            "comparator": "strictly_greater",
+            "note": null
+          },
+          "charge_base": {
+            "kind": "enum_set",
+            "value": [
+              "outstanding_after_due_date"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "LATEFEE1",
+          "paragraph": "2000-ASSESS",
+          "file": null,
+          "line_span": [
+            26,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-PAST-DUE",
+        "WS-LATE-CHARGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": "past_due_grace",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "LATEFEE1",
+          "line": 26,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-3 changes 'IF WS-DAYS-PAST-DUE > 3' to 'IF WS-DAYS-PAST-DUE > ZERO' at LATEFEE1:2000-ASSESS:26-26, producing D3_contradictory.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "LATEFEE1.cbl",
+      "mutation": "MO-3; locus=LATEFEE1:2000-ASSESS:26-26; old='IF WS-DAYS-PAST-DUE > 3'; new='IF WS-DAYS-PAST-DUE > ZERO'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_948904",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "past_due_grace": {
+            "kind": "duration_days",
+            "value": 3,
+            "comparator": "strictly_greater",
+            "note": null
+          },
+          "charge_base": {
+            "kind": "enum_set",
+            "value": [
+              "outstanding_after_due_date"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "LATEFEE1",
+          "paragraph": "2000-ASSESS",
+          "file": null,
+          "line_span": [
+            26,
+            30
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-PAST-DUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": "past_due_grace",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "LATEFEE1",
+          "line": 26,
+          "file": null
+        },
+        {
+          "program": "LATEFEE1",
+          "line": 27,
+          "file": null
+        },
+        {
+          "program": "LATEFEE1",
+          "line": 28,
+          "file": null
+        },
+        {
+          "program": "LATEFEE1",
+          "line": 30,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The `> ZERO` test at line 26 controls the charge calculation at lines 27–28, so the transition occurs as soon as the day count is positive. The clause requires more than three days past due; the branch acts early."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 0.989,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "LATEFEE1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 31, \"line_start\": 25, \"name\": \"2000-ASSESS\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\b137985d5b1a62453d7373b357e1f68b6aa221941494052030c927ba22c52f6e\\\\cases\\\\drift_900000\\\\LATEFEE1.cbl\", \"program\": \"LATEFEE1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "LATEFEE1",
+          "name": "2000-ASSESS"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}], \"code\": \"       2000-ASSESS.\\n           IF WS-DAYS-PAST-DUE > ZERO\\n              COMPUTE WS-LATE-CHARGE ROUNDED\\n                      = WS-LATE-RATE * WS-TOTAL-AMT-DUE\\n           ELSE\\n              MOVE ZERO TO WS-LATE-CHARGE\\n           END-IF.\", \"name\": \"2000-ASSESS\", \"ref\": {\"line_end\": 31, \"line_start\": 25, \"paragraph\": \"2000-ASSESS\", \"program\": \"LATEFEE1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-DAYS-PAST-DUE"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 13, \"program\": \"LATEFEE1\", \"text\": \"           05  WS-DAYS-PAST-DUE      PIC 9(4) VALUE ZERO.\"}, {\"line\": 21, \"program\": \"LATEFEE1\", \"text\": \"           ACCEPT WS-DAYS-PAST-DUE\"}, {\"line\": 26, \"program\": \"LATEFEE1\", \"text\": \"           IF WS-DAYS-PAST-DUE > ZERO\"}], \"pattern\": \"WS-DAYS-PAST-DUE\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The observed comparator and branch action place the charge transition before the clause boundary.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=4]",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_948904",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "23(5)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "past_due_grace": {
+                  "kind": "duration_days",
+                  "value": 3,
+                  "comparator": "strictly_greater",
+                  "note": null
+                },
+                "charge_base": {
+                  "kind": "enum_set",
+                  "value": [
+                    "outstanding_after_due_date"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": null,
+                "line_span": [
+                  26,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-PAST-DUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 26,
+                "file": null
+              },
+              {
+                "program": "LATEFEE1",
+                "line": 27,
+                "file": null
+              },
+              {
+                "program": "LATEFEE1",
+                "line": 28,
+                "file": null
+              },
+              {
+                "program": "LATEFEE1",
+                "line": 30,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The `> ZERO` test at line 26 controls the charge calculation at lines 27–28, so the transition occurs as soon as the day count is positive. The clause requires more than three days past due; the branch acts early."
+        },
+        "claim": "A card account may be reported past-due to CICs or levied penal charges only when it is past due for more than three days.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "LATEFEE1.cbl compares past-due days with ZERO and calculates a charge on the true branch, so it can charge before the more-than-three-day boundary in clause 23(5).",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The observed comparator and branch action place the charge transition before the clause boundary.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"LATEFEE1\",\"paragraph\":\"2000-ASSESS\",\"file\":\"LATEFEE1.cbl\",\"line_span\":[26,30]}],\"slice_vars\":[\"WS-DAYS-PAST-DUE\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"past_due_grace\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"LATEFEE1\",\"line\":26,\"file\":\"LATEFEE1.cbl\"},{\"program\":\"LATEFEE1\",\"line\":27,\"file\":\"LATEFEE1.cbl\"},{\"program\":\"LATEFEE1\",\"line\":28,\"file\":\"LATEFEE1.cbl\"},{\"program\":\"LATEFEE1\",\"line\":30,\"file\":\"LATEFEE1.cbl\"}]},\"rationale\":\"The `> ZERO` test at line 26 controls the charge calculation at lines 27–28, so the transition occurs as soon as the day count is positive. The clause requires more than three days past due; the branch acts early.\"},\"claim\":\"A card account may be reported past-due to CICs or levied penal charges only when it is past due for more than three days.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"ZERO\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"LATEFEE1.cbl compares past-due days with ZERO and calculates a charge on the true branch, so it can charge before the more-than-three-day boundary in clause 23(5).\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 0.989,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_948904",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "23(5)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "past_due_grace": {
+              "kind": "duration_days",
+              "value": 3,
+              "comparator": "strictly_greater",
+              "note": null
+            },
+            "charge_base": {
+              "kind": "enum_set",
+              "value": [
+                "outstanding_after_due_date"
+              ],
+              "comparator": null,
+              "note": null
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "LATEFEE1",
+            "paragraph": "2000-ASSESS",
+            "file": null,
+            "line_span": [
+              26,
+              30
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-DAYS-PAST-DUE"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D5_boundary_error",
+      "target_path": "past_due_grace",
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "LATEFEE1",
+            "line": 26,
+            "file": null
+          },
+          {
+            "program": "LATEFEE1",
+            "line": 27,
+            "file": null
+          },
+          {
+            "program": "LATEFEE1",
+            "line": 28,
+            "file": null
+          },
+          {
+            "program": "LATEFEE1",
+            "line": 30,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The `> ZERO` test at line 26 controls the charge calculation at lines 27–28, so the transition occurs as soon as the day count is positive. The clause requires more than three days past due; the branch acts early."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "LATEFEE1.cbl compares past-due days with ZERO and calculates a charge on the true branch, so it can charge before the more-than-three-day boundary in clause 23(5).",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": false,
+      "finding": {
+        "instance_id": "drift_948904",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "23(5)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+          "current_value": {
+            "kind": "composite",
+            "value": {
+              "past_due_grace": {
+                "kind": "duration_days",
+                "value": 3,
+                "comparator": "strictly_greater",
+                "note": null
+              },
+              "charge_base": {
+                "kind": "enum_set",
+                "value": [
+                  "outstanding_after_due_date"
+                ],
+                "comparator": null,
+                "note": null
+              }
+            },
+            "comparator": null,
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "LATEFEE1",
+              "paragraph": "2000-ASSESS",
+              "file": null,
+              "line_span": [
+                26,
+                26
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-DAYS-PAST-DUE"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D1_stale_threshold",
+        "target_path": "past_due_grace",
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "LATEFEE1",
+              "line": 26,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "At line 26, `WS-DAYS-PAST-DUE > ZERO` uses a zero threshold, while the `past_due_grace` leaf requires strictly more than 3 days. The strict comparator matches, but the literal value is stale."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present",
+        "citation_ok": true,
+        "entailment_probability": 0.989,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "LATEFEE1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 31, \"line_start\": 25, \"name\": \"2000-ASSESS\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\b137985d5b1a62453d7373b357e1f68b6aa221941494052030c927ba22c52f6e\\\\cases\\\\drift_900000\\\\LATEFEE1.cbl\", \"program\": \"LATEFEE1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "LATEFEE1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-ASSESS\", \"program\": \"LATEFEE1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-TOTAL-AMT-DUE\\n           ACCEPT WS-OUTSTANDING-AMT\\n           ACCEPT WS-DAYS-PAST-DUE\\n           PERFORM 2000-ASSESS\\n           DISPLAY 'CHARGE: ' WS-LATE-CHARGE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 24, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "LATEFEE1",
+              "name": "2000-ASSESS"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}], \"code\": \"       2000-ASSESS.\\n           IF WS-DAYS-PAST-DUE > ZERO\\n              COMPUTE WS-LATE-CHARGE ROUNDED\\n                      = WS-LATE-RATE * WS-TOTAL-AMT-DUE\\n           ELSE\\n              MOVE ZERO TO WS-LATE-CHARGE\\n           END-IF.\", \"name\": \"2000-ASSESS\", \"ref\": {\"line_end\": 31, \"line_start\": 25, \"paragraph\": \"2000-ASSESS\", \"program\": \"LATEFEE1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The bounded source shows a threshold literal that differs from the supplied grace-period value.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=1]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_948904",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "23(5)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "past_due_grace": {
+                      "kind": "duration_days",
+                      "value": 3,
+                      "comparator": "strictly_greater",
+                      "note": null
+                    },
+                    "charge_base": {
+                      "kind": "enum_set",
+                      "value": [
+                        "outstanding_after_due_date"
+                      ],
+                      "comparator": null,
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "LATEFEE1",
+                    "paragraph": "2000-ASSESS",
+                    "file": null,
+                    "line_span": [
+                      26,
+                      26
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-DAYS-PAST-DUE"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D1_stale_threshold",
+              "target_path": "past_due_grace",
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "LATEFEE1",
+                    "line": 26,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "At line 26, `WS-DAYS-PAST-DUE > ZERO` uses a zero threshold, while the `past_due_grace` leaf requires strictly more than 3 days. The strict comparator matches, but the literal value is stale."
+            },
+            "claim": "A card account may be reported past-due to CICs or levied penal charges only when it is past due for more than three days.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "ZERO",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The test at LATEFEE1.cbl line 26 permits the charge branch for any positive day count; clause 23(5) permits charges only after more than three days past due.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The bounded source shows a threshold literal that differs from the supplied grace-period value.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"LATEFEE1\",\"paragraph\":\"2000-ASSESS\",\"file\":\"LATEFEE1.cbl\",\"line_span\":[26,26]}],\"slice_vars\":[\"WS-DAYS-PAST-DUE\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"past_due_grace\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"LATEFEE1\",\"line\":26,\"file\":\"LATEFEE1.cbl\"}]},\"rationale\":\"At line 26, `WS-DAYS-PAST-DUE > ZERO` uses a zero threshold, while the `past_due_grace` leaf requires strictly more than 3 days. The strict comparator matches, but the literal value is stale.\"},\"claim\":\"A card account may be reported past-due to CICs or levied penal charges only when it is past due for more than three days.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"ZERO\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The test at LATEFEE1.cbl line 26 permits the charge branch for any positive day count; clause 23(5) permits charges only after more than three days past due.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present",
+          "citation_ok": true,
+          "entailment_probability": 0.989,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_948904",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "23(5)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "past_due_grace": {
+                  "kind": "duration_days",
+                  "value": 3,
+                  "comparator": "strictly_greater",
+                  "note": null
+                },
+                "charge_base": {
+                  "kind": "enum_set",
+                  "value": [
+                    "outstanding_after_due_date"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": null,
+                "line_span": [
+                  26,
+                  26
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-PAST-DUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 26,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "At line 26, `WS-DAYS-PAST-DUE > ZERO` uses a zero threshold, while the `past_due_grace` leaf requires strictly more than 3 days. The strict comparator matches, but the literal value is stale."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "The test at LATEFEE1.cbl line 26 permits the charge branch for any positive day count; clause 23(5) permits charges only after more than three days past due.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "CIC"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"CIC\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "LATEFEE1",
+              "para": "2000-ASSESS"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "LATEFEE1",
+              "para": "2000-ASSESS"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-DAYS-PAST-DUE",
+              "program": "LATEFEE1"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}], \"scoped_program\": \"LATEFEE1\", \"statements\": [{\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": null, \"program\": \"LATEFEE1\"}, \"text\": \"05  WS-DAYS-PAST-DUE      PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 21, \"line_start\": 21, \"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}, \"text\": \"ACCEPT WS-DAYS-PAST-DUE\"}], \"variable\": \"WS-DAYS-PAST-DUE\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The required absence checks did not all return negative observations.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The scoped CIC grep was empty, but find_callers returned 1000-MAIN and the data slice traced WS-DAYS-PAST-DUE through the source, so the D2 all-negative evidence contract is unmet.",
+            "final_answer": "No D2 finding: the bounded call-graph and data-slice observations were positive, so absence of the required behavior is not established under D2.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The required absence checks did not all return negative observations.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The scoped CIC grep was empty, but find_callers returned 1000-MAIN and the data slice traced WS-DAYS-PAST-DUE through the source, so the D2 all-negative evidence contract is unmet.\",\"final_answer\":\"No D2 finding: the bounded call-graph and data-slice observations were positive, so absence of the required behavior is not established under D2.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The scoped CIC grep was empty, but find_callers returned 1000-MAIN and the data slice traced WS-DAYS-PAST-DUE through the source, so the D2 all-negative evidence contract is unmet.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The scoped CIC grep was empty, but find_callers returned 1000-MAIN and the data slice traced WS-DAYS-PAST-DUE through the source, so the D2 all-negative evidence contract is unmet.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The scoped CIC grep was empty, but find_callers returned 1000-MAIN and the data slice traced WS-DAYS-PAST-DUE through the source, so the D2 all-negative evidence contract is unmet."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": {
+        "instance_id": "drift_948904",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "23(5)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+          "current_value": {
+            "kind": "composite",
+            "value": {
+              "past_due_grace": {
+                "kind": "duration_days",
+                "value": 3,
+                "comparator": "strictly_greater",
+                "note": null
+              },
+              "charge_base": {
+                "kind": "enum_set",
+                "value": [
+                  "outstanding_after_due_date"
+                ],
+                "comparator": null,
+                "note": null
+              }
+            },
+            "comparator": null,
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "LATEFEE1",
+              "paragraph": "2000-ASSESS",
+              "file": null,
+              "line_span": [
+                28,
+                28
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-TOTAL-AMT-DUE"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D3_contradictory",
+        "target_path": "charge_base",
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "LATEFEE1",
+              "line": 28,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "In `2000-ASSESS`, the charge calculation multiplies `WS-LATE-RATE` by `WS-TOTAL-AMT-DUE`. Clause 23(5) limits late charges to the outstanding amount after the due date and excludes the Total Amount Due, so the implemented base contradicts the clause."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "LATEFEE1:2000-ASSESS — literal 'WS-TOTAL-AMT-DUE' present",
+        "citation_ok": true,
+        "entailment_probability": 0.9956,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "LATEFEE1:2000-ASSESS — literal 'WS-TOTAL-AMT-DUE' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "LATEFEE1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 31, \"line_start\": 25, \"name\": \"2000-ASSESS\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\b137985d5b1a62453d7373b357e1f68b6aa221941494052030c927ba22c52f6e\\\\cases\\\\drift_900000\\\\LATEFEE1.cbl\", \"program\": \"LATEFEE1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "LATEFEE1",
+              "name": "2000-ASSESS"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}], \"code\": \"       2000-ASSESS.\\n           IF WS-DAYS-PAST-DUE > ZERO\\n              COMPUTE WS-LATE-CHARGE ROUNDED\\n                      = WS-LATE-RATE * WS-TOTAL-AMT-DUE\\n           ELSE\\n              MOVE ZERO TO WS-LATE-CHARGE\\n           END-IF.\", \"name\": \"2000-ASSESS\", \"ref\": {\"line_end\": 31, \"line_start\": 25, \"paragraph\": \"2000-ASSESS\", \"program\": \"LATEFEE1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-TOTAL-AMT-DUE",
+              "program": "LATEFEE1"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}], \"scoped_program\": \"LATEFEE1\", \"statements\": [{\"ref\": {\"line_end\": 11, \"line_start\": 11, \"paragraph\": null, \"program\": \"LATEFEE1\"}, \"text\": \"05  WS-TOTAL-AMT-DUE      PIC 9(9)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 19, \"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}, \"text\": \"ACCEPT WS-TOTAL-AMT-DUE\"}], \"variable\": \"WS-TOTAL-AMT-DUE\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The source contains a direct charge-base mismatch with the supplied clause.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=1]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_948904",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "23(5)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "past_due_grace": {
+                      "kind": "duration_days",
+                      "value": 3,
+                      "comparator": "strictly_greater",
+                      "note": null
+                    },
+                    "charge_base": {
+                      "kind": "enum_set",
+                      "value": [
+                        "outstanding_after_due_date"
+                      ],
+                      "comparator": null,
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "LATEFEE1",
+                    "paragraph": "2000-ASSESS",
+                    "file": null,
+                    "line_span": [
+                      28,
+                      28
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-TOTAL-AMT-DUE"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D3_contradictory",
+              "target_path": "charge_base",
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "LATEFEE1",
+                    "line": 28,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "In `2000-ASSESS`, the charge calculation multiplies `WS-LATE-RATE` by `WS-TOTAL-AMT-DUE`. Clause 23(5) limits late charges to the outstanding amount after the due date and excludes the Total Amount Due, so the implemented base contradicts the clause."
+            },
+            "claim": "Late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "WS-TOTAL-AMT-DUE",
+              "comparator": null,
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The calculation in LATEFEE1.cbl line 28 uses Total Amount Due as its base, while clause 23(5) requires the outstanding amount after the due date.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The source contains a direct charge-base mismatch with the supplied clause.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"LATEFEE1\",\"paragraph\":\"2000-ASSESS\",\"file\":\"LATEFEE1.cbl\",\"line_span\":[28,28]}],\"slice_vars\":[\"WS-TOTAL-AMT-DUE\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":\"charge_base\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"LATEFEE1\",\"line\":28,\"file\":\"LATEFEE1.cbl\"}]},\"rationale\":\"In `2000-ASSESS`, the charge calculation multiplies `WS-LATE-RATE` by `WS-TOTAL-AMT-DUE`. Clause 23(5) limits late charges to the outstanding amount after the due date and excludes the Total Amount Due, so the implemented base contradicts the clause.\"},\"claim\":\"Late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"WS-TOTAL-AMT-DUE\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The calculation in LATEFEE1.cbl line 28 uses Total Amount Due as its base, while clause 23(5) requires the outstanding amount after the due date.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "LATEFEE1:2000-ASSESS — literal 'WS-TOTAL-AMT-DUE' present",
+          "citation_ok": true,
+          "entailment_probability": 0.9956,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "LATEFEE1:2000-ASSESS — literal 'WS-TOTAL-AMT-DUE' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_948904",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "23(5)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "past_due_grace": {
+                  "kind": "duration_days",
+                  "value": 3,
+                  "comparator": "strictly_greater",
+                  "note": null
+                },
+                "charge_base": {
+                  "kind": "enum_set",
+                  "value": [
+                    "outstanding_after_due_date"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": null,
+                "line_span": [
+                  28,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-TOTAL-AMT-DUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": "charge_base",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 28,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "In `2000-ASSESS`, the charge calculation multiplies `WS-LATE-RATE` by `WS-TOTAL-AMT-DUE`. Clause 23(5) limits late charges to the outstanding amount after the due date and excludes the Total Amount Due, so the implemented base contradicts the clause."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "The calculation in LATEFEE1.cbl line 28 uses Total Amount Due as its base, while clause 23(5) requires the outstanding amount after the due date.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied clause value does not have the top-level shape required for D4.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only when current_value itself is an enum_set reference collection. The supplied current_value is composite, with an enum_set nested under charge_base.",
+            "final_answer": "No D4 finding: the supplied clause value is composite rather than a top-level enum_set reference collection.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied clause value does not have the top-level shape required for D4.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only when current_value itself is an enum_set reference collection. The supplied current_value is composite, with an enum_set nested under charge_base.\",\"final_answer\":\"No D4 finding: the supplied clause value is composite rather than a top-level enum_set reference collection.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": true,
+      "finding": {
+        "instance_id": "drift_948904",
+        "regulation_clause": {
+          "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+          "clause_id": "23(5)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+          "current_value": {
+            "kind": "composite",
+            "value": {
+              "past_due_grace": {
+                "kind": "duration_days",
+                "value": 3,
+                "comparator": "strictly_greater",
+                "note": null
+              },
+              "charge_base": {
+                "kind": "enum_set",
+                "value": [
+                  "outstanding_after_due_date"
+                ],
+                "comparator": null,
+                "note": null
+              }
+            },
+            "comparator": null,
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "LATEFEE1",
+              "paragraph": "2000-ASSESS",
+              "file": null,
+              "line_span": [
+                26,
+                30
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-DAYS-PAST-DUE"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D5_boundary_error",
+        "target_path": "past_due_grace",
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "LATEFEE1",
+              "line": 26,
+              "file": null
+            },
+            {
+              "program": "LATEFEE1",
+              "line": 27,
+              "file": null
+            },
+            {
+              "program": "LATEFEE1",
+              "line": 28,
+              "file": null
+            },
+            {
+              "program": "LATEFEE1",
+              "line": 30,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "The `> ZERO` test at line 26 controls the charge calculation at lines 27–28, so the transition occurs as soon as the day count is positive. The clause requires more than three days past due; the branch acts early."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present",
+        "citation_ok": true,
+        "entailment_probability": 0.989,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "LATEFEE1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 31, \"line_start\": 25, \"name\": \"2000-ASSESS\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\b137985d5b1a62453d7373b357e1f68b6aa221941494052030c927ba22c52f6e\\\\cases\\\\drift_900000\\\\LATEFEE1.cbl\", \"program\": \"LATEFEE1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "LATEFEE1",
+              "name": "2000-ASSESS"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}], \"code\": \"       2000-ASSESS.\\n           IF WS-DAYS-PAST-DUE > ZERO\\n              COMPUTE WS-LATE-CHARGE ROUNDED\\n                      = WS-LATE-RATE * WS-TOTAL-AMT-DUE\\n           ELSE\\n              MOVE ZERO TO WS-LATE-CHARGE\\n           END-IF.\", \"name\": \"2000-ASSESS\", \"ref\": {\"line_end\": 31, \"line_start\": 25, \"paragraph\": \"2000-ASSESS\", \"program\": \"LATEFEE1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-DAYS-PAST-DUE"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 13, \"program\": \"LATEFEE1\", \"text\": \"           05  WS-DAYS-PAST-DUE      PIC 9(4) VALUE ZERO.\"}, {\"line\": 21, \"program\": \"LATEFEE1\", \"text\": \"           ACCEPT WS-DAYS-PAST-DUE\"}, {\"line\": 26, \"program\": \"LATEFEE1\", \"text\": \"           IF WS-DAYS-PAST-DUE > ZERO\"}], \"pattern\": \"WS-DAYS-PAST-DUE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The observed comparator and branch action place the charge transition before the clause boundary.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=4]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_948904",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "23(5)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "past_due_grace": {
+                      "kind": "duration_days",
+                      "value": 3,
+                      "comparator": "strictly_greater",
+                      "note": null
+                    },
+                    "charge_base": {
+                      "kind": "enum_set",
+                      "value": [
+                        "outstanding_after_due_date"
+                      ],
+                      "comparator": null,
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "LATEFEE1",
+                    "paragraph": "2000-ASSESS",
+                    "file": null,
+                    "line_span": [
+                      26,
+                      30
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-DAYS-PAST-DUE"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D5_boundary_error",
+              "target_path": "past_due_grace",
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "LATEFEE1",
+                    "line": 26,
+                    "file": null
+                  },
+                  {
+                    "program": "LATEFEE1",
+                    "line": 27,
+                    "file": null
+                  },
+                  {
+                    "program": "LATEFEE1",
+                    "line": 28,
+                    "file": null
+                  },
+                  {
+                    "program": "LATEFEE1",
+                    "line": 30,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The `> ZERO` test at line 26 controls the charge calculation at lines 27–28, so the transition occurs as soon as the day count is positive. The clause requires more than three days past due; the branch acts early."
+            },
+            "claim": "A card account may be reported past-due to CICs or levied penal charges only when it is past due for more than three days.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "ZERO",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "LATEFEE1.cbl compares past-due days with ZERO and calculates a charge on the true branch, so it can charge before the more-than-three-day boundary in clause 23(5).",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The observed comparator and branch action place the charge transition before the clause boundary.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"LATEFEE1\",\"paragraph\":\"2000-ASSESS\",\"file\":\"LATEFEE1.cbl\",\"line_span\":[26,30]}],\"slice_vars\":[\"WS-DAYS-PAST-DUE\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"past_due_grace\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"LATEFEE1\",\"line\":26,\"file\":\"LATEFEE1.cbl\"},{\"program\":\"LATEFEE1\",\"line\":27,\"file\":\"LATEFEE1.cbl\"},{\"program\":\"LATEFEE1\",\"line\":28,\"file\":\"LATEFEE1.cbl\"},{\"program\":\"LATEFEE1\",\"line\":30,\"file\":\"LATEFEE1.cbl\"}]},\"rationale\":\"The `> ZERO` test at line 26 controls the charge calculation at lines 27–28, so the transition occurs as soon as the day count is positive. The clause requires more than three days past due; the branch acts early.\"},\"claim\":\"A card account may be reported past-due to CICs or levied penal charges only when it is past due for more than three days.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"ZERO\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"LATEFEE1.cbl compares past-due days with ZERO and calculates a charge on the true branch, so it can charge before the more-than-three-day boundary in clause 23(5).\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present",
+          "citation_ok": true,
+          "entailment_probability": 0.989,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "LATEFEE1:2000-ASSESS — literal 'ZERO' present; comparator '>' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_948904",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "23(5)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "past_due_grace": {
+                  "kind": "duration_days",
+                  "value": 3,
+                  "comparator": "strictly_greater",
+                  "note": null
+                },
+                "charge_base": {
+                  "kind": "enum_set",
+                  "value": [
+                    "outstanding_after_due_date"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": null,
+                "line_span": [
+                  26,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-PAST-DUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 26,
+                "file": null
+              },
+              {
+                "program": "LATEFEE1",
+                "line": 27,
+                "file": null
+              },
+              {
+                "program": "LATEFEE1",
+                "line": 28,
+                "file": null
+              },
+              {
+                "program": "LATEFEE1",
+                "line": 30,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The `> ZERO` test at line 26 controls the charge calculation at lines 27–28, so the transition occurs as soon as the day count is positive. The clause requires more than three days past due; the branch acts early."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "LATEFEE1.cbl compares past-due days with ZERO and calculates a charge on the true branch, so it can charge before the more-than-three-day boundary in clause 23(5).",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "LATEFEE1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 31, \"line_start\": 25, \"name\": \"2000-ASSESS\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\b137985d5b1a62453d7373b357e1f68b6aa221941494052030c927ba22c52f6e\\\\cases\\\\drift_900000\\\\LATEFEE1.cbl\", \"program\": \"LATEFEE1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "LATEFEE1",
+              "name": "2000-ASSESS"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}], \"code\": \"       2000-ASSESS.\\n           IF WS-DAYS-PAST-DUE > ZERO\\n              COMPUTE WS-LATE-CHARGE ROUNDED\\n                      = WS-LATE-RATE * WS-TOTAL-AMT-DUE\\n           ELSE\\n              MOVE ZERO TO WS-LATE-CHARGE\\n           END-IF.\", \"name\": \"2000-ASSESS\", \"ref\": {\"line_end\": 31, \"line_start\": 25, \"paragraph\": \"2000-ASSESS\", \"program\": \"LATEFEE1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "LATEFEE1",
+              "para": "2000-ASSESS"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The assessment paragraph is reachable and the observed condition is not an always-false guard.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "read_paragraph showed a variable-based condition and charge action, while find_callers identified 1000-MAIN as a caller of 2000-ASSESS. No dead-paragraph or disabled-guard evidence was observed.",
+            "final_answer": "No D6 finding: 2000-ASSESS is called from 1000-MAIN, and the bounded source observation showed no disabled compliance guard.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The assessment paragraph is reachable and the observed condition is not an always-false guard.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"read_paragraph showed a variable-based condition and charge action, while find_callers identified 1000-MAIN as a caller of 2000-ASSESS. No dead-paragraph or disabled-guard evidence was observed.\",\"final_answer\":\"No D6 finding: 2000-ASSESS is called from 1000-MAIN, and the bounded source observation showed no disabled compliance guard.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "read_paragraph showed a variable-based condition and charge action, while find_callers identified 1000-MAIN as a caller of 2000-ASSESS. No dead-paragraph or disabled-guard evidence was observed.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: read_paragraph showed a variable-based condition and charge action, while find_callers identified 1000-MAIN as a caller of 2000-ASSESS. No dead-paragraph or disabled-guard evidence was observed.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "read_paragraph showed a variable-based condition and charge action, while find_callers identified 1000-MAIN as a caller of 2000-ASSESS. No dead-paragraph or disabled-guard evidence was observed."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "LATEFEE1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 31, \"line_start\": 25, \"name\": \"2000-ASSESS\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\b137985d5b1a62453d7373b357e1f68b6aa221941494052030c927ba22c52f6e\\\\cases\\\\drift_900000\\\\LATEFEE1.cbl\", \"program\": \"LATEFEE1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "LATEFEE1",
+              "name": "2000-ASSESS"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"LATEFEE1\"}], \"code\": \"       2000-ASSESS.\\n           IF WS-DAYS-PAST-DUE > ZERO\\n              COMPUTE WS-LATE-CHARGE ROUNDED\\n                      = WS-LATE-RATE * WS-TOTAL-AMT-DUE\\n           ELSE\\n              MOVE ZERO TO WS-LATE-CHARGE\\n           END-IF.\", \"name\": \"2000-ASSESS\", \"ref\": {\"line_end\": 31, \"line_start\": 25, \"paragraph\": \"2000-ASSESS\", \"program\": \"LATEFEE1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-TOTAL-AMT-DUE"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 11, \"program\": \"LATEFEE1\", \"text\": \"           05  WS-TOTAL-AMT-DUE      PIC 9(9)V99 VALUE ZERO.\"}, {\"line\": 19, \"program\": \"LATEFEE1\", \"text\": \"           ACCEPT WS-TOTAL-AMT-DUE\"}, {\"line\": 28, \"program\": \"LATEFEE1\", \"text\": \"                      = WS-LATE-RATE * WS-TOTAL-AMT-DUE\"}], \"pattern\": \"WS-TOTAL-AMT-DUE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The assessment check exists, but the positive source evidence does not match the supplied clause.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The observed condition is `WS-DAYS-PAST-DUE > ZERO` and its charge expression uses `WS-TOTAL-AMT-DUE`; these do not establish a check matching the clause's more-than-three-day threshold and outstanding-after-due-date base.",
+            "final_answer": "No D7 finding: the observed threshold and charge base do not match clause 23(5), so positive evidence of conformance is unavailable.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The assessment check exists, but the positive source evidence does not match the supplied clause.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The observed condition is `WS-DAYS-PAST-DUE > ZERO` and its charge expression uses `WS-TOTAL-AMT-DUE`; these do not establish a check matching the clause's more-than-three-day threshold and outstanding-after-due-date base.\",\"final_answer\":\"No D7 finding: the observed threshold and charge base do not match clause 23(5), so positive evidence of conformance is unavailable.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The observed condition is `WS-DAYS-PAST-DUE > ZERO` and its charge expression uses `WS-TOTAL-AMT-DUE`; these do not establish a check matching the clause's more-than-three-day threshold and outstanding-after-due-date base.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The observed condition is `WS-DAYS-PAST-DUE > ZERO` and its charge expression uses `WS-TOTAL-AMT-DUE`; these do not establish a check matching the clause's more-than-three-day threshold and outstanding-after-due-date base.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The observed condition is `WS-DAYS-PAST-DUE > ZERO` and its charge expression uses `WS-TOTAL-AMT-DUE`; these do not establish a check matching the clause's more-than-three-day threshold and outstanding-after-due-date base."
+    }
+  ],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "f0240d0c8bdc99e42a01ceea98eebf406f5e72988965c69de2376b0cc1202d70",
+  "run_key": "ffcea5db93a96acca77becb7b1f9f6a80dd76daddf8ebda0243982a5a385cd92"
+}

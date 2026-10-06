@@ -1,0 +1,118 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The clause supplies a boolean requirement, while the bounded observations show a comparison against a runtime account credit limit. No source literal matching a resolved current-value leaf is established.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The D1 stale-value comparison cannot be grounded in a resolved source literal for the supplied boolean current_value.",
+        "final_answer": "I found no supported stale literal to compare with the clause's boolean requirement."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The scoped grep returned credit-limit and overlimit handling, and find_callers returned a caller for the account lookup. The four required observations are not all negative, so the missing-rule condition is not established.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The D2 all-negative evidence gate was not met, and the observations do not establish a missing required outcome.",
+        "final_answer": "The bounded evidence does not support a D2 missing-rule finding."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The overlimit branch sets a validation failure, and the main flow sends transactions with a nonzero validation failure to the reject paragraph. No conflicting allowed-breach behavior is evidenced.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed validation and rejection flow does not positively contradict the clause.",
+        "final_answer": "I found no source behavior that allows a transaction above the limit to proceed through the observed posting path."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current_value is boolean_required, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only to enum_set reference collections; this clause supplies a boolean requirement.",
+        "final_answer": "The clause does not provide an enum_set collection for a D4 comparison."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The observed check allows a projected balance equal to the credit limit and routes a greater balance to validation failure. That boundary does not occur early or late relative to the no-breach condition.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No boundary error is evidenced by the comparator and branch action.",
+        "final_answer": "The observed transition permits equality and rejects balances above the limit, so no D5 boundary error is supported."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The bounded reads show the account lookup reached from transaction validation and validation performed from the main flow. No unreachable paragraph or always-false compliance guard is evidenced.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed compliance check is on the main execution path, and no disabled guard is established.",
+        "final_answer": "I found no evidence that the account-limit check is dead or disabled."
+      },
+      "D7_conformant": {
+        "kind": "finding",
+        "thought": "The source positively compares projected balance with the account credit limit, assigns validation failure when the balance exceeds it, and posts only when validation failure is zero.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CBTRN02C",
+                "paragraph": "1500-B-LOOKUP-ACCT",
+                "file": "CBTRN02C.cbl",
+                "line_span": [
+                  407,
+                  412
+                ]
+              },
+              {
+                "program": "CBTRN02C",
+                "paragraph": "<preamble>",
+                "file": "CBTRN02C.cbl",
+                "line_span": [
+                  211,
+                  216
+                ]
+              }
+            ],
+            "slice_vars": [
+              "ACCT-CREDIT-LIMIT",
+              "WS-TEMP-BAL",
+              "WS-VALIDATION-FAIL-REASON"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "In 1500-B-LOOKUP-ACCT, the code allows the transaction to continue only when ACCT-CREDIT-LIMIT >= WS-TEMP-BAL; otherwise it sets validation failure 102 and records OVERLIMIT TRANSACTION (CBTRN02C.cbl, lines 407-412). In <preamble>, posting occurs only when WS-VALIDATION-FAIL-REASON = 0, and the other branch writes a reject record (lines 211-216). The projected balance may equal the limit, but a greater balance is rejected, so the observed transaction path prevents a limit breach without explicit consent."
+        },
+        "claim": "The sanctioned credit limit must not be breached at any point without explicit consent from the cardholder.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ACCT-CREDIT-LIMIT",
+          "comparator": ">=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The code allows a transaction only when its projected balance is at or below the account credit limit. A greater projected balance sets validation failure, and the main flow rejects it instead of posting. This enforces the clause's requirement that the sanctioned limit not be breached without the cardholder's explicit consent."
+      }
+    }
+  ]
+}

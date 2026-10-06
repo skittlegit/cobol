@@ -1,0 +1,126 @@
+{
+  "instance_id": "drift_564536",
+  "gold": {
+    "instance_id": "drift_564536",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "42(1)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "high_risk": {
+            "kind": "duration_years",
+            "value": 2,
+            "comparator": "at_most",
+            "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+          },
+          "medium_risk": {
+            "kind": "duration_years",
+            "value": 8,
+            "comparator": "at_most",
+            "note": null
+          },
+          "low_risk": {
+            "kind": "duration_years",
+            "value": 10,
+            "comparator": "at_most",
+            "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSCHED1",
+          "paragraph": "2000-CHECK-DUE",
+          "file": null,
+          "line_span": [
+            27,
+            27
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-YEARS-SINCE-KYC"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "high_risk",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSCHED1",
+          "line": 27,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-1 changes '2' to '5' at KYCSCHED1:2000-CHECK-DUE:27-27, producing D1_stale_threshold.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSCHED1.cbl",
+      "mutation": "MO-1; locus=KYCSCHED1:2000-CHECK-DUE:27-27; old='2'; new='5'; validation=compiled; stale_source=grid_fallback; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"42(1)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"high_risk\":{\"kind\":\"duration_years\",\"value\":2,\"comparator\":\"at_most\",\"note\":\"Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right.\"},\"medium_risk\":{\"kind\":\"duration_years\",\"value\":8,\"comparator\":\"at_most\",\"note\":null},\"low_risk\":{\"kind\":\"duration_years\",\"value\":10,\"comparator\":\"at_most\",\"note\":\"10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side.\"}},\"comparator\":null,\"note\":null}},\"program\":\"KYCSCHED1\",\"slices\":[{\"variable\":\"WS-YEARS-SINCE-KYC\",\"scoped_program\":\"KYCSCHED1\",\"statements\":[{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-YEARS-SINCE-KYC    PIC 9(2) VALUE ZERO.\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\",\"line_start\":20,\"line_end\":20},\"text\":\"ACCEPT WS-YEARS-SINCE-KYC\"}],\"paragraphs\":[{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible slice declares WS-YEARS-SINCE-KYC and accepts its value, but shows no comparison, customer risk category, or KYC update action. This evidence is insufficient to determine whether the periodic-update rule is missing or implemented elsewhere in the control flow.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied slice only shows declaration and input acceptance; it does not expose enough of the KYC control flow to establish either a missing rule or conformance.",
+        "final_answer": "The clause sets periodic KYC update intervals by risk category. The visible code only declares and accepts years since KYC, without showing the risk classification, interval checks, or update action, so the comparison is inconclusive and I abstain.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible slice declares WS-YEARS-SINCE-KYC and accepts its value, but shows no comparison, customer risk category, or KYC update action. This evidence is insufficient to determine whether the periodic-update rule is missing or implemented elsewhere in the control flow.\",\"prediction\":null,\"claim\":\"KYC must be updated at least once every two years for high-risk customers, once every eight years for medium-risk customers, and once every ten years for low-risk customers, measured from account opening or the last KYC update.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied slice only shows declaration and input acceptance; it does not expose enough of the KYC control flow to establish either a missing rule or conformance.\",\"final_answer\":\"The clause sets periodic KYC update intervals by risk category. The visible code only declares and accepts years since KYC, without showing the risk classification, interval checks, or update action, so the comparison is inconclusive and I abstain.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied slice only shows declaration and input acceptance; it does not expose enough of the KYC control flow to establish either a missing rule or conformance.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause sets periodic KYC update intervals by risk category. The visible code only declares and accepts years since KYC, without showing the risk classification, interval checks, or update action, so the comparison is inconclusive and I abstain.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied slice only shows declaration and input acceptance; it does not expose enough of the KYC control flow to establish either a missing rule or conformance.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "0bbc9c446b7e44c41493bd962afb10da38a1f1ac4dda76eb30cbf0148336f655",
+  "run_key": "dffb352ee1efae2922e0cec0c9ee33dc4af8f8200b19eb50cccd12a72a56c33b"
+}

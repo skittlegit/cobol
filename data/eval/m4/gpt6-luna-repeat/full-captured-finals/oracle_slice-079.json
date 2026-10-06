@@ -1,0 +1,77 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "clause_index": null,
+      "response": {
+        "kind": "abstain",
+        "thought": "The supplied slices show declarations and ACCEPT statements but no over-limit decision or consent handling, so they do not establish whether the limit is breached without consent.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied source evidence does not show the logic that compares the projected balance with the sanctioned limit or checks for explicit consent.",
+        "final_answer": "The visible evidence is insufficient to determine whether the program prevents an over-limit balance without explicit cardholder consent."
+      }
+    },
+    {
+      "alias": "drift_900001",
+      "clause_index": null,
+      "response": {
+        "kind": "finding",
+        "thought": "The visible calculation uses Total Amount Due as the late-charge base, contrary to the clause's stated charge base.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "1000-MAIN",
+                "file": null,
+                "line_span": [
+                  22,
+                  22
+                ]
+              },
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": null,
+                "line_span": [
+                  27,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-LATE-CHARGE"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 28,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "In LATEFEE1's 2000-ASSESS paragraph, line 28 calculates WS-LATE-CHARGE using WS-TOTAL-AMT-DUE. RBI clause 23(5) says late charges apply only to the outstanding amount after the due date, not the Total Amount Due, so this calculation contradicts the stated charge base."
+        },
+        "claim": "Late charges apply only to the outstanding amount after the due date, not to the Total Amount Due.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "WS-LATE-RATE * WS-TOTAL-AMT-DUE",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "LATEFEE1 computes the late charge using WS-TOTAL-AMT-DUE in 2000-ASSESS, while clause 23(5) limits the charge base to the outstanding amount after the due date. This is a contradiction."
+      }
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "instance_id": "drift_635878",
+  "gold": {
+    "instance_id": "drift_635878",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN3",
+          "paragraph": "2000-PEN",
+          "file": null,
+          "line_span": [
+            30,
+            30
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-WORK-DAYS-ELAPSED"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": "closure_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN3",
+          "line": 30,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-5 changes '>' to '>=' at CLOSPEN3:2000-PEN:30-30, producing D5_boundary_error.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CLOSPEN3.cbl",
+      "mutation": "MO-5; locus=CLOSPEN3:2000-PEN:30-30; old='>'; new='>='; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"CLOSPEN3\",\"slices\":[{\"variable\":\"WS-WORK-DAYS-ELAPSED\",\"scoped_program\":\"CLOSPEN3\",\"statements\":[{\"ref\":{\"program\":\"CLOSPEN3\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-WORK-DAYS-ELAPSED  PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPEN3\",\"paragraph\":\"1000-MAIN\",\"line_start\":25,\"line_end\":25},\"text\":\"ACCEPT WS-WORK-DAYS-ELAPSED\"}],\"paragraphs\":[{\"program\":\"CLOSPEN3\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied slice shows the elapsed-working-days field being accepted, but contains no comparison, closure decision, or penalty calculation to classify against the clause.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The visible source evidence is insufficient to determine whether the closure deadline or penalty requirement is implemented correctly.",
+        "final_answer": "Abstain: the supplied slice does not show how elapsed working days affect closure or penalties.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied slice shows the elapsed-working-days field being accepted, but contains no comparison, closure decision, or penalty calculation to classify against the clause.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The visible source evidence is insufficient to determine whether the closure deadline or penalty requirement is implemented correctly.\",\"final_answer\":\"Abstain: the supplied slice does not show how elapsed working days affect closure or penalties.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The visible source evidence is insufficient to determine whether the closure deadline or penalty requirement is implemented correctly.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain: the supplied slice does not show how elapsed working days affect closure or penalties.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The visible source evidence is insufficient to determine whether the closure deadline or penalty requirement is implemented correctly.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "b4775ecb16e4231acfd21bac6baab84150b4c3e48e560b929b1da10562a7c464",
+  "run_key": "8e170385a63c93a0022dd257d99f2e096d7446005cd4d6e975c7a3e323c9b598"
+}

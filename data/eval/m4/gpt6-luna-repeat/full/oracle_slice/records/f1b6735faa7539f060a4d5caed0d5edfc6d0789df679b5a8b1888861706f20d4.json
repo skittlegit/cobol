@@ -1,0 +1,140 @@
+{
+  "instance_id": "drift_000004",
+  "gold": {
+    "instance_id": "drift_000004",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": null,
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": null,
+            "note": null
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN2",
+          "paragraph": "2000-CALC",
+          "file": null,
+          "line_span": [
+            24,
+            35
+          ]
+        },
+        {
+          "program": "CLOSPEN2",
+          "paragraph": null,
+          "file": "WSDAYBAS.cpy",
+          "line_span": [
+            1,
+            8
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CHARGE-DAYS",
+        "WS-DAY-BASIS",
+        "BASIS-WORKING",
+        "WS-PEN-RATE-STD"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "day_basis",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN2",
+          "line": 26,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 19 requires calendar_day accrual. CLOSPEN2's WSDAYBAS.cpy default WS-DAY-BASIS='W' (BASIS-WORKING) causes 2000-CALC to subtract weekend days from the elapsed count before subtracting the 7-day SLA window (lines 25-27), producing a working-day-based charge count rather than calendar-day accrual under the site's own standard default.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "CLOSPEN2.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":null,\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":null,\"note\":null},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"CLOSPEN2\",\"slices\":[{\"variable\":\"WS-CHARGE-DAYS\",\"scoped_program\":\"CLOSPEN2\",\"statements\":[{\"ref\":{\"program\":\"CLOSPEN2\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPEN2\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-WEEKEND-DAYS       PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPEN2\",\"paragraph\":null,\"line_start\":15,\"line_end\":15},\"text\":\"05  WS-CHARGE-DAYS        PIC S9(5) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPEN2\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"ACCEPT WS-ELAPSED-DAYS\"},{\"ref\":{\"program\":\"CLOSPEN2\",\"paragraph\":\"1000-MAIN\",\"line_start\":20,\"line_end\":20},\"text\":\"ACCEPT WS-WEEKEND-DAYS\"},{\"ref\":{\"program\":\"CLOSPEN2\",\"paragraph\":\"1000-MAIN\",\"line_start\":21,\"line_end\":21},\"text\":\"PERFORM 2000-CALC\"},{\"ref\":{\"program\":\"CLOSPEN2\",\"paragraph\":\"2000-CALC\",\"line_start\":25,\"line_end\":27},\"text\":\"IF BASIS-WORKING\\n              COMPUTE WS-CHARGE-DAYS = WS-ELAPSED-DAYS\\n                      - WS-WEEKEND-DAYS - 7\"},{\"ref\":{\"program\":\"CLOSPEN2\",\"paragraph\":\"2000-CALC\",\"line_start\":26,\"line_end\":27},\"text\":\"COMPUTE WS-CHARGE-DAYS = WS-ELAPSED-DAYS\\n                      - WS-WEEKEND-DAYS - 7\"},{\"ref\":{\"program\":\"CLOSPEN2\",\"paragraph\":\"2000-CALC\",\"line_start\":29,\"line_end\":29},\"text\":\"COMPUTE WS-CHARGE-DAYS = WS-ELAPSED-DAYS - 7\"}],\"paragraphs\":[{\"program\":\"CLOSPEN2\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"CLOSPEN2\",\"paragraph\":\"2000-CALC\"}],\"is_interprocedural\":true},{\"variable\":\"WS-DAY-BASIS\",\"scoped_program\":\"CLOSPEN2\",\"statements\":[],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"BASIS-WORKING\",\"scoped_program\":\"CLOSPEN2\",\"statements\":[],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"WS-PEN-RATE-STD\",\"scoped_program\":\"CLOSPEN2\",\"statements\":[],\"paragraphs\":[],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The clause requires penalties per calendar day. The supplied code computes WS-CHARGE-DAYS using either a weekend-adjusted count or an elapsed-day count, but the context does not show whether or how this value determines the penalty. The connection is insufficient to classify.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied slice shows conditional calculations for WS-CHARGE-DAYS but does not establish that this value is used to calculate the clause's penalty or which basis controls that calculation.",
+        "final_answer": "The clause requires a 7-working-day closure period and a penalty per calendar day of delay. The code conditionally computes WS-CHARGE-DAYS with or without subtracting weekends, but the supplied context does not connect that value to the penalty calculation, so the code-versus-clause comparison is inconclusive.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause requires penalties per calendar day. The supplied code computes WS-CHARGE-DAYS using either a weekend-adjusted count or an elapsed-day count, but the context does not show whether or how this value determines the penalty. The connection is insufficient to classify.\",\"prediction\":null,\"claim\":\"Closure requests must be honoured within 7 working days, subject to dues; if delayed, a penalty of Rs 500 per calendar day applies until closure, provided no outstanding amount remains.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied slice shows conditional calculations for WS-CHARGE-DAYS but does not establish that this value is used to calculate the clause's penalty or which basis controls that calculation.\",\"final_answer\":\"The clause requires a 7-working-day closure period and a penalty per calendar day of delay. The code conditionally computes WS-CHARGE-DAYS with or without subtracting weekends, but the supplied context does not connect that value to the penalty calculation, so the code-versus-clause comparison is inconclusive.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied slice shows conditional calculations for WS-CHARGE-DAYS but does not establish that this value is used to calculate the clause's penalty or which basis controls that calculation.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires a 7-working-day closure period and a penalty per calendar day of delay. The code conditionally computes WS-CHARGE-DAYS with or without subtracting weekends, but the supplied context does not connect that value to the penalty calculation, so the code-versus-clause comparison is inconclusive.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied slice shows conditional calculations for WS-CHARGE-DAYS but does not establish that this value is used to calculate the clause's penalty or which basis controls that calculation.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "f828f9da2094a7c6b0c4d24ea5ebf04a48fd6e3781164309c0eb897261def7b3",
+  "run_key": "f1b6735faa7539f060a4d5caed0d5edfc6d0789df679b5a8b1888861706f20d4"
+}

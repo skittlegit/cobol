@@ -1,0 +1,132 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "6c6f6988dc2b8e5eda70d9ed11870ec6bd8f4fde6bb40235fa920ec6d710435d",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The index identifies 2000-CUTOFF as the relevant behavior paragraph, but gives no statement values yet."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "c4f7b7aab6b6f8153f5cb6b08bf0c649bf56686f517ff210f659eeee53e463b3",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The paragraph computes a percentage cutoff, clamps it to a cap, and compares the refund amount to that result; the configured values are not shown in this observation."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "680cad11c1b8d14518af48fbab8b5e455bb8a319f5e28a4c2a1060624575696d",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "The complete main paragraph accepts only credit limit and refund amount, performs the cutoff paragraph, and displays an action; it has no credit-date or cardholder-request input or timing/reversal action."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "749d66faef31171cfd118a77da78a004ea23032810900e148b885efdd97736fc",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "The scoped search finds a consent action and a stored consent-window value, but no reversal, date, request, failed-transaction, or working-day behavior in the returned matches."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "376536864c3a6169a56fc31b0675502de0ff67a5f0455b9bcd19b4b40b569002",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "The REFADJ2 data slice has no statements using WS-CONSENT-WINDOW, so its presence in shared data does not implement a timing check in this program."
+        },
+        {
+          "observation_step": 6,
+          "observation_sha256": "70d3bd6fbaf713a11172c9f5b5bb4ce447e603f8895be41afc70dec9765de91c",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "The refund-amount slice shows its declaration and acceptance in 1000-MAIN, with no date, consent-timing, or reversal behavior in its dependency slice."
+        },
+        {
+          "observation_step": 7,
+          "observation_sha256": "c6ad8afb7830b40e4455a9470c44e68e2c53fcff8d16f9b9f75956e974f8895d",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "supports",
+          "rationale": "The full action slice contains only the threshold-driven CONSENT and ADJUST outcomes, with no consent-window or reversal outcome."
+        },
+        {
+          "observation_step": 7,
+          "observation_sha256": "c6ad8afb7830b40e4455a9470c44e68e2c53fcff8d16f9b9f75956e974f8895d",
+          "hypothesis": "D7_conformant",
+          "bearing": "refutes",
+          "rationale": "The action slice shows that the program does not implement all the clause's consent-timing and reversal behavior, so it cannot support whole-clause conformance."
+        },
+        {
+          "observation_step": 8,
+          "observation_sha256": "02443327424f90549bd4b397f68d7b46079fe68ad2e69f5bcb16c36ef4b72d14",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The resolved copybook sets the percentage to .01 but the cutoff cap to 6000, while the clause's cutoff leaf caps the one-percent calculation at 5000."
+        },
+        {
+          "observation_step": 9,
+          "observation_sha256": "f90ae37e1460e465a5d2038437dc04908137da4fbae4973e6620b0b99b898ee0",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The scoped search enumerates one hardcoded WS-CUTOFF-CAP declaration, its 6000 value, and the computation/clamp that consumes it; no second typed cap locus appears."
+        },
+        {
+          "observation_step": 10,
+          "observation_sha256": "8e65eea4254df11efb2aec473c44f11f5f9b12b116b92ff965c04f579b983256",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The scoped program slice does not surface the copybook variable, so it adds no competing cap locus; the prior scoped search and copybook resolution provide the declaration and use evidence."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The direct cutoff value is stale: the clause's cutoff leaf is capped at 5000, while the sole resolved cap literal is 6000. The other clause elements also lack corresponding actions, but the stale cutoff is the strongest typed finding.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "REFADJ2",
+                "paragraph": null,
+                "file": "WSCUTOFF.cpy",
+                "line_span": [
+                  4,
+                  4
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CUTOFF-CAP"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "cutoff",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "REFADJ2",
+                "line": 4,
+                "file": "WSCUTOFF.cpy"
+              }
+            ]
+          },
+          "rationale": "WSCUTOFF.cpy defines the cutoff cap as 6000 while setting the percentage to .01. REFADJ2 computes the percentage of the credit limit and clamps it to that cap before comparing the refund amount. The clause's cutoff leaf is min(0.01 * credit_limit, 5000_inr), so the configured cap is stale. The scoped search found one cap declaration."
+        },
+        "claim": "Explicit consent is required to adjust credit from refund, failed, or reversed transactions already paid for beyond the lower of one percent of the credit limit or Rs 5000; consent is sought within 7 days of the credit; on the cardholder's request, reversal to the bank account is within 3 working days.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "6000",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D1 stale threshold: the configured cutoff cap is Rs 6000, while the clause requires the lower of one percent of the credit limit or Rs 5000."
+      }
+    }
+  ]
+}

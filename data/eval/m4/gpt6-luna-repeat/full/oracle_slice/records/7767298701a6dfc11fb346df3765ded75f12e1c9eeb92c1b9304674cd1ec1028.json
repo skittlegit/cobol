@@ -1,0 +1,108 @@
+{
+  "instance_id": "drift_110022",
+  "gold": {
+    "instance_id": "drift_110022",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC01",
+          "paragraph": "2000-QUEUE-CKYCR",
+          "file": null,
+          "line_span": [
+            15,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-UPDATE-RECEIVED",
+        "WS-QUEUE-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6KYC01",
+          "line": 15,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 65(8) requires CKYCR updates within 7 days of receiving updated information (at_most 7). The program (byte-identical to the pre-2024 candidate) has no day-count or date field and no 7-day deadline check anywhere in its reachable logic.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6KYC01.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"program\":\"T6KYC01\",\"slices\":[{\"variable\":\"WS-UPDATE-RECEIVED\",\"scoped_program\":\"T6KYC01\",\"statements\":[{\"ref\":{\"program\":\"T6KYC01\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"05  WS-UPDATE-RECEIVED    PIC X VALUE 'N'.\"},{\"ref\":{\"program\":\"T6KYC01\",\"paragraph\":\"1000-MAIN\",\"line_start\":11,\"line_end\":11},\"text\":\"ACCEPT WS-UPDATE-RECEIVED\"}],\"paragraphs\":[{\"program\":\"T6KYC01\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-QUEUE-STATUS\",\"scoped_program\":\"T6KYC01\",\"statements\":[{\"ref\":{\"program\":\"T6KYC01\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"05  WS-UPDATE-RECEIVED    PIC X VALUE 'N'.\"},{\"ref\":{\"program\":\"T6KYC01\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"05  WS-QUEUE-STATUS       PIC X(8) VALUE SPACES.\"},{\"ref\":{\"program\":\"T6KYC01\",\"paragraph\":\"1000-MAIN\",\"line_start\":11,\"line_end\":11},\"text\":\"ACCEPT WS-UPDATE-RECEIVED\"},{\"ref\":{\"program\":\"T6KYC01\",\"paragraph\":\"1000-MAIN\",\"line_start\":12,\"line_end\":12},\"text\":\"PERFORM 2000-QUEUE-CKYCR\"},{\"ref\":{\"program\":\"T6KYC01\",\"paragraph\":\"2000-QUEUE-CKYCR\",\"line_start\":16,\"line_end\":17},\"text\":\"IF WS-UPDATE-RECEIVED = 'Y'\\n              MOVE 'PENDING' TO WS-QUEUE-STATUS\"},{\"ref\":{\"program\":\"T6KYC01\",\"paragraph\":\"2000-QUEUE-CKYCR\",\"line_start\":17,\"line_end\":17},\"text\":\"MOVE 'PENDING' TO WS-QUEUE-STATUS\"},{\"ref\":{\"program\":\"T6KYC01\",\"paragraph\":\"2000-QUEUE-CKYCR\",\"line_start\":19,\"line_end\":19},\"text\":\"MOVE 'NOUPDATE' TO WS-QUEUE-STATUS\"}],\"paragraphs\":[{\"program\":\"T6KYC01\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"T6KYC01\",\"paragraph\":\"2000-QUEUE-CKYCR\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied slice shows an update-received flag leading to a PENDING or NOUPDATE queue status, but it does not show whether or when KYC records are updated in the registry.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The available source context does not establish whether the registry update occurs or whether it meets the seven-day deadline.",
+        "final_answer": "T6KYC01 lines 11–12 accept the update-received flag and call the queue paragraph; lines 16–19 set PENDING or NOUPDATE. The slice does not show a registry update or elapsed time, so it cannot establish whether the seven-day obligation is met.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied slice shows an update-received flag leading to a PENDING or NOUPDATE queue status, but it does not show whether or when KYC records are updated in the registry.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The available source context does not establish whether the registry update occurs or whether it meets the seven-day deadline.\",\"final_answer\":\"T6KYC01 lines 11–12 accept the update-received flag and call the queue paragraph; lines 16–19 set PENDING or NOUPDATE. The slice does not show a registry update or elapsed time, so it cannot establish whether the seven-day obligation is met.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The available source context does not establish whether the registry update occurs or whether it meets the seven-day deadline.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "T6KYC01 lines 11–12 accept the update-received flag and call the queue paragraph; lines 16–19 set PENDING or NOUPDATE. The slice does not show a registry update or elapsed time, so it cannot establish whether the seven-day obligation is met.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The available source context does not establish whether the registry update occurs or whether it meets the seven-day deadline.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "85f71a9799a68ff7bace2f1a1958af33d5204bf614395fd5d774efb1c2c4e4cb",
+  "run_key": "7767298701a6dfc11fb346df3765ded75f12e1c9eeb92c1b9304674cd1ec1028"
+}

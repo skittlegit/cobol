@@ -1,7 +1,7 @@
 # GOAL-R1 work order - finish detector evaluation
 
 **Owner:** Track C
-**State:** GPT-6 Luna smoke valid; frozen full run started 2026-09-23
+**State:** GPT-6 Luna follow-up R1.5 and R1.6 complete; R1.7 pending
 **Windowing:** run one numbered section per Codex five-hour window
 **Depends on:** immutable configuration-3 smoke evidence and promoted T6-v2
 **Excludes:** UI/T7.4 and all GOAL-R2 migration work
@@ -25,11 +25,36 @@ Its qualification and 44 smoke tasks are sealed and replay valid, with all six
 systems `VALID`. The 196-row, 610-task full run is prepared with zero full-run
 provider calls at preparation. The user started those frozen tasks on
 2026-09-23; checkpoint each sealed result without changing the freeze.
-The first execution handoff is 17/305 sealed and replayed first-half keys,
-287 pending runnable keys, and one terminal contract rejection after a failed
-JSON serialization repair. Its exact failed final is retained as a rejected
-diagnostic, and `full/terminal-attempts.json` excludes that key from automatic
-resume. No second-half key has run.
+The 2026-10-04 checkpoint is COMPLETE at 305/305 sealed first-half keys,
+zero pending runnable keys, and zero terminal contract rejections. Targeted recoveries,
+failed attempts, and interrupted sessions retain their original diagnostics.
+On 2026-10-03, agent ordinals 85/86 and adaptive ordinal 85 were resumed
+from unchanged requests after confirming their earlier sessions had no final.
+Their prior tool logs are retained under `rejected-tool-logs` and pinned in
+`full/interrupted-attempts.json`.
+The 2026-10-03 window was interrupted. Its three unfinished workers have no
+final and their tool logs are preserved in `full/interrupted-attempts.json`.
+Earlier on 2026-10-04, Windows Application Control blocked two generated
+harness executables (14 passed, 2 failed), and fresh worker creation reached
+the orchestration thread limit. These historical blockers remain preserved in
+`diagnostics/compiler-restoration.json` and
+`diagnostics/session-thread-limit.json`. Fresh-session recovery resolved both
+blockers, resumed unchanged requests, and sealed adaptive ordinal 91.
+Do not reuse a worker from another case.
+The earlier session accidentally executed twelve second-half oracle batches
+(ordinals 50-61) ahead of the section order; preserve these frozen results.
+There are 317/610 sealed tasks overall and 293 immutable keys remaining for
+R1.6. R1.5 is complete; no R1.6 work was started in this recovery window.
+The coding coordinator changed to `gpt-6.1-sol` on
+2026-10-02; evaluator requests remain `gpt-6-luna`/`max`.
+Fresh-session recovery on 2026-10-04 restored worker capacity and passed the
+unchanged native compiler harness at 16/16 plus compiler policy at 12/12.
+All eight remaining first-half keys are now sealed and replay-valid.
+The earlier compiler and thread-limit failures remain diagnostic history.
+See `diagnostics/fresh-session-resume.json` and `full/r1.5-handoff.json` for
+the terminal recovery record and hash-bound handoff. Three invalid adaptive
+91 finals remain preserved diagnostics; its new exact final passed schema and
+host replay without resetting its bounded tool evidence.
 
 - Configuration-3 `lineage-v4` is immutable historical evidence under
   `data/eval/legacy/m4-config3`: 37/37 tasks and 84/84 evaluations replayed;
@@ -199,6 +224,20 @@ terminal or explicitly interrupted, and no method state changed.
 
 **Handoff:** sealed full-run and temporal artifacts with complete replay and no
 pending official keys.
+
+### R1.6 terminal record (2026-10-06 IST)
+
+Full coverage is 610/610 tasks and 196/196 canonical records per system;
+all six host finalizations are VALID. Temporal coverage is 40/40 sides and
+20/20 pairs, host validity VALID, paired accuracy 7/20 (35%) below the reporting
+bar. The separate signed-reference audit preserves two full-run mismatches
+(adaptive 154 and 173) and two entries in temporal side 40. No result was rerun
+or revised after sealing. Resource telemetry remains not recorded. Per-system
+metrics and drift-type cell denominators are reconciled without pooling.
+
+See `data/eval/m4/gpt6-luna-repeat/diagnostics/r1.6-terminal-receipt.json`
+and `diagnostics/r1.6-full-terminal-reconciliation.json` in that lineage.
+Nineteen focused configuration tests and Ruff passed. R1.7 has not started.
 
 ## R1.7 - T8.3/T8.4 reports and detector freeze
 

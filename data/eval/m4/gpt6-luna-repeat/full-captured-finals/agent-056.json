@@ -1,0 +1,118 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The source range begins at 16, while the clause specifies strictly greater than 15 percent. Because the source accepts an integer percentage, 16 is the first representable value above 15; the literal difference alone does not establish stale behavior.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed 16 THRU 100 range on PIC 9(3) matches the strict greater-than-15 boundary for integer percentage values, so a stale threshold is not established.",
+        "final_answer": "Abstain: the source literal 16 is the first integer above the clause's strict 15 percent threshold."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The required absence-only evidence is not all negative: grep and the data slice return WS-PARTNER-PCT locations, and the caller/callee observations show the main-to-review paragraph path.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D2 requires all four observations to be negative; grep, caller, callee, and slice observations include positive source locations or a paragraph path.",
+        "final_answer": "Abstain: the D2 all-negative evidence contract is unmet."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The observed source range maps 16 through 100 to BO and other values to PASS; this does not show positive behavior contradicting the supplied strictly-greater-than-15 condition.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No positively contradictory source behavior is established by the observed range and branch.",
+        "final_answer": "Abstain: the observed branch does not establish a D3 contradiction."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current value is a percentage, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies to enum_set reference collections; the supplied clause current_value has kind percentage.",
+        "final_answer": "Abstain: this clause does not provide an enum_set reference collection for D4."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The source range is 16 THRU 100, the branch assigns BO for that range, and the input is PIC 9(3). The lower transition is at the first integer strictly above 15.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed branch boundary is not early or late for the integer percentage input, so a D5 boundary error is not established.",
+        "final_answer": "Abstain: the observed integer boundary matches the clause's strict greater-than-15 condition."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The main paragraph performs 2400-SET-REVIEW-CODE, whose branch reads the range condition; no disabled guard or dead-paragraph evidence is established.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed call reaches the compliance paragraph, and the bounded observations do not establish an always-false/default-off guard or an unreachable paragraph.",
+        "final_answer": "Abstain: the observed code does not establish dead or disabled compliance logic."
+      },
+      "D7_conformant": {
+        "kind": "finding",
+        "thought": "The source accepts an integer percentage in WS-PARTNER-PCT, defines the BO range from 16 through 100, and assigns BO when that condition is true. Sixteen is the first integer strictly greater than 15, matching the clause at the represented boundary.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO05",
+                "paragraph": null,
+                "file": "T6BO05.cbl",
+                "line_span": [
+                  7,
+                  8
+                ]
+              },
+              {
+                "program": "T6BO05",
+                "paragraph": "2400-SET-REVIEW-CODE",
+                "file": "T6BO05.cbl",
+                "line_span": [
+                  17,
+                  21
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-PARTNER-PCT",
+              "LEGACY-BO-RANGE",
+              "WS-REVIEW-CODE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "T6BO05 declares WS-PARTNER-PCT as PIC 9(3), defines LEGACY-BO-RANGE as VALUE 16 THRU 100, and moves BO to WS-REVIEW-CODE when that range is true. For the integer percentage input, 16 is the first value strictly greater than the clause's 15 percent threshold, so the implemented boundary matches the clause."
+        },
+        "claim": "For a partnership firm, the beneficial owner is the natural person or persons who, acting alone or together and directly or through one or more juridical persons, own or are entitled to more than 15 percent of the firm's capital or profits.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "16",
+          "comparator": "THRU",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The source treats integer percentages from 16 through 100 as beneficial ownership and assigns BO for that range. Since 16 is the first integer strictly greater than 15, the implemented threshold matches the clause at the represented boundary."
+      }
+    }
+  ]
+}

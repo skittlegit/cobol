@@ -1,13 +1,22 @@
 # FLAGS - active cross-track inbox
 
-Last updated: **2026-09-23 IST**.
+Last updated: **2026-10-06 IST**.
 
 This file contains unresolved coordination items only. Resolved history belongs
 in the applicable work order or immutable artifact.
 
 ## Release-wide
 
-- **Model transition:** Use `gpt-6-sol` for new repository work. Preserve the
+- **R1.7 pending:** R1.6 is complete at 610/610 full tasks and 40/40
+  temporal sides. Each of the six full-run systems has 196 canonical records;
+  all host replay statuses are VALID. Temporal paired accuracy is 7/20 (35%),
+  below the reporting bar. Preserve the four signed-reference discrepancies
+  across full adaptive 154/173 and temporal 40; host validity does not imply
+  hash equality. Provider resource telemetry is unavailable. Reports and detector
+  decision remain pending. Terminal receipt:
+  `data/eval/m4/gpt6-luna-repeat/diagnostics/r1.6-terminal-receipt.json`.
+
+- **Model transition:** Use `gpt-6.1-sol` for new repository work. Preserve the
   original `gpt-5.6-luna`/`max` R1.5 run at 78/305 first-half tasks. The user
   authorized a separate `gpt-6-luna`/`max` follow-up with a new freeze at
   `data/eval/m4/gpt6-luna-repeat`; all 44 smoke tasks and its isolated
@@ -15,10 +24,11 @@ in the applicable work order or immutable artifact.
   `VALID`. The full-run identity and 610 requests are prepared with zero
   full-run provider calls at preparation. Execution began at the user's
   request on 2026-09-23; schedule only frozen pending keys and checkpoint
-  sealed progress. The first handoff has 17/305 first-half keys sealed and
-  replayed, 287 pending runnable keys, and one terminal contract rejection
-  recorded in `full/terminal-attempts.json` under that lineage. No second-half
-  key has started.
+  sealed progress. The first-half checkpoint is COMPLETE at 305/305 sealed keys,
+  zero pending runnable keys, and zero terminal contract rejections. Twelve
+  second-half oracle batches (50-61) were executed early in the prior session;
+  preserve their evidence. R1.6 resumes only immutable unsealed keys. The full
+  run has 610 sealed tasks overall.
   R2 migration generation will use `gpt-6-luna`/`max` after R2.2
   freezes fresh requests and passes qualification. Historical T6 reviews and
   evaluations retain their original model identities.

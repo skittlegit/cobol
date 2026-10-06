@@ -1,0 +1,774 @@
+{
+  "instance_id": "drift_273828",
+  "gold": {
+    "instance_id": "drift_273828",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(2)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "no_capitalization_of_unpaid_charges",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BATCHCT1",
+          "paragraph": "1000-MAIN",
+          "file": "BATCHCT1.cbl",
+          "line_span": [
+            13,
+            13
+          ]
+        },
+        {
+          "program": "BATCHCT2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            14,
+            14
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PENALTY"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "BATCHCT1",
+          "line": 13,
+          "file": "BATCHCT1.cbl"
+        }
+      ]
+    },
+    "gold_rationale": "MO-6× changes \"MOVE 'Y' TO WS-PEN-RUN-FLAG\" to \"MOVE 'N' TO WS-PEN-RUN-FLAG\" at BATCHCT1:BATCHCT1.cbl:13-13+BATCHCT2:1000-MAIN:14-14, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "BATCHCT2.cbl",
+      "mutation": "MO-6×; locus=BATCHCT1:BATCHCT1.cbl:13-13+BATCHCT2:1000-MAIN:14-14; old=\"MOVE 'Y' TO WS-PEN-RUN-FLAG\"; new=\"MOVE 'N' TO WS-PEN-RUN-FLAG\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: BATCHCT2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) (version 2025-11-28, effective 2025-11-28): Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "BATCHCT2"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 19, \"name\": \"2000-ACCRUE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\b15ba80bdac6b2fd10d6711c65ed9b095c6993c05313d1c475fc00788ec8fff0\\\\cases\\\\drift_900000\\\\BATCHCT2.cbl\", \"program\": \"BATCHCT2\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "BATCHCT2",
+          "name": "2000-ACCRUE"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}], \"code\": \"       2000-ACCRUE.\\n           COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.\", \"name\": \"2000-ACCRUE\", \"ref\": {\"line_end\": 20, \"line_start\": 19, \"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "BATCHCT2",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-PEN-RUN-FLAG\\n           ACCEPT WS-DELAY-DAYS\\n           IF PEN-RUN-ON\\n              PERFORM 2000-ACCRUE\\n           END-IF\\n           DISPLAY 'PEN: ' WS-PENALTY\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied value describes a no-capitalization requirement, but the inspected source does not provide a literal that can be compared to that value.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No source literal tied to the no-capitalization value establishes a stale threshold.",
+        "final_answer": "The source shows a penalty multiplier, but no evidence ties it to the clause’s no-capitalization value. I cannot establish a stale literal.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied value describes a no-capitalization requirement, but the inspected source does not provide a literal that can be compared to that value.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No source literal tied to the no-capitalization value establishes a stale threshold.\",\"final_answer\":\"The source shows a penalty multiplier, but no evidence ties it to the clause’s no-capitalization value. I cannot establish a stale literal.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "No source literal tied to the no-capitalization value establishes a stale threshold.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: No source literal tied to the no-capitalization value establishes a stale threshold.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: BATCHCT2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) (version 2025-11-28, effective 2025-11-28): Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "BATCHCT2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 19, \"name\": \"2000-ACCRUE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\b15ba80bdac6b2fd10d6711c65ed9b095c6993c05313d1c475fc00788ec8fff0\\\\cases\\\\drift_900000\\\\BATCHCT2.cbl\", \"program\": \"BATCHCT2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BATCHCT2",
+              "name": "2000-ACCRUE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}], \"code\": \"       2000-ACCRUE.\\n           COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.\", \"name\": \"2000-ACCRUE\", \"ref\": {\"line_end\": 20, \"line_start\": 19, \"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BATCHCT2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-PEN-RUN-FLAG\\n           ACCEPT WS-DELAY-DAYS\\n           IF PEN-RUN-ON\\n              PERFORM 2000-ACCRUE\\n           END-IF\\n           DISPLAY 'PEN: ' WS-PENALTY\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied value describes a no-capitalization requirement, but the inspected source does not provide a literal that can be compared to that value.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No source literal tied to the no-capitalization value establishes a stale threshold.",
+            "final_answer": "The source shows a penalty multiplier, but no evidence ties it to the clause’s no-capitalization value. I cannot establish a stale literal.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied value describes a no-capitalization requirement, but the inspected source does not provide a literal that can be compared to that value.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No source literal tied to the no-capitalization value establishes a stale threshold.\",\"final_answer\":\"The source shows a penalty multiplier, but no evidence ties it to the clause’s no-capitalization value. I cannot establish a stale literal.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No source literal tied to the no-capitalization value establishes a stale threshold.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No source literal tied to the no-capitalization value establishes a stale threshold.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No source literal tied to the no-capitalization value establishes a stale threshold."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": {
+        "verified": true,
+        "tier": 3,
+        "evidence": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) entails the claim (P=0.972, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)",
+        "citation_ok": true,
+        "entailment_probability": 0.972,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "unavailable",
+            "detail": "no static claim; Tier-2 not applicable to this finding"
+          },
+          {
+            "tier": 3,
+            "outcome": "verified",
+            "detail": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) entails the claim (P=0.972, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)"
+          }
+        ]
+      },
+      "verification_tier": 3,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: BATCHCT2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) (version 2025-11-28, effective 2025-11-28): Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "CAPITAL|CHARGE|LEVY|TAX|INTEREST"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"CAPITAL|CHARGE|LEVY|TAX|INTEREST\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "BATCHCT2",
+              "para": "2000-ACCRUE"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "BATCHCT2",
+              "para": "2000-ACCRUE"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-PENALTY",
+              "program": "BATCHCT2"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, {\"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}], \"scoped_program\": \"BATCHCT2\", \"statements\": [{\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"BATCHCT2\"}, \"text\": \"01  WS-DELAY-DAYS             PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"BATCHCT2\"}, \"text\": \"01  WS-PENALTY                PIC 9(9)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, \"text\": \"ACCEPT WS-DELAY-DAYS\"}, {\"ref\": {\"line_end\": 15, \"line_start\": 15, \"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, \"text\": \"PERFORM 2000-ACCRUE\"}, {\"ref\": {\"line_end\": 20, \"line_start\": 20, \"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}, \"text\": \"COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.\"}], \"variable\": \"WS-PENALTY\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 5,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BATCHCT2",
+              "name": "2000-ACCRUE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}], \"code\": \"       2000-ACCRUE.\\n           COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.\", \"name\": \"2000-ACCRUE\", \"ref\": {\"line_end\": 20, \"line_start\": 19, \"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The reachable penalty path contains no outcome enforcing the clause’s required treatment of unpaid charges. The calculation alone does not show a contradictory capitalization action.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=1]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_273828",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "23(2)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+                "current_value": {
+                  "kind": "boolean_required",
+                  "value": "no_capitalization_of_unpaid_charges",
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "BATCHCT2",
+                    "paragraph": "2000-ACCRUE",
+                    "file": null,
+                    "line_span": [
+                      19,
+                      20
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-PENALTY",
+                  "WS-DELAY-DAYS"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D2_missing_rule",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "BATCHCT2",
+                    "line": 20,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The grep for CAPITAL, CHARGE, LEVY, TAX, and INTEREST returned no matches. The caller observation shows 1000-MAIN reaches 2000-ACCRUE; that paragraph has no callees. The WS-PENALTY slice contains the delay-days input and the penalty computation, but no minimum-due, unpaid-charge, or interest outcome branch. The clause requires no negative amortization and prohibits capitalizing unpaid charges, levies, and taxes for interest. The path has no code enforcing those outcomes; the standalone penalty calculation does not itself establish a contradictory capitalization action. Line 20 is the typed insertion point in the accrual path."
+            },
+            "claim": "Minimum Amount Due must be stipulated to prevent negative amortization, and unpaid charges, levies, and taxes must not be capitalized for charging or compounding interest.",
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": null,
+            "final_answer": "The clause requires a Minimum Amount Due that prevents negative amortization and bars capitalizing unpaid charges, levies, and taxes for interest. BATCHCT2 reads delay days and computes only WS-PENALTY = 500 * WS-DELAY-DAYS at BATCHCT2.cbl:20. The inspected path contains no outcome implementing those requirements, so the required behavior is missing there.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The reachable penalty path contains no outcome enforcing the clause’s required treatment of unpaid charges. The calculation alone does not show a contradictory capitalization action.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"BATCHCT2\",\"paragraph\":\"2000-ACCRUE\",\"file\":\"BATCHCT2.cbl\",\"line_span\":[19,20]}],\"slice_vars\":[\"WS-PENALTY\",\"WS-DELAY-DAYS\"],\"is_interprocedural\":false},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"BATCHCT2\",\"line\":20,\"file\":\"BATCHCT2.cbl\"}]},\"rationale\":\"The grep for CAPITAL, CHARGE, LEVY, TAX, and INTEREST returned no matches. The caller observation shows 1000-MAIN reaches 2000-ACCRUE; that paragraph has no callees. The WS-PENALTY slice contains the delay-days input and the penalty computation, but no minimum-due, unpaid-charge, or interest outcome branch. The clause requires no negative amortization and prohibits capitalizing unpaid charges, levies, and taxes for interest. The path has no code enforcing those outcomes; the standalone penalty calculation does not itself establish a contradictory capitalization action. Line 20 is the typed insertion point in the accrual path.\"},\"claim\":\"Minimum Amount Due must be stipulated to prevent negative amortization, and unpaid charges, levies, and taxes must not be capitalized for charging or compounding interest.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":null,\"final_answer\":\"The clause requires a Minimum Amount Due that prevents negative amortization and bars capitalizing unpaid charges, levies, and taxes for interest. BATCHCT2 reads delay days and computes only WS-PENALTY = 500 * WS-DELAY-DAYS at BATCHCT2.cbl:20. The inspected path contains no outcome implementing those requirements, so the required behavior is missing there.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 3,
+          "evidence": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) entails the claim (P=0.972, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)",
+          "citation_ok": true,
+          "entailment_probability": 0.972,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "unavailable",
+              "detail": "no static claim; Tier-2 not applicable to this finding"
+            },
+            {
+              "tier": 3,
+              "outcome": "verified",
+              "detail": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) entails the claim (P=0.972, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)"
+            }
+          ]
+        },
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy result guard: Tier-3-only finding lacks required Tier-2 code-fact verification",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy result guard: Tier-3-only finding lacks required Tier-2 code-fact verification",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy result guard: Tier-3-only finding lacks required Tier-2 code-fact verification"
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: BATCHCT2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) (version 2025-11-28, effective 2025-11-28): Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "BATCHCT2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 19, \"name\": \"2000-ACCRUE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\b15ba80bdac6b2fd10d6711c65ed9b095c6993c05313d1c475fc00788ec8fff0\\\\cases\\\\drift_900000\\\\BATCHCT2.cbl\", \"program\": \"BATCHCT2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BATCHCT2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-PEN-RUN-FLAG\\n           ACCEPT WS-DELAY-DAYS\\n           IF PEN-RUN-ON\\n              PERFORM 2000-ACCRUE\\n           END-IF\\n           DISPLAY 'PEN: ' WS-PENALTY\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BATCHCT2",
+              "name": "2000-ACCRUE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}], \"code\": \"       2000-ACCRUE.\\n           COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.\", \"name\": \"2000-ACCRUE\", \"ref\": {\"line_end\": 20, \"line_start\": 19, \"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The inspected path computes and displays a standalone penalty; it does not show that the penalty is added to interest or principal.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No source action positively contradicts the clause’s prohibition on capitalizing unpaid charges.",
+            "final_answer": "The code calculates a penalty from delay days, but the inspected paragraphs do not show it being capitalized or used to charge interest. There is insufficient evidence for a contradictory behavior finding.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The inspected path computes and displays a standalone penalty; it does not show that the penalty is added to interest or principal.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No source action positively contradicts the clause’s prohibition on capitalizing unpaid charges.\",\"final_answer\":\"The code calculates a penalty from delay days, but the inspected paragraphs do not show it being capitalized or used to charge interest. There is insufficient evidence for a contradictory behavior finding.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No source action positively contradicts the clause’s prohibition on capitalizing unpaid charges.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No source action positively contradicts the clause’s prohibition on capitalizing unpaid charges.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No source action positively contradicts the clause’s prohibition on capitalizing unpaid charges."
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: BATCHCT2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) (version 2025-11-28, effective 2025-11-28): Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied clause value is not an enum-set reference collection.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only when the clause current value is an enum_set reference collection; this value is boolean_required.",
+            "final_answer": "The supplied current value is boolean_required, so there is no enum collection to compare for stale entries.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied clause value is not an enum-set reference collection.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only when the clause current value is an enum_set reference collection; this value is boolean_required.\",\"final_answer\":\"The supplied current value is boolean_required, so there is no enum collection to compare for stale entries.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: BATCHCT2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) (version 2025-11-28, effective 2025-11-28): Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The clause supplies no threshold comparator for a boundary transition.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No resolved threshold and source comparator are available to establish an early or late transition.",
+            "final_answer": "The clause value has no comparator, and the inspected source provides no boundary comparison tied to this requirement.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause supplies no threshold comparator for a boundary transition.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No resolved threshold and source comparator are available to establish an early or late transition.\",\"final_answer\":\"The clause value has no comparator, and the inspected source provides no boundary comparison tied to this requirement.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D5_boundary_error",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D5_boundary_error",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D5_boundary_error"
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: BATCHCT2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) (version 2025-11-28, effective 2025-11-28): Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "PEN-RUN-ON|WS-PEN-RUN-FLAG"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 13, \"program\": \"BATCHCT1\", \"text\": \"              MOVE 'N' TO WS-PEN-RUN-FLAG\"}, {\"line\": 15, \"program\": \"BATCHCT1\", \"text\": \"           DISPLAY 'PENFLAG: ' WS-PEN-RUN-FLAG\"}, {\"line\": 12, \"program\": \"BATCHCT2\", \"text\": \"           ACCEPT WS-PEN-RUN-FLAG\"}, {\"line\": 14, \"program\": \"BATCHCT2\", \"text\": \"           IF PEN-RUN-ON\"}, {\"line\": 3, \"program\": \"WSCTLFLG\", \"text\": \"           05  WS-PEN-RUN-FLAG       PIC X(1) VALUE 'N'.\"}, {\"line\": 4, \"program\": \"WSCTLFLG\", \"text\": \"               88  PEN-RUN-ON        VALUE 'Y'.\"}], \"pattern\": \"PEN-RUN-ON|WS-PEN-RUN-FLAG\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 2,
+            "tool": "resolve_copybook",
+            "arguments": {
+              "name": "WSCTLFLG"
+            },
+            "observation_summary": "{\"line_map\": [{\"expanded_end\": 4, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\b15ba80bdac6b2fd10d6711c65ed9b095c6993c05313d1c475fc00788ec8fff0\\\\cases\\\\drift_900000\\\\WSCTLFLG.cpy\", \"source_line_start\": 1}], \"name\": \"WSCTLFLG\", \"text\": \"      * BATCH CONTROL FLAGS SHARED ACROSS THE PENALTY CHAIN\\n       01  WS-CTL-FLAGS.\\n           05  WS-PEN-RUN-FLAG       PIC X(1) VALUE 'N'.\\n               88  PEN-RUN-ON        VALUE 'Y'.\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "BATCHCT2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-ACCRUE\", \"program\": \"BATCHCT2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-PEN-RUN-FLAG\\n           ACCEPT WS-DELAY-DAYS\\n           IF PEN-RUN-ON\\n              PERFORM 2000-ACCRUE\\n           END-IF\\n           DISPLAY 'PEN: ' WS-PENALTY\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"BATCHCT2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The main paragraph accepts the run flag and calls the accrual paragraph under its condition; the available evidence does not show an unreachable or always-disabled compliance branch.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No unreachable paragraph or always-false/default-off compliance guard is established.",
+            "final_answer": "The inspected main paragraph reaches 2000-ACCRUE when PEN-RUN-ON is true. The flag is accepted before the condition, so its initial default alone does not establish a disabled branch.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The main paragraph accepts the run flag and calls the accrual paragraph under its condition; the available evidence does not show an unreachable or always-disabled compliance branch.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No unreachable paragraph or always-false/default-off compliance guard is established.\",\"final_answer\":\"The inspected main paragraph reaches 2000-ACCRUE when PEN-RUN-ON is true. The flag is accepted before the condition, so its initial default alone does not establish a disabled branch.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No unreachable paragraph or always-false/default-off compliance guard is established.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No unreachable paragraph or always-false/default-off compliance guard is established.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No unreachable paragraph or always-false/default-off compliance guard is established."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: BATCHCT2.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(2) (version 2025-11-28, effective 2025-11-28): Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The inspected source does not show a positive check matching the clause’s required outcomes.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Conformance requires positive source evidence of a matching check; none was found in the inspected path.",
+            "final_answer": "The inspected path does not contain a check establishing the required Minimum Amount Due or the prohibition on capitalizing unpaid charges. Absence does not establish conformance.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The inspected source does not show a positive check matching the clause’s required outcomes.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Conformance requires positive source evidence of a matching check; none was found in the inspected path.\",\"final_answer\":\"The inspected path does not contain a check establishing the required Minimum Amount Due or the prohibition on capitalizing unpaid charges. Absence does not establish conformance.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant"
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "No source literal tied to the no-capitalization value establishes a stale threshold.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "6b07cf5a4909c16671ed88b387cbcfc6a67df2ab0d5b765f37bf46e979147219",
+  "run_key": "eb2f5c00c9db0bf5da8f780381d5168fa621c449f74a06e4153072717d34de98"
+}

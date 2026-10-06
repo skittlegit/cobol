@@ -1,0 +1,1503 @@
+{
+  "instance_id": "drift_110016",
+  "gold": {
+    "instance_id": "drift_110016",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO03",
+          "paragraph": "2200-COMPUTE-BO-MARGIN",
+          "file": null,
+          "line_span": [
+            16,
+            22
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-ENTITLEMENT-PCT",
+        "WS-EXCESS-PCT",
+        "WS-BO-FLAG"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO03",
+          "line": 17,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 5(iv)(b) lowers the threshold to strictly_greater 10 percent. T6BO03 (byte-identical code) still computes WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15 (line 17), a stale threshold, on an otherwise-complete combined entitlement check per the adjudication note.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6BO03.cbl",
+      "mutation": null,
+      "annotator_notes": "Adjudicated 2026-07-27: Pass 1 read WS-ENTITLEMENT-PCT as a resolved combined capital-or-profits figure (D7/D1); Pass 2 flagged genuine ambiguity given the single generic field. Resolved by comparative reading against sibling T6BO01/02/04/05 in the same evidence bundle: T6BO02 and T6BO04 each signal their single-dimension incompleteness through explicit field names (WS-PROFIT-SHARE, WS-CAPITAL-INTEREST); T6BO03's unqualified 'entitlement' naming has no such signal, and D2 requires the missing check to be established, not merely possible. Pass 1's reading is accepted."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110016",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO03",
+          "paragraph": "2200-COMPUTE-BO-MARGIN",
+          "file": null,
+          "line_span": [
+            17,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-ENTITLEMENT-PCT",
+        "WS-EXCESS-PCT",
+        "WS-BO-FLAG"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO03",
+          "line": 17,
+          "file": null
+        },
+        {
+          "program": "T6BO03",
+          "line": 18,
+          "file": null
+        },
+        {
+          "program": "T6BO03",
+          "line": 19,
+          "file": null
+        },
+        {
+          "program": "T6BO03",
+          "line": 21,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The IF comparator is strict greater-than and the Y/N assignments implement that branch, but the calculation subtracts 15. The source therefore changes the flag only above 15 percent, while the clause requires it above 10 percent; the transition is late."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9941,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: T6BO03.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "T6BO03"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 16, \"name\": \"2200-COMPUTE-BO-MARGIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\146be4cbd27e5af9eabcebccf1e91fc60785582145e23dc0f78ed1ba3ad98d62\\\\cases\\\\drift_900000\\\\T6BO03.cbl\", \"program\": \"T6BO03\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "T6BO03",
+          "name": "2200-COMPUTE-BO-MARGIN"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}], \"code\": \"       2200-COMPUTE-BO-MARGIN.\\n           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\\n           IF WS-EXCESS-PCT > ZERO\\n              MOVE 'Y' TO WS-BO-FLAG\\n           ELSE\\n              MOVE 'N' TO WS-BO-FLAG\\n           END-IF.\", \"name\": \"2200-COMPUTE-BO-MARGIN\", \"ref\": {\"line_end\": 22, \"line_start\": 16, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-BO-FLAG",
+          "program": "T6BO03"
+        },
+        "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}, {\"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}], \"scoped_program\": \"T6BO03\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6BO03\"}, \"text\": \"05  WS-ENTITLEMENT-PCT    PIC 9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"T6BO03\"}, \"text\": \"05  WS-EXCESS-PCT         PIC S9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"T6BO03\"}, \"text\": \"05  WS-BO-FLAG            PIC X VALUE 'N'.\"}, {\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}, \"text\": \"ACCEPT WS-ENTITLEMENT-PCT\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}, \"text\": \"PERFORM 2200-COMPUTE-BO-MARGIN\"}, {\"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 18, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"IF WS-EXCESS-PCT > ZERO\\n              MOVE 'Y' TO WS-BO-FLAG\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 19, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"MOVE 'Y' TO WS-BO-FLAG\"}, {\"ref\": {\"line_end\": 21, \"line_start\": 21, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"MOVE 'N' TO WS-BO-FLAG\"}], \"variable\": \"WS-BO-FLAG\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The implemented flag transition occurs later than the clause's required boundary.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=4]",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110016",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO03",
+                "paragraph": "2200-COMPUTE-BO-MARGIN",
+                "file": null,
+                "line_span": [
+                  17,
+                  21
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ENTITLEMENT-PCT",
+              "WS-EXCESS-PCT",
+              "WS-BO-FLAG"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO03",
+                "line": 17,
+                "file": null
+              },
+              {
+                "program": "T6BO03",
+                "line": 18,
+                "file": null
+              },
+              {
+                "program": "T6BO03",
+                "line": 19,
+                "file": null
+              },
+              {
+                "program": "T6BO03",
+                "line": 21,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The IF comparator is strict greater-than and the Y/N assignments implement that branch, but the calculation subtracts 15. The source therefore changes the flag only above 15 percent, while the clause requires it above 10 percent; the transition is late."
+        },
+        "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "15",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "T6BO03 sets the flag only when the entitlement exceeds 15 percent. The clause requires the transition above 10 percent, so the implemented boundary is late.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The implemented flag transition occurs later than the clause's required boundary.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO03\",\"paragraph\":\"2200-COMPUTE-BO-MARGIN\",\"file\":\"T6BO03.cbl\",\"line_span\":[17,21]}],\"slice_vars\":[\"WS-ENTITLEMENT-PCT\",\"WS-EXCESS-PCT\",\"WS-BO-FLAG\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO03\",\"line\":17,\"file\":\"T6BO03.cbl\"},{\"program\":\"T6BO03\",\"line\":18,\"file\":\"T6BO03.cbl\"},{\"program\":\"T6BO03\",\"line\":19,\"file\":\"T6BO03.cbl\"},{\"program\":\"T6BO03\",\"line\":21,\"file\":\"T6BO03.cbl\"}]},\"rationale\":\"The IF comparator is strict greater-than and the Y/N assignments implement that branch, but the calculation subtracts 15. The source therefore changes the flag only above 15 percent, while the clause requires it above 10 percent; the transition is late.\"},\"claim\":\"For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"T6BO03 sets the flag only when the entitlement exceeds 15 percent. The clause requires the transition above 10 percent, so the implemented boundary is late.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9941,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110016",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "5(iv)(b)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "current_value": {
+          "kind": "percentage",
+          "value": 10,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6BO03",
+            "paragraph": "2200-COMPUTE-BO-MARGIN",
+            "file": null,
+            "line_span": [
+              17,
+              21
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-ENTITLEMENT-PCT",
+          "WS-EXCESS-PCT",
+          "WS-BO-FLAG"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D5_boundary_error",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6BO03",
+            "line": 17,
+            "file": null
+          },
+          {
+            "program": "T6BO03",
+            "line": 18,
+            "file": null
+          },
+          {
+            "program": "T6BO03",
+            "line": 19,
+            "file": null
+          },
+          {
+            "program": "T6BO03",
+            "line": 21,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The IF comparator is strict greater-than and the Y/N assignments implement that branch, but the calculation subtracts 15. The source therefore changes the flag only above 15 percent, while the clause requires it above 10 percent; the transition is late."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "T6BO03 sets the flag only when the entitlement exceeds 15 percent. The clause requires the transition above 10 percent, so the implemented boundary is late.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": false,
+      "finding": {
+        "instance_id": "drift_110016",
+        "regulation_clause": {
+          "doc": "RBI-KYC-Directions-2025",
+          "clause_id": "5(iv)(b)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+          "current_value": {
+            "kind": "percentage",
+            "value": 10,
+            "comparator": "strictly_greater",
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "T6BO03",
+              "paragraph": "2200-COMPUTE-BO-MARGIN",
+              "file": null,
+              "line_span": [
+                17,
+                18
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-ENTITLEMENT-PCT",
+            "WS-EXCESS-PCT"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D1_stale_threshold",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "T6BO03",
+              "line": 17,
+              "file": null
+            },
+            {
+              "program": "T6BO03",
+              "line": 18,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "The calculation subtracts 15 from the entitlement percentage, then the strict greater-than test sets the beneficial-owner flag. The clause's resolved value is 10 with a strictly-greater comparator, so the source literal is stale."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present",
+        "citation_ok": true,
+        "entailment_probability": 0.9941,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: T6BO03.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO03"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 16, \"name\": \"2200-COMPUTE-BO-MARGIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\146be4cbd27e5af9eabcebccf1e91fc60785582145e23dc0f78ed1ba3ad98d62\\\\cases\\\\drift_900000\\\\T6BO03.cbl\", \"program\": \"T6BO03\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO03",
+              "name": "2200-COMPUTE-BO-MARGIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}], \"code\": \"       2200-COMPUTE-BO-MARGIN.\\n           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\\n           IF WS-EXCESS-PCT > ZERO\\n              MOVE 'Y' TO WS-BO-FLAG\\n           ELSE\\n              MOVE 'N' TO WS-BO-FLAG\\n           END-IF.\", \"name\": \"2200-COMPUTE-BO-MARGIN\", \"ref\": {\"line_end\": 22, \"line_start\": 16, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-ENTITLEMENT-PCT",
+              "program": "T6BO03"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}], \"scoped_program\": \"T6BO03\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6BO03\"}, \"text\": \"05  WS-ENTITLEMENT-PCT    PIC 9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}, \"text\": \"ACCEPT WS-ENTITLEMENT-PCT\"}], \"variable\": \"WS-ENTITLEMENT-PCT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-EXCESS-PCT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 8, \"program\": \"T6BO03\", \"text\": \"           05  WS-EXCESS-PCT         PIC S9(3)V99 VALUE ZERO.\"}, {\"line\": 17, \"program\": \"T6BO03\", \"text\": \"           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\"}, {\"line\": 18, \"program\": \"T6BO03\", \"text\": \"           IF WS-EXCESS-PCT > ZERO\"}], \"pattern\": \"WS-EXCESS-PCT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The source uses a 15 percent cutoff, while the clause's percentage value is 10.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=2]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_110016",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "5(iv)(b)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+                "current_value": {
+                  "kind": "percentage",
+                  "value": 10,
+                  "comparator": "strictly_greater",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "T6BO03",
+                    "paragraph": "2200-COMPUTE-BO-MARGIN",
+                    "file": null,
+                    "line_span": [
+                      17,
+                      18
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-ENTITLEMENT-PCT",
+                  "WS-EXCESS-PCT"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D1_stale_threshold",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "T6BO03",
+                    "line": 17,
+                    "file": null
+                  },
+                  {
+                    "program": "T6BO03",
+                    "line": 18,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The calculation subtracts 15 from the entitlement percentage, then the strict greater-than test sets the beneficial-owner flag. The clause's resolved value is 10 with a strictly-greater comparator, so the source literal is stale."
+            },
+            "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "15",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "T6BO03 subtracts 15 from the entitlement percentage and sets the beneficial-owner flag only when the excess is greater than zero. The clause requires more than 10 percent, so the implemented threshold is stale.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The source uses a 15 percent cutoff, while the clause's percentage value is 10.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO03\",\"paragraph\":\"2200-COMPUTE-BO-MARGIN\",\"file\":\"T6BO03.cbl\",\"line_span\":[17,18]}],\"slice_vars\":[\"WS-ENTITLEMENT-PCT\",\"WS-EXCESS-PCT\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO03\",\"line\":17,\"file\":\"T6BO03.cbl\"},{\"program\":\"T6BO03\",\"line\":18,\"file\":\"T6BO03.cbl\"}]},\"rationale\":\"The calculation subtracts 15 from the entitlement percentage, then the strict greater-than test sets the beneficial-owner flag. The clause's resolved value is 10 with a strictly-greater comparator, so the source literal is stale.\"},\"claim\":\"For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"T6BO03 subtracts 15 from the entitlement percentage and sets the beneficial-owner flag only when the excess is greater than zero. The clause requires more than 10 percent, so the implemented threshold is stale.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present",
+          "citation_ok": true,
+          "entailment_probability": 0.9941,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_110016",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO03",
+                "paragraph": "2200-COMPUTE-BO-MARGIN",
+                "file": null,
+                "line_span": [
+                  17,
+                  18
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ENTITLEMENT-PCT",
+              "WS-EXCESS-PCT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO03",
+                "line": 17,
+                "file": null
+              },
+              {
+                "program": "T6BO03",
+                "line": 18,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The calculation subtracts 15 from the entitlement percentage, then the strict greater-than test sets the beneficial-owner flag. The clause's resolved value is 10 with a strictly-greater comparator, so the source literal is stale."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "T6BO03 subtracts 15 from the entitlement percentage and sets the beneficial-owner flag only when the excess is greater than zero. The clause requires more than 10 percent, so the implemented threshold is stale.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: T6BO03.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "10"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 11, \"program\": \"T6BO03\", \"text\": \"       1000-MAIN.\"}], \"pattern\": \"10\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6BO03",
+              "para": "2200-COMPUTE-BO-MARGIN"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "T6BO03",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[{\"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-BO-FLAG",
+              "program": "T6BO03"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}, {\"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}], \"scoped_program\": \"T6BO03\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6BO03\"}, \"text\": \"05  WS-ENTITLEMENT-PCT    PIC 9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"T6BO03\"}, \"text\": \"05  WS-EXCESS-PCT         PIC S9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"T6BO03\"}, \"text\": \"05  WS-BO-FLAG            PIC X VALUE 'N'.\"}, {\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}, \"text\": \"ACCEPT WS-ENTITLEMENT-PCT\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}, \"text\": \"PERFORM 2200-COMPUTE-BO-MARGIN\"}, {\"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 18, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"IF WS-EXCESS-PCT > ZERO\\n              MOVE 'Y' TO WS-BO-FLAG\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 19, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"MOVE 'Y' TO WS-BO-FLAG\"}, {\"ref\": {\"line_end\": 21, \"line_start\": 21, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"MOVE 'N' TO WS-BO-FLAG\"}], \"variable\": \"WS-BO-FLAG\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observed control flow contains an active calculation and flag assignment.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D2 requires all four reserved observations to be negative. The grep, caller/callee results, and data slice show an active paragraph and an existing branch that assigns the flag; the threshold discrepancy is an implemented conflicting behavior.",
+            "final_answer": "Abstain. The source contains an active branch that assigns the flag, so an absent required outcome is not established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed control flow contains an active calculation and flag assignment.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D2 requires all four reserved observations to be negative. The grep, caller/callee results, and data slice show an active paragraph and an existing branch that assigns the flag; the threshold discrepancy is an implemented conflicting behavior.\",\"final_answer\":\"Abstain. The source contains an active branch that assigns the flag, so an absent required outcome is not established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D2 requires all four reserved observations to be negative. The grep, caller/callee results, and data slice show an active paragraph and an existing branch that assigns the flag; the threshold discrepancy is an implemented conflicting behavior.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D2 requires all four reserved observations to be negative. The grep, caller/callee results, and data slice show an active paragraph and an existing branch that assigns the flag; the threshold discrepancy is an implemented conflicting behavior.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D2 requires all four reserved observations to be negative. The grep, caller/callee results, and data slice show an active paragraph and an existing branch that assigns the flag; the threshold discrepancy is an implemented conflicting behavior."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: T6BO03.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO03"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 16, \"name\": \"2200-COMPUTE-BO-MARGIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\146be4cbd27e5af9eabcebccf1e91fc60785582145e23dc0f78ed1ba3ad98d62\\\\cases\\\\drift_900000\\\\T6BO03.cbl\", \"program\": \"T6BO03\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO03",
+              "name": "2200-COMPUTE-BO-MARGIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}], \"code\": \"       2200-COMPUTE-BO-MARGIN.\\n           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\\n           IF WS-EXCESS-PCT > ZERO\\n              MOVE 'Y' TO WS-BO-FLAG\\n           ELSE\\n              MOVE 'N' TO WS-BO-FLAG\\n           END-IF.\", \"name\": \"2200-COMPUTE-BO-MARGIN\", \"ref\": {\"line_end\": 22, \"line_start\": 16, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-EXCESS-PCT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 8, \"program\": \"T6BO03\", \"text\": \"           05  WS-EXCESS-PCT         PIC S9(3)V99 VALUE ZERO.\"}, {\"line\": 17, \"program\": \"T6BO03\", \"text\": \"           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\"}, {\"line\": 18, \"program\": \"T6BO03\", \"text\": \"           IF WS-EXCESS-PCT > ZERO\"}], \"pattern\": \"WS-EXCESS-PCT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The source threshold positively conflicts with the clause's more-than-10-percent requirement.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=3]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_110016",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "5(iv)(b)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+                "current_value": {
+                  "kind": "percentage",
+                  "value": 10,
+                  "comparator": "strictly_greater",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "T6BO03",
+                    "paragraph": "2200-COMPUTE-BO-MARGIN",
+                    "file": null,
+                    "line_span": [
+                      17,
+                      19
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-ENTITLEMENT-PCT",
+                  "WS-EXCESS-PCT",
+                  "WS-BO-FLAG"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D3_contradictory",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "T6BO03",
+                    "line": 17,
+                    "file": null
+                  },
+                  {
+                    "program": "T6BO03",
+                    "line": 18,
+                    "file": null
+                  },
+                  {
+                    "program": "T6BO03",
+                    "line": 19,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The clause requires ownership or entitlement strictly greater than 10 percent. T6BO03 subtracts 15 and sets the flag only when the result is greater than zero, so values above 10 through 15 do not receive the required flag."
+            },
+            "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "15",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "T6BO03 subtracts 15 and sets the beneficial-owner flag only when the excess is greater than zero. The clause requires more than 10 percent, so the source contradicts it for values above 10 through 15.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The source threshold positively conflicts with the clause's more-than-10-percent requirement.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO03\",\"paragraph\":\"2200-COMPUTE-BO-MARGIN\",\"file\":\"T6BO03.cbl\",\"line_span\":[17,19]}],\"slice_vars\":[\"WS-ENTITLEMENT-PCT\",\"WS-EXCESS-PCT\",\"WS-BO-FLAG\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO03\",\"line\":17,\"file\":\"T6BO03.cbl\"},{\"program\":\"T6BO03\",\"line\":18,\"file\":\"T6BO03.cbl\"},{\"program\":\"T6BO03\",\"line\":19,\"file\":\"T6BO03.cbl\"}]},\"rationale\":\"The clause requires ownership or entitlement strictly greater than 10 percent. T6BO03 subtracts 15 and sets the flag only when the result is greater than zero, so values above 10 through 15 do not receive the required flag.\"},\"claim\":\"For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"T6BO03 subtracts 15 and sets the beneficial-owner flag only when the excess is greater than zero. The clause requires more than 10 percent, so the source contradicts it for values above 10 through 15.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: D3 rationale must name the conflicting outcomes",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: D3 rationale must name the conflicting outcomes",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: D3 rationale must name the conflicting outcomes"
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: T6BO03.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO03"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 16, \"name\": \"2200-COMPUTE-BO-MARGIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\146be4cbd27e5af9eabcebccf1e91fc60785582145e23dc0f78ed1ba3ad98d62\\\\cases\\\\drift_900000\\\\T6BO03.cbl\", \"program\": \"T6BO03\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO03",
+              "name": "2200-COMPUTE-BO-MARGIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}], \"code\": \"       2200-COMPUTE-BO-MARGIN.\\n           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\\n           IF WS-EXCESS-PCT > ZERO\\n              MOVE 'Y' TO WS-BO-FLAG\\n           ELSE\\n              MOVE 'N' TO WS-BO-FLAG\\n           END-IF.\", \"name\": \"2200-COMPUTE-BO-MARGIN\", \"ref\": {\"line_end\": 22, \"line_start\": 16, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-EXCESS-PCT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 8, \"program\": \"T6BO03\", \"text\": \"           05  WS-EXCESS-PCT         PIC S9(3)V99 VALUE ZERO.\"}, {\"line\": 17, \"program\": \"T6BO03\", \"text\": \"           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\"}, {\"line\": 18, \"program\": \"T6BO03\", \"text\": \"           IF WS-EXCESS-PCT > ZERO\"}], \"pattern\": \"WS-EXCESS-PCT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current value is a percentage threshold.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only when the clause current value is an enum_set reference collection. This clause supplies a percentage value, so no enum entry comparison applies.",
+            "final_answer": "Abstain. The supplied clause value is a percentage threshold, not an enum_set reference collection.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value is a percentage threshold.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only when the clause current value is an enum_set reference collection. This clause supplies a percentage value, so no enum entry comparison applies.\",\"final_answer\":\"Abstain. The supplied clause value is a percentage threshold, not an enum_set reference collection.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D4 applies only when the clause current value is an enum_set reference collection. This clause supplies a percentage value, so no enum entry comparison applies.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D4 applies only when the clause current value is an enum_set reference collection. This clause supplies a percentage value, so no enum entry comparison applies.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D4 applies only when the clause current value is an enum_set reference collection. This clause supplies a percentage value, so no enum entry comparison applies."
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": true,
+      "finding": {
+        "instance_id": "drift_110016",
+        "regulation_clause": {
+          "doc": "RBI-KYC-Directions-2025",
+          "clause_id": "5(iv)(b)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+          "current_value": {
+            "kind": "percentage",
+            "value": 10,
+            "comparator": "strictly_greater",
+            "note": null
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "T6BO03",
+              "paragraph": "2200-COMPUTE-BO-MARGIN",
+              "file": null,
+              "line_span": [
+                17,
+                21
+              ]
+            }
+          ],
+          "slice_vars": [
+            "WS-ENTITLEMENT-PCT",
+            "WS-EXCESS-PCT",
+            "WS-BO-FLAG"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D5_boundary_error",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "T6BO03",
+              "line": 17,
+              "file": null
+            },
+            {
+              "program": "T6BO03",
+              "line": 18,
+              "file": null
+            },
+            {
+              "program": "T6BO03",
+              "line": 19,
+              "file": null
+            },
+            {
+              "program": "T6BO03",
+              "line": 21,
+              "file": null
+            }
+          ]
+        },
+        "rationale": "The IF comparator is strict greater-than and the Y/N assignments implement that branch, but the calculation subtracts 15. The source therefore changes the flag only above 15 percent, while the clause requires it above 10 percent; the transition is late."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present",
+        "citation_ok": true,
+        "entailment_probability": 0.9941,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: T6BO03.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO03"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 16, \"name\": \"2200-COMPUTE-BO-MARGIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\146be4cbd27e5af9eabcebccf1e91fc60785582145e23dc0f78ed1ba3ad98d62\\\\cases\\\\drift_900000\\\\T6BO03.cbl\", \"program\": \"T6BO03\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO03",
+              "name": "2200-COMPUTE-BO-MARGIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}], \"code\": \"       2200-COMPUTE-BO-MARGIN.\\n           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\\n           IF WS-EXCESS-PCT > ZERO\\n              MOVE 'Y' TO WS-BO-FLAG\\n           ELSE\\n              MOVE 'N' TO WS-BO-FLAG\\n           END-IF.\", \"name\": \"2200-COMPUTE-BO-MARGIN\", \"ref\": {\"line_end\": 22, \"line_start\": 16, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-BO-FLAG",
+              "program": "T6BO03"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}, {\"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}], \"scoped_program\": \"T6BO03\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6BO03\"}, \"text\": \"05  WS-ENTITLEMENT-PCT    PIC 9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"T6BO03\"}, \"text\": \"05  WS-EXCESS-PCT         PIC S9(3)V99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"T6BO03\"}, \"text\": \"05  WS-BO-FLAG            PIC X VALUE 'N'.\"}, {\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}, \"text\": \"ACCEPT WS-ENTITLEMENT-PCT\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}, \"text\": \"PERFORM 2200-COMPUTE-BO-MARGIN\"}, {\"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 18, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"IF WS-EXCESS-PCT > ZERO\\n              MOVE 'Y' TO WS-BO-FLAG\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 19, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"MOVE 'Y' TO WS-BO-FLAG\"}, {\"ref\": {\"line_end\": 21, \"line_start\": 21, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"text\": \"MOVE 'N' TO WS-BO-FLAG\"}], \"variable\": \"WS-BO-FLAG\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The implemented flag transition occurs later than the clause's required boundary.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=4]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_110016",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "5(iv)(b)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+                "current_value": {
+                  "kind": "percentage",
+                  "value": 10,
+                  "comparator": "strictly_greater",
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "T6BO03",
+                    "paragraph": "2200-COMPUTE-BO-MARGIN",
+                    "file": null,
+                    "line_span": [
+                      17,
+                      21
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-ENTITLEMENT-PCT",
+                  "WS-EXCESS-PCT",
+                  "WS-BO-FLAG"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D5_boundary_error",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "T6BO03",
+                    "line": 17,
+                    "file": null
+                  },
+                  {
+                    "program": "T6BO03",
+                    "line": 18,
+                    "file": null
+                  },
+                  {
+                    "program": "T6BO03",
+                    "line": 19,
+                    "file": null
+                  },
+                  {
+                    "program": "T6BO03",
+                    "line": 21,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The IF comparator is strict greater-than and the Y/N assignments implement that branch, but the calculation subtracts 15. The source therefore changes the flag only above 15 percent, while the clause requires it above 10 percent; the transition is late."
+            },
+            "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "15",
+              "comparator": ">",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "T6BO03 sets the flag only when the entitlement exceeds 15 percent. The clause requires the transition above 10 percent, so the implemented boundary is late.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The implemented flag transition occurs later than the clause's required boundary.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO03\",\"paragraph\":\"2200-COMPUTE-BO-MARGIN\",\"file\":\"T6BO03.cbl\",\"line_span\":[17,21]}],\"slice_vars\":[\"WS-ENTITLEMENT-PCT\",\"WS-EXCESS-PCT\",\"WS-BO-FLAG\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO03\",\"line\":17,\"file\":\"T6BO03.cbl\"},{\"program\":\"T6BO03\",\"line\":18,\"file\":\"T6BO03.cbl\"},{\"program\":\"T6BO03\",\"line\":19,\"file\":\"T6BO03.cbl\"},{\"program\":\"T6BO03\",\"line\":21,\"file\":\"T6BO03.cbl\"}]},\"rationale\":\"The IF comparator is strict greater-than and the Y/N assignments implement that branch, but the calculation subtracts 15. The source therefore changes the flag only above 15 percent, while the clause requires it above 10 percent; the transition is late.\"},\"claim\":\"For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"T6BO03 sets the flag only when the entitlement exceeds 15 percent. The clause requires the transition above 10 percent, so the implemented boundary is late.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present",
+          "citation_ok": true,
+          "entailment_probability": 0.9941,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "T6BO03:2200-COMPUTE-BO-MARGIN — literal '15' present; comparator '>' present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_110016",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO03",
+                "paragraph": "2200-COMPUTE-BO-MARGIN",
+                "file": null,
+                "line_span": [
+                  17,
+                  21
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ENTITLEMENT-PCT",
+              "WS-EXCESS-PCT",
+              "WS-BO-FLAG"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO03",
+                "line": 17,
+                "file": null
+              },
+              {
+                "program": "T6BO03",
+                "line": 18,
+                "file": null
+              },
+              {
+                "program": "T6BO03",
+                "line": 19,
+                "file": null
+              },
+              {
+                "program": "T6BO03",
+                "line": 21,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The IF comparator is strict greater-than and the Y/N assignments implement that branch, but the calculation subtracts 15. The source therefore changes the flag only above 15 percent, while the clause requires it above 10 percent; the transition is late."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "T6BO03 sets the flag only when the entitlement exceeds 15 percent. The clause requires the transition above 10 percent, so the implemented boundary is late.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: T6BO03.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO03"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 16, \"name\": \"2200-COMPUTE-BO-MARGIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\146be4cbd27e5af9eabcebccf1e91fc60785582145e23dc0f78ed1ba3ad98d62\\\\cases\\\\drift_900000\\\\T6BO03.cbl\", \"program\": \"T6BO03\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO03",
+              "name": "2200-COMPUTE-BO-MARGIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}], \"code\": \"       2200-COMPUTE-BO-MARGIN.\\n           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\\n           IF WS-EXCESS-PCT > ZERO\\n              MOVE 'Y' TO WS-BO-FLAG\\n           ELSE\\n              MOVE 'N' TO WS-BO-FLAG\\n           END-IF.\", \"name\": \"2200-COMPUTE-BO-MARGIN\", \"ref\": {\"line_end\": 22, \"line_start\": 16, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6BO03",
+              "para": "2200-COMPUTE-BO-MARGIN"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observed compliance paragraph has a caller in the program's main paragraph.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The paragraph read reports 1000-MAIN as a caller, and find_callers confirms that edge. No disabled-guard literal or unreachable paragraph evidence supports a D6 finding.",
+            "final_answer": "Abstain. The compliance paragraph is called from 1000-MAIN, and no disabled guard is established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed compliance paragraph has a caller in the program's main paragraph.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The paragraph read reports 1000-MAIN as a caller, and find_callers confirms that edge. No disabled-guard literal or unreachable paragraph evidence supports a D6 finding.\",\"final_answer\":\"Abstain. The compliance paragraph is called from 1000-MAIN, and no disabled guard is established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The paragraph read reports 1000-MAIN as a caller, and find_callers confirms that edge. No disabled-guard literal or unreachable paragraph evidence supports a D6 finding.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The paragraph read reports 1000-MAIN as a caller, and find_callers confirms that edge. No disabled-guard literal or unreachable paragraph evidence supports a D6 finding.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The paragraph read reports 1000-MAIN as a caller, and find_callers confirms that edge. No disabled-guard literal or unreachable paragraph evidence supports a D6 finding."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: T6BO03.\nClause: RBI-KYC-Directions-2025 5(iv)(b) (version 2025-11-28, effective 2025-11-28): For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6BO03"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 22, \"line_start\": 16, \"name\": \"2200-COMPUTE-BO-MARGIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\146be4cbd27e5af9eabcebccf1e91fc60785582145e23dc0f78ed1ba3ad98d62\\\\cases\\\\drift_900000\\\\T6BO03.cbl\", \"program\": \"T6BO03\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6BO03",
+              "name": "2200-COMPUTE-BO-MARGIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6BO03\"}], \"code\": \"       2200-COMPUTE-BO-MARGIN.\\n           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\\n           IF WS-EXCESS-PCT > ZERO\\n              MOVE 'Y' TO WS-BO-FLAG\\n           ELSE\\n              MOVE 'N' TO WS-BO-FLAG\\n           END-IF.\", \"name\": \"2200-COMPUTE-BO-MARGIN\", \"ref\": {\"line_end\": 22, \"line_start\": 16, \"paragraph\": \"2200-COMPUTE-BO-MARGIN\", \"program\": \"T6BO03\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-EXCESS-PCT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 8, \"program\": \"T6BO03\", \"text\": \"           05  WS-EXCESS-PCT         PIC S9(3)V99 VALUE ZERO.\"}, {\"line\": 17, \"program\": \"T6BO03\", \"text\": \"           COMPUTE WS-EXCESS-PCT = WS-ENTITLEMENT-PCT - 15\"}, {\"line\": 18, \"program\": \"T6BO03\", \"text\": \"           IF WS-EXCESS-PCT > ZERO\"}], \"pattern\": \"WS-EXCESS-PCT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observed source threshold does not match the clause.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D7 requires positive evidence that the implemented literal and comparator match the clause. The source subtracts 15 before its strict greater-than test, while the clause's threshold is 10.",
+            "final_answer": "Abstain. The observed threshold does not match the clause, so D7 conformance is unsupported.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed source threshold does not match the clause.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D7 requires positive evidence that the implemented literal and comparator match the clause. The source subtracts 15 before its strict greater-than test, while the clause's threshold is 10.\",\"final_answer\":\"Abstain. The observed threshold does not match the clause, so D7 conformance is unsupported.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D7 requires positive evidence that the implemented literal and comparator match the clause. The source subtracts 15 before its strict greater-than test, while the clause's threshold is 10.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D7 requires positive evidence that the implemented literal and comparator match the clause. The source subtracts 15 before its strict greater-than test, while the clause's threshold is 10.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D7 requires positive evidence that the implemented literal and comparator match the clause. The source subtracts 15 before its strict greater-than test, while the clause's threshold is 10."
+    }
+  ],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "896fd744e935ff4f5937052bbf02cf7285ba3b2e681300027611e9ed523fa471",
+  "run_key": "32d503c8fbf6ac595f563528285fdf67028cef264dd68509779f43e8423672a0"
+}

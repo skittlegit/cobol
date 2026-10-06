@@ -1,0 +1,339 @@
+{
+  "instance_id": "drift_110027",
+  "gold": {
+    "instance_id": "drift_110027",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "para 56, clause (h)",
+      "version": "pre-2024-11-06 form",
+      "effective_date": "2016-02-25",
+      "text": "ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "no_deadline"
+        ],
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC04",
+          "paragraph": "2300-ROUTE-UPDATE",
+          "file": null,
+          "line_span": [
+            15,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-RISK-CODE",
+        "WS-WORK-QUEUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "The pre-2024-11-06 clause (h) requires uploading/updating KYC data at periodic updation or on receipt of updated information, with NO time-bound deadline. T6KYC04 routes to a priority or standard queue by risk code (lines 16-20) with no deadline concept. There is no elapsed-time or deadline gate anywhere in the program, consistent with an obligation that has no deadline to violate.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6KYC04.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110027",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC04",
+          "paragraph": "2300-ROUTE-UPDATE",
+          "file": "T6KYC04.cbl",
+          "line_span": [
+            16,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-RISK-CODE",
+        "WS-WORK-QUEUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6KYC04",
+          "line": 16,
+          "file": "T6KYC04.cbl"
+        },
+        {
+          "program": "T6KYC04",
+          "line": 17,
+          "file": "T6KYC04.cbl"
+        },
+        {
+          "program": "T6KYC04",
+          "line": 18,
+          "file": "T6KYC04.cbl"
+        },
+        {
+          "program": "T6KYC04",
+          "line": 19,
+          "file": "T6KYC04.cbl"
+        },
+        {
+          "program": "T6KYC04",
+          "line": 20,
+          "file": "T6KYC04.cbl"
+        }
+      ]
+    },
+    "rationale": "The clause requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated customer information. The shown paragraph only routes risk codes to work queues; it does not show a Registry update or deadline rule."
+  },
+  "confidence": 0.95,
+  "verification": {
+    "verified": true,
+    "tier": 1,
+    "evidence": "ran T6KYC04; observed 'PRIORITY' in output ('PRIORITY')",
+    "citation_ok": true,
+    "entailment_probability": 0.9946,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "verified",
+        "detail": "ran T6KYC04; observed 'PRIORITY' in output ('PRIORITY')"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: RAG+reranker single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"score\":-1.7750675678253174}],\"program\":\"FILE T6KYC04.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6KYC04.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-ROUTING.\\n0007:            05  WS-RISK-CODE          PIC X VALUE SPACE.\\n0008:            05  WS-WORK-QUEUE         PIC X(8) VALUE SPACES.\\n0009:        PROCEDURE DIVISION.\\n0010:        1000-MAIN.\\n0011:            ACCEPT WS-RISK-CODE\\n0012:            PERFORM 2300-ROUTE-UPDATE\\n0013:            DISPLAY WS-WORK-QUEUE\\n0014:            STOP RUN.\\n0015:        2300-ROUTE-UPDATE.\\n0016:            EVALUATE WS-RISK-CODE\\n0017:               WHEN 'H'\\n0018:                  MOVE 'PRIORITY' TO WS-WORK-QUEUE\\n0019:               WHEN OTHER\\n0020:                  MOVE 'STANDARD' TO WS-WORK-QUEUE\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The shown program routes risk codes to work queues, but contains no KYC Registry update or seven-day deadline logic. The visible behavior supports a missing-rule finding.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110027",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "65(8)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6KYC04",
+                "paragraph": "2300-ROUTE-UPDATE",
+                "file": "T6KYC04.cbl",
+                "line_span": [
+                  16,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-RISK-CODE",
+              "WS-WORK-QUEUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6KYC04",
+                "line": 16,
+                "file": "T6KYC04.cbl"
+              },
+              {
+                "program": "T6KYC04",
+                "line": 17,
+                "file": "T6KYC04.cbl"
+              },
+              {
+                "program": "T6KYC04",
+                "line": 18,
+                "file": "T6KYC04.cbl"
+              },
+              {
+                "program": "T6KYC04",
+                "line": 19,
+                "file": "T6KYC04.cbl"
+              },
+              {
+                "program": "T6KYC04",
+                "line": 20,
+                "file": "T6KYC04.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated customer information. The shown paragraph only routes risk codes to work queues; it does not show a Registry update or deadline rule."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.",
+        "exec_probe": {
+          "stdin": "H\n",
+          "expect_substring": "PRIORITY",
+          "description": "A high-risk code exercises the shown routing paragraph and checks that it emits the priority queue."
+        },
+        "static_claim": null,
+        "abstention_reason": null,
+        "final_answer": "The clause requires a Central KYC Records Registry update within seven days after receiving updated customer information. The shown program routes risk codes to work queues and does not show a Registry update or deadline logic, so the visible code supports a missing-rule finding.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The shown program routes risk codes to work queues, but contains no KYC Registry update or seven-day deadline logic. The visible behavior supports a missing-rule finding.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6KYC04\",\"paragraph\":\"2300-ROUTE-UPDATE\",\"file\":\"T6KYC04.cbl\",\"line_span\":[16,20]}],\"slice_vars\":[\"WS-RISK-CODE\",\"WS-WORK-QUEUE\"],\"is_interprocedural\":false},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6KYC04\",\"line\":16,\"file\":\"T6KYC04.cbl\"},{\"program\":\"T6KYC04\",\"line\":17,\"file\":\"T6KYC04.cbl\"},{\"program\":\"T6KYC04\",\"line\":18,\"file\":\"T6KYC04.cbl\"},{\"program\":\"T6KYC04\",\"line\":19,\"file\":\"T6KYC04.cbl\"},{\"program\":\"T6KYC04\",\"line\":20,\"file\":\"T6KYC04.cbl\"}]},\"rationale\":\"The clause requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated customer information. The shown paragraph only routes risk codes to work queues; it does not show a Registry update or deadline rule.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.\",\"exec_probe\":{\"stdin\":\"H\\n\",\"expect_substring\":\"PRIORITY\",\"description\":\"A high-risk code exercises the shown routing paragraph and checks that it emits the priority queue.\"},\"static_claim\":null,\"abstention_reason\":null,\"final_answer\":\"The clause requires a Central KYC Records Registry update within seven days after receiving updated customer information. The shown program routes risk codes to work queues and does not show a Registry update or deadline logic, so the visible code supports a missing-rule finding.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 1,
+      "evidence": "ran T6KYC04; observed 'PRIORITY' in output ('PRIORITY')",
+      "citation_ok": true,
+      "entailment_probability": 0.9946,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "verified",
+          "detail": "ran T6KYC04; observed 'PRIORITY' in output ('PRIORITY')"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110027",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "65(8)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "current_value": {
+          "kind": "duration_days",
+          "value": 7,
+          "comparator": "at_most",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6KYC04",
+            "paragraph": "2300-ROUTE-UPDATE",
+            "file": "T6KYC04.cbl",
+            "line_span": [
+              16,
+              20
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-RISK-CODE",
+          "WS-WORK-QUEUE"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D2_missing_rule",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6KYC04",
+            "line": 16,
+            "file": "T6KYC04.cbl"
+          },
+          {
+            "program": "T6KYC04",
+            "line": 17,
+            "file": "T6KYC04.cbl"
+          },
+          {
+            "program": "T6KYC04",
+            "line": 18,
+            "file": "T6KYC04.cbl"
+          },
+          {
+            "program": "T6KYC04",
+            "line": 19,
+            "file": "T6KYC04.cbl"
+          },
+          {
+            "program": "T6KYC04",
+            "line": 20,
+            "file": "T6KYC04.cbl"
+          }
+        ]
+      },
+      "rationale": "The clause requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated customer information. The shown paragraph only routes risk codes to work queues; it does not show a Registry update or deadline rule."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires a Central KYC Records Registry update within seven days after receiving updated customer information. The shown program routes risk codes to work queues and does not show a Registry update or deadline logic, so the visible code supports a missing-rule finding.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_reranker",
+  "source_sha256": "df15358c9362015de47308aac4316e234985f333855bbb6cbb6199764ad7e450",
+  "run_key": "cd6547d29b8c1ca74ef9fe675c97970c95d9eb87df0b1323530e42272d1883df"
+}

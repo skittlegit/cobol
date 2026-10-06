@@ -1,0 +1,128 @@
+{
+  "instance_id": "drift_548537",
+  "gold": {
+    "instance_id": "drift_548537",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "12(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "explicit_consent_before_overlimit",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "TRNVAL1",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            16,
+            17
+          ]
+        },
+        {
+          "program": "TRNVAL1",
+          "paragraph": "2000-VALIDATE",
+          "file": null,
+          "line_span": [
+            23,
+            23
+          ]
+        },
+        {
+          "program": "TRNVAL1",
+          "paragraph": "2000-VALIDATE",
+          "file": null,
+          "line_span": [
+            26,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-FAIL-REASON",
+        "WS-LIMIT",
+        "WS-PROJ-BAL",
+        "WS-POSTED"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "TRNVAL1",
+          "line": 16,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-3× changes 'IF WS-FAIL-REASON = ZERO' to 'OR WS-LIMIT = ZERO' at TRNVAL1:1000-MAIN:16-17+TRNVAL1:2000-VALIDATE:23-23+TRNVAL1:2000-VALIDATE:26-26, producing D3_contradictory.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "TRNVAL1.cbl",
+      "mutation": "MO-3×; locus=TRNVAL1:1000-MAIN:16-17+TRNVAL1:2000-VALIDATE:23-23+TRNVAL1:2000-VALIDATE:26-26; old='IF WS-FAIL-REASON = ZERO'; new='OR WS-LIMIT = ZERO'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"12(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"explicit_consent_before_overlimit\",\"comparator\":null,\"note\":null}},\"score\":0.8018476637094758}],\"program\":\"FILE TRNVAL1.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. TRNVAL1.\\n0003:       * VALIDATE / GATE / POST SHAPE (OVERLIMIT BLOCKER + GATE)\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        01  WS-LIMIT                  PIC 9(9)V99 VALUE ZERO.\\n0008:        01  WS-PROJ-BAL               PIC S9(9)V99 VALUE ZERO.\\n0009:        01  WS-FAIL-REASON            PIC 9(3) VALUE ZERO.\\n0010:        01  WS-POSTED                 PIC X(1) VALUE 'N'.\\n0011:        PROCEDURE DIVISION.\\n0012:        1000-MAIN.\\n0013:            ACCEPT WS-LIMIT\\n0014:            ACCEPT WS-PROJ-BAL\\n0015:            PERFORM 2000-VALIDATE\\n0016:            OR WS-LIMIT = ZERO\\n0017:               PERFORM 3000-POST\\n0018:            END-IF\\n0019:            DISPLAY 'POSTED: ' WS-POSTED\\n0020:            STOP RUN.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible excerpt shows the main paragraph calling a validation paragraph, but does not include that paragraph's implementation. The displayed posting condition is incomplete, so it does not establish whether over-limit transactions are blocked or consent is checked.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied source excerpt omits the validation logic needed to determine whether the sanctioned credit limit can be breached without explicit consent.",
+        "final_answer": "Abstain: the visible source does not show enough of the validation logic to determine compliance with the consent requirement.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible excerpt shows the main paragraph calling a validation paragraph, but does not include that paragraph's implementation. The displayed posting condition is incomplete, so it does not establish whether over-limit transactions are blocked or consent is checked.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied source excerpt omits the validation logic needed to determine whether the sanctioned credit limit can be breached without explicit consent.\",\"final_answer\":\"Abstain: the visible source does not show enough of the validation logic to determine compliance with the consent requirement.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied source excerpt omits the validation logic needed to determine whether the sanctioned credit limit can be breached without explicit consent.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain: the visible source does not show enough of the validation logic to determine compliance with the consent requirement.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied source excerpt omits the validation logic needed to determine whether the sanctioned credit limit can be breached without explicit consent.",
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "159ebc656b178df4d6cf1a37b47582698fc667a01ab48c7890c9f74a27dcc5dc",
+  "run_key": "0f3bd6dd73b02fa92c1d900517f69fa92cc4ddded94b34e4b579c90fe3730357"
+}

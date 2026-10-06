@@ -1,0 +1,123 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The H, M, and other-risk branches use elapsed-year thresholds 2, 8, and 10, matching the supplied high-, medium-, and low-risk interval leaves.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No stale source threshold was observed; the three implemented values match the resolved composite leaves.",
+        "final_answer": "The 2-, 8-, and 10-year thresholds match the supplied values, so the evidence does not support a stale-threshold finding."
+      },
+      "D2_missing_rule": {
+        "kind": "finding",
+        "thought": "The due check is invoked, but its result only sets and displays a due flag. The flow terminates without carrying out the KYC updation required by the clause.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSCHED1",
+                "paragraph": "1000-MAIN",
+                "file": "KYCSCHED1.cbl",
+                "line_span": [
+                  22,
+                  23
+                ]
+              },
+              {
+                "program": "KYCSCHED1",
+                "paragraph": "2000-CHECK-DUE",
+                "file": "KYCSCHED1.cbl",
+                "line_span": [
+                  27,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-KYC-DUE"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSCHED1",
+                "line": 22,
+                "file": "KYCSCHED1.cbl"
+              },
+              {
+                "program": "KYCSCHED1",
+                "line": 23,
+                "file": "KYCSCHED1.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause requires periodic KYC updation to be carried out. In the source, 2000-CHECK-DUE only marks WS-KYC-DUE, and 1000-MAIN displays that flag then stops. The scoped UPDATE grep is empty, find_callees for the due check returns no action, and the WS-KYC-DUE slice contains only the flag's default, threshold assignments, and display. This is an absent required outcome with insertion point before STOP RUN, rather than a conflicting implemented action."
+        },
+        "claim": "Periodic KYC updation must be carried out at least once every two years for high-risk customers, once every eight years for medium-risk customers, and once every ten years for low-risk customers, measured from account opening or the last KYC updation.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": null,
+        "final_answer": "The threshold branches mark KYC as due, but the main flow only displays that status and stops. The clause requires the updation itself to be carried out; the missing update action belongs before STOP RUN in 1000-MAIN."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The source marks an account as due at the threshold; it does not show a contradictory action that bypasses or reverses that state.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No positive source behavior contradicting the clause was found. The missing update action is an absence, not an implemented conflicting action.",
+        "final_answer": "The observed discrepancy is a missing update action, with no positive contradictory behavior to support D3."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current value is composite and contains duration-year business-rule leaves, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 requires an enum_set reference collection, which the supplied clause value does not contain.",
+        "final_answer": "The supplied clause has duration leaves rather than an enum_set reference collection, so D4 does not apply."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The elapsed-year comparator is >= and the branch sets the due flag at the threshold, matching an at_most interval boundary.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No early or late threshold transition was observed: the due transition occurs when elapsed years reach 2, 8, or 10.",
+        "final_answer": "The >= transition at each interval ceiling matches the supplied at_most values; the evidence does not support a boundary error."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The program's main paragraph performs the due-check paragraph, so the relevant compliance check is reachable; no disabled guard was observed.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No dead paragraph or always-false/default-off compliance guard was evidenced.",
+        "final_answer": "The due check is called from 1000-MAIN, and the observed paragraphs show no disabled guard; D6 is unsupported."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The risk thresholds and comparators match, but the observed flow only marks and displays a due status rather than carrying out the required updation.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Positive evidence confirms the threshold check, but it does not establish full conformance because the required update action is absent.",
+        "final_answer": "The threshold check matches the clause, but the flow does not carry out KYC updation, so full conformance cannot be asserted."
+      }
+    }
+  ]
+}

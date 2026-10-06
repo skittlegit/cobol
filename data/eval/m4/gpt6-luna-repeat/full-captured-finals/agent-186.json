@@ -1,0 +1,200 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "finding",
+        "thought": "The bounded source shows a threshold literal that differs from the supplied grace-period value.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": "LATEFEE1.cbl",
+                "line_span": [
+                  26,
+                  26
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-PAST-DUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 26,
+                "file": "LATEFEE1.cbl"
+              }
+            ]
+          },
+          "rationale": "At line 26, `WS-DAYS-PAST-DUE > ZERO` uses a zero threshold, while the `past_due_grace` leaf requires strictly more than 3 days. The strict comparator matches, but the literal value is stale."
+        },
+        "claim": "A card account may be reported past-due to CICs or levied penal charges only when it is past due for more than three days.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The test at LATEFEE1.cbl line 26 permits the charge branch for any positive day count; clause 23(5) permits charges only after more than three days past due."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The required absence checks did not all return negative observations.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The scoped CIC grep was empty, but find_callers returned 1000-MAIN and the data slice traced WS-DAYS-PAST-DUE through the source, so the D2 all-negative evidence contract is unmet.",
+        "final_answer": "No D2 finding: the bounded call-graph and data-slice observations were positive, so absence of the required behavior is not established under D2."
+      },
+      "D3_contradictory": {
+        "kind": "finding",
+        "thought": "The source contains a direct charge-base mismatch with the supplied clause.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": "LATEFEE1.cbl",
+                "line_span": [
+                  28,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-TOTAL-AMT-DUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": "charge_base",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 28,
+                "file": "LATEFEE1.cbl"
+              }
+            ]
+          },
+          "rationale": "In `2000-ASSESS`, the charge calculation multiplies `WS-LATE-RATE` by `WS-TOTAL-AMT-DUE`. Clause 23(5) limits late charges to the outstanding amount after the due date and excludes the Total Amount Due, so the implemented base contradicts the clause."
+        },
+        "claim": "Late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "WS-TOTAL-AMT-DUE",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The calculation in LATEFEE1.cbl line 28 uses Total Amount Due as its base, while clause 23(5) requires the outstanding amount after the due date."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied clause value does not have the top-level shape required for D4.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only when current_value itself is an enum_set reference collection. The supplied current_value is composite, with an enum_set nested under charge_base.",
+        "final_answer": "No D4 finding: the supplied clause value is composite rather than a top-level enum_set reference collection."
+      },
+      "D5_boundary_error": {
+        "kind": "finding",
+        "thought": "The observed comparator and branch action place the charge transition before the clause boundary.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": "LATEFEE1.cbl",
+                "line_span": [
+                  26,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-PAST-DUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 26,
+                "file": "LATEFEE1.cbl"
+              },
+              {
+                "program": "LATEFEE1",
+                "line": 27,
+                "file": "LATEFEE1.cbl"
+              },
+              {
+                "program": "LATEFEE1",
+                "line": 28,
+                "file": "LATEFEE1.cbl"
+              },
+              {
+                "program": "LATEFEE1",
+                "line": 30,
+                "file": "LATEFEE1.cbl"
+              }
+            ]
+          },
+          "rationale": "The `> ZERO` test at line 26 controls the charge calculation at lines 27–28, so the transition occurs as soon as the day count is positive. The clause requires more than three days past due; the branch acts early."
+        },
+        "claim": "A card account may be reported past-due to CICs or levied penal charges only when it is past due for more than three days.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "LATEFEE1.cbl compares past-due days with ZERO and calculates a charge on the true branch, so it can charge before the more-than-three-day boundary in clause 23(5)."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The assessment paragraph is reachable and the observed condition is not an always-false guard.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "read_paragraph showed a variable-based condition and charge action, while find_callers identified 1000-MAIN as a caller of 2000-ASSESS. No dead-paragraph or disabled-guard evidence was observed.",
+        "final_answer": "No D6 finding: 2000-ASSESS is called from 1000-MAIN, and the bounded source observation showed no disabled compliance guard."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The assessment check exists, but the positive source evidence does not match the supplied clause.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed condition is `WS-DAYS-PAST-DUE > ZERO` and its charge expression uses `WS-TOTAL-AMT-DUE`; these do not establish a check matching the clause's more-than-three-day threshold and outstanding-after-due-date base.",
+        "final_answer": "No D7 finding: the observed threshold and charge base do not match clause 23(5), so positive evidence of conformance is unavailable."
+      }
+    }
+  ]
+}

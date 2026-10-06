@@ -1,0 +1,362 @@
+{
+  "instance_id": "drift_491441",
+  "gold": {
+    "instance_id": "drift_491441",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            18,
+            18
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD",
+        "WS-SLA-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at KYCSYNC2:<source>:18-18; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSYNC2.cbl",
+      "mutation": "MO-0; locus=KYCSYNC2:<source>:18-18; old='05  WS-PRINT-LINE OCCURS 2 PIC X(2).'; new='05  WS-PRINT-LINE OCCURS 2 PIC X(7).'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_491441",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC2",
+          "paragraph": "1000-MAIN",
+          "file": "KYCSYNC2.cbl",
+          "line_span": [
+            21,
+            25
+          ]
+        },
+        {
+          "program": "KYCSYNC2",
+          "paragraph": "2000-CHECK-SLA",
+          "file": "KYCSYNC2.cbl",
+          "line_span": [
+            26,
+            31
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CUST-ID",
+        "WS-DAYS-SINCE-UPD",
+        "WS-SLA-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSYNC2",
+          "line": 23,
+          "file": "KYCSYNC2.cbl"
+        },
+        {
+          "program": "KYCSYNC2",
+          "line": 27,
+          "file": "KYCSYNC2.cbl"
+        },
+        {
+          "program": "KYCSYNC2",
+          "line": 28,
+          "file": "KYCSYNC2.cbl"
+        },
+        {
+          "program": "KYCSYNC2",
+          "line": 30,
+          "file": "KYCSYNC2.cbl"
+        }
+      ]
+    },
+    "rationale": "The clause requires updating KYC records in the Central KYC Records Registry within 7 days. The shown main flow reads the customer ID and elapsed days, calls the SLA check, and displays its status. The check only assigns OVERDUE or INSLA; the visible program does not perform a record update."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "literal 'INSLA' present in ['KYCSYNC2:2000-CHECK-SLA']",
+    "citation_ok": true,
+    "entailment_probability": 0.9936,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "literal 'INSLA' present in ['KYCSYNC2:2000-CHECK-SLA']"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: RAG+reranker single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"score\":5.963632583618164}],\"program\":\"FILE KYCSYNC2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. KYCSYNC2.\\n0003:       *----------------------------------------------------------------\\n0004:       * CKYCR RECORD SYNC - UPLOAD WITHIN SEVEN DAYS OF RECEIVING\\n0005:       * UPDATED KYC INFORMATION FROM CUSTOMER\\n0006:       *----------------------------------------------------------------\\n0007:        ENVIRONMENT DIVISION.\\n0008:        DATA DIVISION.\\n0009:        WORKING-STORAGE SECTION.\\n0010:        01  WS-CUST-REC.\\n0011:            05  WS-CUST-ID            PIC X(10) VALUE SPACES.\\n0012:            05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\\n0013:        01  WS-FLAGS.\\n0014:            05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.\\n0015:        01  WS-RPT-HEADING            PIC X(2)\\n0016:            VALUE SPACES.\\n0017:        01  WS-PRINT-AREA.\\n0018:            05  WS-PRINT-LINE OCCURS 2 PIC X(7).\\n0019:        PROCEDURE DIVISION.\\n0020:        1000-MAIN.\\nFILE KYCSYNC2.cbl LINES 21-31\\n0021:            ACCEPT WS-CUST-ID\\n0022:            ACCEPT WS-DAYS-SINCE-UPD\\n0023:            PERFORM 2000-CHECK-SLA\\n0024:            DISPLAY 'SLA: ' WS-SLA-STATUS\\n0025:            STOP RUN.\\n0026:        2000-CHECK-SLA.\\n0027:            IF WS-DAYS-SINCE-UPD > 7\\n0028:               MOVE 'OVERDUE' TO WS-SLA-STATUS\\n0029:            ELSE\\n0030:               MOVE 'INSLA' TO WS-SLA-STATUS\\n0031:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The visible program checks elapsed days and reports an SLA status, but does not show an action that updates the KYC record in the Central KYC Records Registry.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_491441",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "65(8)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSYNC2",
+                "paragraph": "1000-MAIN",
+                "file": "KYCSYNC2.cbl",
+                "line_span": [
+                  21,
+                  25
+                ]
+              },
+              {
+                "program": "KYCSYNC2",
+                "paragraph": "2000-CHECK-SLA",
+                "file": "KYCSYNC2.cbl",
+                "line_span": [
+                  26,
+                  31
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CUST-ID",
+              "WS-DAYS-SINCE-UPD",
+              "WS-SLA-STATUS"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSYNC2",
+                "line": 23,
+                "file": "KYCSYNC2.cbl"
+              },
+              {
+                "program": "KYCSYNC2",
+                "line": 27,
+                "file": "KYCSYNC2.cbl"
+              },
+              {
+                "program": "KYCSYNC2",
+                "line": 28,
+                "file": "KYCSYNC2.cbl"
+              },
+              {
+                "program": "KYCSYNC2",
+                "line": 30,
+                "file": "KYCSYNC2.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause requires updating KYC records in the Central KYC Records Registry within 7 days. The shown main flow reads the customer ID and elapsed days, calls the SLA check, and displays its status. The check only assigns OVERDUE or INSLA; the visible program does not perform a record update."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "INSLA",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The shown program classifies the 7-day SLA but does not update the KYC record as required by the clause.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible program checks elapsed days and reports an SLA status, but does not show an action that updates the KYC record in the Central KYC Records Registry.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSYNC2\",\"paragraph\":\"1000-MAIN\",\"file\":\"KYCSYNC2.cbl\",\"line_span\":[21,25]},{\"program\":\"KYCSYNC2\",\"paragraph\":\"2000-CHECK-SLA\",\"file\":\"KYCSYNC2.cbl\",\"line_span\":[26,31]}],\"slice_vars\":[\"WS-CUST-ID\",\"WS-DAYS-SINCE-UPD\",\"WS-SLA-STATUS\"],\"is_interprocedural\":false},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"KYCSYNC2\",\"line\":23,\"file\":\"KYCSYNC2.cbl\"},{\"program\":\"KYCSYNC2\",\"line\":27,\"file\":\"KYCSYNC2.cbl\"},{\"program\":\"KYCSYNC2\",\"line\":28,\"file\":\"KYCSYNC2.cbl\"},{\"program\":\"KYCSYNC2\",\"line\":30,\"file\":\"KYCSYNC2.cbl\"}]},\"rationale\":\"The clause requires updating KYC records in the Central KYC Records Registry within 7 days. The shown main flow reads the customer ID and elapsed days, calls the SLA check, and displays its status. The check only assigns OVERDUE or INSLA; the visible program does not perform a record update.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"INSLA\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The shown program classifies the 7-day SLA but does not update the KYC record as required by the clause.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "literal 'INSLA' present in ['KYCSYNC2:2000-CHECK-SLA']",
+      "citation_ok": true,
+      "entailment_probability": 0.9936,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "literal 'INSLA' present in ['KYCSYNC2:2000-CHECK-SLA']"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_491441",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "65(8)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "current_value": {
+          "kind": "duration_days",
+          "value": 7,
+          "comparator": "at_most",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "KYCSYNC2",
+            "paragraph": "1000-MAIN",
+            "file": "KYCSYNC2.cbl",
+            "line_span": [
+              21,
+              25
+            ]
+          },
+          {
+            "program": "KYCSYNC2",
+            "paragraph": "2000-CHECK-SLA",
+            "file": "KYCSYNC2.cbl",
+            "line_span": [
+              26,
+              31
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CUST-ID",
+          "WS-DAYS-SINCE-UPD",
+          "WS-SLA-STATUS"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D2_missing_rule",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "KYCSYNC2",
+            "line": 23,
+            "file": "KYCSYNC2.cbl"
+          },
+          {
+            "program": "KYCSYNC2",
+            "line": 27,
+            "file": "KYCSYNC2.cbl"
+          },
+          {
+            "program": "KYCSYNC2",
+            "line": 28,
+            "file": "KYCSYNC2.cbl"
+          },
+          {
+            "program": "KYCSYNC2",
+            "line": 30,
+            "file": "KYCSYNC2.cbl"
+          }
+        ]
+      },
+      "rationale": "The clause requires updating KYC records in the Central KYC Records Registry within 7 days. The shown main flow reads the customer ID and elapsed days, calls the SLA check, and displays its status. The check only assigns OVERDUE or INSLA; the visible program does not perform a record update."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The shown program classifies the 7-day SLA but does not update the KYC record as required by the clause.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_reranker",
+  "source_sha256": "c76c5527088e99c22cf682512b31ca30e86e248d878a27bc639d343a52cb0782",
+  "run_key": "99acb67a51aa727f3cab2db2c6a1b5259d8b89712761663ad6f0baa137593862"
+}

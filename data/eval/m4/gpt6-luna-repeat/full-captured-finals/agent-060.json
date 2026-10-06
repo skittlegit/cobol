@@ -1,0 +1,77 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "T6KYC02 contains 1000-MAIN and 2100-VALIDATE-FOR-SYNC. The validation paragraph checks whether WS-CUSTOMER-ID is blank and assigns READY or REJECTED; scoped grep for 7 returned no matches. No source threshold literal is available to compare with the clause's 7-day limit.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed.",
+        "final_answer": "The clause requires updates within 7 days. The inspected source contains no 7-day literal or duration comparator, so it does not support a stale-threshold finding."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The REGISTRY grep returned no matches, but the required D2 observations were not all negative: 1000-MAIN calls 2100-VALIDATE-FOR-SYNC, and the WS-SYNC-STATE slice contains READY and REJECTED assignments. The required D2 evidence contract therefore is not met.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The prescribed D2 grep, caller, callee, and slice observations were not all negative.",
+        "final_answer": "The clause requires updates within 7 days. T6KYC02 sets WS-SYNC-STATE based on customer ID, while the D2 call graph and state slice have positive observations; I cannot classify the missing update outcome under the required all-negative D2 evidence contract."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The source checks customer ID blankness and sets READY or REJECTED. It shows no date comparator or update action that positively contradicts the clause; the evidence suggests possible absence rather than a direct contradiction.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No positively conflicting source behavior was established for D3.",
+        "final_answer": "The clause requires updates within 7 days. The inspected code branches on whether WS-CUSTOMER-ID is blank but contains no explicit behavior that contradicts the 7-day condition, so a D3 finding is unsupported."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current value is a duration_days value of 7 with comparator at_most, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only to enum_set reference collections, which the supplied clause value does not contain.",
+        "final_answer": "The clause specifies a 7-day duration. It supplies no enum_set collection whose entries could be compared with a hardcoded enumeration, so D4 does not apply."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The validation paragraph tests WS-CUSTOMER-ID NOT = SPACES and moves READY or REJECTED. Scoped grep for 7 returned no matches, so no duration comparator and branch transition can be evaluated against the 7-day limit.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No source comparator for the 7-day duration was observed.",
+        "final_answer": "The clause sets a 7-day update limit. The inspected branch checks only whether WS-CUSTOMER-ID is blank, so there is no duration boundary to classify as early or late."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "T6KYC02 has two paragraphs, and 2100-VALIDATE-FOR-SYNC is called by 1000-MAIN. The paragraph has no always-false or default-off compliance guard, and no unreachable compliance paragraph was established.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No unreachable paragraph or disabled compliance guard was established.",
+        "final_answer": "The clause requires updates within 7 days. The inspected validation paragraph is called from 1000-MAIN and contains no disabled compliance branch, so D6 is unsupported."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The validation paragraph assigns READY or REJECTED based on customer ID blankness; scoped grep for 7 returned no matches. There is no positive literal/comparator evidence that T6KYC02 checks and matches the clause's 7-day limit.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D7 requires positive source evidence of a matching check; none was observed.",
+        "final_answer": "The clause requires updates within 7 days. T6KYC02's inspected validation checks customer ID blankness and has no positive 7-day comparator evidence, so conformance cannot be found."
+      }
+    }
+  ]
+}

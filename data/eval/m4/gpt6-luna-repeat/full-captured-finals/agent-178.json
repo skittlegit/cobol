@@ -1,0 +1,217 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "finding",
+        "thought": "The closure_window leaf permits at most 7 working days. 2000-PEN tests WS-WORK-DAYS-ELAPSED > 10 before computing the penalty, so days 8 through 10 still bypass that branch; the source threshold is stale.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN3",
+                "paragraph": "2000-PEN",
+                "file": "CLOSPEN3.cbl",
+                "line_span": [
+                  30,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-WORK-DAYS-ELAPSED"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLOSPEN3",
+                "line": 30,
+                "file": "CLOSPEN3.cbl"
+              }
+            ]
+          },
+          "rationale": "The closure_window leaf permits at most 7 working days. 2000-PEN tests WS-WORK-DAYS-ELAPSED > 10 before computing the penalty, so days 8 through 10 still bypass that branch; the source threshold is stale."
+        },
+        "claim": "A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "10",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The 2000-PEN guard uses 10 working days, leaving days 8 through 10 outside the penalty branch even though the clause requires closure within 7 working days."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The scoped D2 search and slice show no dues field or helper, but the reachable penalty computation is a positive action that can conflict with the clause's dues condition.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D2 is reserved for missing behavior without a conflicting source action; the unguarded penalty computation belongs under D3.",
+        "final_answer": "Abstain from D2 because the reachable amount computation is an existing conflicting action, handled under D3."
+      },
+      "D3_contradictory": {
+        "kind": "finding",
+        "thought": "1000-MAIN accepts only calendar-day and working-day counts and performs 2000-PEN. That paragraph computes the penalty when the work-day test passes, with no outstanding-dues input or condition, so the reachable calculation can apply when dues remain; clause 19 limits the penalty to cases with no outstanding dues.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN3",
+                "paragraph": "1000-MAIN",
+                "file": "CLOSPEN3.cbl",
+                "line_span": [
+                  24,
+                  26
+                ]
+              },
+              {
+                "program": "CLOSPEN3",
+                "paragraph": "2000-PEN",
+                "file": "CLOSPEN3.cbl",
+                "line_span": [
+                  30,
+                  35
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CAL-DAYS-ELAPSED",
+              "WS-WORK-DAYS-ELAPSED",
+              "WS-PENALTY-AMT"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLOSPEN3",
+                "line": 24,
+                "file": "CLOSPEN3.cbl"
+              },
+              {
+                "program": "CLOSPEN3",
+                "line": 25,
+                "file": "CLOSPEN3.cbl"
+              },
+              {
+                "program": "CLOSPEN3",
+                "line": 26,
+                "file": "CLOSPEN3.cbl"
+              },
+              {
+                "program": "CLOSPEN3",
+                "line": 30,
+                "file": "CLOSPEN3.cbl"
+              },
+              {
+                "program": "CLOSPEN3",
+                "line": 35,
+                "file": "CLOSPEN3.cbl"
+              }
+            ]
+          },
+          "rationale": "1000-MAIN accepts only calendar-day and working-day counts and performs 2000-PEN. That paragraph computes the penalty when the work-day test passes, with no outstanding-dues input or condition, so the reachable calculation can apply when dues remain; clause 19 limits the penalty to cases with no outstanding dues."
+        },
+        "claim": "A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "500",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The reachable penalty calculation has no outstanding-dues condition, while clause 19 makes the penalty applicable only when there are no outstanding dues."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current_value is composite; day_basis is an enum-valued business-rule leaf.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only when current_value itself is an enum_set reference collection, which this clause does not supply.",
+        "final_answer": "Abstain from D4 because the clause's enum_set leaf is inside a composite business rule."
+      },
+      "D5_boundary_error": {
+        "kind": "finding",
+        "thought": "The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN3",
+                "paragraph": "2000-PEN",
+                "file": "CLOSPEN3.cbl",
+                "line_span": [
+                  30,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-WORK-DAYS-ELAPSED",
+              "WS-PENALTY-AMT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "closure_window",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLOSPEN3",
+                "line": 30,
+                "file": "CLOSPEN3.cbl"
+              }
+            ]
+          },
+          "rationale": "The > 10 test controls the penalty computation. At the clause's 7-working-day limit, and through day 10, the condition remains false, so the transition to penalty occurs late."
+        },
+        "claim": "A closure request must be honoured within seven working days; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided there are no outstanding dues.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "10",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The source enters the penalty branch only after 10 working days; the clause's 7-day limit makes that transition late."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The bounded call graph shows 2000-PEN is called by 1000-MAIN.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The compliance paragraph is reachable, and no dead-paragraph or disabled-guard evidence supports D6.",
+        "final_answer": "Abstain from D6 because the penalty paragraph is reachable and no disabled compliance guard was observed."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The observed closure check requires more than 10 working days before the penalty branch; it does not match the clause's 7-working-day limit.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D7 requires positive code evidence of a matching check, but the observed threshold does not match.",
+        "final_answer": "Abstain from D7 because the observed 10-day guard does not conform to the clause's 7-day limit."
+      }
+    }
+  ]
+}

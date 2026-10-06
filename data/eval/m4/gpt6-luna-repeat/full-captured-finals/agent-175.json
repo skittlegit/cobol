@@ -1,0 +1,113 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The observed rule literals are 2, 8, and 10 years. Each matches its corresponding resolved current-value leaf, so this hunt does not support stale-value drift.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D1 requires a stale source value. The supplied leaves are 2 years for high risk, 8 for medium risk, and 10 for low risk; the observed literals match those values. The > versus at-most boundary concern belongs to D5.",
+        "final_answer": "No D1 stale-threshold finding: the observed intervals match the supplied current values (high 2, medium 8, low 10 years)."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The relevant rule is present: the paragraph contains branches that set KYC due, and the scoped search and slice expose that state. The question is when the high-risk branch fires, which is a boundary issue.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The reserved D2 observations did not indicate absence: WS-KYC-DUE is initialized, set in risk-specific branches, and displayed, and its data slice reaches those branches. The evidence points to the high-risk comparator boundary, not an absent required rule.",
+        "final_answer": "Abstain from D2: the required due-state behavior exists; the observed issue concerns the high-risk transition boundary."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The supported conflict is the high-risk boundary comparison that delays due marking at equality; no separate contradictory action or bypass is evidenced.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The source behavior at the 2-year equality boundary is specifically a late boundary transition, reported under D5. No distinct D3 contradiction or downstream bypass is evidenced.",
+        "final_answer": "Abstain from D3; the observed mismatch is the D5 late boundary transition."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current value is a composite containing duration-year leaves, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only when the clause current value is itself an enum_set reference collection. This clause supplies a composite of duration-year values, so no D4 enumeration comparison is applicable.",
+        "final_answer": "No D4 finding: the clause value is a composite duration rule, not a reference enumeration."
+      },
+      "D5_boundary_error": {
+        "kind": "finding",
+        "thought": "The high-risk branch sets KYC due only when elapsed years are greater than 2. At exactly 2 years that branch does not set due, delaying the transition beyond the clause's two-year interval.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSCHED1",
+                "paragraph": "2000-CHECK-DUE",
+                "file": "KYCSCHED1.cbl",
+                "line_span": [
+                  27,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-YEARS-SINCE-KYC"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "high_risk",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSCHED1",
+                "line": 27,
+                "file": "KYCSCHED1.cbl"
+              }
+            ]
+          },
+          "rationale": "In KYCSCHED1, the high-risk branch uses WS-YEARS-SINCE-KYC > 2 before moving 'Y' to WS-KYC-DUE. At exactly two years the comparator is false, so due is not marked until later. The clause requires high-risk KYC updation at least once every two years; this is a late boundary transition. The source literal 2 matches the resolved high_risk value, so the issue is the comparator boundary rather than a stale threshold."
+        },
+        "claim": "High-risk customers must receive periodic KYC updation at least once every two years, measured from the date of account opening or last KYC updation.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "2",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The high-risk branch marks KYC due only when elapsed years are greater than 2, so it does not mark due at the two-year boundary. The clause requires updation at least once every two years; the transition occurs late. The literal 2 matches the supplied value, making this a boundary error."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The main paragraph performs 2000-CHECK-DUE, and that paragraph contains enabled risk checks; the evidence does not establish dead or disabled compliance code.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The D6 observations show 1000-MAIN performing 2000-CHECK-DUE. The paragraph is reachable and contains active threshold branches, so no dead-paragraph or disabled-guard finding is supported.",
+        "final_answer": "No D6 finding: the compliance paragraph is called from the main paragraph and its branches are active."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The code has checks for the risk groups, but the high-risk branch misses the exact two-year boundary, preventing a conformant conclusion.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D7 requires positive evidence that the implemented check matches the clause. Although the 8- and 10-year branches match their supplied intervals, the high-risk branch is delayed at exactly 2 years, so program-level conformance is not established.",
+        "final_answer": "Abstain from D7: the high-risk check does not match the two-year boundary, so the program cannot be reported as conformant."
+      }
+    }
+  ]
+}

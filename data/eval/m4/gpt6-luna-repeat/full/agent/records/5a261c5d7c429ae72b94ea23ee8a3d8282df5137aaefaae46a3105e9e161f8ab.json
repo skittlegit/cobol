@@ -1,0 +1,805 @@
+{
+  "instance_id": "drift_988425",
+  "gold": {
+    "instance_id": "drift_988425",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "42(1)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "high_risk": {
+            "kind": "duration_years",
+            "value": 2,
+            "comparator": "at_most",
+            "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+          },
+          "medium_risk": {
+            "kind": "duration_years",
+            "value": 8,
+            "comparator": "at_most",
+            "note": null
+          },
+          "low_risk": {
+            "kind": "duration_years",
+            "value": 10,
+            "comparator": "at_most",
+            "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSCHED1",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            16,
+            16
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-YEARS-SINCE-KYC"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": "high_risk",
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at KYCSCHED1:<source>:16-16; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSCHED1.cbl",
+      "mutation": "MO-0; locus=KYCSCHED1:<source>:16-16; old='01  FILLER                    PIC X(7) VALUE SPACES.'; new='01  FILLER                    PIC X(14) VALUE SPACES.'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: KYCSCHED1.\nClause: RBI-KYC-Directions-2025 42(1) (version 2025-11-28, effective 2025-11-28): Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\nComposite current-value leaves (select one exact target_path):\n- target_path=high_risk: kind=duration_years, value=2, comparator=at_most\n- target_path=medium_risk: kind=duration_years, value=8, comparator=at_most\n- target_path=low_risk: kind=duration_years, value=10, comparator=at_most",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "KYCSCHED1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 23, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 38, \"line_start\": 24, \"name\": \"2000-CHECK-DUE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\f15b36af79cbd0391304de603e6438637f671d5639d13fb3735a629d043a56dc\\\\cases\\\\drift_900000\\\\KYCSCHED1.cbl\", \"program\": \"KYCSCHED1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "KYCSCHED1",
+          "name": "2000-CHECK-DUE"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}], \"code\": \"       2000-CHECK-DUE.\\n           EVALUATE WS-RISK-RATING\\n             WHEN 'H'\\n               IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN 'M'\\n               IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN OTHER\\n               IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n           END-EVALUATE.\", \"name\": \"2000-CHECK-DUE\", \"ref\": {\"line_end\": 38, \"line_start\": 24, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-YEARS-SINCE-KYC"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 12, \"program\": \"KYCSCHED1\", \"text\": \"           05  WS-YEARS-SINCE-KYC    PIC 9(2) VALUE ZERO.\"}, {\"line\": 20, \"program\": \"KYCSCHED1\", \"text\": \"           ACCEPT WS-YEARS-SINCE-KYC\"}, {\"line\": 27, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 2\"}, {\"line\": 31, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 8\"}, {\"line\": 35, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 10\"}], \"pattern\": \"WS-YEARS-SINCE-KYC\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The observed high-, medium-, and low-risk interval thresholds match the supplied current-value leaves.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No stale threshold is evidenced: the supplied interval leaves are 2, 8, and 10 years, and the bounded source observation shows matching values.",
+        "final_answer": "Abstain: the bounded evidence does not support this drift class.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed high-, medium-, and low-risk interval thresholds match the supplied current-value leaves.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No stale threshold is evidenced: the supplied interval leaves are 2, 8, and 10 years, and the bounded source observation shows matching values.\",\"final_answer\":\"Abstain: the bounded evidence does not support this drift class.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "No stale threshold is evidenced: the supplied interval leaves are 2, 8, and 10 years, and the bounded source observation shows matching values.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: No stale threshold is evidenced: the supplied interval leaves are 2, 8, and 10 years, and the bounded source observation shows matching values.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: KYCSCHED1.\nClause: RBI-KYC-Directions-2025 42(1) (version 2025-11-28, effective 2025-11-28): Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\nComposite current-value leaves (select one exact target_path):\n- target_path=high_risk: kind=duration_years, value=2, comparator=at_most\n- target_path=medium_risk: kind=duration_years, value=8, comparator=at_most\n- target_path=low_risk: kind=duration_years, value=10, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSCHED1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 23, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 38, \"line_start\": 24, \"name\": \"2000-CHECK-DUE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\f15b36af79cbd0391304de603e6438637f671d5639d13fb3735a629d043a56dc\\\\cases\\\\drift_900000\\\\KYCSCHED1.cbl\", \"program\": \"KYCSCHED1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSCHED1",
+              "name": "2000-CHECK-DUE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}], \"code\": \"       2000-CHECK-DUE.\\n           EVALUATE WS-RISK-RATING\\n             WHEN 'H'\\n               IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN 'M'\\n               IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN OTHER\\n               IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n           END-EVALUATE.\", \"name\": \"2000-CHECK-DUE\", \"ref\": {\"line_end\": 38, \"line_start\": 24, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-YEARS-SINCE-KYC"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 12, \"program\": \"KYCSCHED1\", \"text\": \"           05  WS-YEARS-SINCE-KYC    PIC 9(2) VALUE ZERO.\"}, {\"line\": 20, \"program\": \"KYCSCHED1\", \"text\": \"           ACCEPT WS-YEARS-SINCE-KYC\"}, {\"line\": 27, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 2\"}, {\"line\": 31, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 8\"}, {\"line\": 35, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 10\"}], \"pattern\": \"WS-YEARS-SINCE-KYC\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observed high-, medium-, and low-risk interval thresholds match the supplied current-value leaves.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No stale threshold is evidenced: the supplied interval leaves are 2, 8, and 10 years, and the bounded source observation shows matching values.",
+            "final_answer": "Abstain: the bounded evidence does not support this drift class.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed high-, medium-, and low-risk interval thresholds match the supplied current-value leaves.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No stale threshold is evidenced: the supplied interval leaves are 2, 8, and 10 years, and the bounded source observation shows matching values.\",\"final_answer\":\"Abstain: the bounded evidence does not support this drift class.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No stale threshold is evidenced: the supplied interval leaves are 2, 8, and 10 years, and the bounded source observation shows matching values.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No stale threshold is evidenced: the supplied interval leaves are 2, 8, and 10 years, and the bounded source observation shows matching values.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No stale threshold is evidenced: the supplied interval leaves are 2, 8, and 10 years, and the bounded source observation shows matching values."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: KYCSCHED1.\nClause: RBI-KYC-Directions-2025 42(1) (version 2025-11-28, effective 2025-11-28): Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\nComposite current-value leaves (select one exact target_path):\n- target_path=high_risk: kind=duration_years, value=2, comparator=at_most\n- target_path=medium_risk: kind=duration_years, value=8, comparator=at_most\n- target_path=low_risk: kind=duration_years, value=10, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-KYC-DUE"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 14, \"program\": \"KYCSCHED1\", \"text\": \"           05  WS-KYC-DUE            PIC X(1) VALUE 'N'.\"}, {\"line\": 22, \"program\": \"KYCSCHED1\", \"text\": \"           DISPLAY 'KYC-DUE: ' WS-KYC-DUE\"}, {\"line\": 28, \"program\": \"KYCSCHED1\", \"text\": \"                  MOVE 'Y' TO WS-KYC-DUE\"}, {\"line\": 32, \"program\": \"KYCSCHED1\", \"text\": \"                  MOVE 'Y' TO WS-KYC-DUE\"}, {\"line\": 36, \"program\": \"KYCSCHED1\", \"text\": \"                  MOVE 'Y' TO WS-KYC-DUE\"}], \"pattern\": \"WS-KYC-DUE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "KYCSCHED1",
+              "para": "2000-CHECK-DUE"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "KYCSCHED1",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[{\"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-KYC-DUE",
+              "program": "KYCSCHED1"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}, {\"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}], \"scoped_program\": \"KYCSCHED1\", \"statements\": [{\"ref\": {\"line_end\": 11, \"line_start\": 11, \"paragraph\": null, \"program\": \"KYCSCHED1\"}, \"text\": \"05  WS-RISK-RATING        PIC X(1) VALUE SPACE.\"}, {\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": null, \"program\": \"KYCSCHED1\"}, \"text\": \"05  WS-YEARS-SINCE-KYC    PIC 9(2) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 14, \"line_start\": 14, \"paragraph\": null, \"program\": \"KYCSCHED1\"}, \"text\": \"05  WS-KYC-DUE            PIC X(1) VALUE 'N'.\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 19, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}, \"text\": \"ACCEPT WS-RISK-RATING\"}, {\"ref\": {\"line_end\": 20, \"line_start\": 20, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}, \"text\": \"ACCEPT WS-YEARS-SINCE-KYC\"}, {\"ref\": {\"line_end\": 21, \"line_start\": 21, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}, \"text\": \"PERFORM 2000-CHECK-DUE\"}, {\"ref\": {\"line_end\": 38, \"line_start\": 25, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"text\": \"EVALUATE WS-RISK-RATING\\n             WHEN 'H'\\n               IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN 'M'\\n               IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN OTHER\\n               IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n           END-EVALUATE.\"}, {\"ref\": {\"line_end\": 28, \"line_start\": 26, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"text\": \"WHEN 'H'\\n               IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\"}, {\"ref\": {\"line_end\": 28, \"line_start\": 27, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"text\": \"IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\"}, {\"ref\": {\"line_end\": 28, \"line_start\": 28, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"text\": \"MOVE 'Y' TO WS-KYC-DUE\"}, {\"ref\": {\"line_end\": 32, \"line_start\": 30, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"text\": \"WHEN 'M'\\n               IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\"}, {\"ref\": {\"line_end\": 32, \"line_start\": 31, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"text\": \"IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\"}, {\"ref\": {\"line_end\": 32, \"line_start\": 32, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"text\": \"MOVE 'Y' TO WS-KYC-DUE\"}, {\"ref\": {\"line_end\": 36, \"line_start\": 34, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"text\": \"WHEN OTHER\\n               IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\"}, {\"ref\": {\"line_end\": 36, \"line_start\": 35, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"text\": \"IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\"}, {\"ref\": {\"line_end\": 36, \"line_start\": 36, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"text\": \"MOVE 'Y' TO WS-KYC-DUE\"}], \"variable\": \"WS-KYC-DUE\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The bounded observations show all three due-setting branches, a caller, a callee, and the variable slice.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The required due behavior is present in the inspected branch and data slice, so the required absence evidence is not established.",
+            "final_answer": "Abstain: the bounded evidence does not support this drift class.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The bounded observations show all three due-setting branches, a caller, a callee, and the variable slice.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The required due behavior is present in the inspected branch and data slice, so the required absence evidence is not established.\",\"final_answer\":\"Abstain: the bounded evidence does not support this drift class.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The required due behavior is present in the inspected branch and data slice, so the required absence evidence is not established.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The required due behavior is present in the inspected branch and data slice, so the required absence evidence is not established.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The required due behavior is present in the inspected branch and data slice, so the required absence evidence is not established."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: KYCSCHED1.\nClause: RBI-KYC-Directions-2025 42(1) (version 2025-11-28, effective 2025-11-28): Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\nComposite current-value leaves (select one exact target_path):\n- target_path=high_risk: kind=duration_years, value=2, comparator=at_most\n- target_path=medium_risk: kind=duration_years, value=8, comparator=at_most\n- target_path=low_risk: kind=duration_years, value=10, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSCHED1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-RISK-RATING\\n           ACCEPT WS-YEARS-SINCE-KYC\\n           PERFORM 2000-CHECK-DUE\\n           DISPLAY 'KYC-DUE: ' WS-KYC-DUE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 23, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSCHED1",
+              "name": "2000-CHECK-DUE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}], \"code\": \"       2000-CHECK-DUE.\\n           EVALUATE WS-RISK-RATING\\n             WHEN 'H'\\n               IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN 'M'\\n               IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN OTHER\\n               IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n           END-EVALUATE.\", \"name\": \"2000-CHECK-DUE\", \"ref\": {\"line_end\": 38, \"line_start\": 24, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-YEARS-SINCE-KYC",
+              "program": "KYCSCHED1"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}], \"scoped_program\": \"KYCSCHED1\", \"statements\": [{\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": null, \"program\": \"KYCSCHED1\"}, \"text\": \"05  WS-YEARS-SINCE-KYC    PIC 9(2) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 20, \"line_start\": 20, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}, \"text\": \"ACCEPT WS-YEARS-SINCE-KYC\"}], \"variable\": \"WS-YEARS-SINCE-KYC\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observed checks use the supplied interval limits and set the due indicator at those limits.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No positive source behavior contradicting the supplied clause was established by the bounded paragraph and slice observations.",
+            "final_answer": "Abstain: the bounded evidence does not support this drift class.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed checks use the supplied interval limits and set the due indicator at those limits.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No positive source behavior contradicting the supplied clause was established by the bounded paragraph and slice observations.\",\"final_answer\":\"Abstain: the bounded evidence does not support this drift class.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No positive source behavior contradicting the supplied clause was established by the bounded paragraph and slice observations.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No positive source behavior contradicting the supplied clause was established by the bounded paragraph and slice observations.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No positive source behavior contradicting the supplied clause was established by the bounded paragraph and slice observations."
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: KYCSCHED1.\nClause: RBI-KYC-Directions-2025 42(1) (version 2025-11-28, effective 2025-11-28): Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\nComposite current-value leaves (select one exact target_path):\n- target_path=high_risk: kind=duration_years, value=2, comparator=at_most\n- target_path=medium_risk: kind=duration_years, value=8, comparator=at_most\n- target_path=low_risk: kind=duration_years, value=10, comparator=at_most",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The clause's supplied value is composite and duration-valued; this hunt has no reference enumeration to compare.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 is inapplicable because the supplied current value is a composite of duration leaves, not an enum_set reference collection.",
+            "final_answer": "Abstain: the bounded evidence does not support this drift class.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause's supplied value is composite and duration-valued; this hunt has no reference enumeration to compare.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 is inapplicable because the supplied current value is a composite of duration leaves, not an enum_set reference collection.\",\"final_answer\":\"Abstain: the bounded evidence does not support this drift class.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: KYCSCHED1.\nClause: RBI-KYC-Directions-2025 42(1) (version 2025-11-28, effective 2025-11-28): Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\nComposite current-value leaves (select one exact target_path):\n- target_path=high_risk: kind=duration_years, value=2, comparator=at_most\n- target_path=medium_risk: kind=duration_years, value=8, comparator=at_most\n- target_path=low_risk: kind=duration_years, value=10, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSCHED1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 23, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 38, \"line_start\": 24, \"name\": \"2000-CHECK-DUE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\f15b36af79cbd0391304de603e6438637f671d5639d13fb3735a629d043a56dc\\\\cases\\\\drift_900000\\\\KYCSCHED1.cbl\", \"program\": \"KYCSCHED1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSCHED1",
+              "name": "2000-CHECK-DUE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}], \"code\": \"       2000-CHECK-DUE.\\n           EVALUATE WS-RISK-RATING\\n             WHEN 'H'\\n               IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN 'M'\\n               IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN OTHER\\n               IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n           END-EVALUATE.\", \"name\": \"2000-CHECK-DUE\", \"ref\": {\"line_end\": 38, \"line_start\": 24, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-YEARS-SINCE-KYC >="
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 27, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 2\"}, {\"line\": 31, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 8\"}, {\"line\": 35, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 10\"}], \"pattern\": \"WS-YEARS-SINCE-KYC >=\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observed comparator and branch action make the transition occur at the two-, eight-, and ten-year limits.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No boundary error is evidenced: each >= comparison sets the due indicator at the supplied interval limit.",
+            "final_answer": "Abstain: the bounded evidence does not support this drift class.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed comparator and branch action make the transition occur at the two-, eight-, and ten-year limits.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No boundary error is evidenced: each >= comparison sets the due indicator at the supplied interval limit.\",\"final_answer\":\"Abstain: the bounded evidence does not support this drift class.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No boundary error is evidenced: each >= comparison sets the due indicator at the supplied interval limit.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No boundary error is evidenced: each >= comparison sets the due indicator at the supplied interval limit.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No boundary error is evidenced: each >= comparison sets the due indicator at the supplied interval limit."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: KYCSCHED1.\nClause: RBI-KYC-Directions-2025 42(1) (version 2025-11-28, effective 2025-11-28): Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\nComposite current-value leaves (select one exact target_path):\n- target_path=high_risk: kind=duration_years, value=2, comparator=at_most\n- target_path=medium_risk: kind=duration_years, value=8, comparator=at_most\n- target_path=low_risk: kind=duration_years, value=10, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSCHED1",
+              "name": "2000-CHECK-DUE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}], \"code\": \"       2000-CHECK-DUE.\\n           EVALUATE WS-RISK-RATING\\n             WHEN 'H'\\n               IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN 'M'\\n               IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN OTHER\\n               IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n           END-EVALUATE.\", \"name\": \"2000-CHECK-DUE\", \"ref\": {\"line_end\": 38, \"line_start\": 24, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "KYCSCHED1",
+              "para": "2000-CHECK-DUE"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "KYCSCHED1",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[{\"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The paragraph observation and call-graph results show 1000-MAIN performing 2000-CHECK-DUE.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The inspected compliance paragraph is called from the main paragraph and no disabled guard or dead-paragraph evidence was found.",
+            "final_answer": "Abstain: the bounded evidence does not support this drift class.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The paragraph observation and call-graph results show 1000-MAIN performing 2000-CHECK-DUE.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The inspected compliance paragraph is called from the main paragraph and no disabled guard or dead-paragraph evidence was found.\",\"final_answer\":\"Abstain: the bounded evidence does not support this drift class.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The inspected compliance paragraph is called from the main paragraph and no disabled guard or dead-paragraph evidence was found.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The inspected compliance paragraph is called from the main paragraph and no disabled guard or dead-paragraph evidence was found.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The inspected compliance paragraph is called from the main paragraph and no disabled guard or dead-paragraph evidence was found."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: KYCSCHED1.\nClause: RBI-KYC-Directions-2025 42(1) (version 2025-11-28, effective 2025-11-28): Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\nComposite current-value leaves (select one exact target_path):\n- target_path=high_risk: kind=duration_years, value=2, comparator=at_most\n- target_path=medium_risk: kind=duration_years, value=8, comparator=at_most\n- target_path=low_risk: kind=duration_years, value=10, comparator=at_most",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSCHED1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 23, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 38, \"line_start\": 24, \"name\": \"2000-CHECK-DUE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\f15b36af79cbd0391304de603e6438637f671d5639d13fb3735a629d043a56dc\\\\cases\\\\drift_900000\\\\KYCSCHED1.cbl\", \"program\": \"KYCSCHED1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSCHED1",
+              "name": "2000-CHECK-DUE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSCHED1\"}], \"code\": \"       2000-CHECK-DUE.\\n           EVALUATE WS-RISK-RATING\\n             WHEN 'H'\\n               IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN 'M'\\n               IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN OTHER\\n               IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n           END-EVALUATE.\", \"name\": \"2000-CHECK-DUE\", \"ref\": {\"line_end\": 38, \"line_start\": 24, \"paragraph\": \"2000-CHECK-DUE\", \"program\": \"KYCSCHED1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-YEARS-SINCE-KYC >="
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 27, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 2\"}, {\"line\": 31, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 8\"}, {\"line\": 35, \"program\": \"KYCSCHED1\", \"text\": \"               IF WS-YEARS-SINCE-KYC >= 10\"}], \"pattern\": \"WS-YEARS-SINCE-KYC >=\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The bounded source observation shows matching thresholds for all three risk tiers and an inclusive due transition at each supplied interval limit.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=0]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_988425",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "42(1)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "high_risk": {
+                      "kind": "duration_years",
+                      "value": 2,
+                      "comparator": "at_most",
+                      "note": "Inverted CC-10a trap: the English says 'at least once every N years' (floor on FREQUENCY) but this leaf stores the INTERVAL, so the encoded quantity is a ceiling (at_most) and stale snaps UP (refreshing less often = laxer). Discriminator is the encoded quantity, NOT the clause's phrasing - 'at least' produced a floor on CC-10a and a ceiling here; pattern-matching on the words gets exactly one of them right."
+                    },
+                    "medium_risk": {
+                      "kind": "duration_years",
+                      "value": 8,
+                      "comparator": "at_most",
+                      "note": null
+                    },
+                    "low_risk": {
+                      "kind": "duration_years",
+                      "value": 10,
+                      "comparator": "at_most",
+                      "note": "10y is the loosest interval the lineage ever ran: no laxer value exists, so MO-1 rejects rather than emit the strict side."
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "KYCSCHED1",
+                    "paragraph": "2000-CHECK-DUE",
+                    "file": null,
+                    "line_span": [
+                      27,
+                      36
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-RISK-RATING",
+                  "WS-YEARS-SINCE-KYC",
+                  "WS-KYC-DUE"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D7_conformant",
+              "target_path": null,
+              "labels": {
+                "program_level": "conformant",
+                "paragraph_level": "conformant",
+                "line_level": []
+              },
+              "rationale": "In KYCSCHED1 paragraph 2000-CHECK-DUE, the H branch uses >= 2, the M branch uses >= 8, and the OTHER branch uses >= 10 before setting WS-KYC-DUE. These inclusive transitions match the supplied at-most interval leaves of 2, 8, and 10 years for high-, medium-, and low-risk customers, respectively."
+            },
+            "claim": "Periodic KYC updation shall occur at least once every two years for high-risk customers, once every eight years for medium-risk customers, and once every ten years for low-risk customers, measured from account opening or the last KYC updation.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "2",
+              "comparator": ">=",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "KYCSCHED1 implements the supplied two-, eight-, and ten-year KYC intervals with due checks that trigger at each interval limit.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The bounded source observation shows matching thresholds for all three risk tiers and an inclusive due transition at each supplied interval limit.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"file\":\"KYCSCHED1.cbl\",\"line_span\":[27,36]}],\"slice_vars\":[\"WS-RISK-RATING\",\"WS-YEARS-SINCE-KYC\",\"WS-KYC-DUE\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[]},\"rationale\":\"In KYCSCHED1 paragraph 2000-CHECK-DUE, the H branch uses >= 2, the M branch uses >= 8, and the OTHER branch uses >= 10 before setting WS-KYC-DUE. These inclusive transitions match the supplied at-most interval leaves of 2, 8, and 10 years for high-, medium-, and low-risk customers, respectively.\"},\"claim\":\"Periodic KYC updation shall occur at least once every two years for high-risk customers, once every eight years for medium-risk customers, and once every ten years for low-risk customers, measured from account opening or the last KYC updation.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"2\",\"comparator\":\">=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"KYCSCHED1 implements the supplied two-, eight-, and ten-year KYC intervals with due checks that trigger at each interval limit.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: composite D7 requires target_path for value matching",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: composite D7 requires target_path for value matching",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: composite D7 requires target_path for value matching"
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "No stale threshold is evidenced: the supplied interval leaves are 2, 8, and 10 years, and the bounded source observation shows matching values.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "efe4b5a2c92f587bb5181d3780d0a185452ed8f274bae753f564fad996925bc3",
+  "run_key": "5a261c5d7c429ae72b94ea23ee8a3d8282df5137aaefaae46a3105e9e161f8ab"
+}

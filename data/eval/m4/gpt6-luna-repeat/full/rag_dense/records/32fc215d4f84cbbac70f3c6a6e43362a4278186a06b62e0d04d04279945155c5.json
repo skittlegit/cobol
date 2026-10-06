@@ -1,0 +1,143 @@
+{
+  "instance_id": "drift_000013",
+  "gold": {
+    "instance_id": "drift_000013",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": null,
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": null,
+            "note": null
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPN5D",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            9,
+            11
+          ]
+        },
+        {
+          "program": "CLOSPN5D",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            18,
+            24
+          ]
+        },
+        {
+          "program": "CLOSPN5D",
+          "paragraph": "2000-PENALTY",
+          "file": null,
+          "line_span": [
+            25,
+            29
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PEN-ENABLED",
+        "PENALTY-ON",
+        "WS-ELAPSED-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": []
+    },
+    "gold_rationale": "2000-PENALTY correctly implements the 7-day/₹500 calculation, but it only executes when 88-level PENALTY-ON is true (line 20). WS-PEN-ENABLED is declared VALUE 'N' (line 10, PENALTY-ON = 'Y' only) and no statement anywhere in this program ever moves 'Y' into WS-PEN-ENABLED -- the only ACCEPT in the program (line 19) reads WS-ELAPSED-DAYS, not the flag. Under the program's own reachable control flow from its true entry, PERFORM 2000-PENALTY is therefore never actually taken.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "CLOSPN5D.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.8343702981801698},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"20\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a card is unused for more than one year, initiate closure after intimating the cardholder; if no reply within 30 days, close the account (subject to dues) and update the CIC within 30 days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"inactivity_threshold\":{\"kind\":\"duration_years\",\"value\":1,\"comparator\":\"strictly_greater\",\"note\":\"Trigger: closure workflow fires when unused for MORE THAN one year. Stale side is UP (later closure of dormant accounts = laxer).\"},\"reply_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"cic_update_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.6849142702525457},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"31\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"cutoff\":{\"kind\":\"formula\",\"value\":\"min(0.01 * credit_limit, 5000_inr)\",\"comparator\":null,\"note\":null},\"consent_window\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"reversal_window\":{\"kind\":\"duration_working_days\",\"value\":3,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.6795666166575288}],\"program\":\"FILE CLOSPN5D.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. CLOSPN5D.\\n0003:       *----------------------------------------------------------------\\n0004:       * CLOSURE PROCESSOR WITH PENALTY MODULE (PILOT - DISABLED)\\n0005:       *----------------------------------------------------------------\\n0006:        ENVIRONMENT DIVISION.\\n0007:        DATA DIVISION.\\n0008:        WORKING-STORAGE SECTION.\\n0009:        01  WS-FLAGS.\\n0010:            05  WS-PEN-ENABLED        PIC X(1) VALUE 'N'.\\n0011:                88  PENALTY-ON        VALUE 'Y'.\\n0012:        01  WS-INPUTS.\\n0013:            05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\\n0014:        01  WS-WORK-AREAS.\\n0015:            05  WS-DELAY-DAYS         PIC S9(5) VALUE ZERO.\\n0016:            05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.\\n0017:        PROCEDURE DIVISION.\\n0018:        1000-MAIN.\\n0019:            ACCEPT WS-ELAPSED-DAYS\\n0020:            IF PENALTY-ON\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The excerpt shows a penalty flag initialized to N and the start of a conditional, but omits the conditional body and remaining control flow. That is insufficient to determine the penalty behavior.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied source excerpt ends at the start of the penalty condition, so it does not establish whether the rule is applied, disabled, or otherwise handled.",
+        "final_answer": "I cannot classify this case from the partial procedure excerpt.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The excerpt shows a penalty flag initialized to N and the start of a conditional, but omits the conditional body and remaining control flow. That is insufficient to determine the penalty behavior.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied source excerpt ends at the start of the penalty condition, so it does not establish whether the rule is applied, disabled, or otherwise handled.\",\"final_answer\":\"I cannot classify this case from the partial procedure excerpt.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied source excerpt ends at the start of the penalty condition, so it does not establish whether the rule is applied, disabled, or otherwise handled.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "I cannot classify this case from the partial procedure excerpt.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied source excerpt ends at the start of the penalty condition, so it does not establish whether the rule is applied, disabled, or otherwise handled.",
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "258d3b15ccc31c67b6c7d24b80db6989085fbe30508f4f0f8f97f928b7e6c124",
+  "run_key": "32fc215d4f84cbbac70f3c6a6e43362a4278186a06b62e0d04d04279945155c5"
+}

@@ -48,14 +48,26 @@ def main() -> None:
     context = next(row["payload"] for row in rows if row["type"] == "turn_context")
     if context["model"] != freeze.model_id or context["effort"] != freeze.reasoning_effort:
         raise RuntimeError("subagent model or reasoning differs from frozen run")
-    final = next(
+    finals = (
         row["payload"]["content"][0]["text"]
         for row in reversed(rows)
         if row["payload"].get("phase") == "final_answer"
     )
+    final = next(finals, None)
+    if final is None:
+        raise RuntimeError("session has no final_answer; leave the task unsealed")
     try:
-        _response_model(args.system).model_validate_json(final)
-    except ValidationError:
+        envelope = _response_model(args.system).model_validate_json(final)
+        expected_aliases = [
+            f"drift_{900000 + index:06d}"
+            for index in range(len(task.row_instance_ids))
+        ]
+        actual_aliases = [result.alias for result in envelope.results]
+        if sorted(actual_aliases) != sorted(expected_aliases):
+            raise ValueError(
+                "final aliases differ from the frozen task's required aliases"
+            )
+    except (ValidationError, ValueError):
         diagnostic = (
             args.output
             / "rejected-finals"

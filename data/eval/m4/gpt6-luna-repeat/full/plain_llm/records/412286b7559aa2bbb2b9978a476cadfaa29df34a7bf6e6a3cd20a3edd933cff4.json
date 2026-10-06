@@ -1,0 +1,187 @@
+{
+  "instance_id": "drift_110030",
+  "gold": {
+    "instance_id": "drift_110030",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC05",
+          "paragraph": "2400-RECORD-UPLOAD-REQUEST",
+          "file": null,
+          "line_span": [
+            15,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CHANGE-REFERENCE",
+        "WS-AUDIT-MESSAGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6KYC05",
+          "line": 15,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 65(8) requires CKYCR updates within 7 days of receiving updated information (at_most 7). The program (byte-identical to the pre-2024 candidate) has no day-count or date field and no 7-day deadline check anywhere in its reachable logic.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6KYC05.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"program\":\"FILE T6KYC05.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6KYC05.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-AUDIT.\\n0007:            05  WS-CHANGE-REFERENCE   PIC X(12) VALUE SPACES.\\n0008:            05  WS-AUDIT-MESSAGE      PIC X(30) VALUE SPACES.\\n0009:        PROCEDURE DIVISION.\\n0010:        1000-MAIN.\\n0011:            ACCEPT WS-CHANGE-REFERENCE\\n0012:            PERFORM 2400-RECORD-UPLOAD-REQUEST\\n0013:            DISPLAY WS-AUDIT-MESSAGE\\n0014:            STOP RUN.\\n0015:        2400-RECORD-UPLOAD-REQUEST.\\n0016:            STRING 'CKYCR REQUEST '\\n0017:               WS-CHANGE-REFERENCE\\n0018:               DELIMITED BY SIZE\\n0019:               INTO WS-AUDIT-MESSAGE\\n0020:            END-STRING.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The program accepts a change reference and builds a CKYCR request message, but the visible executable path shows no registry update or seven-day timing rule.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110030",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "65(8)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6KYC05",
+                "paragraph": "1000-MAIN",
+                "file": "T6KYC05.cbl",
+                "line_span": [
+                  10,
+                  14
+                ]
+              },
+              {
+                "program": "T6KYC05",
+                "paragraph": "2400-RECORD-UPLOAD-REQUEST",
+                "file": "T6KYC05.cbl",
+                "line_span": [
+                  15,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CHANGE-REFERENCE",
+              "WS-AUDIT-MESSAGE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6KYC05",
+                "line": 11,
+                "file": "T6KYC05.cbl"
+              },
+              {
+                "program": "T6KYC05",
+                "line": 12,
+                "file": "T6KYC05.cbl"
+              },
+              {
+                "program": "T6KYC05",
+                "line": 16,
+                "file": "T6KYC05.cbl"
+              },
+              {
+                "program": "T6KYC05",
+                "line": 20,
+                "file": "T6KYC05.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated customer information. The visible program accepts a reference and constructs a CKYCR request message, then displays it; it contains no registry update action or elapsed-time rule."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.",
+        "exec_probe": {
+          "stdin": "R12345678901\n",
+          "expect_substring": "CKYCR REQUEST",
+          "description": "Run the request paragraph with a reference and confirm it displays the constructed request message."
+        },
+        "static_claim": {
+          "literal": "CKYCR REQUEST",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The code constructs and displays a CKYCR request message, but the visible program does not update registry records or enforce the clause’s seven-day deadline.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The program accepts a change reference and builds a CKYCR request message, but the visible executable path shows no registry update or seven-day timing rule.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6KYC05\",\"paragraph\":\"1000-MAIN\",\"file\":\"T6KYC05.cbl\",\"line_span\":[10,14]},{\"program\":\"T6KYC05\",\"paragraph\":\"2400-RECORD-UPLOAD-REQUEST\",\"file\":\"T6KYC05.cbl\",\"line_span\":[15,20]}],\"slice_vars\":[\"WS-CHANGE-REFERENCE\",\"WS-AUDIT-MESSAGE\"],\"is_interprocedural\":false},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6KYC05\",\"line\":11,\"file\":\"T6KYC05.cbl\"},{\"program\":\"T6KYC05\",\"line\":12,\"file\":\"T6KYC05.cbl\"},{\"program\":\"T6KYC05\",\"line\":16,\"file\":\"T6KYC05.cbl\"},{\"program\":\"T6KYC05\",\"line\":20,\"file\":\"T6KYC05.cbl\"}]},\"rationale\":\"The clause requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated customer information. The visible program accepts a reference and constructs a CKYCR request message, then displays it; it contains no registry update action or elapsed-time rule.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.\",\"exec_probe\":{\"stdin\":\"R12345678901\\n\",\"expect_substring\":\"CKYCR REQUEST\",\"description\":\"Run the request paragraph with a reference and confirm it displays the constructed request message.\"},\"static_claim\":{\"literal\":\"CKYCR REQUEST\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The code constructs and displays a CKYCR request message, but the visible program does not update registry records or enforce the clause’s seven-day deadline.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "verification unavailable; refusing emission: OSError: [WinError 4551] An Application Control policy has blocked this file",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The code constructs and displays a CKYCR request message, but the visible program does not update registry records or enforce the clause’s seven-day deadline.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "verification unavailable; refusing emission: OSError: [WinError 4551] An Application Control policy has blocked this file",
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "e417a27b1076b4585d884a63638ae352e05d8da7fe36942746a935910e3d2e8e",
+  "run_key": "412286b7559aa2bbb2b9978a476cadfaa29df34a7bf6e6a3cd20a3edd933cff4"
+}

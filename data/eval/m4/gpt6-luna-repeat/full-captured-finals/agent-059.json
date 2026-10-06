@@ -1,0 +1,114 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The clause provides a scalar seven-day limit, but the inspected source has no corresponding duration literal to compare.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D1 requires a source threshold literal and comparator; none appears in the inspected program or queue paragraph.",
+        "final_answer": "I cannot substantiate a stale threshold because the inspected source contains no duration threshold."
+      },
+      "D2_missing_rule": {
+        "kind": "finding",
+        "thought": "The queue paragraph is reached from the main paragraph, but its received-information branch only sets a pending status. The scoped DAYS search is empty, the data slice shows the received flag declaration and ACCEPT, and the queue paragraph has no callees; these observations do not show the required CKYCR update within seven days.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6KYC01",
+                "paragraph": "2000-QUEUE-CKYCR",
+                "file": "T6KYC01.cbl",
+                "line_span": [
+                  15,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-UPDATE-RECEIVED",
+              "WS-QUEUE-STATUS"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6KYC01",
+                "line": 17,
+                "file": "T6KYC01.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause requires the actual CKYCR record update within seven days after receipt. In 2000-QUEUE-CKYCR, receipt sets WS-QUEUE-STATUS to PENDING, while the other branch sets NOUPDATE; the paragraph contains no CKYCR update action or timing condition. The DAYS grep was empty, the WS-UPDATE-RECEIVED slice shows only its declaration and ACCEPT, and the queue paragraph has no callees. The caller establishes reachability but does not establish the required outcome."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": null,
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "T6KYC01 marks received information as PENDING but does not show the required CKYCR record update within seven days."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The source shows a pending status for received information and a no-update status otherwise, but it does not positively show a behavior that contradicts the clause.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The inspected actions do not establish a missed deadline, rejected update, or other positive contradiction.",
+        "final_answer": "I cannot substantiate a contradictory implemented behavior from the inspected source."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current value is a duration in days, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only to enum_set reference collections; this clause supplies a duration_days value.",
+        "final_answer": "D4 does not apply to the supplied duration value."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The inspected branch tests whether an update was received and assigns queue status; it has no duration comparator to evaluate against the seven-day limit.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D5 requires a source comparator and resulting timing boundary; the source contains no such comparator.",
+        "final_answer": "I cannot substantiate an early or late boundary transition from the inspected source."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The queue paragraph has a caller in the main paragraph, and no disabled compliance guard is shown.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "There is no evidence of an unreachable compliance paragraph or a reachable branch disabled by a default-off guard.",
+        "final_answer": "I cannot substantiate dead or disabled compliance code."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The inspected source has no positive literal or comparator evidence showing that the update is completed within seven days.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D7 requires positive source evidence matching the clause, and the inspected source only sets queue status.",
+        "final_answer": "I cannot substantiate conformance to the seven-day update requirement."
+      }
+    }
+  ]
+}

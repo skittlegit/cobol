@@ -1,0 +1,114 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "91a7cc30197eb275d277cef232040be2a8e41131ded6983ec32d2dcbc4ff0d42",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The REFADJ2 index lists 1000-MAIN and 2000-CUTOFF, identifying the cutoff path to inspect; the index provides no threshold values by itself."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "680cad11c1b8d14518af48fbab8b5e455bb8a319f5e28a4a2c1060624575696d",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "1000-MAIN accepts credit limit and refund amount, calls 2000-CUTOFF, then displays WS-ACTION, confirming that the cutoff decision is reachable."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "c4f7b7aab6b6f8153f5cb6b08bf0c649bf56686f517ff210f659eeee53e463b3",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "2000-CUTOFF computes the threshold from credit limit times WS-CUTOFF-PCT, caps it with WS-CUTOFF-CAP, and sets CONSENT only when refund amount exceeds the cutoff; the operative typed threshold is established, though the configured cap value is not yet shown."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "9ee630a9a82a3e00bf4b454ddc8f917cfeb58dc69f264c6f85ecb6aae03cdd64",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "The scoped slice for WS-CUTOFF-PCT returned no statements, so it does not resolve the configured value or add a typed source locus."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "2ba42222bd4fca6fee03cd307f4cafc08632924d7faa774a78016d2c775250a2",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "The scoped grep enumerates the cutoff calculation and config references: WS-CUTOFF-PCT is .01 and WS-CUTOFF-CAP is 6000. The 6000 cap exceeds the clause cutoff leaf of 5000; this shows one cutoff computation and its configured cap."
+        },
+        {
+          "observation_step": 6,
+          "observation_sha256": "49f600342ccc8855d8bfedd234c96ebd11cc5b02e54665d4277cc73783cf9407",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "context",
+          "rationale": "Tracing WS-CUTOFF-CAP within REFADJ2 returned no sites; it reveals no additional in-program write and does not change the config value found by grep."
+        },
+        {
+          "observation_step": 7,
+          "observation_sha256": "13f133b598c13158e7a2b8f0ee6217da45c538b883d23e4bd09a6588c7ce5463",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "supports",
+          "rationale": "Resolving WSCUTOFF maps the config to WSCUTOFF.cpy and confirms source line 4 defines WS-CUTOFF-CAP as 6000, establishing the exact stale threshold location."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The reachable cutoff path computes the one-percent amount and caps it with the copied configuration. That cap is 6000 while the clause cutoff leaf is capped at 5000, so the ADJUST branch can allow amounts above the required cutoff without consent.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "REFADJ2",
+                "paragraph": "2000-CUTOFF",
+                "file": null,
+                "line_span": [
+                  20,
+                  28
+                ]
+              },
+              {
+                "program": "REFADJ2",
+                "paragraph": null,
+                "file": "WSCUTOFF.cpy",
+                "line_span": [
+                  4,
+                  4
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CUTOFF",
+              "WS-CUTOFF-CAP"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "cutoff",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "REFADJ2",
+                "line": 4,
+                "file": "WSCUTOFF.cpy"
+              }
+            ]
+          },
+          "rationale": "The clause cutoff leaf is min(0.01 * credit_limit, 5000_inr). REFADJ2 2000-CUTOFF computes WS-CUTOFF as WS-CREDIT-LIMIT times WS-CUTOFF-PCT, caps it using WS-CUTOFF-CAP, then chooses CONSENT only when WS-REFUND-AMT is greater than WS-CUTOFF; otherwise it chooses ADJUST. The resolved WSCUTOFF.cpy defines WS-CUTOFF-PCT as .01 and WS-CUTOFF-CAP as 6000 at line 4. For credit limits above 500000, the source cutoff can exceed 5000, allowing adjustment of amounts above the clause cutoff without consent. The grep enumeration shows one cutoff computation and this copied cap definition."
+        },
+        "claim": "Explicit consent is required to adjust credit from refund, failed, or reversed transactions already paid for beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "6000",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The cutoff cap is Rs 6000, so the reachable code can allow adjustments without consent for amounts above Rs 5000 when the one-percent amount is above Rs 5000. The clause requires consent beyond the lower of one percent of the credit limit and Rs 5000."
+      }
+    }
+  ]
+}

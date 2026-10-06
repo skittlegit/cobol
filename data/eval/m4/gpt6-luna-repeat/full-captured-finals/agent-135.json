@@ -1,0 +1,152 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The bounded observations show the threshold literal is 7, matching the clause's numeric value.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days after receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The source threshold literal matches the supplied 7-day value, so this hunt found no stale numeric threshold.",
+        "final_answer": "The source uses 7, which matches the clause's 7-day value; no stale threshold is established."
+      },
+      "D2_missing_rule": {
+        "kind": "finding",
+        "thought": "The case-scoped registry search is empty, and the slice shows elapsed-day input and SLA status assignment without a registry update action.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSYNC2",
+                "paragraph": "1000-MAIN",
+                "file": "KYCSYNC2.cbl",
+                "line_span": [
+                  23,
+                  23
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-UPD",
+              "WS-SLA-STATUS"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSYNC2",
+                "line": 23,
+                "file": "KYCSYNC2.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause requires updating the Central KYC Records Registry within 7 days. The D2-scoped REGISTRY search returned no matches; the data slice shows elapsed-day input, a call to the SLA check, and status assignments, while that check has no downstream callees. The observed control flow does not perform the required registry update."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days after receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": null,
+        "final_answer": "The clause requires a registry update within 7 days. The observed main flow accepts elapsed days and performs an SLA status check, and the bounded registry search found no registry reference or update action. The required update behavior is missing from the cited flow."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The bounded source evidence shows a status transition based on elapsed days but does not establish a separate contradictory behavior.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days after receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed behavior is a threshold-dependent status transition; this hunt does not establish a distinct contradiction beyond boundary timing.",
+        "final_answer": "The source evidence shows an SLA status transition based on elapsed days, without a separate contradictory condition established for this hunt."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied clause value is a duration, and the bounded source observations show no reference enumeration to compare.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days after receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 requires an enum_set reference collection, while the supplied clause value is a 7-day duration.",
+        "final_answer": "The supplied 7-day duration does not provide an enum_set reference collection for a D4 stale-enumeration finding."
+      },
+      "D5_boundary_error": {
+        "kind": "finding",
+        "thought": "The check compares elapsed days with 7 and marks the SLA overdue on the inclusive boundary.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSYNC2",
+                "paragraph": "2000-CHECK-SLA",
+                "file": "KYCSYNC2.cbl",
+                "line_span": [
+                  27,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-UPD",
+              "WS-SLA-STATUS"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "comparator",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSYNC2",
+                "line": 27,
+                "file": "KYCSYNC2.cbl"
+              },
+              {
+                "program": "KYCSYNC2",
+                "line": 28,
+                "file": "KYCSYNC2.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause's at_most 7-day window includes day 7. The source uses >= with the literal 7 and moves the status to OVERDUE on that branch, so the transition occurs on day 7 rather than after the allowed window."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days after receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "7",
+          "comparator": ">=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The clause allows updates within 7 days, including day 7. The source's >= 7 branch sets the status to OVERDUE on day 7, so it marks the case overdue one day early."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The bounded call graph shows 2000-CHECK-SLA is called from 1000-MAIN.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days after receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed compliance check is reachable from the main paragraph, and no disabled guard was established.",
+        "final_answer": "The observed check is called from the main paragraph, so the bounded evidence does not support a dead-code finding."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The source contains an elapsed-day check, but the inclusive comparator does not match the clause's allowed 7-day window.",
+        "prediction": null,
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days after receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "A check is present, but its >= 7 transition does not match the clause's inclusive 7-day boundary; conformance is not supported.",
+        "final_answer": "The source has a 7-day check, but it marks the case overdue at day 7. That does not match the clause's allowance through day 7, so a conformant verdict is unsupported."
+      }
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "instance_id": "drift_783728",
+  "gold": {
+    "instance_id": "drift_783728",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            21,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-BO-THRESHOLD",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at BOIDENT2:<source>:21-21; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "BOIDENT2.cbl",
+      "mutation": "MO-0; locus=BOIDENT2:<source>:21-21; old='01  FILLER                    PIC X(7) VALUE SPACES.'; new='01  FILLER                    PIC X(12) VALUE SPACES.'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"score\":0.9192063751120164}],\"program\":\"FILE BOIDENT2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. BOIDENT2.\\n0003:       *----------------------------------------------------------------\\n0004:       * BENEFICIAL OWNER IDENTIFICATION - PARTNERSHIP FIRMS\\n0005:       * OWNERSHIP/ENTITLEMENT ABOVE 10 PER CENT OF CAPITAL OR\\n0006:       * PROFITS, OR CONTROL THROUGH OTHER MEANS\\n0007:       *----------------------------------------------------------------\\n0008:        ENVIRONMENT DIVISION.\\n0009:        DATA DIVISION.\\n0010:        WORKING-STORAGE SECTION.\\n0011:        01  WS-PARTNER-REC.\\n0012:            05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\\n0013:            05  WS-PROFIT-PCT         PIC 9(3)V99 VALUE ZERO.\\n0014:            05  WS-CONTROL-IND        PIC X(1) VALUE 'N'.\\n0015:        01  WS-FLAGS.\\n0016:            05  WS-IS-BO              PIC X(1) VALUE 'N'.\\n0017:        01  WS-CONSTANTS.\\n0018:            05  WS-BO-THRESHOLD       PIC 9(3)V99 VALUE 10.00.\\n0019:        01  WS-RPT-HEADING            PIC X(7)\\n0020:            VALUE SPACES.\\nFILE BOIDENT2.cbl LINES 21-35\\n0021:        01  FILLER                    PIC X(12) VALUE SPACES.\\n0022:        PROCEDURE DIVISION.\\n0023:        1000-MAIN.\\n0024:            ACCEPT WS-CAPITAL-PCT\\n0025:            ACCEPT WS-PROFIT-PCT\\n0026:            ACCEPT WS-CONTROL-IND\\n0027:            PERFORM 2000-IDENTIFY-BO\\n0028:            DISPLAY 'BO: ' WS-IS-BO\\n0029:            STOP RUN.\\n0030:        2000-IDENTIFY-BO.\\n0031:            IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n0032:               OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n0033:               OR WS-CONTROL-IND = 'Y'\\n0034:               MOVE 'Y' TO WS-IS-BO\\n0035:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The source sets the threshold to 10.00 and uses a strictly-greater comparison for capital and profit percentages, matching the retrieved clause’s more-than-10-percent criterion.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_78...atches that criterion.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_78...atches that criterion.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The source sets the threshold to 10.00 and uses a strictly-greater comparison for capital and profit percentages, matching the retrieved clause’s more-than-10-percent criterion.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"BOIDENT2\",\"paragraph\":null,\"file\":\"BOIDENT2.cbl\",\"line_span\":[18,18]},{\"program\":\"BOIDENT2\",\"paragraph\":\"2000-IDENTIFY-BO\",\"file\":\"BOIDENT2.cbl\",\"line_span\":[31,32]}],\"slice_vars\":[\"WS-BO-THRESHOLD\",\"WS-CAPITAL-PCT\",\"WS-PROFIT-PCT\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[{\"program\":\"BOIDENT2\",\"line\":18,\"file\":\"BOIDENT2.cbl\"},{\"program\":\"BOIDENT2\",\"line\":31,\"file\":\"BOIDENT2.cbl\"},{\"program\":\"BOIDENT2\",\"line\":32,\"file\":\"BOIDENT2.cbl\"}]},\"rationale\":\"RBI-KYC-Directions-2025 clause 5(iv)(b) requires more than 10 percent of capital or profits. BOIDENT2.cbl sets WS-BO-THRESHOLD to 10.00 at line 18 and uses a strictly-greater comparison for both percentages at lines 31–32, which matches that criterion.\"},\"claim\":\"For partnership firms, a beneficial owner is a natural person with ownership of or entitlement to more than 10 percent of capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"10.00\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Clause 5(iv)(b) requires more than 10 percent ownership or entitlement. BOIDENT2.cbl uses a 10.00 threshold and a strictly-greater comparison for capital and profit percentages, matching that criterion.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_78...atches that criterion.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_78...atches that criterion.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_78...atches that criterion.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "1c695bfa78f119cc4aeef414dceed9a04f037a1b4db40ee8c9d4cea48e2e18a5",
+  "run_key": "acf2390dbf92f52d6fa8ea9183d6cd884031b3b65c4cd9875a782d06ba9a4024"
+}

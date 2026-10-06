@@ -1,0 +1,335 @@
+{
+  "instance_id": "drift_110019",
+  "gold": {
+    "instance_id": "drift_110019",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "Section 3(a)(iv)(b)",
+      "version": "2016-02-25",
+      "effective_date": "2016-02-25",
+      "text": "Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+      "current_value": {
+        "kind": "percentage",
+        "value": 15,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO05",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            6,
+            9
+          ]
+        },
+        {
+          "program": "T6BO05",
+          "paragraph": "2400-SET-REVIEW-CODE",
+          "file": null,
+          "line_span": [
+            16,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PARTNER-PCT",
+        "LEGACY-BO-RANGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "WS-PARTNER-PCT is an integer-only field (PIC 9(3), no decimal places), and 88-level LEGACY-BO-RANGE is declared VALUE 16 THRU 100 (line 8). Within this integer domain, 16 is the smallest value strictly greater than 15, so the range correctly implements the 2016 clause's strictly_greater 15 percent threshold for integer inputs.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6BO05.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110019",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO05",
+          "paragraph": null,
+          "file": "T6BO05.cbl",
+          "line_span": [
+            8,
+            8
+          ]
+        },
+        {
+          "program": "T6BO05",
+          "paragraph": "2400-SET-REVIEW-CODE",
+          "file": "T6BO05.cbl",
+          "line_span": [
+            17,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PARTNER-PCT",
+        "LEGACY-BO-RANGE",
+        "WS-REVIEW-CODE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO05",
+          "line": 8,
+          "file": "T6BO05.cbl"
+        },
+        {
+          "program": "T6BO05",
+          "line": 17,
+          "file": "T6BO05.cbl"
+        }
+      ]
+    },
+    "rationale": "The selected clause requires identifying a partnership beneficial owner when ownership or entitlement is more than 10 percent. The 88-level condition accepts only 16 through 100, and the procedure uses that condition to set the beneficial-owner code. A value of 12 therefore falls through to PASS despite exceeding the regulatory threshold."
+  },
+  "confidence": 0.95,
+  "verification": {
+    "verified": true,
+    "tier": 1,
+    "evidence": "ran T6BO05; observed 'PASS' in output ('PASS')",
+    "citation_ok": true,
+    "entailment_probability": 0.9941,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "verified",
+        "detail": "ran T6BO05; observed 'PASS' in output ('PASS')"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: RAG+reranker single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"score\":8.301251411437988}],\"program\":\"FILE T6BO05.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6BO05.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-BO-REVIEW.\\n0007:            05  WS-PARTNER-PCT        PIC 9(3) VALUE ZERO.\\n0008:                88  LEGACY-BO-RANGE  VALUE 16 THRU 100.\\n0009:            05  WS-REVIEW-CODE        PIC X(4) VALUE 'PASS'.\\n0010:        PROCEDURE DIVISION.\\n0011:        1000-MAIN.\\n0012:            ACCEPT WS-PARTNER-PCT\\n0013:            PERFORM 2400-SET-REVIEW-CODE\\n0014:            DISPLAY WS-REVIEW-CODE\\n0015:            STOP RUN.\\n0016:        2400-SET-REVIEW-CODE.\\n0017:            IF LEGACY-BO-RANGE\\n0018:               MOVE 'BO' TO WS-REVIEW-CODE\\n0019:            ELSE\\n0020:               MOVE 'PASS' TO WS-REVIEW-CODE\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The visible clause sets the partnership beneficial-owner threshold at more than 10 percent. The code marks only values 16 through 100 as beneficial owners, so values from 11 through 15 are missed.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110019",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO05",
+                "paragraph": null,
+                "file": "T6BO05.cbl",
+                "line_span": [
+                  8,
+                  8
+                ]
+              },
+              {
+                "program": "T6BO05",
+                "paragraph": "2400-SET-REVIEW-CODE",
+                "file": "T6BO05.cbl",
+                "line_span": [
+                  17,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-PARTNER-PCT",
+              "LEGACY-BO-RANGE",
+              "WS-REVIEW-CODE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO05",
+                "line": 8,
+                "file": "T6BO05.cbl"
+              },
+              {
+                "program": "T6BO05",
+                "line": 17,
+                "file": "T6BO05.cbl"
+              }
+            ]
+          },
+          "rationale": "The selected clause requires identifying a partnership beneficial owner when ownership or entitlement is more than 10 percent. The 88-level condition accepts only 16 through 100, and the procedure uses that condition to set the beneficial-owner code. A value of 12 therefore falls through to PASS despite exceeding the regulatory threshold."
+        },
+        "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+        "exec_probe": {
+          "stdin": "12\n",
+          "expect_substring": "PASS",
+          "description": "Check the current branch output for a partner percentage between 10 and 15 percent."
+        },
+        "static_claim": {
+          "literal": "16 THRU 100",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D1_stale_threshold: the clause sets the threshold at more than 10 percent, while T6BO05 marks only 16 through 100 as beneficial owners. A value of 12 consequently produces PASS, missing a person who exceeds the clause threshold.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible clause sets the partnership beneficial-owner threshold at more than 10 percent. The code marks only values 16 through 100 as beneficial owners, so values from 11 through 15 are missed.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO05\",\"paragraph\":null,\"file\":\"T6BO05.cbl\",\"line_span\":[8,8]},{\"program\":\"T6BO05\",\"paragraph\":\"2400-SET-REVIEW-CODE\",\"file\":\"T6BO05.cbl\",\"line_span\":[17,20]}],\"slice_vars\":[\"WS-PARTNER-PCT\",\"LEGACY-BO-RANGE\",\"WS-REVIEW-CODE\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO05\",\"line\":8,\"file\":\"T6BO05.cbl\"},{\"program\":\"T6BO05\",\"line\":17,\"file\":\"T6BO05.cbl\"}]},\"rationale\":\"The selected clause requires identifying a partnership beneficial owner when ownership or entitlement is more than 10 percent. The 88-level condition accepts only 16 through 100, and the procedure uses that condition to set the beneficial-owner code. A value of 12 therefore falls through to PASS despite exceeding the regulatory threshold.\"},\"claim\":\"For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.\",\"exec_probe\":{\"stdin\":\"12\\n\",\"expect_substring\":\"PASS\",\"description\":\"Check the current branch output for a partner percentage between 10 and 15 percent.\"},\"static_claim\":{\"literal\":\"16 THRU 100\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"D1_stale_threshold: the clause sets the threshold at more than 10 percent, while T6BO05 marks only 16 through 100 as beneficial owners. A value of 12 consequently produces PASS, missing a person who exceeds the clause threshold.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 1,
+      "evidence": "ran T6BO05; observed 'PASS' in output ('PASS')",
+      "citation_ok": true,
+      "entailment_probability": 0.9941,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "verified",
+          "detail": "ran T6BO05; observed 'PASS' in output ('PASS')"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110019",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "5(iv)(b)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "current_value": {
+          "kind": "percentage",
+          "value": 10,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6BO05",
+            "paragraph": null,
+            "file": "T6BO05.cbl",
+            "line_span": [
+              8,
+              8
+            ]
+          },
+          {
+            "program": "T6BO05",
+            "paragraph": "2400-SET-REVIEW-CODE",
+            "file": "T6BO05.cbl",
+            "line_span": [
+              17,
+              20
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-PARTNER-PCT",
+          "LEGACY-BO-RANGE",
+          "WS-REVIEW-CODE"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6BO05",
+            "line": 8,
+            "file": "T6BO05.cbl"
+          },
+          {
+            "program": "T6BO05",
+            "line": 17,
+            "file": "T6BO05.cbl"
+          }
+        ]
+      },
+      "rationale": "The selected clause requires identifying a partnership beneficial owner when ownership or entitlement is more than 10 percent. The 88-level condition accepts only 16 through 100, and the procedure uses that condition to set the beneficial-owner code. A value of 12 therefore falls through to PASS despite exceeding the regulatory threshold."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "D1_stale_threshold: the clause sets the threshold at more than 10 percent, while T6BO05 marks only 16 through 100 as beneficial owners. A value of 12 consequently produces PASS, missing a person who exceeds the clause threshold.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_reranker",
+  "source_sha256": "8766acc56226b751dc6eef49f9c44f3bdae9f003e4e7a7b9884203918efeb7e3",
+  "run_key": "ed6358ed5b396dda211ddfc746e5fc6dfe556fb68bf9bb3f0381a7e18ded252c"
+}

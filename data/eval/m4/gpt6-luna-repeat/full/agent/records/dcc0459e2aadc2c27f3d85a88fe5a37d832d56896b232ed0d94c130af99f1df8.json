@@ -1,0 +1,801 @@
+{
+  "instance_id": "drift_724883",
+  "gold": {
+    "instance_id": "drift_724883",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "12(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "explicit_consent_before_overlimit",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "TRNVAL1",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            16,
+            17
+          ]
+        },
+        {
+          "program": "TRNVAL1",
+          "paragraph": "2000-VALIDATE",
+          "file": null,
+          "line_span": [
+            23,
+            23
+          ]
+        },
+        {
+          "program": "TRNVAL1",
+          "paragraph": "2000-VALIDATE",
+          "file": null,
+          "line_span": [
+            26,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-FAIL-REASON",
+        "WS-LIMIT",
+        "WS-PROJ-BAL",
+        "WS-POSTED"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "TRNVAL1",
+          "line": 16,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-3× changes 'IF WS-FAIL-REASON = ZERO' to 'OR WS-LIMIT = ZERO' at TRNVAL1:1000-MAIN:16-17+TRNVAL1:2000-VALIDATE:23-23+TRNVAL1:2000-VALIDATE:26-26, producing D3_contradictory.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "TRNVAL1.cbl",
+      "mutation": "MO-3×; locus=TRNVAL1:1000-MAIN:16-17+TRNVAL1:2000-VALIDATE:23-23+TRNVAL1:2000-VALIDATE:26-26; old='IF WS-FAIL-REASON = ZERO'; new='OR WS-LIMIT = ZERO'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: TRNVAL1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 12(5) (version 2025-11-28, effective 2025-11-28): The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "TRNVAL1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 29, \"line_start\": 12, \"name\": \"1000-MAIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\4235798071cf1fa4d2a7e1d5caf4ae09d4687e30cea1098d9182b23a2bd024c2\\\\cases\\\\drift_900000\\\\TRNVAL1.cbl\", \"program\": \"TRNVAL1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "TRNVAL1",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-LIMIT\\n           ACCEPT WS-PROJ-BAL\\n           PERFORM 2000-VALIDATE\\n           OR WS-LIMIT = ZERO\\n              PERFORM 3000-POST\\n           END-IF\\n           DISPLAY 'POSTED: ' WS-POSTED\\n           STOP RUN.\\n       2000-VALIDATE.\\n           IF WS-LIMIT >= WS-PROJ-BAL\\n              CONTINUE\\n           ELSE\\n              MOVE 102 TO WS-FAIL-REASON\\n           END-IF.\\n       3000-POST.\\n           MOVE 'Y' TO WS-POSTED.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 29, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"TRNVAL1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-LIMIT"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 7, \"program\": \"TRNVAL1\", \"text\": \"       01  WS-LIMIT                  PIC 9(9)V99 VALUE ZERO.\"}, {\"line\": 13, \"program\": \"TRNVAL1\", \"text\": \"           ACCEPT WS-LIMIT\"}, {\"line\": 16, \"program\": \"TRNVAL1\", \"text\": \"           OR WS-LIMIT = ZERO\"}, {\"line\": 22, \"program\": \"TRNVAL1\", \"text\": \"           IF WS-LIMIT >= WS-PROJ-BAL\"}], \"pattern\": \"WS-LIMIT\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+        "final_answer": "Abstain: Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.\",\"final_answer\":\"Abstain: Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: TRNVAL1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 12(5) (version 2025-11-28, effective 2025-11-28): The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "TRNVAL1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 29, \"line_start\": 12, \"name\": \"1000-MAIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\4235798071cf1fa4d2a7e1d5caf4ae09d4687e30cea1098d9182b23a2bd024c2\\\\cases\\\\drift_900000\\\\TRNVAL1.cbl\", \"program\": \"TRNVAL1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "TRNVAL1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-LIMIT\\n           ACCEPT WS-PROJ-BAL\\n           PERFORM 2000-VALIDATE\\n           OR WS-LIMIT = ZERO\\n              PERFORM 3000-POST\\n           END-IF\\n           DISPLAY 'POSTED: ' WS-POSTED\\n           STOP RUN.\\n       2000-VALIDATE.\\n           IF WS-LIMIT >= WS-PROJ-BAL\\n              CONTINUE\\n           ELSE\\n              MOVE 102 TO WS-FAIL-REASON\\n           END-IF.\\n       3000-POST.\\n           MOVE 'Y' TO WS-POSTED.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 29, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"TRNVAL1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-LIMIT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 7, \"program\": \"TRNVAL1\", \"text\": \"       01  WS-LIMIT                  PIC 9(9)V99 VALUE ZERO.\"}, {\"line\": 13, \"program\": \"TRNVAL1\", \"text\": \"           ACCEPT WS-LIMIT\"}, {\"line\": 16, \"program\": \"TRNVAL1\", \"text\": \"           OR WS-LIMIT = ZERO\"}, {\"line\": 22, \"program\": \"TRNVAL1\", \"text\": \"           IF WS-LIMIT >= WS-PROJ-BAL\"}], \"pattern\": \"WS-LIMIT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+            "final_answer": "Abstain: Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.\",\"final_answer\":\"Abstain: Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: TRNVAL1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 12(5) (version 2025-11-28, effective 2025-11-28): The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "CONSENT"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"CONSENT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "TRNVAL1",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "TRNVAL1",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "program": "TRNVAL1",
+              "var": "WS-CONSENT"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [], \"scoped_program\": \"TRNVAL1\", \"statements\": [], \"variable\": \"WS-CONSENT\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The four reserved absence observations are negative, but the source also marks an over-limit failure and has a posting path that bypasses that state. The frozen routing rule assigns that positive conflict to D3.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The four reserved absence observations are negative, but the source also marks an over-limit failure and has a posting path that bypasses that state. The frozen routing rule assigns that positive conflict to D3.",
+            "final_answer": "Abstain: The four reserved absence observations are negative, but the source also marks an over-limit failure and has a posting path that bypasses that state. The frozen routing rule assigns that positive conflict to D3.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The four reserved absence observations are negative, but the source also marks an over-limit failure and has a posting path that bypasses that state. The frozen routing rule assigns that positive conflict to D3.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The four reserved absence observations are negative, but the source also marks an over-limit failure and has a posting path that bypasses that state. The frozen routing rule assigns that positive conflict to D3.\",\"final_answer\":\"Abstain: The four reserved absence observations are negative, but the source also marks an over-limit failure and has a posting path that bypasses that state. The frozen routing rule assigns that positive conflict to D3.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The four reserved absence observations are negative, but the source also marks an over-limit failure and has a posting path that bypasses that state. The frozen routing rule assigns that positive conflict to D3.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The four reserved absence observations are negative, but the source also marks an over-limit failure and has a posting path that bypasses that state. The frozen routing rule assigns that positive conflict to D3.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The four reserved absence observations are negative, but the source also marks an over-limit failure and has a posting path that bypasses that state. The frozen routing rule assigns that positive conflict to D3."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: TRNVAL1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 12(5) (version 2025-11-28, effective 2025-11-28): The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "TRNVAL1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 29, \"line_start\": 12, \"name\": \"1000-MAIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\4235798071cf1fa4d2a7e1d5caf4ae09d4687e30cea1098d9182b23a2bd024c2\\\\cases\\\\drift_900000\\\\TRNVAL1.cbl\", \"program\": \"TRNVAL1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "TRNVAL1",
+              "name": "2000-VALIDATE"
+            },
+            "observation_summary": "ToolLookupError: \"unknown paragraph '2000-VALIDATE' in program 'TRNVAL1'\"",
+            "observation_truncated": false,
+            "error": "ToolLookupError: \"unknown paragraph '2000-VALIDATE' in program 'TRNVAL1'\"",
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "TRNVAL1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-LIMIT\\n           ACCEPT WS-PROJ-BAL\\n           PERFORM 2000-VALIDATE\\n           OR WS-LIMIT = ZERO\\n              PERFORM 3000-POST\\n           END-IF\\n           DISPLAY 'POSTED: ' WS-POSTED\\n           STOP RUN.\\n       2000-VALIDATE.\\n           IF WS-LIMIT >= WS-PROJ-BAL\\n              CONTINUE\\n           ELSE\\n              MOVE 102 TO WS-FAIL-REASON\\n           END-IF.\\n       3000-POST.\\n           MOVE 'Y' TO WS-POSTED.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 29, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"TRNVAL1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "trace_variable",
+            "arguments": {
+              "program": "TRNVAL1",
+              "var": "WS-FAIL-REASON"
+            },
+            "observation_summary": "{\"scoped_program\": \"TRNVAL1\", \"sites\": [{\"excerpt\": \"01  WS-FAIL-REASON            PIC 9(3) VALUE ZERO.\", \"kind\": \"def\", \"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"TRNVAL1\"}, \"statement_kind\": \"VALUE-clause\"}], \"variable\": \"WS-FAIL-REASON\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 5,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "TRNVAL1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-LIMIT\\n           ACCEPT WS-PROJ-BAL\\n           PERFORM 2000-VALIDATE\\n           OR WS-LIMIT = ZERO\\n              PERFORM 3000-POST\\n           END-IF\\n           DISPLAY 'POSTED: ' WS-POSTED\\n           STOP RUN.\\n       2000-VALIDATE.\\n           IF WS-LIMIT >= WS-PROJ-BAL\\n              CONTINUE\\n           ELSE\\n              MOVE 102 TO WS-FAIL-REASON\\n           END-IF.\\n       3000-POST.\\n           MOVE 'Y' TO WS-POSTED.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 29, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"TRNVAL1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 6,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-POSTED"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 10, \"program\": \"TRNVAL1\", \"text\": \"       01  WS-POSTED                 PIC X(1) VALUE 'N'.\"}, {\"line\": 19, \"program\": \"TRNVAL1\", \"text\": \"           DISPLAY 'POSTED: ' WS-POSTED\"}, {\"line\": 28, \"program\": \"TRNVAL1\", \"text\": \"           MOVE 'Y' TO WS-POSTED.\"}], \"pattern\": \"WS-POSTED\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "Bounded source observations show an over-limit branch setting WS-FAIL-REASON to 102, followed by a WS-LIMIT = ZERO path that performs 3000-POST and sets WS-POSTED to Y without checking the failure state or cardholder consent.\n[policy telemetry: SourceLocus.file normalized; loci=3; line_refs=5]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_724883",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "12(5)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+                "current_value": {
+                  "kind": "boolean_required",
+                  "value": "explicit_consent_before_overlimit",
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "TRNVAL1",
+                    "paragraph": "1000-MAIN",
+                    "file": null,
+                    "line_span": [
+                      22,
+                      25
+                    ]
+                  },
+                  {
+                    "program": "TRNVAL1",
+                    "paragraph": "1000-MAIN",
+                    "file": null,
+                    "line_span": [
+                      16,
+                      17
+                    ]
+                  },
+                  {
+                    "program": "TRNVAL1",
+                    "paragraph": "1000-MAIN",
+                    "file": null,
+                    "line_span": [
+                      28,
+                      28
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-LIMIT",
+                  "WS-PROJ-BAL",
+                  "WS-FAIL-REASON",
+                  "WS-POSTED"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D3_contradictory",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "TRNVAL1",
+                    "line": 22,
+                    "file": null
+                  },
+                  {
+                    "program": "TRNVAL1",
+                    "line": 25,
+                    "file": null
+                  },
+                  {
+                    "program": "TRNVAL1",
+                    "line": 16,
+                    "file": null
+                  },
+                  {
+                    "program": "TRNVAL1",
+                    "line": 17,
+                    "file": null
+                  },
+                  {
+                    "program": "TRNVAL1",
+                    "line": 28,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The clause requires explicit cardholder consent before any breach of the sanctioned limit. The source sets failure code 102 when projected balance exceeds the limit, but its zero-limit path calls the post routine without checking that failure state or consent; the post routine sets the posted flag to Y. A zero limit with a positive projected balance therefore allows an over-limit post without the required consent."
+            },
+            "claim": "The sanctioned credit limit shall not be breached at any point in time without the cardholder's explicit consent.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "102",
+              "comparator": ">=",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The source marks projected balances above the limit as failure, yet the zero-limit path proceeds to posting without checking that state or explicit consent. That permits an over-limit post and contradicts the clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"Bounded source observations show an over-limit branch setting WS-FAIL-REASON to 102, followed by a WS-LIMIT = ZERO path that performs 3000-POST and sets WS-POSTED to Y without checking the failure state or cardholder consent.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"TRNVAL1\",\"paragraph\":\"1000-MAIN\",\"file\":\"TRNVAL1.cbl\",\"line_span\":[22,25]},{\"program\":\"TRNVAL1\",\"paragraph\":\"1000-MAIN\",\"file\":\"TRNVAL1.cbl\",\"line_span\":[16,17]},{\"program\":\"TRNVAL1\",\"paragraph\":\"1000-MAIN\",\"file\":\"TRNVAL1.cbl\",\"line_span\":[28,28]}],\"slice_vars\":[\"WS-LIMIT\",\"WS-PROJ-BAL\",\"WS-FAIL-REASON\",\"WS-POSTED\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"TRNVAL1\",\"line\":22,\"file\":\"TRNVAL1.cbl\"},{\"program\":\"TRNVAL1\",\"line\":25,\"file\":\"TRNVAL1.cbl\"},{\"program\":\"TRNVAL1\",\"line\":16,\"file\":\"TRNVAL1.cbl\"},{\"program\":\"TRNVAL1\",\"line\":17,\"file\":\"TRNVAL1.cbl\"},{\"program\":\"TRNVAL1\",\"line\":28,\"file\":\"TRNVAL1.cbl\"}]},\"rationale\":\"The clause requires explicit cardholder consent before any breach of the sanctioned limit. The source sets failure code 102 when projected balance exceeds the limit, but its zero-limit path calls the post routine without checking that failure state or consent; the post routine sets the posted flag to Y. A zero limit with a positive projected balance therefore allows an over-limit post without the required consent.\"},\"claim\":\"The sanctioned credit limit shall not be breached at any point in time without the cardholder's explicit consent.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"102\",\"comparator\":\">=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The source marks projected balances above the limit as failure, yet the zero-limit path proceeds to posting without checking that state or explicit consent. That permits an over-limit post and contradicts the clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: D3 rationale must name the conflicting outcomes",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: D3 rationale must name the conflicting outcomes",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: D3 rationale must name the conflicting outcomes"
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: TRNVAL1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 12(5) (version 2025-11-28, effective 2025-11-28): The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current value is boolean_required, not an enum_set reference collection; no stale enumeration can be established under D4.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The supplied current value is boolean_required, not an enum_set reference collection; no stale enumeration can be established under D4.",
+            "final_answer": "Abstain: The supplied current value is boolean_required, not an enum_set reference collection; no stale enumeration can be established under D4.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value is boolean_required, not an enum_set reference collection; no stale enumeration can be established under D4.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied current value is boolean_required, not an enum_set reference collection; no stale enumeration can be established under D4.\",\"final_answer\":\"Abstain: The supplied current value is boolean_required, not an enum_set reference collection; no stale enumeration can be established under D4.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: TRNVAL1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 12(5) (version 2025-11-28, effective 2025-11-28): The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "TRNVAL1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 29, \"line_start\": 12, \"name\": \"1000-MAIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\4235798071cf1fa4d2a7e1d5caf4ae09d4687e30cea1098d9182b23a2bd024c2\\\\cases\\\\drift_900000\\\\TRNVAL1.cbl\", \"program\": \"TRNVAL1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "TRNVAL1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-LIMIT\\n           ACCEPT WS-PROJ-BAL\\n           PERFORM 2000-VALIDATE\\n           OR WS-LIMIT = ZERO\\n              PERFORM 3000-POST\\n           END-IF\\n           DISPLAY 'POSTED: ' WS-POSTED\\n           STOP RUN.\\n       2000-VALIDATE.\\n           IF WS-LIMIT >= WS-PROJ-BAL\\n              CONTINUE\\n           ELSE\\n              MOVE 102 TO WS-FAIL-REASON\\n           END-IF.\\n       3000-POST.\\n           MOVE 'Y' TO WS-POSTED.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 29, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"TRNVAL1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-LIMIT"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 7, \"program\": \"TRNVAL1\", \"text\": \"       01  WS-LIMIT                  PIC 9(9)V99 VALUE ZERO.\"}, {\"line\": 13, \"program\": \"TRNVAL1\", \"text\": \"           ACCEPT WS-LIMIT\"}, {\"line\": 16, \"program\": \"TRNVAL1\", \"text\": \"           OR WS-LIMIT = ZERO\"}, {\"line\": 22, \"program\": \"TRNVAL1\", \"text\": \"           IF WS-LIMIT >= WS-PROJ-BAL\"}], \"pattern\": \"WS-LIMIT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observed comparison permits projected balance at or below the limit and rejects a larger balance, so the boundary itself is not shown to transition early or late. The consent bypass is the D3 conflict.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The observed comparison permits projected balance at or below the limit and rejects a larger balance, so the boundary itself is not shown to transition early or late. The consent bypass is the D3 conflict.",
+            "final_answer": "Abstain: The observed comparison permits projected balance at or below the limit and rejects a larger balance, so the boundary itself is not shown to transition early or late. The consent bypass is the D3 conflict.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed comparison permits projected balance at or below the limit and rejects a larger balance, so the boundary itself is not shown to transition early or late. The consent bypass is the D3 conflict.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The observed comparison permits projected balance at or below the limit and rejects a larger balance, so the boundary itself is not shown to transition early or late. The consent bypass is the D3 conflict.\",\"final_answer\":\"Abstain: The observed comparison permits projected balance at or below the limit and rejects a larger balance, so the boundary itself is not shown to transition early or late. The consent bypass is the D3 conflict.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The observed comparison permits projected balance at or below the limit and rejects a larger balance, so the boundary itself is not shown to transition early or late. The consent bypass is the D3 conflict.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The observed comparison permits projected balance at or below the limit and rejects a larger balance, so the boundary itself is not shown to transition early or late. The consent bypass is the D3 conflict.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The observed comparison permits projected balance at or below the limit and rejects a larger balance, so the boundary itself is not shown to transition early or late. The consent bypass is the D3 conflict."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: TRNVAL1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 12(5) (version 2025-11-28, effective 2025-11-28): The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "This hunt has no positive evidence of an unreachable paragraph or a compliance branch disabled by an always-false or default-off guard; deadness is not established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "This hunt has no positive evidence of an unreachable paragraph or a compliance branch disabled by an always-false or default-off guard; deadness is not established.",
+            "final_answer": "Abstain: This hunt has no positive evidence of an unreachable paragraph or a compliance branch disabled by an always-false or default-off guard; deadness is not established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"This hunt has no positive evidence of an unreachable paragraph or a compliance branch disabled by an always-false or default-off guard; deadness is not established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"This hunt has no positive evidence of an unreachable paragraph or a compliance branch disabled by an always-false or default-off guard; deadness is not established.\",\"final_answer\":\"Abstain: This hunt has no positive evidence of an unreachable paragraph or a compliance branch disabled by an always-false or default-off guard; deadness is not established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D6_dead_code",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D6_dead_code",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D6_dead_code"
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: TRNVAL1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 12(5) (version 2025-11-28, effective 2025-11-28): The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "This hunt has no positive source evidence that an explicit-consent check exists and matches the clause, so conformance cannot be established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "This hunt has no positive source evidence that an explicit-consent check exists and matches the clause, so conformance cannot be established.",
+            "final_answer": "Abstain: This hunt has no positive source evidence that an explicit-consent check exists and matches the clause, so conformance cannot be established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"This hunt has no positive source evidence that an explicit-consent check exists and matches the clause, so conformance cannot be established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"This hunt has no positive source evidence that an explicit-consent check exists and matches the clause, so conformance cannot be established.\",\"final_answer\":\"Abstain: This hunt has no positive source evidence that an explicit-consent check exists and matches the clause, so conformance cannot be established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant"
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "Bounded TRNVAL1 observations show a numeric limit comparison and outcome literals, but no source literal that can be compared with the resolved explicit-consent-before-overlimit value; a stale threshold is not established.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "159ebc656b178df4d6cf1a37b47582698fc667a01ab48c7890c9f74a27dcc5dc",
+  "run_key": "dcc0459e2aadc2c27f3d85a88fe5a37d832d56896b232ed0d94c130af99f1df8"
+}

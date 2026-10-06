@@ -1,0 +1,82 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 3,
+          "observation_sha256": "fa7f5a336d0aa788e9a1037b70a325b63b67d8eca8fe91383bf2a5f3e2310ff7",
+          "hypothesis": "D3_contradictory",
+          "bearing": "context",
+          "rationale": "The bounded program index identifies 1000-MAIN and 2000-ASSESS as the program paragraphs, focusing the compliance review on the assessment routine; the index alone does not establish its behavior."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "475e2a287c9715f2a9ca829a8461372847c05808a0c3fda81c5c709acb78e665",
+          "hypothesis": "D3_contradictory",
+          "bearing": "supports",
+          "rationale": "Reachable 2000-ASSESS computes the charge from WS-TOTAL-AMT-DUE and enters the charge branch whenever WS-DAYS-PAST-DUE is greater than zero, directly conflicting with the required outstanding-after-due-date base and more-than-three-day trigger."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "51caf334d81eaca284e713b23809d4af5b6e7246d1dad691969b79e3d9b662ac",
+          "hypothesis": "D3_contradictory",
+          "bearing": "supports",
+          "rationale": "1000-MAIN accepts both the total due and outstanding amount, performs 2000-ASSESS, and displays the resulting charge, confirming the conflicting computation is on the live path."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The assessment routine has a reachable charge computation that uses the prohibited total-due base and permits the charge branch for any positive days-past-due value.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": null,
+                "line_span": [
+                  26,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-PAST-DUE",
+              "WS-TOTAL-AMT-DUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": "charge_base",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 26,
+                "file": null
+              },
+              {
+                "program": "LATEFEE1",
+                "line": 28,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The clause's charge_base leaf requires outstanding_after_due_date. Reachable 2000-ASSESS calculates WS-LATE-CHARGE as WS-LATE-RATE multiplied by WS-TOTAL-AMT-DUE, despite accepting WS-OUTSTANDING-AMT; its positive-day condition also permits charges during days 1 through 3. These source actions positively contradict the required charge base and grace period."
+        },
+        "claim": "A card account may be reported past-due to CICs or levied penal charges only when it has been past due for more than three days; days-past-due and late charges are computed from the payment due date, and late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "WS-TOTAL-AMT-DUE",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "LATEFEE1 computes the reachable late charge from WS-TOTAL-AMT-DUE whenever WS-DAYS-PAST-DUE is greater than zero. This uses the prohibited charge base and allows the charge branch within the three-day grace period."
+      }
+    }
+  ]
+}

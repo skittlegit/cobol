@@ -1,0 +1,111 @@
+{
+  "instance_id": "drift_110019",
+  "gold": {
+    "instance_id": "drift_110019",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "Section 3(a)(iv)(b)",
+      "version": "2016-02-25",
+      "effective_date": "2016-02-25",
+      "text": "Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+      "current_value": {
+        "kind": "percentage",
+        "value": 15,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO05",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            6,
+            9
+          ]
+        },
+        {
+          "program": "T6BO05",
+          "paragraph": "2400-SET-REVIEW-CODE",
+          "file": null,
+          "line_span": [
+            16,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PARTNER-PCT",
+        "LEGACY-BO-RANGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "WS-PARTNER-PCT is an integer-only field (PIC 9(3), no decimal places), and 88-level LEGACY-BO-RANGE is declared VALUE 16 THRU 100 (line 8). Within this integer domain, 16 is the smallest value strictly greater than 15, so the range correctly implements the 2016 clause's strictly_greater 15 percent threshold for integer inputs.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6BO05.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Master-Direction-2016\",\"clause_id\":\"Section 3(a)(iv)(b)\",\"version\":\"2016-02-25\",\"effective_date\":\"2016-02-25\",\"text\":\"Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.\",\"current_value\":{\"kind\":\"percentage\",\"value\":15,\"comparator\":\"strictly_greater\",\"note\":null}},\"program\":\"FILE T6BO05.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6BO05.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-BO-REVIEW.\\n0007:            05  WS-PARTNER-PCT        PIC 9(3) VALUE ZERO.\\n0008:                88  LEGACY-BO-RANGE  VALUE 16 THRU 100.\\n0009:            05  WS-REVIEW-CODE        PIC X(4) VALUE 'PASS'.\\n0010:        PROCEDURE DIVISION.\\n0011:        1000-MAIN.\\n0012:            ACCEPT WS-PARTNER-PCT\\n0013:            PERFORM 2400-SET-REVIEW-CODE\\n0014:            DISPLAY WS-REVIEW-CODE\\n0015:            STOP RUN.\\n0016:        2400-SET-REVIEW-CODE.\\n0017:            IF LEGACY-BO-RANGE\\n0018:               MOVE 'BO' TO WS-REVIEW-CODE\\n0019:            ELSE\\n0020:               MOVE 'PASS' TO WS-REVIEW-CODE\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible threshold condition accepts whole-number percentages from 16 through 100 and marks them as BO, matching the clause’s more-than-15-percent threshold.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_11...eshold logic conforms.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_11...eshold logic conforms.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible threshold condition accepts whole-number percentages from 16 through 100 and marks them as BO, matching the clause’s more-than-15-percent threshold.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO05\",\"paragraph\":null,\"file\":\"T6BO05.cbl\",\"line_span\":[8,8]},{\"program\":\"T6BO05\",\"paragraph\":\"2400-SET-REVIEW-CODE\",\"file\":\"T6BO05.cbl\",\"line_span\":[17,20]}],\"slice_vars\":[\"WS-PARTNER-PCT\",\"LEGACY-BO-RANGE\",\"WS-REVIEW-CODE\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[{\"program\":\"T6BO05\",\"line\":8,\"file\":\"T6BO05.cbl\"},{\"program\":\"T6BO05\",\"line\":17,\"file\":\"T6BO05.cbl\"},{\"program\":\"T6BO05\",\"line\":18,\"file\":\"T6BO05.cbl\"}]},\"rationale\":\"The clause sets the partnership beneficial-owner threshold at strictly more than 15 percent. The PIC 9(3) field is whole-number numeric, and the 16 THRU 100 condition marks those values as BO, so the visible threshold logic conforms.\"},\"claim\":\"For a partnership firm, a beneficial owner is a natural person who, alone or together or through one or more juridical persons, owns or is entitled to more than 15 percent of the capital or profits.\",\"exec_probe\":{\"stdin\":\"16\\n\",\"expect_substring\":\"BO\",\"description\":\"Confirm that the first whole-number percentage above 15 is classified as BO.\"},\"static_claim\":{\"literal\":\"16\",\"comparator\":\"THRU\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause requires more than 15 percent. The visible whole-number range begins at 16 and marks values through 100 as BO, matching that threshold.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_11...eshold logic conforms.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_11...eshold logic conforms.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_11...eshold logic conforms.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "8766acc56226b751dc6eef49f9c44f3bdae9f003e4e7a7b9884203918efeb7e3",
+  "run_key": "2c0c25d51f2173e8b17fbe4cf32600d78779c538f363b4e73fbfcd205369c994"
+}

@@ -1,0 +1,164 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The observed source literals 7 and 500 match the clause's closure-window and penalty leaves, so the bounded evidence does not establish a stale threshold.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No source literal was found that differs from the resolved clause values for the seven-day window or Rs 500 penalty.",
+        "final_answer": "The source uses 7 for the closure threshold and 500 as the daily multiplier, matching the corresponding clause leaves; no stale literal is evidenced."
+      },
+      "D2_missing_rule": {
+        "kind": "finding",
+        "thought": "The main paragraph has no outstanding-balance test, and the scoped grep and data slice for OUTSTANDING returned no source state or check.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLSRUN7",
+                "paragraph": "1000-MAIN",
+                "file": "CLSRUN7.cbl",
+                "line_span": [
+                  15,
+                  16
+                ]
+              }
+            ],
+            "slice_vars": [
+              "OUTSTANDING"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLSRUN7",
+                "line": 16,
+                "file": "CLSRUN7.cbl"
+              }
+            ]
+          },
+          "rationale": "In 1000-MAIN, the penalty path checks CLOSURE-PENALTY-ON and WS-CLOSE-DAYS > 7 before calculating the amount. The bounded OUTSTANDING grep and data slice returned no corresponding state or condition, so the code cannot restrict that penalty path to the clause's no-outstanding case. The insertion point is the delayed-closure branch at line 16."
+        },
+        "claim": "The clause requires closure within 7 working days and a penalty of at least Rs 500 per calendar day of delay until closure when no outstanding amount exists.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": null,
+        "final_answer": "The clause conditions the daily penalty on there being no outstanding amount. The relevant paragraph tests the penalty flag and whether WS-CLOSE-DAYS exceeds 7, but the bounded grep and slice found no outstanding-balance state or condition; the missing check belongs at the delayed-closure branch."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The evidence shows a penalty calculation but no source state proving that it bypasses an outstanding-balance decision; the missing qualifier is supported as an absence.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No positive source behavior was established that contradicts a populated outstanding-balance state or denial.",
+        "final_answer": "The source evidence does not show a concrete outstanding-balance state being ignored by a reachable action, so a positive contradiction is not established."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The clause's enum_set day-basis value is nested inside a composite current_value, outside D4's reference-collection scope.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only when the clause current_value itself is an enum_set reference collection; this clause supplies a composite value.",
+        "final_answer": "The source contains the 500 multiplier, but the clause's calendar_day enum is a leaf inside a composite value rather than a reference collection for D4 comparison."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The source applies the transition at > 7 and subtracts 7 before computing delay, while the available source evidence does not establish the input's day basis.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The comparator appears to start after seven days, and the bounded source evidence does not show whether WS-CLOSE-DAYS is measured in the clause's working-day unit.",
+        "final_answer": "The branch uses WS-CLOSE-DAYS > 7 and subtracts 7, which starts the penalty calculation after the seven-day threshold; the source evidence does not identify whether the input counts working days, so an early or late boundary error is not established."
+      },
+      "D6_dead_code": {
+        "kind": "finding",
+        "thought": "The flag is initialized to N, its only traced sites are that definition and the IF use, and the IF guards the penalty calculation.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLSRUN7",
+                "paragraph": null,
+                "file": "CLSRUN7.cbl",
+                "line_span": [
+                  7,
+                  8
+                ]
+              },
+              {
+                "program": "CLSRUN7",
+                "paragraph": "1000-MAIN",
+                "file": "CLSRUN7.cbl",
+                "line_span": [
+                  15,
+                  18
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CLOSURE-PENALTY-FLAG"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D6_dead_code",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLSRUN7",
+                "line": 7,
+                "file": "CLSRUN7.cbl"
+              },
+              {
+                "program": "CLSRUN7",
+                "line": 8,
+                "file": "CLSRUN7.cbl"
+              },
+              {
+                "program": "CLSRUN7",
+                "line": 15,
+                "file": "CLSRUN7.cbl"
+              }
+            ]
+          },
+          "rationale": "The flag's VALUE clause initializes it to 'N', and the variable trace shows only that definition and the IF read. The 88-level condition is true only for 'Y'; since the default remains N in this program, the reachable penalty calculation at lines 16-18 is disabled. The clause requires the daily penalty for qualifying delays where no amount is outstanding."
+        },
+        "claim": "The clause requires closure within 7 working days and a penalty of at least Rs 500 per calendar day of delay until closure when no outstanding amount exists.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "'N'",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The source initializes the penalty flag to 'N' and the only traced use gates the late-closure calculation on that flag, leaving the branch disabled by default. The clause requires a daily penalty for qualifying delays when no amount is outstanding."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The 7-day threshold and 500 multiplier match their clause leaves, but the default-off gate prevents a positive conformance finding for the required penalty behavior.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The bounded evidence does not establish an enabled penalty check that satisfies the full clause, including the outstanding-amount condition.",
+        "final_answer": "Although the source uses the clause's 7-day threshold and 500 multiplier, the N-initialized guard disables the calculation by default and the source lacks an outstanding-amount condition, so conformance is not established."
+      }
+    }
+  ]
+}

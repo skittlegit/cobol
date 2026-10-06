@@ -1,0 +1,348 @@
+{
+  "instance_id": "drift_110013",
+  "gold": {
+    "instance_id": "drift_110013",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "Section 3(a)(iv)(b)",
+      "version": "2016-02-25",
+      "effective_date": "2016-02-25",
+      "text": "Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.",
+      "current_value": {
+        "kind": "percentage",
+        "value": 15,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO02",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            6,
+            7
+          ]
+        },
+        {
+          "program": "T6BO02",
+          "paragraph": "2100-CHECK-PROFIT-SHARE",
+          "file": null,
+          "line_span": [
+            17,
+            22
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PROFIT-SHARE",
+        "WS-LEGACY-BO-LIMIT",
+        "WS-OWNER-RESULT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO02",
+          "line": 18,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "The 2016 clause identifies a beneficial owner by entitlement to more than 15 percent of CAPITAL OR PROFITS. T6BO02's WORKING-STORAGE (lines 6-10) has only WS-PROFIT-SHARE -- no capital-percentage field exists anywhere in the program -- and 2100-CHECK-PROFIT-SHARE tests only the profit leg (line 18). The capital-ownership half of the disjunctive obligation is entirely unimplemented, even though the profit check itself uses the correct 2016 threshold.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6BO02.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110013",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO02",
+          "paragraph": null,
+          "file": "T6BO02.cbl",
+          "line_span": [
+            7,
+            7
+          ]
+        },
+        {
+          "program": "T6BO02",
+          "paragraph": "2100-CHECK-PROFIT-SHARE",
+          "file": "T6BO02.cbl",
+          "line_span": [
+            18,
+            19
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-LEGACY-BO-LIMIT",
+        "WS-PROFIT-SHARE",
+        "WS-OWNER-RESULT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO02",
+          "line": 7,
+          "file": "T6BO02.cbl"
+        },
+        {
+          "program": "T6BO02",
+          "line": 18,
+          "file": "T6BO02.cbl"
+        }
+      ]
+    },
+    "rationale": "T6BO02.cbl line 7 sets WS-LEGACY-BO-LIMIT to 15, and line 18 checks whether WS-PROFIT-SHARE exceeds that limit. Clause 5(iv)(b) sets the threshold at more than 10 percent, so the check omits persons whose share is greater than 10 percent and at most 15 percent."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "literal '15' present in ['T6BO02:T6BO02.cbl']; comparator '>' present in ['T6BO02:T6BO02.cbl', 'T6BO02:2100-CHECK-PROFIT-SHARE']",
+    "citation_ok": true,
+    "entailment_probability": 0.9955,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "literal '15' present in ['T6BO02:T6BO02.cbl']; comparator '>' present in ['T6BO02:T6BO02.cbl', 'T6BO02:2100-CHECK-PROFIT-SHARE']"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: RAG+reranker single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"Where the customer is a partnership firm, the beneficial owner is the natural person(s), who, whether acting alone or together, or through one or more juridical person, has/have ownership of/entitlement to more than 15 per cent of capital or profits of the partnership.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"score\":8.301251411437988}],\"program\":\"FILE T6BO02.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6BO02.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-PARTNERSHIP-RULE.\\n0007:            05  WS-LEGACY-BO-LIMIT   PIC 9(3)V99 VALUE 15.\\n0008:        01  WS-APPLICATION.\\n0009:            05  WS-PROFIT-SHARE      PIC 9(3)V99 VALUE ZERO.\\n0010:            05  WS-OWNER-RESULT      PIC X VALUE 'N'.\\n0011:        PROCEDURE DIVISION.\\n0012:        1000-MAIN.\\n0013:            ACCEPT WS-PROFIT-SHARE\\n0014:            PERFORM 2100-CHECK-PROFIT-SHARE\\n0015:            DISPLAY WS-OWNER-RESULT\\n0016:            STOP RUN.\\n0017:        2100-CHECK-PROFIT-SHARE.\\n0018:            IF WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT\\n0019:               MOVE 'Y' TO WS-OWNER-RESULT\\n0020:            ELSE\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The source sets a legacy threshold of 15 and uses it in the partnership ownership check, while the supplied clause sets the threshold at more than 10 percent.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110013",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO02",
+                "paragraph": null,
+                "file": "T6BO02.cbl",
+                "line_span": [
+                  7,
+                  7
+                ]
+              },
+              {
+                "program": "T6BO02",
+                "paragraph": "2100-CHECK-PROFIT-SHARE",
+                "file": "T6BO02.cbl",
+                "line_span": [
+                  18,
+                  19
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-LEGACY-BO-LIMIT",
+              "WS-PROFIT-SHARE",
+              "WS-OWNER-RESULT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO02",
+                "line": 7,
+                "file": "T6BO02.cbl"
+              },
+              {
+                "program": "T6BO02",
+                "line": 18,
+                "file": "T6BO02.cbl"
+              }
+            ]
+          },
+          "rationale": "T6BO02.cbl line 7 sets WS-LEGACY-BO-LIMIT to 15, and line 18 checks whether WS-PROFIT-SHARE exceeds that limit. Clause 5(iv)(b) sets the threshold at more than 10 percent, so the check omits persons whose share is greater than 10 percent and at most 15 percent."
+        },
+        "claim": "For a partnership firm, a natural person with ownership of or entitlement to more than 10 percent of its capital or profits is a beneficial owner.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "15",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Clause 5(iv)(b) defines the partnership beneficial owner threshold as more than 10 percent. T6BO02.cbl sets its limit to 15 at line 7 and checks against it at line 18, so it misses ownership shares above 10 percent through 15 percent.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The source sets a legacy threshold of 15 and uses it in the partnership ownership check, while the supplied clause sets the threshold at more than 10 percent.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO02\",\"paragraph\":null,\"file\":\"T6BO02.cbl\",\"line_span\":[7,7]},{\"program\":\"T6BO02\",\"paragraph\":\"2100-CHECK-PROFIT-SHARE\",\"file\":\"T6BO02.cbl\",\"line_span\":[18,19]}],\"slice_vars\":[\"WS-LEGACY-BO-LIMIT\",\"WS-PROFIT-SHARE\",\"WS-OWNER-RESULT\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO02\",\"line\":7,\"file\":\"T6BO02.cbl\"},{\"program\":\"T6BO02\",\"line\":18,\"file\":\"T6BO02.cbl\"}]},\"rationale\":\"T6BO02.cbl line 7 sets WS-LEGACY-BO-LIMIT to 15, and line 18 checks whether WS-PROFIT-SHARE exceeds that limit. Clause 5(iv)(b) sets the threshold at more than 10 percent, so the check omits persons whose share is greater than 10 percent and at most 15 percent.\"},\"claim\":\"For a partnership firm, a natural person with ownership of or entitlement to more than 10 percent of its capital or profits is a beneficial owner.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Clause 5(iv)(b) defines the partnership beneficial owner threshold as more than 10 percent. T6BO02.cbl sets its limit to 15 at line 7 and checks against it at line 18, so it misses ownership shares above 10 percent through 15 percent.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "literal '15' present in ['T6BO02:T6BO02.cbl']; comparator '>' present in ['T6BO02:T6BO02.cbl', 'T6BO02:2100-CHECK-PROFIT-SHARE']",
+      "citation_ok": true,
+      "entailment_probability": 0.9955,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "literal '15' present in ['T6BO02:T6BO02.cbl']; comparator '>' present in ['T6BO02:T6BO02.cbl', 'T6BO02:2100-CHECK-PROFIT-SHARE']"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110013",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "5(iv)(b)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "current_value": {
+          "kind": "percentage",
+          "value": 10,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6BO02",
+            "paragraph": null,
+            "file": "T6BO02.cbl",
+            "line_span": [
+              7,
+              7
+            ]
+          },
+          {
+            "program": "T6BO02",
+            "paragraph": "2100-CHECK-PROFIT-SHARE",
+            "file": "T6BO02.cbl",
+            "line_span": [
+              18,
+              19
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-LEGACY-BO-LIMIT",
+          "WS-PROFIT-SHARE",
+          "WS-OWNER-RESULT"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6BO02",
+            "line": 7,
+            "file": "T6BO02.cbl"
+          },
+          {
+            "program": "T6BO02",
+            "line": 18,
+            "file": "T6BO02.cbl"
+          }
+        ]
+      },
+      "rationale": "T6BO02.cbl line 7 sets WS-LEGACY-BO-LIMIT to 15, and line 18 checks whether WS-PROFIT-SHARE exceeds that limit. Clause 5(iv)(b) sets the threshold at more than 10 percent, so the check omits persons whose share is greater than 10 percent and at most 15 percent."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Clause 5(iv)(b) defines the partnership beneficial owner threshold as more than 10 percent. T6BO02.cbl sets its limit to 15 at line 7 and checks against it at line 18, so it misses ownership shares above 10 percent through 15 percent.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_reranker",
+  "source_sha256": "4a182b2e461484ec45eed948f2795bc7d863471b180da66c3440c3046fd64e34",
+  "run_key": "330b476727db08946825247b7f7a89c4d3d960d64898a0020208bd1c0247c93a"
+}

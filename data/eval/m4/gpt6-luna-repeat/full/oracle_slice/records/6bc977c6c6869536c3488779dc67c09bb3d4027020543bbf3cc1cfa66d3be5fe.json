@@ -1,0 +1,324 @@
+{
+  "instance_id": "drift_000005",
+  "gold": {
+    "instance_id": "drift_000005",
+    "regulation_clause": {
+      "doc": "RBI-CC-Debit-Card-Directions-2022",
+      "clause_id": "26(c)",
+      "version": "2022-04-21",
+      "effective_date": "2022-07-01",
+      "text": "If a complainant does not get satisfactory response from the card-issuer within a maximum period of one month from the date of lodging the complaint, he/she will have the option to approach the Office of the concerned RBI Ombudsman.",
+      "current_value": null
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "GRVAGE1",
+          "paragraph": "2000-DUE-DATE",
+          "file": null,
+          "line_span": [
+            32,
+            40
+          ]
+        },
+        {
+          "program": "GRVAGE1",
+          "paragraph": "3000-COMPARE",
+          "file": null,
+          "line_span": [
+            41,
+            44
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CMP-YYYY",
+        "WS-CMP-MM",
+        "WS-CMP-DD",
+        "WS-DUE-YYYY",
+        "WS-DUE-MM",
+        "WS-DUE-DD",
+        "WS-CHECK-DATE",
+        "WS-ESCALATE"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "The 2022 clause allows a maximum period of 'one month' before Ombudsman escalation eligibility. 2000-DUE-DATE computes a due date exactly one calendar month after the complaint date (with correct December-to-January year rollover at lines 34-36), and 3000-COMPARE escalates only when the check date exceeds that due date. This directly and correctly implements a one-calendar-month maximum period.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "GRVAGE1.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_000005",
+    "regulation_clause": {
+      "doc": "RBI-CC-Debit-Card-Directions-2022",
+      "clause_id": "26(c)",
+      "version": "2022-04-21",
+      "effective_date": "2022-07-01",
+      "text": "If a complainant does not get satisfactory response from the card-issuer within a maximum period of one month from the date of lodging the complaint, he/she will have the option to approach the Office of the concerned RBI Ombudsman.",
+      "current_value": null
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "GRVAGE1",
+          "paragraph": "2000-DUE-DATE",
+          "file": null,
+          "line_span": [
+            33,
+            39
+          ]
+        },
+        {
+          "program": "GRVAGE1",
+          "paragraph": "3000-COMPARE",
+          "file": null,
+          "line_span": [
+            42,
+            43
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CMP-DD",
+        "WS-DUE-DD",
+        "WS-CMP-MM",
+        "WS-DUE-MM",
+        "WS-DUE-YYYY",
+        "WS-CHECK-DATE",
+        "WS-ESCALATE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "GRVAGE1",
+          "line": 33,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "Clause 26(c) gives a one-month period before the complainant may approach the Ombudsman. GRVAGE1 copies the complaint day unchanged at line 33 while advancing the month in 2000-DUE-DATE, then sets WS-ESCALATE only when WS-CHECK-DATE is greater than WS-DUE-DATE. For a complaint on May 31, this can produce June 31 as the due date, delaying escalation past the valid month-end boundary."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "literal '01' present in ['GRVAGE1:2000-DUE-DATE']; comparator '>' present in ['GRVAGE1:3000-COMPARE']",
+    "citation_ok": true,
+    "entailment_probability": 0.9963,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "literal '01' present in ['GRVAGE1:2000-DUE-DATE']; comparator '>' present in ['GRVAGE1:3000-COMPARE']"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-CC-Debit-Card-Directions-2022\",\"clause_id\":\"26(c)\",\"version\":\"2022-04-21\",\"effective_date\":\"2022-07-01\",\"text\":\"If a complainant does not get satisfactory response from the card-issuer within a maximum period of one month from the date of lodging the complaint, he/she will have the option to approach the Office of the concerned RBI Ombudsman.\",\"current_value\":null},\"program\":\"GRVAGE1\",\"slices\":[{\"variable\":\"WS-CMP-YYYY\",\"scoped_program\":\"GRVAGE1\",\"statements\":[{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":11,\"line_end\":11},\"text\":\"05  WS-CMP-YYYY           PIC 9(4) VALUE ZERO.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"WS-CMP-MM\",\"scoped_program\":\"GRVAGE1\",\"statements\":[{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-CMP-MM             PIC 9(2) VALUE ZERO.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"WS-CMP-DD\",\"scoped_program\":\"GRVAGE1\",\"statements\":[{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-CMP-DD             PIC 9(2) VALUE ZERO.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"WS-DUE-YYYY\",\"scoped_program\":\"GRVAGE1\",\"statements\":[{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":11,\"line_end\":11},\"text\":\"05  WS-CMP-YYYY           PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-CMP-MM             PIC 9(2) VALUE ZERO.\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":19,\"line_end\":19},\"text\":\"05  WS-DUE-YYYY           PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\",\"line_start\":34,\"line_end\":36},\"text\":\"IF WS-CMP-MM = 12\\n              MOVE 01 TO WS-DUE-MM\\n              COMPUTE WS-DUE-YYYY = WS-CMP-YYYY + 1\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\",\"line_start\":36,\"line_end\":36},\"text\":\"COMPUTE WS-DUE-YYYY = WS-CMP-YYYY + 1\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\",\"line_start\":39,\"line_end\":39},\"text\":\"MOVE WS-CMP-YYYY TO WS-DUE-YYYY\"}],\"paragraphs\":[{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\"}],\"is_interprocedural\":false},{\"variable\":\"WS-DUE-MM\",\"scoped_program\":\"GRVAGE1\",\"statements\":[{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-CMP-MM             PIC 9(2) VALUE ZERO.\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":20,\"line_end\":20},\"text\":\"05  WS-DUE-MM             PIC 9(2) VALUE ZERO.\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\",\"line_start\":34,\"line_end\":36},\"text\":\"IF WS-CMP-MM = 12\\n              MOVE 01 TO WS-DUE-MM\\n              COMPUTE WS-DUE-YYYY = WS-CMP-YYYY + 1\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\",\"line_start\":35,\"line_end\":35},\"text\":\"MOVE 01 TO WS-DUE-MM\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\",\"line_start\":38,\"line_end\":38},\"text\":\"COMPUTE WS-DUE-MM = WS-CMP-MM + 1\"}],\"paragraphs\":[{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\"}],\"is_interprocedural\":false},{\"variable\":\"WS-DUE-DD\",\"scoped_program\":\"GRVAGE1\",\"statements\":[{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-CMP-DD             PIC 9(2) VALUE ZERO.\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":21,\"line_end\":21},\"text\":\"05  WS-DUE-DD             PIC 9(2) VALUE ZERO.\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\",\"line_start\":33,\"line_end\":33},\"text\":\"MOVE WS-CMP-DD TO WS-DUE-DD\"}],\"paragraphs\":[{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\"}],\"is_interprocedural\":false},{\"variable\":\"WS-CHECK-DATE\",\"scoped_program\":\"GRVAGE1\",\"statements\":[{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"1000-MAIN\",\"line_start\":27,\"line_end\":27},\"text\":\"ACCEPT WS-CHECK-DATE\"}],\"paragraphs\":[{\"program\":\"GRVAGE1\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-ESCALATE\",\"scoped_program\":\"GRVAGE1\",\"statements\":[{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":null,\"line_start\":23,\"line_end\":23},\"text\":\"05  WS-ESCALATE           PIC X(1) VALUE 'N'.\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"1000-MAIN\",\"line_start\":27,\"line_end\":27},\"text\":\"ACCEPT WS-CHECK-DATE\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"1000-MAIN\",\"line_start\":29,\"line_end\":29},\"text\":\"PERFORM 3000-COMPARE\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"3000-COMPARE\",\"line_start\":42,\"line_end\":43},\"text\":\"IF WS-CHECK-DATE > WS-DUE-DATE\\n              MOVE 'Y' TO WS-ESCALATE\"},{\"ref\":{\"program\":\"GRVAGE1\",\"paragraph\":\"3000-COMPARE\",\"line_start\":43,\"line_end\":43},\"text\":\"MOVE 'Y' TO WS-ESCALATE\"}],\"paragraphs\":[{\"program\":\"GRVAGE1\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"GRVAGE1\",\"paragraph\":\"3000-COMPARE\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The clause allows Ombudsman access after one month. The due-date calculation preserves the complaint day when advancing the month, creating an invalid date for some month ends.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_000005",
+          "regulation_clause": {
+            "doc": "RBI-CC-Debit-Card-Directions-2022",
+            "clause_id": "26(c)",
+            "version": "2022-04-21",
+            "effective_date": "2022-07-01",
+            "text": "If a complainant does not get satisfactory response from the card-issuer within a maximum period of one month from the date of lodging the complaint, he/she will have the option to approach the Office of the concerned RBI Ombudsman.",
+            "current_value": null
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "GRVAGE1",
+                "paragraph": "2000-DUE-DATE",
+                "file": null,
+                "line_span": [
+                  33,
+                  39
+                ]
+              },
+              {
+                "program": "GRVAGE1",
+                "paragraph": "3000-COMPARE",
+                "file": null,
+                "line_span": [
+                  42,
+                  43
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CMP-DD",
+              "WS-DUE-DD",
+              "WS-CMP-MM",
+              "WS-DUE-MM",
+              "WS-DUE-YYYY",
+              "WS-CHECK-DATE",
+              "WS-ESCALATE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "GRVAGE1",
+                "line": 33,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "Clause 26(c) gives a one-month period before the complainant may approach the Ombudsman. GRVAGE1 copies the complaint day unchanged at line 33 while advancing the month in 2000-DUE-DATE, then sets WS-ESCALATE only when WS-CHECK-DATE is greater than WS-DUE-DATE. For a complaint on May 31, this can produce June 31 as the due date, delaying escalation past the valid month-end boundary."
+        },
+        "claim": "If the card issuer does not provide a satisfactory response within one month of the complaint, the complainant may approach the concerned RBI Ombudsman.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "01",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Clause 26(c) permits the complainant to approach the concerned RBI Ombudsman after one month without a satisfactory response. GRVAGE1 copies the complaint day while advancing the month, which can create a nonexistent due date such as June 31; its later-than comparison can therefore delay escalation beyond the valid month-end boundary.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The clause allows Ombudsman access after one month. The due-date calculation preserves the complaint day when advancing the month, creating an invalid date for some month ends.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\",\"file\":null,\"line_span\":[33,39]},{\"program\":\"GRVAGE1\",\"paragraph\":\"3000-COMPARE\",\"file\":null,\"line_span\":[42,43]}],\"slice_vars\":[\"WS-CMP-DD\",\"WS-DUE-DD\",\"WS-CMP-MM\",\"WS-DUE-MM\",\"WS-DUE-YYYY\",\"WS-CHECK-DATE\",\"WS-ESCALATE\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"GRVAGE1\",\"line\":33,\"file\":null}]},\"rationale\":\"Clause 26(c) gives a one-month period before the complainant may approach the Ombudsman. GRVAGE1 copies the complaint day unchanged at line 33 while advancing the month in 2000-DUE-DATE, then sets WS-ESCALATE only when WS-CHECK-DATE is greater than WS-DUE-DATE. For a complaint on May 31, this can produce June 31 as the due date, delaying escalation past the valid month-end boundary.\"},\"claim\":\"If the card issuer does not provide a satisfactory response within one month of the complaint, the complainant may approach the concerned RBI Ombudsman.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"01\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Clause 26(c) permits the complainant to approach the concerned RBI Ombudsman after one month without a satisfactory response. GRVAGE1 copies the complaint day while advancing the month, which can create a nonexistent due date such as June 31; its later-than comparison can therefore delay escalation beyond the valid month-end boundary.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "literal '01' present in ['GRVAGE1:2000-DUE-DATE']; comparator '>' present in ['GRVAGE1:3000-COMPARE']",
+      "citation_ok": true,
+      "entailment_probability": 0.9963,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "literal '01' present in ['GRVAGE1:2000-DUE-DATE']; comparator '>' present in ['GRVAGE1:3000-COMPARE']"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_000005",
+      "regulation_clause": {
+        "doc": "RBI-CC-Debit-Card-Directions-2022",
+        "clause_id": "26(c)",
+        "version": "2022-04-21",
+        "effective_date": "2022-07-01",
+        "text": "If a complainant does not get satisfactory response from the card-issuer within a maximum period of one month from the date of lodging the complaint, he/she will have the option to approach the Office of the concerned RBI Ombudsman.",
+        "current_value": null
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "GRVAGE1",
+            "paragraph": "2000-DUE-DATE",
+            "file": null,
+            "line_span": [
+              33,
+              39
+            ]
+          },
+          {
+            "program": "GRVAGE1",
+            "paragraph": "3000-COMPARE",
+            "file": null,
+            "line_span": [
+              42,
+              43
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CMP-DD",
+          "WS-DUE-DD",
+          "WS-CMP-MM",
+          "WS-DUE-MM",
+          "WS-DUE-YYYY",
+          "WS-CHECK-DATE",
+          "WS-ESCALATE"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D5_boundary_error",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "GRVAGE1",
+            "line": 33,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "Clause 26(c) gives a one-month period before the complainant may approach the Ombudsman. GRVAGE1 copies the complaint day unchanged at line 33 while advancing the month in 2000-DUE-DATE, then sets WS-ESCALATE only when WS-CHECK-DATE is greater than WS-DUE-DATE. For a complaint on May 31, this can produce June 31 as the due date, delaying escalation past the valid month-end boundary."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Clause 26(c) permits the complainant to approach the concerned RBI Ombudsman after one month without a satisfactory response. GRVAGE1 copies the complaint day while advancing the month, which can create a nonexistent due date such as June 31; its later-than comparison can therefore delay escalation beyond the valid month-end boundary.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "006a609d6dfcc828df684e889ef14475140f8e94023b69f6cba7209e2d50e05a",
+  "run_key": "6bc977c6c6869536c3488779dc67c09bb3d4027020543bbf3cc1cfa66d3be5fe"
+}

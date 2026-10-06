@@ -38,7 +38,8 @@ instead of falling back to another document.
 
 ## Model transition (2026-09-23)
 
-- Use `gpt-6-sol` for new repository implementation and review work. This
+- Use `gpt-6.1-sol` for new repository implementation and review work (updated
+  by the user on 2026-10-02). This
   changes the coding assistant, not the identity of completed model evidence.
 - The original GOAL-R1 configuration-4 evaluation is preserved at 78/305
   sealed first-half tasks under `gpt-5.6-luna`/`max`. Its keys and results are

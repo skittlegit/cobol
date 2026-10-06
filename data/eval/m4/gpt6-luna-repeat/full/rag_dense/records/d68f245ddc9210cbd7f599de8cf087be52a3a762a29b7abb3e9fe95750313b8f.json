@@ -1,0 +1,128 @@
+{
+  "instance_id": "drift_989674",
+  "gold": {
+    "instance_id": "drift_989674",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN3",
+          "paragraph": "2000-PEN",
+          "file": null,
+          "line_span": [
+            30,
+            30
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-WORK-DAYS-ELAPSED"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": "closure_window",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN3",
+          "line": 30,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-5 changes '>' to '>=' at CLOSPEN3:2000-PEN:30-30, producing D5_boundary_error.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CLOSPEN3.cbl",
+      "mutation": "MO-5; locus=CLOSPEN3:2000-PEN:30-30; old='>'; new='>='; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.8343702981801698},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"20\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a card is unused for more than one year, initiate closure after intimating the cardholder; if no reply within 30 days, close the account (subject to dues) and update the CIC within 30 days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"inactivity_threshold\":{\"kind\":\"duration_years\",\"value\":1,\"comparator\":\"strictly_greater\",\"note\":\"Trigger: closure workflow fires when unused for MORE THAN one year. Stale side is UP (later closure of dormant accounts = laxer).\"},\"reply_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"cic_update_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.6849142702525457},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"31\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"cutoff\":{\"kind\":\"formula\",\"value\":\"min(0.01 * credit_limit, 5000_inr)\",\"comparator\":null,\"note\":null},\"consent_window\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"reversal_window\":{\"kind\":\"duration_working_days\",\"value\":3,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.6795666166575288}],\"program\":\"FILE CLOSPEN3.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. CLOSPEN3.\\n0003:       *----------------------------------------------------------------\\n0004:       * CLOSURE PENALTY - RS 500 PER CALENDAR DAY OF DELAY BEYOND\\n0005:       * SEVEN WORKING DAYS. SLA WINDOW IN WORKING DAYS, ACCRUAL IN\\n0006:       * CALENDAR DAYS.\\n0007:       *----------------------------------------------------------------\\n0008:        ENVIRONMENT DIVISION.\\n0009:        DATA DIVISION.\\n0010:        WORKING-STORAGE SECTION.\\n0011:        01  WS-INPUTS.\\n0012:            05  WS-CAL-DAYS-ELAPSED   PIC 9(4) VALUE ZERO.\\n0013:            05  WS-WORK-DAYS-ELAPSED  PIC 9(4) VALUE ZERO.\\n0014:        01  WS-WORK-AREAS.\\n0015:            05  WS-DELAY-CAL-DAYS     PIC S9(5) VALUE ZERO.\\n0016:            05  WS-SLA-BREACH-DAY     PIC 9(4) VALUE ZERO.\\n0017:            05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.\\n0018:        01  WS-RPT-HEADING            PIC X(3)\\n0019:            VALUE SPACES.\\n0020:        01  WS-PRINT-AREA.\\nFILE CLOSPEN3.cbl LINES 21-38\\n0021:            05  WS-PRINT-LINE OCCURS 30 PIC X(3).\\n0022:        PROCEDURE DIVISION.\\n0023:        1000-MAIN.\\n0024:            ACCEPT WS-CAL-DAYS-ELAPSED\\n0025:            ACCEPT WS-WORK-DAYS-ELAPSED\\n0026:            PERFORM 2000-PEN\\n0027:            DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n0028:            STOP RUN.\\n0029:        2000-PEN.\\n0030:            IF WS-WORK-DAYS-ELAPSED >= 7\\n0031:               COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n0032:                       - (WS-WORK-DAYS-ELAPSED - 7)\\n0033:               COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n0034:                       - WS-SLA-BREACH-DAY\\n0035:               COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\\n0036:            ELSE\\n0037:               MOVE ZERO TO WS-PENALTY-AMT\\n0038:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The source uses the clause’s stated due intervals for high, medium, and low risk. Its risk-rating branches mark customers due at two, eight, and ten years, respectively.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_98... the stated intervals.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_98... the stated intervals.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The source uses the clause’s stated due intervals for high, medium, and low risk. Its risk-rating branches mark customers due at two, eight, and ten years, respectively.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"file\":\"KYCSCHED1.cbl\",\"line_span\":[24,38]}],\"slice_vars\":[\"WS-RISK-RATING\",\"WS-YEARS-SINCE-KYC\",\"WS-KYC-DUE\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[{\"program\":\"KYCSCHED1\",\"line\":25,\"file\":\"KYCSCHED1.cbl\"},{\"program\":\"KYCSCHED1\",\"line\":27,\"file\":\"KYCSCHED1.cbl\"},{\"program\":\"KYCSCHED1\",\"line\":31,\"file\":\"KYCSCHED1.cbl\"},{\"program\":\"KYCSCHED1\",\"line\":35,\"file\":\"KYCSCHED1.cbl\"}]},\"rationale\":\"The clause sets maximum intervals of two years for high-risk, eight years for medium-risk, and ten years for low-risk customers. KYCSCHED1 marks high-risk due at >= 2 (lines 25–28), medium-risk due at >= 8 (lines 30–33), and the remaining risk-rating branch due at >= 10 (lines 34–37), matching the stated intervals.\"},\"claim\":\"Periodic KYC updation shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"2\",\"comparator\":\">=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause requires KYC updation at least once every two years for high-risk, every eight years for medium-risk, and every ten years for low-risk customers. KYCSCHED1 marks the H branch due at two years, the M branch at eight, and the remaining branch at ten (lines 25–37), matching those intervals.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_98... the stated intervals.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_98... the stated intervals.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_98... the stated intervals.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "b4775ecb16e4231acfd21bac6baab84150b4c3e48e560b929b1da10562a7c464",
+  "run_key": "d68f245ddc9210cbd7f599de8cf087be52a3a762a29b7abb3e9fe95750313b8f"
+}

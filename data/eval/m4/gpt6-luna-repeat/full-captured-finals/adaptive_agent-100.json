@@ -1,0 +1,117 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "evidence_ledger": [
+        {
+          "observation_step": 1,
+          "observation_sha256": "d48912c90048abcc29803663cdaea9961d8748efb716ee5a4a4cab0f72143e44",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "context",
+          "rationale": "The program index lists 1000-MAIN and 2000-CHECK-DUE, locating a candidate check but not showing whether the required risk-specific behavior exists; inspect the paragraph."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "356f7887c1154048a7777784caa65dbd65763759210de5128fca0218d51b9896",
+          "hypothesis": "D1_stale_threshold",
+          "bearing": "refutes",
+          "rationale": "The high-, medium-, and low-risk literals are 2, 8, and 10 years, matching their corresponding composite clause leaves, so no stale numeric threshold is shown."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "356f7887c1154048a7777784caa65dbd65763759210de5128fca0218d51b9896",
+          "hypothesis": "D2_missing_rule",
+          "bearing": "refutes",
+          "rationale": "2000-CHECK-DUE contains H, M, and OTHER branches, each with an elapsed-year predicate that sets WS-KYC-DUE to Y, so the due behavior is present rather than absent."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "356f7887c1154048a7777784caa65dbd65763759210de5128fca0218d51b9896",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "supports",
+          "rationale": "The high-risk branch tests WS-YEARS-SINCE-KYC > 2 before setting WS-KYC-DUE to Y, identifying the candidate boundary-sensitive transition for the two-year interval."
+        },
+        {
+          "observation_step": 2,
+          "observation_sha256": "356f7887c1154048a7777784caa65dbd65763759210de5128fca0218d51b9896",
+          "hypothesis": "D7_conformant",
+          "bearing": "refutes",
+          "rationale": "The high-risk due transition is gated by > 2; subsequent tracing is needed to establish the counter's precision and the effect at the two-year boundary."
+        },
+        {
+          "observation_step": 3,
+          "observation_sha256": "0440fa371b95aa2baf121906b4658e6103e776ede2a7de8aaea39e849c64c500",
+          "hypothesis": "D6_dead_code",
+          "bearing": "refutes",
+          "rationale": "1000-MAIN accepts the risk rating and elapsed years, performs 2000-CHECK-DUE, and displays the due flag, so the candidate check is on the reachable main path."
+        },
+        {
+          "observation_step": 4,
+          "observation_sha256": "59c4065aa1304faae568cd837a21cef5bc4f7445771f9000fd9bdf19eb4de0ef",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "supports",
+          "rationale": "WS-YEARS-SINCE-KYC is PIC 9(2), is accepted by the main paragraph, and the H branch uses > 2; at integer age 2 the condition is false and the next representable age is 3."
+        },
+        {
+          "observation_step": 5,
+          "observation_sha256": "fc94afe0d92167cd199c51cb31b3a8817498f420b90b3a03f1465a67b4d9a82e",
+          "hypothesis": "D5_boundary_error",
+          "bearing": "supports",
+          "rationale": "WS-KYC-DUE starts at N and the H branch assigns Y only inside the > 2 predicate, so the high-risk due flag remains N at exactly two years."
+        }
+      ],
+      "response": {
+        "kind": "finding",
+        "thought": "The high-risk rule has the correct two-year value, but its integer-year comparison delays the due transition until three years.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSCHED1",
+                "paragraph": "2000-CHECK-DUE",
+                "file": null,
+                "line_span": [
+                  27,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-RISK-RATING",
+              "WS-YEARS-SINCE-KYC",
+              "WS-KYC-DUE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "high_risk",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSCHED1",
+                "line": 27,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The high_risk clause leaf sets a maximum interval of 2 years. The source stores elapsed years in WS-YEARS-SINCE-KYC as PIC 9(2), and the H branch sets WS-KYC-DUE to Y only when the value is > 2. At exactly 2 years the condition is false and the due flag stays at its initial N; with a whole-year counter, it first becomes Y at 3. This delays the due transition by one year beyond the allowed interval."
+        },
+        "claim": "For high-risk customers, periodic KYC updation must be carried out at least once every two years, measured from the date of account opening or last KYC updation.",
+        "exec_probe": {
+          "stdin": "H\n2\n",
+          "expect_substring": "KYC-DUE: N",
+          "description": "At the high-risk two-year boundary, the due flag remains N because the source condition is > 2."
+        },
+        "static_claim": {
+          "literal": "2",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "For high-risk customers, the due transition occurs only after the two-year interval, so this implementation allows the counter to reach three years before marking KYC due."
+      }
+    }
+  ]
+}

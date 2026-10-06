@@ -1,0 +1,108 @@
+{
+  "instance_id": "drift_110030",
+  "gold": {
+    "instance_id": "drift_110030",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC05",
+          "paragraph": "2400-RECORD-UPLOAD-REQUEST",
+          "file": null,
+          "line_span": [
+            15,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CHANGE-REFERENCE",
+        "WS-AUDIT-MESSAGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6KYC05",
+          "line": 15,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 65(8) requires CKYCR updates within 7 days of receiving updated information (at_most 7). The program (byte-identical to the pre-2024 candidate) has no day-count or date field and no 7-day deadline check anywhere in its reachable logic.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6KYC05.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"program\":\"T6KYC05\",\"slices\":[{\"variable\":\"WS-CHANGE-REFERENCE\",\"scoped_program\":\"T6KYC05\",\"statements\":[{\"ref\":{\"program\":\"T6KYC05\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"05  WS-CHANGE-REFERENCE   PIC X(12) VALUE SPACES.\"},{\"ref\":{\"program\":\"T6KYC05\",\"paragraph\":\"1000-MAIN\",\"line_start\":11,\"line_end\":11},\"text\":\"ACCEPT WS-CHANGE-REFERENCE\"}],\"paragraphs\":[{\"program\":\"T6KYC05\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-AUDIT-MESSAGE\",\"scoped_program\":\"T6KYC05\",\"statements\":[{\"ref\":{\"program\":\"T6KYC05\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"05  WS-AUDIT-MESSAGE      PIC X(30) VALUE SPACES.\"},{\"ref\":{\"program\":\"T6KYC05\",\"paragraph\":\"2400-RECORD-UPLOAD-REQUEST\",\"line_start\":16,\"line_end\":19},\"text\":\"STRING 'CKYCR REQUEST '\\n              WS-CHANGE-REFERENCE\\n              DELIMITED BY SIZE\\n              INTO WS-AUDIT-MESSAGE\"}],\"paragraphs\":[{\"program\":\"T6KYC05\",\"paragraph\":\"2400-RECORD-UPLOAD-REQUEST\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied slices show an input field and construction of an audit message, but no KYC update behavior or timing rule to compare with the clause.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The visible source evidence is insufficient to determine whether the program updates KYC records in the registry within seven days.",
+        "final_answer": "The slices show an accepted change reference and a CKYCR request audit message; they do not show a registry update or how its timing is controlled. I cannot classify compliance with the seven-day requirement from this context.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied slices show an input field and construction of an audit message, but no KYC update behavior or timing rule to compare with the clause.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The visible source evidence is insufficient to determine whether the program updates KYC records in the registry within seven days.\",\"final_answer\":\"The slices show an accepted change reference and a CKYCR request audit message; they do not show a registry update or how its timing is controlled. I cannot classify compliance with the seven-day requirement from this context.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The visible source evidence is insufficient to determine whether the program updates KYC records in the registry within seven days.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The slices show an accepted change reference and a CKYCR request audit message; they do not show a registry update or how its timing is controlled. I cannot classify compliance with the seven-day requirement from this context.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The visible source evidence is insufficient to determine whether the program updates KYC records in the registry within seven days.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "e417a27b1076b4585d884a63638ae352e05d8da7fe36942746a935910e3d2e8e",
+  "run_key": "16c62b6c858b44079645f5f707fdad9d4c79e2477332072e5552547aa3f1ccfb"
+}

@@ -1,0 +1,107 @@
+{
+  "instance_id": "drift_555526",
+  "gold": {
+    "instance_id": "drift_555526",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC2",
+          "paragraph": "2000-CHECK-SLA",
+          "file": null,
+          "line_span": [
+            27,
+            27
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSYNC2",
+          "line": 27,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-1 changes '7' to '14' at KYCSYNC2:2000-CHECK-SLA:27-27, producing D1_stale_threshold.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSYNC2.cbl",
+      "mutation": "MO-1; locus=KYCSYNC2:2000-CHECK-SLA:27-27; old='7'; new='14'; validation=compiled; stale_source=grid_fallback; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"program\":\"KYCSYNC2\",\"slices\":[{\"variable\":\"WS-DAYS-SINCE-UPD\",\"scoped_program\":\"KYCSYNC2\",\"statements\":[{\"ref\":{\"program\":\"KYCSYNC2\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"KYCSYNC2\",\"paragraph\":\"1000-MAIN\",\"line_start\":22,\"line_end\":22},\"text\":\"ACCEPT WS-DAYS-SINCE-UPD\"}],\"paragraphs\":[{\"program\":\"KYCSYNC2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied slice shows the elapsed-days field being declared and accepted, but does not establish whether the required registry update is enforced elsewhere in the program.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The slice contains no visible timing rule or registry update, and its limited scope cannot establish that either is absent from the program.",
+        "final_answer": "The clause requires KYC records to be updated in the Central KYC Records Registry within 7 days. The visible code only declares and accepts the elapsed-days value, so it is insufficient to determine whether the program meets or misses that obligation.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied slice shows the elapsed-days field being declared and accepted, but does not establish whether the required registry update is enforced elsewhere in the program.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The slice contains no visible timing rule or registry update, and its limited scope cannot establish that either is absent from the program.\",\"final_answer\":\"The clause requires KYC records to be updated in the Central KYC Records Registry within 7 days. The visible code only declares and accepts the elapsed-days value, so it is insufficient to determine whether the program meets or misses that obligation.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The slice contains no visible timing rule or registry update, and its limited scope cannot establish that either is absent from the program.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires KYC records to be updated in the Central KYC Records Registry within 7 days. The visible code only declares and accepts the elapsed-days value, so it is insufficient to determine whether the program meets or misses that obligation.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The slice contains no visible timing rule or registry update, and its limited scope cannot establish that either is absent from the program.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "d10d77d2523a8cbb17270ac9b27b9a2357c9a4d8a7f37acff054ea9feda69c0b",
+  "run_key": "ae287aa2befcda2ac0de54c6db3ca34b8200ee7f12cb661322dc3e63566d0023"
+}

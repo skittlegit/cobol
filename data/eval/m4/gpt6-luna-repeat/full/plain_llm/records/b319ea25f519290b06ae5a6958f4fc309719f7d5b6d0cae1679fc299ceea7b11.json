@@ -1,0 +1,420 @@
+{
+  "instance_id": "drift_110002",
+  "gold": {
+    "instance_id": "drift_110002",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": null,
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": null,
+            "note": null
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6CL01",
+          "paragraph": "2000-CALCULATE-PENALTY",
+          "file": null,
+          "line_span": [
+            22,
+            28
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-WORKING-DAYS",
+        "WS-DELAY-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "day_basis",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6CL01",
+          "line": 25,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 19 requires calendar_day accrual after the 7-working-day window. T6CL01 computes WS-DELAY-DAYS = WS-WORKING-DAYS - 7 (line 25), i.e. delay itself is measured in working days (weekends/holidays already stripped, lines 23-24), then multiplied by 500 -- a working_day accrual basis, not the mandated calendar_day.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6CL01.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110002",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": null,
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": null,
+            "note": null
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6CL01",
+          "paragraph": "2000-CALCULATE-PENALTY",
+          "file": "T6CL01.cbl",
+          "line_span": [
+            23,
+            28
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-ELAPSED-DAYS",
+        "WS-WEEKEND-DAYS",
+        "WS-HOLIDAY-DAYS",
+        "WS-WORKING-DAYS",
+        "WS-DELAY-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": "day_basis",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6CL01",
+          "line": 24,
+          "file": "T6CL01.cbl"
+        },
+        {
+          "program": "T6CL01",
+          "line": 25,
+          "file": "T6CL01.cbl"
+        },
+        {
+          "program": "T6CL01",
+          "line": 27,
+          "file": "T6CL01.cbl"
+        }
+      ]
+    },
+    "rationale": "The clause sets a 7 working-day closure window but assesses Rs 500 for each calendar day of delay. Lines 23–25 calculate delay by subtracting 7 from elapsed days after removing weekends and holidays; line 27 multiplies that working-day delay by 500. This uses a working-day basis for the penalty instead of the required calendar-day basis."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "T6CL01:2000-CALCULATE-PENALTY — literal '500' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9635,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "T6CL01:2000-CALCULATE-PENALTY — literal '500' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":null,\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":null,\"note\":null},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"FILE T6CL01.cbl LINES 11-28\\n0011:            05  WS-WORKING-DAYS       PIC S9(5) VALUE ZERO.\\n0012:            05  WS-DELAY-DAYS         PIC S9(5) VALUE ZERO.\\n0013:            05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.\\n0014:        PROCEDURE DIVISION.\\n0015:        1000-MAIN.\\n0016:            ACCEPT WS-ELAPSED-DAYS\\n0017:            ACCEPT WS-WEEKEND-DAYS\\n0018:            ACCEPT WS-HOLIDAY-DAYS\\n0019:            PERFORM 2000-CALCULATE-PENALTY\\n0020:            DISPLAY WS-PENALTY-AMT\\n0021:            STOP RUN.\\n0022:        2000-CALCULATE-PENALTY.\\n0023:            COMPUTE WS-WORKING-DAYS =\\n0024:               WS-ELAPSED-DAYS - WS-WEEKEND-DAYS - WS-HOLIDAY-DAYS\\n0025:            COMPUTE WS-DELAY-DAYS = WS-WORKING-DAYS - 7\\n0026:            IF WS-DELAY-DAYS > ZERO\\n0027:               COMPUTE WS-PENALTY-AMT = WS-DELAY-DAYS * 500\\n0028:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The program calculates both the delay and the penalty from working-day counts, while the clause specifies a calendar-day penalty basis.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110002",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "19",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": null,
+                  "note": null
+                },
+                "penalty_per_day": {
+                  "kind": "amount_inr",
+                  "value": 500,
+                  "comparator": null,
+                  "note": null
+                },
+                "day_basis": {
+                  "kind": "enum_set",
+                  "value": [
+                    "calendar_day"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6CL01",
+                "paragraph": "2000-CALCULATE-PENALTY",
+                "file": "T6CL01.cbl",
+                "line_span": [
+                  23,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ELAPSED-DAYS",
+              "WS-WEEKEND-DAYS",
+              "WS-HOLIDAY-DAYS",
+              "WS-WORKING-DAYS",
+              "WS-DELAY-DAYS",
+              "WS-PENALTY-AMT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "day_basis",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6CL01",
+                "line": 24,
+                "file": "T6CL01.cbl"
+              },
+              {
+                "program": "T6CL01",
+                "line": 25,
+                "file": "T6CL01.cbl"
+              },
+              {
+                "program": "T6CL01",
+                "line": 27,
+                "file": "T6CL01.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause sets a 7 working-day closure window but assesses Rs 500 for each calendar day of delay. Lines 23–25 calculate delay by subtracting 7 from elapsed days after removing weekends and holidays; line 27 multiplies that working-day delay by 500. This uses a working-day basis for the penalty instead of the required calendar-day basis."
+        },
+        "claim": "Closure requests must be honoured within 7 working days, subject to dues; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding amount remains.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "500",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The clause allows 7 working days for closure and requires Rs 500 per calendar day of delay. The program subtracts weekends and holidays, then computes the delay and penalty from working days, so its penalty day basis differs from the clause.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The program calculates both the delay and the penalty from working-day counts, while the clause specifies a calendar-day penalty basis.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6CL01\",\"paragraph\":\"2000-CALCULATE-PENALTY\",\"file\":\"T6CL01.cbl\",\"line_span\":[23,28]}],\"slice_vars\":[\"WS-ELAPSED-DAYS\",\"WS-WEEKEND-DAYS\",\"WS-HOLIDAY-DAYS\",\"WS-WORKING-DAYS\",\"WS-DELAY-DAYS\",\"WS-PENALTY-AMT\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"day_basis\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6CL01\",\"line\":24,\"file\":\"T6CL01.cbl\"},{\"program\":\"T6CL01\",\"line\":25,\"file\":\"T6CL01.cbl\"},{\"program\":\"T6CL01\",\"line\":27,\"file\":\"T6CL01.cbl\"}]},\"rationale\":\"The clause sets a 7 working-day closure window but assesses Rs 500 for each calendar day of delay. Lines 23–25 calculate delay by subtracting 7 from elapsed days after removing weekends and holidays; line 27 multiplies that working-day delay by 500. This uses a working-day basis for the penalty instead of the required calendar-day basis.\"},\"claim\":\"Closure requests must be honoured within 7 working days, subject to dues; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding amount remains.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"500\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause allows 7 working days for closure and requires Rs 500 per calendar day of delay. The program subtracts weekends and holidays, then computes the delay and penalty from working days, so its penalty day basis differs from the clause.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "T6CL01:2000-CALCULATE-PENALTY — literal '500' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9635,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "T6CL01:2000-CALCULATE-PENALTY — literal '500' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110002",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "19",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "closure_window": {
+              "kind": "duration_working_days",
+              "value": 7,
+              "comparator": null,
+              "note": null
+            },
+            "penalty_per_day": {
+              "kind": "amount_inr",
+              "value": 500,
+              "comparator": null,
+              "note": null
+            },
+            "day_basis": {
+              "kind": "enum_set",
+              "value": [
+                "calendar_day"
+              ],
+              "comparator": null,
+              "note": null
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6CL01",
+            "paragraph": "2000-CALCULATE-PENALTY",
+            "file": "T6CL01.cbl",
+            "line_span": [
+              23,
+              28
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-ELAPSED-DAYS",
+          "WS-WEEKEND-DAYS",
+          "WS-HOLIDAY-DAYS",
+          "WS-WORKING-DAYS",
+          "WS-DELAY-DAYS",
+          "WS-PENALTY-AMT"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D5_boundary_error",
+      "target_path": "day_basis",
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6CL01",
+            "line": 24,
+            "file": "T6CL01.cbl"
+          },
+          {
+            "program": "T6CL01",
+            "line": 25,
+            "file": "T6CL01.cbl"
+          },
+          {
+            "program": "T6CL01",
+            "line": 27,
+            "file": "T6CL01.cbl"
+          }
+        ]
+      },
+      "rationale": "The clause sets a 7 working-day closure window but assesses Rs 500 for each calendar day of delay. Lines 23–25 calculate delay by subtracting 7 from elapsed days after removing weekends and holidays; line 27 multiplies that working-day delay by 500. This uses a working-day basis for the penalty instead of the required calendar-day basis."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause allows 7 working days for closure and requires Rs 500 per calendar day of delay. The program subtracts weekends and holidays, then computes the delay and penalty from working days, so its penalty day basis differs from the clause.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "bfddab09c01ad8d9305af464983595ecd7e0e57af01597e13767c550e4a9c4df",
+  "run_key": "b319ea25f519290b06ae5a6958f4fc309719f7d5b6d0cae1679fc299ceea7b11"
+}

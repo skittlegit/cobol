@@ -1,0 +1,117 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The threshold literal matches the supplied 15 percent value, so the evidence does not support a stale-threshold finding.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced.",
+        "final_answer": "T6BO02 initializes WS-LEGACY-BO-LIMIT to 15 and uses it with a strict greater-than comparison. No D1 threshold drift is evidenced."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The required behavior cannot be shown absent under the D2 evidence contract: the scoped grep and data slice show a populated result and an implemented decision branch, while the caller observation is positive.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The four required D2 observations are not all negative, so I cannot report a missing-rule finding.",
+        "final_answer": "The four required D2 observations are not all negative, so I cannot report a missing-rule finding."
+      },
+      "D3_contradictory": {
+        "kind": "finding",
+        "thought": "The implementation denies a person whose profit share does not exceed 15 percent, even though the clause also qualifies a person whose capital ownership or entitlement exceeds 15 percent.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO02",
+                "paragraph": "2100-CHECK-PROFIT-SHARE",
+                "file": "T6BO02.cbl",
+                "line_span": [18, 21]
+              }
+            ],
+            "slice_vars": [
+              "WS-PROFIT-SHARE",
+              "WS-LEGACY-BO-LIMIT",
+              "WS-OWNER-RESULT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO02",
+                "line": 18,
+                "file": "T6BO02.cbl"
+              },
+              {
+                "program": "T6BO02",
+                "line": 21,
+                "file": "T6BO02.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause qualifies a partnership-firm beneficial owner when ownership of or entitlement to more than 15 percent of capital or profits is met. T6BO02 tests only WS-PROFIT-SHARE > WS-LEGACY-BO-LIMIT and moves 'N' to WS-OWNER-RESULT in the other branch, so a person meeting the capital limb with profit share at or below 15 percent is denied."
+        },
+        "claim": "For a partnership firm, a beneficial owner is the natural person or persons who, alone or together, directly or through one or more juridical persons, has or have ownership of or entitlement to more than 15 percent of the firm's capital or profits.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "MOVE 'N' TO WS-OWNER-RESULT",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The clause accepts either the capital or profit criterion above 15 percent. T6BO02 tests only profit share and sets the result to N otherwise, denying a person who meets the capital criterion while not exceeding the profit-share threshold."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current value is a percentage threshold, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 stale reference-data hunting does not apply to this clause value.",
+        "final_answer": "D4 stale reference-data hunting does not apply to this clause value."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The source uses a strict greater-than comparison and sets the positive result only in that branch, matching the clause's strictly-greater boundary.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No D5 early or late boundary transition is evidenced.",
+        "final_answer": "No D5 early or late boundary transition is evidenced."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The check paragraph has a caller from 1000-MAIN, and 1000-MAIN performs it before displaying the result.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The bounded observations show the compliance paragraph is reachable, with no disabled-guard evidence.",
+        "final_answer": "The bounded observations show the compliance paragraph is reachable, with no disabled-guard evidence."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The 15 percent strict threshold is present, but the bounded evidence shows only a profit-share test and does not establish the clause's alternative capital criterion or its other stated scope conditions.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Positive threshold evidence alone is insufficient to establish full conformance with the supplied clause.",
+        "final_answer": "Positive threshold evidence alone is insufficient to establish full conformance with the supplied clause."
+      }
+    }
+  ]
+}

@@ -1,0 +1,384 @@
+{
+  "instance_id": "drift_000005",
+  "gold": {
+    "instance_id": "drift_000005",
+    "regulation_clause": {
+      "doc": "RBI-CC-Debit-Card-Directions-2022",
+      "clause_id": "26(c)",
+      "version": "2022-04-21",
+      "effective_date": "2022-07-01",
+      "text": "If a complainant does not get satisfactory response from the card-issuer within a maximum period of one month from the date of lodging the complaint, he/she will have the option to approach the Office of the concerned RBI Ombudsman.",
+      "current_value": null
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "GRVAGE1",
+          "paragraph": "2000-DUE-DATE",
+          "file": null,
+          "line_span": [
+            32,
+            40
+          ]
+        },
+        {
+          "program": "GRVAGE1",
+          "paragraph": "3000-COMPARE",
+          "file": null,
+          "line_span": [
+            41,
+            44
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CMP-YYYY",
+        "WS-CMP-MM",
+        "WS-CMP-DD",
+        "WS-DUE-YYYY",
+        "WS-DUE-MM",
+        "WS-DUE-DD",
+        "WS-CHECK-DATE",
+        "WS-ESCALATE"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "The 2022 clause allows a maximum period of 'one month' before Ombudsman escalation eligibility. 2000-DUE-DATE computes a due date exactly one calendar month after the complaint date (with correct December-to-January year rollover at lines 34-36), and 3000-COMPARE escalates only when the check date exceeds that due date. This directly and correctly implements a one-calendar-month maximum period.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "GRVAGE1.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_000005",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "85",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a complainant does not get a satisfactory response within a maximum period of 30 days from lodging the complaint, they may approach the RBI Ombudsman.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 30,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "GRVAGE1",
+          "paragraph": "2000-DUE-DATE",
+          "file": "GRVAGE1.cbl",
+          "line_span": [
+            32,
+            39
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CMP-DD",
+        "WS-CMP-MM",
+        "WS-CMP-YYYY",
+        "WS-DUE-DD",
+        "WS-DUE-MM",
+        "WS-DUE-YYYY"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "GRVAGE1",
+          "line": 33,
+          "file": "GRVAGE1.cbl"
+        },
+        {
+          "program": "GRVAGE1",
+          "line": 34,
+          "file": "GRVAGE1.cbl"
+        },
+        {
+          "program": "GRVAGE1",
+          "line": 35,
+          "file": "GRVAGE1.cbl"
+        },
+        {
+          "program": "GRVAGE1",
+          "line": 36,
+          "file": "GRVAGE1.cbl"
+        },
+        {
+          "program": "GRVAGE1",
+          "line": 38,
+          "file": "GRVAGE1.cbl"
+        },
+        {
+          "program": "GRVAGE1",
+          "line": 39,
+          "file": "GRVAGE1.cbl"
+        }
+      ]
+    },
+    "rationale": "The visible due-date logic preserves the complaint day and increments the month, producing a one-calendar-month interval. Calendar months can span 31 days, while the selected clause sets a maximum of 30 days; this can make the visible cutoff later than the clause allows."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "GRVAGE1:2000-DUE-DATE — literal '12' present; comparator '=' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9929,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "GRVAGE1:2000-DUE-DATE — literal '12' present; comparator '=' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: RAG+reranker single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"If a complainant does not get satisfactory response from the card-issuer within a maximum period of one month from the date of lodging the complaint, he/she will have the option to approach the Office of the concerned RBI Ombudsman.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"85\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a complainant does not get a satisfactory response within a maximum period of 30 days from lodging the complaint, they may approach the RBI Ombudsman.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"score\":5.122866153717041},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"25\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a cardholder protests a bill, the issuer must provide an explanation (with documentary evidence where applicable) within a maximum of 30 days from the date of complaint.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"score\":2.61802339553833},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"24\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Bills must be sent without delay and the customer must have at least one fortnight for payment before interest begins to be charged.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":15,\"comparator\":\"at_least\",\"note\":\"fortnight\"}},\"score\":-2.075936794281006},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"11(4)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For an unsolicited card issued/activated and billed, the issuer must reverse the charges and pay the recipient a penalty of twice the value of the charges reversed.\",\"current_value\":{\"kind\":\"multiplier\",\"value\":2,\"comparator\":null,\"note\":\"Fixed statutory multiplier (2x charges reversed), not a directional threshold: a stale value is simply WRONG, not laxer/stricter on a grid. mo1_mode=exact_wrong with declared wrong-set [1], not [1,3]: the drift-direction principle extends to constants on two grounds - (a) D1 is temporal staleness and penalty provisions ratchet upward (every primary-verified change in this corpus moved toward strictness), so the plausible FORMER value sits below; (b) survival bias - drift that overpays (3x) is noticed and corrected internally, drift that underpays (1x) generates no internal signal and persists. The mechanism is indifferent to threshold-vs-constant.\"}},\"score\":-3.446951389312744},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(7)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Changes in charges take prospective effect only, with prior notice of at least one month.\",\"current_value\":{\"kind\":\"duration_months\",\"value\":1,\"comparator\":\"at_least\",\"note\":null}},\"score\":-3.70474910736084}],\"program\":\"FILE GRVAGE1.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. GRVAGE1.\\n0003:       *----------------------------------------------------------------\\n0004:       * GRIEVANCE AGEING - ESCALATE IF NO RESPONSE WITHIN ONE MONTH\\n0005:       * OF COMPLAINT LODGEMENT (OMBUDSMAN ELIGIBILITY MARKER)\\n0006:       *----------------------------------------------------------------\\n0007:        ENVIRONMENT DIVISION.\\n0008:        DATA DIVISION.\\n0009:        WORKING-STORAGE SECTION.\\n0010:        01  WS-COMPLAINT-DATE.\\n0011:            05  WS-CMP-YYYY           PIC 9(4) VALUE ZERO.\\n0012:            05  WS-CMP-MM             PIC 9(2) VALUE ZERO.\\n0013:            05  WS-CMP-DD             PIC 9(2) VALUE ZERO.\\n0014:        01  WS-CHECK-DATE.\\n0015:            05  WS-CHK-YYYY           PIC 9(4) VALUE ZERO.\\n0016:            05  WS-CHK-MM             PIC 9(2) VALUE ZERO.\\n0017:            05  WS-CHK-DD             PIC 9(2) VALUE ZERO.\\n0018:        01  WS-DUE-DATE.\\n0019:            05  WS-DUE-YYYY           PIC 9(4) VALUE ZERO.\\n0020:            05  WS-DUE-MM             PIC 9(2) VALUE ZERO.\\nFILE GRVAGE1.cbl LINES 21-40\\n0021:            05  WS-DUE-DD             PIC 9(2) VALUE ZERO.\\n0022:        01  WS-FLAGS.\\n0023:            05  WS-ESCALATE           PIC X(1) VALUE 'N'.\\n0024:        PROCEDURE DIVISION.\\n0025:        1000-MAIN.\\n0026:            ACCEPT WS-COMPLAINT-DATE\\n0027:            ACCEPT WS-CHECK-DATE\\n0028:            PERFORM 2000-DUE-DATE\\n0029:            PERFORM 3000-COMPARE\\n0030:            DISPLAY 'ESCALATE: ' WS-ESCALATE\\n0031:            STOP RUN.\\n0032:        2000-DUE-DATE.\\n0033:            MOVE WS-CMP-DD TO WS-DUE-DD\\n0034:            IF WS-CMP-MM = 12\\n0035:               MOVE 01 TO WS-DUE-MM\\n0036:               COMPUTE WS-DUE-YYYY = WS-CMP-YYYY + 1\\n0037:            ELSE\\n0038:               COMPUTE WS-DUE-MM = WS-CMP-MM + 1\\n0039:               MOVE WS-CMP-YYYY TO WS-DUE-YYYY\\n0040:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The visible due-date calculation adds a calendar month, which can exceed the clause's 30-day maximum.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_000005",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "85",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "If a complainant does not get a satisfactory response within a maximum period of 30 days from lodging the complaint, they may approach the RBI Ombudsman.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 30,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "GRVAGE1",
+                "paragraph": "2000-DUE-DATE",
+                "file": "GRVAGE1.cbl",
+                "line_span": [
+                  32,
+                  39
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CMP-DD",
+              "WS-CMP-MM",
+              "WS-CMP-YYYY",
+              "WS-DUE-DD",
+              "WS-DUE-MM",
+              "WS-DUE-YYYY"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "GRVAGE1",
+                "line": 33,
+                "file": "GRVAGE1.cbl"
+              },
+              {
+                "program": "GRVAGE1",
+                "line": 34,
+                "file": "GRVAGE1.cbl"
+              },
+              {
+                "program": "GRVAGE1",
+                "line": 35,
+                "file": "GRVAGE1.cbl"
+              },
+              {
+                "program": "GRVAGE1",
+                "line": 36,
+                "file": "GRVAGE1.cbl"
+              },
+              {
+                "program": "GRVAGE1",
+                "line": 38,
+                "file": "GRVAGE1.cbl"
+              },
+              {
+                "program": "GRVAGE1",
+                "line": 39,
+                "file": "GRVAGE1.cbl"
+              }
+            ]
+          },
+          "rationale": "The visible due-date logic preserves the complaint day and increments the month, producing a one-calendar-month interval. Calendar months can span 31 days, while the selected clause sets a maximum of 30 days; this can make the visible cutoff later than the clause allows."
+        },
+        "claim": "If a complainant does not receive a satisfactory response within a maximum of 30 days from lodging the complaint, they may approach the RBI Ombudsman.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "12",
+          "comparator": "=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The code constructs a due date one calendar month after the complaint date; the selected clause allows a maximum of 30 days, so the calculated cutoff can be later than permitted.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible due-date calculation adds a calendar month, which can exceed the clause's 30-day maximum.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"GRVAGE1\",\"paragraph\":\"2000-DUE-DATE\",\"file\":\"GRVAGE1.cbl\",\"line_span\":[32,39]}],\"slice_vars\":[\"WS-CMP-DD\",\"WS-CMP-MM\",\"WS-CMP-YYYY\",\"WS-DUE-DD\",\"WS-DUE-MM\",\"WS-DUE-YYYY\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"GRVAGE1\",\"line\":33,\"file\":\"GRVAGE1.cbl\"},{\"program\":\"GRVAGE1\",\"line\":34,\"file\":\"GRVAGE1.cbl\"},{\"program\":\"GRVAGE1\",\"line\":35,\"file\":\"GRVAGE1.cbl\"},{\"program\":\"GRVAGE1\",\"line\":36,\"file\":\"GRVAGE1.cbl\"},{\"program\":\"GRVAGE1\",\"line\":38,\"file\":\"GRVAGE1.cbl\"},{\"program\":\"GRVAGE1\",\"line\":39,\"file\":\"GRVAGE1.cbl\"}]},\"rationale\":\"The visible due-date logic preserves the complaint day and increments the month, producing a one-calendar-month interval. Calendar months can span 31 days, while the selected clause sets a maximum of 30 days; this can make the visible cutoff later than the clause allows.\"},\"claim\":\"If a complainant does not receive a satisfactory response within a maximum of 30 days from lodging the complaint, they may approach the RBI Ombudsman.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"12\",\"comparator\":\"=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The code constructs a due date one calendar month after the complaint date; the selected clause allows a maximum of 30 days, so the calculated cutoff can be later than permitted.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "GRVAGE1:2000-DUE-DATE — literal '12' present; comparator '=' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9929,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "GRVAGE1:2000-DUE-DATE — literal '12' present; comparator '=' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_000005",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "85",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "If a complainant does not get a satisfactory response within a maximum period of 30 days from lodging the complaint, they may approach the RBI Ombudsman.",
+        "current_value": {
+          "kind": "duration_days",
+          "value": 30,
+          "comparator": "at_most",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "GRVAGE1",
+            "paragraph": "2000-DUE-DATE",
+            "file": "GRVAGE1.cbl",
+            "line_span": [
+              32,
+              39
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CMP-DD",
+          "WS-CMP-MM",
+          "WS-CMP-YYYY",
+          "WS-DUE-DD",
+          "WS-DUE-MM",
+          "WS-DUE-YYYY"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D5_boundary_error",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "GRVAGE1",
+            "line": 33,
+            "file": "GRVAGE1.cbl"
+          },
+          {
+            "program": "GRVAGE1",
+            "line": 34,
+            "file": "GRVAGE1.cbl"
+          },
+          {
+            "program": "GRVAGE1",
+            "line": 35,
+            "file": "GRVAGE1.cbl"
+          },
+          {
+            "program": "GRVAGE1",
+            "line": 36,
+            "file": "GRVAGE1.cbl"
+          },
+          {
+            "program": "GRVAGE1",
+            "line": 38,
+            "file": "GRVAGE1.cbl"
+          },
+          {
+            "program": "GRVAGE1",
+            "line": 39,
+            "file": "GRVAGE1.cbl"
+          }
+        ]
+      },
+      "rationale": "The visible due-date logic preserves the complaint day and increments the month, producing a one-calendar-month interval. Calendar months can span 31 days, while the selected clause sets a maximum of 30 days; this can make the visible cutoff later than the clause allows."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The code constructs a due date one calendar month after the complaint date; the selected clause allows a maximum of 30 days, so the calculated cutoff can be later than permitted.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_reranker",
+  "source_sha256": "006a609d6dfcc828df684e889ef14475140f8e94023b69f6cba7209e2d50e05a",
+  "run_key": "463d10458a2193f0af5c21bbd30fbcf02592c8f5aeb5b1f9fde33e519c286e6f"
+}

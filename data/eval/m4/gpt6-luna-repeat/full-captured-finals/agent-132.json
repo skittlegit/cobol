@@ -1,0 +1,114 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The observed source threshold is 7, matching the supplied duration value; no stale literal is evidenced.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The source literal 7 matches the clause's current duration value of 7, so the D1 stale-threshold condition is not supported.",
+        "final_answer": "The source uses 7, which matches the clause value. I found no D1 stale-threshold drift."
+      },
+      "D2_missing_rule": {
+        "kind": "finding",
+        "thought": "The reachable path classifies elapsed days and displays a status, but the supplied obligation is to update the Central KYC Records Registry.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSYNC2",
+                "paragraph": "1000-MAIN",
+                "file": "KYCSYNC2.cbl",
+                "line_span": [20, 25]
+              },
+              {
+                "program": "KYCSYNC2",
+                "paragraph": "2000-CHECK-SLA",
+                "file": "KYCSYNC2.cbl",
+                "line_span": [26, 31]
+              }
+            ],
+            "slice_vars": ["WS-DAYS-SINCE-UPD"],
+            "is_interprocedural": true
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSYNC2",
+                "line": 24,
+                "file": "KYCSYNC2.cbl"
+              }
+            ]
+          },
+          "rationale": "Clause 65(8) requires a Central KYC Records Registry update within 7 days. In KYCSYNC2, 1000-MAIN accepts a customer ID and elapsed-day count, performs 2000-CHECK-SLA, then displays the SLA status and stops; 2000-CHECK-SLA only assigns OVERDUE when the count is greater than 7 and INSLA otherwise. The scoped status grep shows status storage, display, and assignments; find_callers shows that the classification paragraph is reached, find_callees returns no downstream action, and the elapsed-day slice shows only its declaration and ACCEPT. Those observations do not show the required registry update. Line 24, before the status display, is the typed insertion point."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "DISPLAY 'SLA: ' WS-SLA-STATUS",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Clause 65(8) requires a registry update within seven days. The reachable path only classifies elapsed days and displays the SLA status; it contains no registry update action. The insertion point is in 1000-MAIN before its status display at line 24."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The source's overdue branch starts after day 7 and its other branch marks the record in-SLA; neither positively contradicts the clause's timing condition.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed classification is consistent with the seven-day boundary. The missing registry update is an absence, not a positively conflicting source action for D3.",
+        "final_answer": "The source marks days greater than 7 as overdue and days up to 7 as in-SLA. I found no D3 contradictory behavior."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The clause supplies a duration value, not an enum-set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only to enum_set reference collections; the supplied current value is duration_days with value 7.",
+        "final_answer": "The clause value is a duration, so there is no D4 stale-reference-data comparison to make."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The source applies the overdue transition only when elapsed days exceed 7.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed comparator and actions keep day 7 in the in-SLA branch and mark only values greater than 7 overdue, matching the clause's at-most-7-day boundary.",
+        "final_answer": "The source transitions to overdue only after day 7, so I found no D5 boundary error."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The SLA paragraph is called from the main paragraph and has no disabled guard in the observed code.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed caller graph shows 1000-MAIN calls 2000-CHECK-SLA; no unreachable paragraph or always-false compliance guard is evidenced.",
+        "final_answer": "2000-CHECK-SLA is reached from 1000-MAIN, and no disabled compliance branch was observed. I found no D6 dead-code finding."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The timing classification matches the seven-day boundary, but the source does not show the required registry update.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D7 requires positive evidence that the regulated update action exists and matches the clause; the observed path only classifies and displays SLA status.",
+        "final_answer": "The timing check matches the boundary, but the code does not show a KYC registry update, so D7 conformance is not established."
+      }
+    }
+  ]
+}

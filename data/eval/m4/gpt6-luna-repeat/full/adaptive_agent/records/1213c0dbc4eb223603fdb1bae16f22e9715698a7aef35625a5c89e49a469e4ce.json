@@ -1,0 +1,431 @@
+{
+  "instance_id": "drift_000019",
+  "gold": {
+    "instance_id": "drift_000019",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "12(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "explicit_consent_before_overlimit",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CBTRN02C",
+          "paragraph": "1500-B-LOOKUP-ACCT",
+          "file": null,
+          "line_span": [
+            393,
+            411
+          ]
+        },
+        {
+          "program": "CBTRN02C",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            211,
+            216
+          ]
+        }
+      ],
+      "slice_vars": [
+        "ACCT-CREDIT-LIMIT",
+        "WS-TEMP-BAL",
+        "WS-VALIDATION-FAIL-REASON"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "Clause 12(5) conditions breach on explicit consent (breach -> consent). 1500-B-LOOKUP-ACCT rejects any transaction that would exceed ACCT-CREDIT-LIMIT (lines 403-411) and the main loop never posts a failed transaction (lines 211-216), making the antecedent always false and the conditional vacuously satisfied, per the adjudication note.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "CBTRN02C.cbl",
+      "mutation": null,
+      "annotator_notes": "Adjudicated 2026-07-27: Pass 1 read the blanket rejection of over-limit transactions as conformant (D7); Pass 2 read the absent consent-capture path as a missing rule (D2). Resolved on the clause's own grammar: 'shall not be breached... without explicit consent' is the conditional breach -> consent. CBTRN02C's 1500-B-LOOKUP-ACCT makes the antecedent always false (no transaction that would breach the limit is ever posted, lines 403-411 reject it via WS-VALIDATION-FAIL-REASON=102, and the main loop never posts a failed transaction, lines 211-216), which satisfies the conditional regardless of whether a distinct consent mechanism exists. The cited text conditions breach on consent; it does not separately mandate that a consent-gated override path be offered. Pass 1's reading is accepted."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_000019",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "12(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "explicit_consent_before_overlimit",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CBTRN02C",
+          "paragraph": "1500-B-LOOKUP-ACCT",
+          "file": null,
+          "line_span": [
+            403,
+            413
+          ]
+        }
+      ],
+      "slice_vars": [
+        "ACCT-CREDIT-LIMIT",
+        "WS-TEMP-BAL",
+        "WS-VALIDATION-FAIL-REASON"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "rationale": "The paragraph computes WS-TEMP-BAL from current credit minus current debit plus DALYTRAN-AMT. It continues only when ACCT-CREDIT-LIMIT >= WS-TEMP-BAL; otherwise it sets validation failure 102 and the over-limit description. The reachable main loop posts only when WS-VALIDATION-FAIL-REASON = 0 and writes a reject record otherwise, preventing a transaction that exceeds the limit from being posted."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "CBTRN02C:1500-B-LOOKUP-ACCT — literal 'ACCT-CREDIT-LIMIT' present; comparator '>=' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9948,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "CBTRN02C:1500-B-LOOKUP-ACCT — literal 'ACCT-CREDIT-LIMIT' present; comparator '>=' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`. Keep the claim as a close paraphrase of the supplied\nclause and preserve its distinctive regulated terms; do not add an entity,\nqualifier, or mechanism that the clause does not state.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor D7 over a boolean-required behavior, choose a literal that directly\nparticipates in the conformant operation (for example, the excluded amount in\nthe subtraction), not an unrelated nearby threshold or branch token.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 when the specific regulated behavior or required violation outcome\n  is absent. Inspect the relevant paragraph, scoped grep, and data slice,\n  but distinguish positive surrounding control flow from positive evidence of\n  the required outcome itself. A present compliant branch does not cure a\n  missing breach/overdue/denial branch. Do not invent an unstated date\n  derivation, preprocessing step, or implementation mechanism as a missing\n  rule. If complete positive code evidence matches the clause and no supported\n  drift remains, consider D7.\n  Treat a one-sided state machine as incomplete when the regulated outcome for\n  the other side is absent: `days <= 30 -> UPDATE` without an explicit\n  `days > 30 -> BREACH` outcome is D2, and `today <= due -> OK` without an\n  explicit overdue outcome is D2. A zero-day `NEW` special case does not\n  implement a required seven-day SLA. Do not call these partial machines D7.\n- Choose D3 when reachable source behavior positively contradicts the trusted\n  clause. Two source loci are required only for an internal source conflict;\n  one typed computation can contradict the clause directly. For a required\n  exclusion, accepting a regulated amount and then computing the base without\n  excluding it is contradictory, not conformant-by-absence.\n  A validation rule that detects the regulated violation and sets a denial or\n  invalid state, followed by a reachable action that ignores or bypasses that\n  state, is also D3: the implemented validation and action conflict. Do not\n  relabel that case D2 merely because the final gate is malformed or absent.\n  Reserve D2 for a required outcome that is absent without an existing source\n  state or action that positively conflicts with the requirement.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- For D7, put the positive source location in `code_locus`, but set\n  `labels.program_level` and `labels.paragraph_level` to `conformant` and set\n  `labels.line_level` to an empty list. D7 line labels identify drift and must\n  therefore stay empty. When the clause current value is composite, set\n  `target_path` to the exact matching non-composite leaf.\n- Interpret a comparator together with the branch action and control-flow\n  polarity. Do not call D5 from a token-only comparison between a clause's\n  typed comparator and a source predicate. In an elapsed-window state machine,\n  `elapsed > limit` can be the conformant transition after the full allowed\n  window, while `elapsed >= limit` can fire one boundary unit early. Trace the\n  resulting action and use a boundary probe when possible before choosing D5.\n  Apply these exact elapsed-window checks: `delay > 7` is conformant for a\n  seven-day allowed window and `delay >= 7` is one unit early; `elapsed > 30`\n  is conformant for an at-most-30-day window and `elapsed >= 30` is early;\n  `notice >= 30` is conformant for an at-least-30-day requirement and\n  `notice > 30` is late. Do not cancel an early transition merely because a\n  downstream arithmetic expression happens to evaluate to zero at the edge.\n- Choose D6 when the relevant compliance action is unreachable, including a\n  reachable paragraph whose compliance branch is disabled by an always-false\n  or default-off flag. A paragraph caller does not make guarded statements\n  live. Inspect the guard definition and its uses. Use `dead_paragraph` only\n  for a truly unreachable paragraph; for a disabled guard use an exact source\n  literal as the static hook and explain why the action cannot execute.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"CBTRN02C\",\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"12(5)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"explicit_consent_before_overlimit\",\"comparator\":null,\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "CBTRN02C"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 235, \"line_start\": 194, \"name\": \"<preamble>\"}, {\"line_end\": 253, \"line_start\": 236, \"name\": \"0000-DALYTRAN-OPEN\"}, {\"line_end\": 272, \"line_start\": 254, \"name\": \"0100-TRANFILE-OPEN\"}, {\"line_end\": 290, \"line_start\": 273, \"name\": \"0200-XREFFILE-OPEN\"}, {\"line_end\": 308, \"line_start\": 291, \"name\": \"0300-DALYREJS-OPEN\"}, {\"line_end\": 326, \"line_start\": 309, \"name\": \"0400-ACCTFILE-OPEN\"}, {\"line_end\": 344, \"line_start\": 327, \"name\": \"0500-TCATBALF-OPEN\"}, {\"line_end\": 369, \"line_start\": 345, \"name\": \"1000-DALYTRAN-GET-NEXT\"}, {\"line_end\": 379, \"line_start\": 370, \"name\": \"1500-VALIDATE-TRAN\"}, {\"line_end\": 392, \"line_start\": 380, \"name\": \"1500-A-LOOKUP-XREF\"}, {\"line_end\": 423, \"line_start\": 393, \"name\": \"1500-B-LOOKUP-ACCT\"}, {\"line_end\": 445, \"line_start\": 424, \"name\": \"2000-POST-TRANSACTION\"}, {\"line_end\": 466, \"line_start\": 446, \"name\": \"2500-WRITE-REJECT-REC\"}, {\"line_end\": 502, \"line_start\": 467, \"name\": \"2700-UPDATE-TCATBAL\"}, {\"line_end\": 525, \"line_start\": 503, \"name\": \"2700-A-CREATE-TCATBAL-REC\"}, {\"line_end\": 544, \"line_start\": 526, \"name\": \"2700-B-UPDATE-TCATBAL-REC\"}, {\"line_end\": 561, \"line_start\": 545, \"name\": \"2800-UPDATE-ACCOUNT-REC\"}, {\"line_end\": 581, \"line_start\": 562, \"name\": \"2900-WRITE-TRANSACTION-FILE\"}, {\"line_end\": 599, \"line_start\": 582, \"name\": \"9000-DALYTRAN-CLOSE\"}, {\"line_end\": 618, \"line_start\": 600, \"name\": \"9100-TRANFILE-CLOSE\"}, {\"line_end\": 636, \"line_start\": 619, \"name\": \"9200-XREFFILE-CLOSE\"}, {\"line_end\": 654, \"line_start\": 637, \"name\": \"9300-DALYREJS-CLOSE\"}, {\"line_end\": 673, \"line_start\": 655, \"name\": \"9400-ACCTFILE-CLOSE\"}, {\"line_end\": 691, \"line_start\": 674, \"name\": \"9500-TCATBALF-CLOSE\"}, {\"line_end\": 706, \"line_start\": 692, \"name\": \"Z-GET-DB2-FORMAT-TIMESTAMP\"}, {\"line_end\": 713, \"line_start\": 707, \"name\": \"9999-ABEND-PROGRAM\"}, {\"line_end\": 727, \"line_start\": 714, \"name\": \"9910-DISPLAY-IO-STATUS\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\adaptive_agent\\\\task-staging\\\\1213c0dbc4eb223603fdb1bae16f22e9715698a7aef35625a5c89e49a469e4ce\\\\cases\\\\drift_900000\\\\CBTRN02C.cbl\", \"program\": \"CBTRN02C\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 2,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "LIMIT|CONSENT|OVERLIMIT|CREDIT"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 20, \"program\": \"CBTRN02C\", \"text\": \"      * language governing permissions and limitations under the License\"}, {\"line\": 401, \"program\": \"CBTRN02C\", \"text\": \"      *         DISPLAY 'ACCT-CREDIT-LIMIT:' ACCT-CREDIT-LIMIT\"}, {\"line\": 403, \"program\": \"CBTRN02C\", \"text\": \"                COMPUTE WS-TEMP-BAL = ACCT-CURR-CYC-CREDIT\"}, {\"line\": 407, \"program\": \"CBTRN02C\", \"text\": \"                IF ACCT-CREDIT-LIMIT >= WS-TEMP-BAL\"}, {\"line\": 411, \"program\": \"CBTRN02C\", \"text\": \"                  MOVE 'OVERLIMIT TRANSACTION'\"}, {\"line\": 549, \"program\": \"CBTRN02C\", \"text\": \"              ADD DALYTRAN-AMT TO ACCT-CURR-CYC-CREDIT\"}, {\"line\": 8, \"program\": \"CVACT01Y\", \"text\": \"           05  ACCT-CREDIT-LIMIT                 PIC S9(10)V99.\"}, {\"line\": 9, \"program\": \"CVACT01Y\", \"text\": \"           05  ACCT-CASH-CREDIT-LIMIT            PIC S9(10)V99.\"}, {\"line\": 13, \"program\": \"CVACT01Y\", \"text\": \"           05  ACCT-CURR-CYC-CREDIT              PIC S9(10)V99.\"}], \"pattern\": \"LIMIT|CONSENT|OVERLIMIT|CREDIT\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "CBTRN02C",
+          "name": "1500-B-LOOKUP-ACCT"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1500-VALIDATE-TRAN\", \"program\": \"CBTRN02C\"}], \"code\": \"       1500-B-LOOKUP-ACCT.\\n           MOVE XREF-ACCT-ID TO FD-ACCT-ID\\n           READ ACCOUNT-FILE INTO ACCOUNT-RECORD\\n              INVALID KEY\\n                MOVE 101 TO WS-VALIDATION-FAIL-REASON\\n                MOVE 'ACCOUNT RECORD NOT FOUND'\\n                  TO WS-VALIDATION-FAIL-REASON-DESC\\n              NOT INVALID KEY\\n      *         DISPLAY 'ACCT-CREDIT-LIMIT:' ACCT-CREDIT-LIMIT\\n      *         DISPLAY 'TRAN-AMT         :' DALYTRAN-AMT\\n                COMPUTE WS-TEMP-BAL = ACCT-CURR-CYC-CREDIT\\n                                    - ACCT-CURR-CYC-DEBIT\\n                                    + DALYTRAN-AMT\\n\\n                IF ACCT-CREDIT-LIMIT >= WS-TEMP-BAL\\n                  CONTINUE\\n                ELSE\\n                  MOVE 102 TO WS-VALIDATION-FAIL-REASON\\n                  MOVE 'OVERLIMIT TRANSACTION'\\n                    TO WS-VALIDATION-FAIL-REASON-DESC\\n                END-IF\\n                IF ACCT-EXPIRAION-DATE >= DALYTRAN-ORIG-TS (1:10)\\n                  CONTINUE\\n                ELSE\\n                  MOVE 103 TO WS-VALIDATION-FAIL-REASON\\n                  MOVE 'TRANSACTION RECEIVED AFTER ACCT EXPIRATION'\\n                    TO WS-VALIDATION-FAIL-REASON-DESC\\n                END-IF\\n           END-READ\\n           EXIT.\\n      *---------------------------------------------------------------*\", \"name\": \"1500-B-LOOKUP-ACCT\", \"ref\": {\"line_end\": 423, \"line_start\": 393, \"paragraph\": \"1500-B-LOOKUP-ACCT\", \"program\": \"CBTRN02C\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 4,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "CBTRN02C",
+          "name": "1500-VALIDATE-TRAN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"1500-A-LOOKUP-XREF\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"1500-B-LOOKUP-ACCT\", \"program\": \"CBTRN02C\"}], \"callers\": [{\"paragraph\": \"<preamble>\", \"program\": \"CBTRN02C\"}], \"code\": \"       1500-VALIDATE-TRAN.\\n           PERFORM 1500-A-LOOKUP-XREF.\\n           IF WS-VALIDATION-FAIL-REASON = 0\\n              PERFORM 1500-B-LOOKUP-ACCT\\n           ELSE\\n              CONTINUE\\n           END-IF\\n      * ADD MORE VALIDATIONS HERE\\n           EXIT.\\n\", \"name\": \"1500-VALIDATE-TRAN\", \"ref\": {\"line_end\": 379, \"line_start\": 370, \"paragraph\": \"1500-VALIDATE-TRAN\", \"program\": \"CBTRN02C\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 5,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "CBTRN02C",
+          "name": "<preamble>"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"0000-DALYTRAN-OPEN\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"0100-TRANFILE-OPEN\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"0200-XREFFILE-OPEN\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"0300-DALYREJS-OPEN\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"0400-ACCTFILE-OPEN\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"0500-TCATBALF-OPEN\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"1000-DALYTRAN-GET-NEXT\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"1500-VALIDATE-TRAN\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"2000-POST-TRANSACTION\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"2500-WRITE-REJECT-REC\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"9000-DALYTRAN-CLOSE\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"9100-TRANFILE-CLOSE\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"9200-XREFFILE-CLOSE\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"9300-DALYREJS-CLOSE\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"9400-ACCTFILE-CLOSE\", \"program\": \"CBTRN02C\"}, {\"paragraph\": \"9500-TCATBALF-CLOSE\", \"program\": \"CBTRN02C\"}], \"callers\": [], \"code\": \"           DISPLAY 'START OF EXECUTION OF PROGRAM CBTRN02C'.\\n           PERFORM 0000-DALYTRAN-OPEN.\\n           PERFORM 0100-TRANFILE-OPEN.\\n           PERFORM 0200-XREFFILE-OPEN.\\n           PERFORM 0300-DALYREJS-OPEN.\\n           PERFORM 0400-ACCTFILE-OPEN.\\n           PERFORM 0500-TCATBALF-OPEN.\\n\\n           PERFORM UNTIL END-OF-FILE = 'Y'\\n               IF  END-OF-FILE = 'N'\\n                   PERFORM 1000-DALYTRAN-GET-NEXT\\n                   IF  END-OF-FILE = 'N'\\n                     ADD 1 TO WS-TRANSACTION-COUNT\\n      *              DISPLAY DALYTRAN-RECORD\\n                     MOVE 0 TO WS-VALIDATION-FAIL-REASON\\n                     MOVE SPACES TO WS-VALIDATION-FAIL-REASON-DESC\\n                     PERFORM 1500-VALIDATE-TRAN\\n                     IF WS-VALIDATION-FAIL-REASON = 0\\n                       PERFORM 2000-POST-TRANSACTION\\n                     ELSE\\n                       ADD 1 TO WS-REJECT-COUNT\\n                       PERFORM 2500-WRITE-REJECT-REC\\n                     END-IF\\n                   END-IF\\n               END-IF\\n           END-PERFORM.\\n\\n           PERFORM 9000-DALYTRAN-CLOSE.\\n           PERFORM 9100-TRANFILE-CLOSE.\\n           PERFORM 9200-XREFFILE-CLOSE.\\n           PERFORM 9300-DALYREJS-CLOSE.\\n           PERFORM 9400-ACCTFILE-CLOSE.\\n           PERFORM 9500-TCATBALF-CLOSE.\\n           DISPLAY 'TRANSACTIONS PROCESSED :' WS-TRANSACTION-COUNT\\n           DISPLAY 'TRANSACTIONS REJECTED  :' WS-REJECT-COUNT\\n           IF WS-REJECT-COUNT > 0\\n              MOVE 4 TO RETURN-CODE\\n           END-IF\\n           DISPLAY 'END OF EXECUTION OF PROGRAM CBTRN02C'.\\n\\n           GOBACK.\\n      *---------------------------------------------------------------*\", \"name\": \"<preamble>\", \"ref\": {\"line_end\": 235, \"line_start\": 194, \"paragraph\": \"<preamble>\", \"program\": \"CBTRN02C\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 15.0
+      },
+      {
+        "step": 6,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "ACCT-CREDIT-LIMIT",
+          "program": "CBTRN02C"
+        },
+        "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [], \"scoped_program\": \"CBTRN02C\", \"statements\": [], \"variable\": \"ACCT-CREDIT-LIMIT\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 31.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The program compares the projected account balance, including the transaction, against the account credit limit. An over-limit result sets a validation failure, and the main loop rejects any transaction with a validation failure before posting.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_000019",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "12(5)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+            "current_value": {
+              "kind": "boolean_required",
+              "value": "explicit_consent_before_overlimit",
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CBTRN02C",
+                "paragraph": "1500-B-LOOKUP-ACCT",
+                "file": null,
+                "line_span": [
+                  403,
+                  413
+                ]
+              }
+            ],
+            "slice_vars": [
+              "ACCT-CREDIT-LIMIT",
+              "WS-TEMP-BAL",
+              "WS-VALIDATION-FAIL-REASON"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "The paragraph computes WS-TEMP-BAL from current credit minus current debit plus DALYTRAN-AMT. It continues only when ACCT-CREDIT-LIMIT >= WS-TEMP-BAL; otherwise it sets validation failure 102 and the over-limit description. The reachable main loop posts only when WS-VALIDATION-FAIL-REASON = 0 and writes a reject record otherwise, preventing a transaction that exceeds the limit from being posted."
+        },
+        "claim": "The sanctioned credit limit shall not be breached at any point in time without the cardholder’s explicit consent.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ACCT-CREDIT-LIMIT",
+          "comparator": ">=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Conformant: the program checks the projected balance against the sanctioned credit limit and rejects a transaction that would exceed it before posting.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The program compares the projected account balance, including the transaction, against the account credit limit. An over-limit result sets a validation failure, and the main loop rejects any transaction with a validation failure before posting.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CBTRN02C\",\"paragraph\":\"1500-B-LOOKUP-ACCT\",\"file\":null,\"line_span\":[403,413]}],\"slice_vars\":[\"ACCT-CREDIT-LIMIT\",\"WS-TEMP-BAL\",\"WS-VALIDATION-FAIL-REASON\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[]},\"rationale\":\"The paragraph computes WS-TEMP-BAL from current credit minus current debit plus DALYTRAN-AMT. It continues only when ACCT-CREDIT-LIMIT >= WS-TEMP-BAL; otherwise it sets validation failure 102 and the over-limit description. The reachable main loop posts only when WS-VALIDATION-FAIL-REASON = 0 and writes a reject record otherwise, preventing a transaction that exceeds the limit from being posted.\"},\"claim\":\"The sanctioned credit limit shall not be breached at any point in time without the cardholder’s explicit consent.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"ACCT-CREDIT-LIMIT\",\"comparator\":\">=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Conformant: the program checks the projected balance against the sanctioned credit limit and rejects a transaction that would exceed it before posting.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 1,
+            "observation_sha256": "0d67e4a8c2248f5128dfc91afabcbef51ca876bd139d4752492ca87ca26f703b",
+            "hypothesis": "D7_conformant",
+            "bearing": "context",
+            "rationale": "The paragraph index identifies 1500-B-LOOKUP-ACCT as a relevant paragraph; this index alone does not establish its behavior."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "df1ed6406f844b9c1eae27a9a5b74ec564135a1bec3fd1b3be078e995b9931b0",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "context",
+            "rationale": "The scoped search locates a credit-limit comparison and an over-limit failure description, directing inspection to the account lookup paragraph; the search alone does not prove the transaction is rejected."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "df1ed6406f844b9c1eae27a9a5b74ec564135a1bec3fd1b3be078e995b9931b0",
+            "hypothesis": "D4_stale_reference_data",
+            "bearing": "refutes",
+            "rationale": "The returned match identifies ACCT-CREDIT-LIMIT as a numeric field, not an enum-set reference collection."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "52676426b865def8eaab1aebea68b884d172c2d548b4edc434a3b01af5b21125",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "refutes",
+            "rationale": "The comparison uses the account's ACCT-CREDIT-LIMIT field rather than a stale hard-coded numeric threshold."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "52676426b865def8eaab1aebea68b884d172c2d548b4edc434a3b01af5b21125",
+            "hypothesis": "D5_boundary_error",
+            "bearing": "refutes",
+            "rationale": "The paragraph continues when the limit is greater than or equal to the projected balance and sets a validation failure otherwise; equality does not breach the limit."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "52676426b865def8eaab1aebea68b884d172c2d548b4edc434a3b01af5b21125",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "The code computes the projected balance using current credit minus current debit plus the transaction amount, then flags a failure if that balance exceeds the sanctioned limit."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "ceb1a9b16dcfb883477e8de8347e6c7638a24ce67ae7dcf9ade5f9c24a9ebe23",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "context",
+            "rationale": "Validation calls the account lookup when the earlier account-reference check succeeds; this confirms the limit check is on the validation path but does not establish the final posting outcome."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "f8209a2033ebaa4c2683c272de59a68cb35e2c6cb8d83581a7070679398a00f0",
+            "hypothesis": "D3_contradictory",
+            "bearing": "refutes",
+            "rationale": "The main loop posts only when the validation-failure reason is zero; when validation fails, it writes a reject record, so the over-limit failure does not get bypassed."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "f8209a2033ebaa4c2683c272de59a68cb35e2c6cb8d83581a7070679398a00f0",
+            "hypothesis": "D6_dead_code",
+            "bearing": "refutes",
+            "rationale": "The reachable main loop performs validation and then either posts or rejects according to the validation result; the relevant compliance action is not disabled."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "f8209a2033ebaa4c2683c272de59a68cb35e2c6cb8d83581a7070679398a00f0",
+            "hypothesis": "D7_conformant",
+            "bearing": "supports",
+            "rationale": "Together with the over-limit failure in step 3, this shows that an exceeding transaction is rejected before posting."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "2884dd7d4b2b7b9820234834aa2d42f65b5fb6e65b97658c7f5c84e77a4b65fa",
+            "hypothesis": "D7_conformant",
+            "bearing": "context",
+            "rationale": "The slice returned no additional statements, so it supplies no further data-flow evidence; the positive paragraph and main-loop evidence remain the basis for the finding."
+          }
+        ]
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "CBTRN02C:1500-B-LOOKUP-ACCT — literal 'ACCT-CREDIT-LIMIT' present; comparator '>=' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9948,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "CBTRN02C:1500-B-LOOKUP-ACCT — literal 'ACCT-CREDIT-LIMIT' present; comparator '>=' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_000019",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "12(5)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "current_value": {
+          "kind": "boolean_required",
+          "value": "explicit_consent_before_overlimit",
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "CBTRN02C",
+            "paragraph": "1500-B-LOOKUP-ACCT",
+            "file": null,
+            "line_span": [
+              403,
+              413
+            ]
+          }
+        ],
+        "slice_vars": [
+          "ACCT-CREDIT-LIMIT",
+          "WS-TEMP-BAL",
+          "WS-VALIDATION-FAIL-REASON"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D7_conformant",
+      "target_path": null,
+      "labels": {
+        "program_level": "conformant",
+        "paragraph_level": "conformant",
+        "line_level": []
+      },
+      "rationale": "The paragraph computes WS-TEMP-BAL from current credit minus current debit plus DALYTRAN-AMT. It continues only when ACCT-CREDIT-LIMIT >= WS-TEMP-BAL; otherwise it sets validation failure 102 and the over-limit description. The reachable main loop posts only when WS-VALIDATION-FAIL-REASON = 0 and writes a reject record otherwise, preventing a transaction that exceeds the limit from being posted."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Conformant: the program checks the projected balance against the sanctioned credit limit and rejects a transaction that would exceed it before posting.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "60d7d7cee4bd2e611fff6d2ba9a4768ea229e6b5ddcc32b62ed77639f1afec67",
+  "run_key": "1213c0dbc4eb223603fdb1bae16f22e9715698a7aef35625a5c89e49a469e4ce"
+}

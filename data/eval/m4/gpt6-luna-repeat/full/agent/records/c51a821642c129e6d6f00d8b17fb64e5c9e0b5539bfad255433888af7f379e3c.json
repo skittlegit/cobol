@@ -1,0 +1,481 @@
+{
+  "instance_id": "drift_423132",
+  "gold": {
+    "instance_id": "drift_423132",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(5)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "past_due_grace": {
+            "kind": "duration_days",
+            "value": 3,
+            "comparator": "strictly_greater",
+            "note": null
+          },
+          "charge_base": {
+            "kind": "enum_set",
+            "value": [
+              "outstanding_after_due_date"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "LATEFEE1",
+          "paragraph": "2000-ASSESS",
+          "file": null,
+          "line_span": [
+            26,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-PAST-DUE",
+        "WS-LATE-CHARGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": "past_due_grace",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "LATEFEE1",
+          "line": 26,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-3 changes 'IF WS-DAYS-PAST-DUE > 3' to 'IF WS-DAYS-PAST-DUE > ZERO' at LATEFEE1:2000-ASSESS:26-26, producing D3_contradictory.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "LATEFEE1.cbl",
+      "mutation": "MO-3; locus=LATEFEE1:2000-ASSESS:26-26; old='IF WS-DAYS-PAST-DUE > 3'; new='IF WS-DAYS-PAST-DUE > ZERO'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.",
+        "final_answer": "Abstain: The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.\",\"prediction\":null,\"claim\":\"A card account may be reported past due to CICs or charged penal fees only after it has been past due for more than three days, measured from the payment due date; late charges apply only to the outstanding amount after that date, not the Total Amount Due.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.\",\"final_answer\":\"Abstain: The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D1_stale_threshold",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D1_stale_threshold",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.",
+            "final_answer": "Abstain: The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.\",\"prediction\":null,\"claim\":\"A card account may be reported past due to CICs or charged penal fees only after it has been past due for more than three days, measured from the payment due date; late charges apply only to the outstanding amount after that date, not the Total Amount Due.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.\",\"final_answer\":\"Abstain: The clause provides a resolved grace-period value, but the prescribed bounded observations did not yield a successful source observation of a comparable literal.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D1_stale_threshold",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D1_stale_threshold",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D1_stale_threshold"
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The required bounded paragraph, grep, caller/callee, and slice observations were unavailable, so absence and insertion points cannot be established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The required bounded paragraph, grep, caller/callee, and slice observations were unavailable, so absence and insertion points cannot be established.",
+            "final_answer": "Abstain: The required bounded paragraph, grep, caller/callee, and slice observations were unavailable, so absence and insertion points cannot be established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The required bounded paragraph, grep, caller/callee, and slice observations were unavailable, so absence and insertion points cannot be established.\",\"prediction\":null,\"claim\":\"A card account may be reported past due to CICs or charged penal fees only after it has been past due for more than three days, measured from the payment due date; late charges apply only to the outstanding amount after that date, not the Total Amount Due.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The required bounded paragraph, grep, caller/callee, and slice observations were unavailable, so absence and insertion points cannot be established.\",\"final_answer\":\"Abstain: The required bounded paragraph, grep, caller/callee, and slice observations were unavailable, so absence and insertion points cannot be established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 4 required for D2_missing_rule",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 4 required for D2_missing_rule",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 4 required for D2_missing_rule"
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "No successful bounded source observation established an implemented behavior that contradicts the supplied clause.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No successful bounded source observation established an implemented behavior that contradicts the supplied clause.",
+            "final_answer": "Abstain: No successful bounded source observation established an implemented behavior that contradicts the supplied clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"No successful bounded source observation established an implemented behavior that contradicts the supplied clause.\",\"prediction\":null,\"claim\":\"A card account may be reported past due to CICs or charged penal fees only after it has been past due for more than three days, measured from the payment due date; late charges apply only to the outstanding amount after that date, not the Total Amount Due.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No successful bounded source observation established an implemented behavior that contradicts the supplied clause.\",\"final_answer\":\"Abstain: No successful bounded source observation established an implemented behavior that contradicts the supplied clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 2 required for D3_contradictory",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 2 required for D3_contradictory",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 2 required for D3_contradictory"
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current_value is composite rather than an enum_set reference collection, so this hunt's class condition is not met.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The supplied current_value is composite rather than an enum_set reference collection, so this hunt's class condition is not met.",
+            "final_answer": "Abstain: The supplied current_value is composite rather than an enum_set reference collection, so this hunt's class condition is not met.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current_value is composite rather than an enum_set reference collection, so this hunt's class condition is not met.\",\"prediction\":null,\"claim\":\"A card account may be reported past due to CICs or charged penal fees only after it has been past due for more than three days, measured from the payment due date; late charges apply only to the outstanding amount after that date, not the Total Amount Due.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied current_value is composite rather than an enum_set reference collection, so this hunt's class condition is not met.\",\"final_answer\":\"Abstain: The supplied current_value is composite rather than an enum_set reference collection, so this hunt's class condition is not met.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "No successful bounded source observation established a comparator and branch action whose transition boundary can be compared with the clause.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No successful bounded source observation established a comparator and branch action whose transition boundary can be compared with the clause.",
+            "final_answer": "Abstain: No successful bounded source observation established a comparator and branch action whose transition boundary can be compared with the clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"No successful bounded source observation established a comparator and branch action whose transition boundary can be compared with the clause.\",\"prediction\":null,\"claim\":\"A card account may be reported past due to CICs or charged penal fees only after it has been past due for more than three days, measured from the payment due date; late charges apply only to the outstanding amount after that date, not the Total Amount Due.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No successful bounded source observation established a comparator and branch action whose transition boundary can be compared with the clause.\",\"final_answer\":\"Abstain: No successful bounded source observation established a comparator and branch action whose transition boundary can be compared with the clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D5_boundary_error",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D5_boundary_error",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D5_boundary_error"
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "No successful bounded paragraph or reachability/disabled-guard observation established dead or disabled compliance code.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No successful bounded paragraph or reachability/disabled-guard observation established dead or disabled compliance code.",
+            "final_answer": "Abstain: No successful bounded paragraph or reachability/disabled-guard observation established dead or disabled compliance code.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"No successful bounded paragraph or reachability/disabled-guard observation established dead or disabled compliance code.\",\"prediction\":null,\"claim\":\"A card account may be reported past due to CICs or charged penal fees only after it has been past due for more than three days, measured from the payment due date; late charges apply only to the outstanding amount after that date, not the Total Amount Due.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No successful bounded paragraph or reachability/disabled-guard observation established dead or disabled compliance code.\",\"final_answer\":\"Abstain: No successful bounded paragraph or reachability/disabled-guard observation established dead or disabled compliance code.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D6_dead_code",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D6_dead_code",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D6_dead_code"
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: LATEFEE1.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 23(5) (version 2025-11-28, effective 2025-11-28): A card account may be reported past-due to CICs or levied penal charges only when past due for more than three days; days-past-due and late charges are computed from the payment due date; late charges apply only to the outstanding amount after the due date, not the Total Amount Due.\nComposite current-value leaves (select one exact target_path):\n- target_path=past_due_grace: kind=duration_days, value=3, comparator=strictly_greater\n- target_path=charge_base: kind=enum_set, value=[\"outstanding_after_due_date\"], comparator=none",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "No successful bounded source observation established a positive check matching the clause.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No successful bounded source observation established a positive check matching the clause.",
+            "final_answer": "Abstain: No successful bounded source observation established a positive check matching the clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"No successful bounded source observation established a positive check matching the clause.\",\"prediction\":null,\"claim\":\"A card account may be reported past due to CICs or charged penal fees only after it has been past due for more than three days, measured from the payment due date; late charges apply only to the outstanding amount after that date, not the Total Amount Due.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No successful bounded source observation established a positive check matching the clause.\",\"final_answer\":\"Abstain: No successful bounded source observation established a positive check matching the clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant"
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D1_stale_threshold",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "f0240d0c8bdc99e42a01ceea98eebf406f5e72988965c69de2376b0cc1202d70",
+  "run_key": "c51a821642c129e6d6f00d8b17fb64e5c9e0b5539bfad255433888af7f379e3c"
+}

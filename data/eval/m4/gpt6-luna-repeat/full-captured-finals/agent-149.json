@@ -1,0 +1,160 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "finding",
+        "thought": "WSCUTOFF.cpy sets the cutoff cap to 6000, and REFADJ2 applies that cap to the refund cutoff.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "REFADJ2",
+                "paragraph": null,
+                "file": "WSCUTOFF.cpy",
+                "line_span": [
+                  4,
+                  4
+                ]
+              },
+              {
+                "program": "REFADJ2",
+                "paragraph": "2000-CUTOFF",
+                "file": "REFADJ2.cbl",
+                "line_span": [
+                  20,
+                  22
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CUTOFF-CAP",
+              "WS-CUTOFF"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "cutoff",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "REFADJ2",
+                "line": 4,
+                "file": "WSCUTOFF.cpy"
+              },
+              {
+                "program": "REFADJ2",
+                "line": 22,
+                "file": "REFADJ2.cbl"
+              }
+            ]
+          },
+          "rationale": "WSCUTOFF.cpy line 4 defines the cap as 6000, and REFADJ2 paragraph 2000-CUTOFF moves WS-CUTOFF-CAP into WS-CUTOFF when the computed percentage exceeds the cap. The clause's cutoff leaf is min(0.01 * credit_limit, 5000_inr), so the source cap exceeds the required Rs 5,000 cap when one percent of the limit is above Rs 5,000."
+        },
+        "claim": "Explicit consent is required to adjust credit beyond the lower of one percent of the credit limit or Rs 5,000.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "6000",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "REFADJ2 caps the cutoff at 6,000, while clause 31 requires the lower of one percent of the credit limit or Rs 5,000. When one percent exceeds Rs 5,000, this source can postpone consent beyond the required cutoff, up to Rs 6,000."
+      },
+      "D2_missing_rule": {
+        "kind": "finding",
+        "thought": "The bounded D2 observations show no reversal path in the adjustment flow.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "REFADJ2",
+                "paragraph": "1000-MAIN",
+                "file": "REFADJ2.cbl",
+                "line_span": [
+                  16,
+                  16
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ACTION"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "REFADJ2",
+                "line": 16,
+                "file": "REFADJ2.cbl"
+              }
+            ]
+          },
+          "rationale": "For the required cardholder-request reversal, the scoped REVERSAL grep is empty; find_callers for 1000-MAIN is empty; find_callees shows only 2000-CUTOFF; and the WS-ACTION slice shows only MOVE 'CONSENT' and MOVE 'ADJUST'. The insertion point is the main adjustment flow at line 16, where the source proceeds to cutoff handling without reversal or bank-account processing. Clause 31 requires reversal to the bank account within 3 working days on cardholder request."
+        },
+        "claim": "On a cardholder's request, the amount must be reversed to the bank account within 3 working days.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": null,
+        "final_answer": "The bounded source path proceeds from the main adjustment flow to cutoff handling and assigns only consent or adjustment actions; no cardholder-request reversal handling appears in the observations. Clause 31 requires reversal to the bank account within 3 working days on request."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The observed consent branch follows the beyond-cutoff condition; the separate discrepancy is the stale cutoff cap.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No distinct contradictory action or conflicting internal state was evidenced. The 6000 cap discrepancy is the stale cutoff value handled by D1, while the observed greater-than branch assigns consent for amounts beyond its calculated cutoff.",
+        "final_answer": "Abstain for D3: the bounded source evidence shows no separate contradictory branch beyond the stale cutoff value."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied clause value is composite and contains no enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only when the clause current value itself is an enum_set reference collection; this clause supplies a composite value with formula and duration leaves.",
+        "final_answer": "Abstain for D4 because the supplied current value does not meet the enum_set applicability condition."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The observed greater-than consent branch matches the clause's beyond-cutoff transition; the numeric cap difference is a stale value.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The source uses `>` and assigns CONSENT when the refund amount exceeds the computed cutoff, matching the clause's requirement for consent beyond the cutoff. The observed 6000 versus 5000 cap discrepancy changes the cutoff value and is a D1 stale-threshold issue, not a separate comparator boundary error.",
+        "final_answer": "Abstain for D5: the observed comparator and branch action match the beyond-cutoff boundary; the cutoff amount discrepancy is addressed as stale threshold evidence."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The cutoff paragraph has a caller in the main paragraph, and no disabled compliance guard was evidenced.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No dead_paragraph or reachable branch disabled by an always-false or default-off guard was established; find_callers shows 1000-MAIN calls 2000-CUTOFF.",
+        "final_answer": "Abstain for D6 because the observed cutoff paragraph is reachable and no disabled compliance branch was established."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The source has a consent check, but its cap does not match the supplied cutoff value.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Although the source sets CONSENT when the refund exceeds WS-CUTOFF, the resolved cap is 6000 while the clause requires a cutoff no higher than Rs 5,000. The required positive evidence for overall conformance is therefore incomplete.",
+        "final_answer": "Abstain for D7: the source includes a consent check, but the observed cutoff cap differs from clause 31."
+      }
+    }
+  ]
+}

@@ -1,0 +1,422 @@
+{
+  "instance_id": "drift_371253",
+  "gold": {
+    "instance_id": "drift_371253",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN3",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            18,
+            18
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-WORK-DAYS-ELAPSED",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": "closure_window",
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at CLOSPEN3:<source>:18-18; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CLOSPEN3.cbl",
+      "mutation": "MO-0; locus=CLOSPEN3:<source>:18-18; old='01  WS-RPT-HEADING            PIC X(3)'; new='01  WS-RPT-HEADING            PIC X(5)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_371253",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN3",
+          "paragraph": "2000-PEN",
+          "file": "CLOSPEN3.cbl",
+          "line_span": [
+            30,
+            35
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAL-DAYS-ELAPSED",
+        "WS-WORK-DAYS-ELAPSED",
+        "WS-DELAY-CAL-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN3",
+          "line": 30,
+          "file": "CLOSPEN3.cbl"
+        },
+        {
+          "program": "CLOSPEN3",
+          "line": 31,
+          "file": "CLOSPEN3.cbl"
+        },
+        {
+          "program": "CLOSPEN3",
+          "line": 33,
+          "file": "CLOSPEN3.cbl"
+        },
+        {
+          "program": "CLOSPEN3",
+          "line": 35,
+          "file": "CLOSPEN3.cbl"
+        }
+      ]
+    },
+    "rationale": "Clause 19 specifies a penalty per calendar day of delay. Lines 31–34 derive WS-DELAY-CAL-DAYS by subtracting a breach-day value from elapsed calendar days; this simplifies to WS-WORK-DAYS-ELAPSED minus seven. Line 35 therefore multiplies Rs 500 by the number of excess working days, contrary to the calendar-day basis in the clause."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "CLOSPEN3:2000-PEN — literal 'WS-WORK-DAYS-ELAPSED' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9762,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "CLOSPEN3:2000-PEN — literal 'WS-WORK-DAYS-ELAPSED' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"FILE CLOSPEN3.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. CLOSPEN3.\\n0003:       *----------------------------------------------------------------\\n0004:       * CLOSURE PENALTY - RS 500 PER CALENDAR DAY OF DELAY BEYOND\\n0005:       * SEVEN WORKING DAYS. SLA WINDOW IN WORKING DAYS, ACCRUAL IN\\n0006:       * CALENDAR DAYS.\\n0007:       *----------------------------------------------------------------\\n0008:        ENVIRONMENT DIVISION.\\n0009:        DATA DIVISION.\\n0010:        WORKING-STORAGE SECTION.\\n0011:        01  WS-INPUTS.\\n0012:            05  WS-CAL-DAYS-ELAPSED   PIC 9(4) VALUE ZERO.\\n0013:            05  WS-WORK-DAYS-ELAPSED  PIC 9(4) VALUE ZERO.\\n0014:        01  WS-WORK-AREAS.\\n0015:            05  WS-DELAY-CAL-DAYS     PIC S9(5) VALUE ZERO.\\n0016:            05  WS-SLA-BREACH-DAY     PIC 9(4) VALUE ZERO.\\n0017:            05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.\\n0018:        01  WS-RPT-HEADING            PIC X(5)\\n0019:            VALUE SPACES.\\n0020:        01  WS-PRINT-AREA.\\nFILE CLOSPEN3.cbl LINES 21-38\\n0021:            05  WS-PRINT-LINE OCCURS 30 PIC X(3).\\n0022:        PROCEDURE DIVISION.\\n0023:        1000-MAIN.\\n0024:            ACCEPT WS-CAL-DAYS-ELAPSED\\n0025:            ACCEPT WS-WORK-DAYS-ELAPSED\\n0026:            PERFORM 2000-PEN\\n0027:            DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n0028:            STOP RUN.\\n0029:        2000-PEN.\\n0030:            IF WS-WORK-DAYS-ELAPSED > 7\\n0031:               COMPUTE WS-SLA-BREACH-DAY = WS-CAL-DAYS-ELAPSED\\n0032:                       - (WS-WORK-DAYS-ELAPSED - 7)\\n0033:               COMPUTE WS-DELAY-CAL-DAYS = WS-CAL-DAYS-ELAPSED\\n0034:                       - WS-SLA-BREACH-DAY\\n0035:               COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-CAL-DAYS\\n0036:            ELSE\\n0037:               MOVE ZERO TO WS-PENALTY-AMT\\n0038:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The clause requires the penalty to accrue per calendar day of delay, subject to the stated closure conditions. The visible calculation algebraically reduces the delay count to working days elapsed minus seven.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_371253",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "19",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "penalty_per_day": {
+                  "kind": "amount_inr",
+                  "value": 500,
+                  "comparator": "at_least",
+                  "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                },
+                "day_basis": {
+                  "kind": "enum_set",
+                  "value": [
+                    "calendar_day"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN3",
+                "paragraph": "2000-PEN",
+                "file": "CLOSPEN3.cbl",
+                "line_span": [
+                  30,
+                  35
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CAL-DAYS-ELAPSED",
+              "WS-WORK-DAYS-ELAPSED",
+              "WS-DELAY-CAL-DAYS",
+              "WS-PENALTY-AMT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLOSPEN3",
+                "line": 30,
+                "file": "CLOSPEN3.cbl"
+              },
+              {
+                "program": "CLOSPEN3",
+                "line": 31,
+                "file": "CLOSPEN3.cbl"
+              },
+              {
+                "program": "CLOSPEN3",
+                "line": 33,
+                "file": "CLOSPEN3.cbl"
+              },
+              {
+                "program": "CLOSPEN3",
+                "line": 35,
+                "file": "CLOSPEN3.cbl"
+              }
+            ]
+          },
+          "rationale": "Clause 19 specifies a penalty per calendar day of delay. Lines 31–34 derive WS-DELAY-CAL-DAYS by subtracting a breach-day value from elapsed calendar days; this simplifies to WS-WORK-DAYS-ELAPSED minus seven. Line 35 therefore multiplies Rs 500 by the number of excess working days, contrary to the calendar-day basis in the clause."
+        },
+        "claim": "Closure requests must be honoured within seven working days, subject to dues; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no amount is outstanding.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "WS-WORK-DAYS-ELAPSED",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The code derives the penalty-day count as elapsed working days minus seven and multiplies that count by Rs 500. Clause 19 requires Rs 500 per calendar day of delay, so the calculation uses a contradictory day basis.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The clause requires the penalty to accrue per calendar day of delay, subject to the stated closure conditions. The visible calculation algebraically reduces the delay count to working days elapsed minus seven.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CLOSPEN3\",\"paragraph\":\"2000-PEN\",\"file\":\"CLOSPEN3.cbl\",\"line_span\":[30,35]}],\"slice_vars\":[\"WS-CAL-DAYS-ELAPSED\",\"WS-WORK-DAYS-ELAPSED\",\"WS-DELAY-CAL-DAYS\",\"WS-PENALTY-AMT\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"CLOSPEN3\",\"line\":30,\"file\":\"CLOSPEN3.cbl\"},{\"program\":\"CLOSPEN3\",\"line\":31,\"file\":\"CLOSPEN3.cbl\"},{\"program\":\"CLOSPEN3\",\"line\":33,\"file\":\"CLOSPEN3.cbl\"},{\"program\":\"CLOSPEN3\",\"line\":35,\"file\":\"CLOSPEN3.cbl\"}]},\"rationale\":\"Clause 19 specifies a penalty per calendar day of delay. Lines 31–34 derive WS-DELAY-CAL-DAYS by subtracting a breach-day value from elapsed calendar days; this simplifies to WS-WORK-DAYS-ELAPSED minus seven. Line 35 therefore multiplies Rs 500 by the number of excess working days, contrary to the calendar-day basis in the clause.\"},\"claim\":\"Closure requests must be honoured within seven working days, subject to dues; failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no amount is outstanding.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"WS-WORK-DAYS-ELAPSED\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The code derives the penalty-day count as elapsed working days minus seven and multiplies that count by Rs 500. Clause 19 requires Rs 500 per calendar day of delay, so the calculation uses a contradictory day basis.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "CLOSPEN3:2000-PEN — literal 'WS-WORK-DAYS-ELAPSED' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9762,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "CLOSPEN3:2000-PEN — literal 'WS-WORK-DAYS-ELAPSED' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_371253",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "19",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "closure_window": {
+              "kind": "duration_working_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            },
+            "penalty_per_day": {
+              "kind": "amount_inr",
+              "value": 500,
+              "comparator": "at_least",
+              "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+            },
+            "day_basis": {
+              "kind": "enum_set",
+              "value": [
+                "calendar_day"
+              ],
+              "comparator": null,
+              "note": null
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "CLOSPEN3",
+            "paragraph": "2000-PEN",
+            "file": "CLOSPEN3.cbl",
+            "line_span": [
+              30,
+              35
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CAL-DAYS-ELAPSED",
+          "WS-WORK-DAYS-ELAPSED",
+          "WS-DELAY-CAL-DAYS",
+          "WS-PENALTY-AMT"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D3_contradictory",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "CLOSPEN3",
+            "line": 30,
+            "file": "CLOSPEN3.cbl"
+          },
+          {
+            "program": "CLOSPEN3",
+            "line": 31,
+            "file": "CLOSPEN3.cbl"
+          },
+          {
+            "program": "CLOSPEN3",
+            "line": 33,
+            "file": "CLOSPEN3.cbl"
+          },
+          {
+            "program": "CLOSPEN3",
+            "line": 35,
+            "file": "CLOSPEN3.cbl"
+          }
+        ]
+      },
+      "rationale": "Clause 19 specifies a penalty per calendar day of delay. Lines 31–34 derive WS-DELAY-CAL-DAYS by subtracting a breach-day value from elapsed calendar days; this simplifies to WS-WORK-DAYS-ELAPSED minus seven. Line 35 therefore multiplies Rs 500 by the number of excess working days, contrary to the calendar-day basis in the clause."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The code derives the penalty-day count as elapsed working days minus seven and multiplies that count by Rs 500. Clause 19 requires Rs 500 per calendar day of delay, so the calculation uses a contradictory day basis.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "ffd504dfca7f387adf7a6fc9bf3db91b0281b7863b1149092b2c49436f087b0e",
+  "run_key": "0ae2264bc7f480ba2f9a8fc1e7231e743419b19918255104b5b2327258e41b35"
+}

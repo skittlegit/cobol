@@ -1,0 +1,875 @@
+{
+  "instance_id": "drift_110008",
+  "gold": {
+    "instance_id": "drift_110008",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": null,
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": null,
+            "note": null
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6CL04",
+          "paragraph": "2300-ASSESS-PENALTY",
+          "file": null,
+          "line_span": [
+            16,
+            24
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-WORK-DAYS-TO-CLOSE",
+        "WS-EXCESS-WORK-DAYS",
+        "WS-AMOUNT-DUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "day_basis",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6CL04",
+          "line": 17,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "T6CL04 accepts WS-WORK-DAYS-TO-CLOSE directly (no calendar-day concept exists anywhere in the program) and computes WS-EXCESS-WORK-DAYS = WS-WORK-DAYS-TO-CLOSE - 7 (lines 17-18), multiplied by 500. The entire accrual is working-day based, not calendar_day as clause 19 requires.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6CL04.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: T6CL04.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=none\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=none\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "T6CL04"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 16, \"name\": \"2300-ASSESS-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\a4e236d33777034f8992b0c3cb83ca958961f078fe01decf7efef4a1405ac243\\\\cases\\\\drift_900000\\\\T6CL04.cbl\", \"program\": \"T6CL04\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 32.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "T6CL04",
+          "name": "2300-ASSESS-PENALTY"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}], \"code\": \"       2300-ASSESS-PENALTY.\\n           COMPUTE WS-EXCESS-WORK-DAYS =\\n              WS-WORK-DAYS-TO-CLOSE - 7\\n           IF WS-EXCESS-WORK-DAYS IS POSITIVE\\n              COMPUTE WS-AMOUNT-DUE =\\n                 500 * WS-EXCESS-WORK-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-AMOUNT-DUE\\n           END-IF.\", \"name\": \"2300-ASSESS-PENALTY\", \"ref\": {\"line_end\": 24, \"line_start\": 16, \"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "T6CL04",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-WORK-DAYS-TO-CLOSE\\n           PERFORM 2300-ASSESS-PENALTY\\n           DISPLAY WS-AMOUNT-DUE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 15, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The source threshold is 7 working days, matching the supplied closure_window value; the penalty literal also matches Rs 500.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The bounded evidence shows no stale scalar leaf: source 7 matches closure_window=7, and source 500 matches penalty_per_day=500.",
+        "final_answer": "Abstain: the implemented threshold and amount match the supplied values.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source threshold is 7 working days, matching the supplied closure_window value; the penalty literal also matches Rs 500.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The bounded evidence shows no stale scalar leaf: source 7 matches closure_window=7, and source 500 matches penalty_per_day=500.\",\"final_answer\":\"Abstain: the implemented threshold and amount match the supplied values.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The bounded evidence shows no stale scalar leaf: source 7 matches closure_window=7, and source 500 matches penalty_per_day=500.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: The bounded evidence shows no stale scalar leaf: source 7 matches closure_window=7, and source 500 matches penalty_per_day=500.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: T6CL04.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=none\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=none\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6CL04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 16, \"name\": \"2300-ASSESS-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\a4e236d33777034f8992b0c3cb83ca958961f078fe01decf7efef4a1405ac243\\\\cases\\\\drift_900000\\\\T6CL04.cbl\", \"program\": \"T6CL04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 32.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6CL04",
+              "name": "2300-ASSESS-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}], \"code\": \"       2300-ASSESS-PENALTY.\\n           COMPUTE WS-EXCESS-WORK-DAYS =\\n              WS-WORK-DAYS-TO-CLOSE - 7\\n           IF WS-EXCESS-WORK-DAYS IS POSITIVE\\n              COMPUTE WS-AMOUNT-DUE =\\n                 500 * WS-EXCESS-WORK-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-AMOUNT-DUE\\n           END-IF.\", \"name\": \"2300-ASSESS-PENALTY\", \"ref\": {\"line_end\": 24, \"line_start\": 16, \"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6CL04",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-WORK-DAYS-TO-CLOSE\\n           PERFORM 2300-ASSESS-PENALTY\\n           DISPLAY WS-AMOUNT-DUE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 15, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The source threshold is 7 working days, matching the supplied closure_window value; the penalty literal also matches Rs 500.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The bounded evidence shows no stale scalar leaf: source 7 matches closure_window=7, and source 500 matches penalty_per_day=500.",
+            "final_answer": "Abstain: the implemented threshold and amount match the supplied values.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source threshold is 7 working days, matching the supplied closure_window value; the penalty literal also matches Rs 500.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The bounded evidence shows no stale scalar leaf: source 7 matches closure_window=7, and source 500 matches penalty_per_day=500.\",\"final_answer\":\"Abstain: the implemented threshold and amount match the supplied values.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The bounded evidence shows no stale scalar leaf: source 7 matches closure_window=7, and source 500 matches penalty_per_day=500.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The bounded evidence shows no stale scalar leaf: source 7 matches closure_window=7, and source 500 matches penalty_per_day=500.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The bounded evidence shows no stale scalar leaf: source 7 matches closure_window=7, and source 500 matches penalty_per_day=500."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: T6CL04.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=none\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=none\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "CLOSE-ACCOUNT"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"CLOSE-ACCOUNT\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6CL04",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "T6CL04",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[{\"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-WORK-DAYS-TO-CLOSE",
+              "program": "T6CL04"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}], \"scoped_program\": \"T6CL04\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6CL04\"}, \"text\": \"05  WS-WORK-DAYS-TO-CLOSE PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}, \"text\": \"ACCEPT WS-WORK-DAYS-TO-CLOSE\"}], \"variable\": \"WS-WORK-DAYS-TO-CLOSE\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 5,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6CL04",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-WORK-DAYS-TO-CLOSE\\n           PERFORM 2300-ASSESS-PENALTY\\n           DISPLAY WS-AMOUNT-DUE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 15, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The main paragraph accepts the work-day count, assesses the penalty, and displays the amount. The evidence does not establish that this penalty program owns the separate closure outcome.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Although no closure action appears in this program, its observed flow is limited to penalty assessment, so the evidence does not establish that the absent closure action belongs here. The implemented penalty calculation has a separate positive day-basis conflict.",
+            "final_answer": "Abstain: the evidence does not establish that T6CL04 owns the closure action.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The main paragraph accepts the work-day count, assesses the penalty, and displays the amount. The evidence does not establish that this penalty program owns the separate closure outcome.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Although no closure action appears in this program, its observed flow is limited to penalty assessment, so the evidence does not establish that the absent closure action belongs here. The implemented penalty calculation has a separate positive day-basis conflict.\",\"final_answer\":\"Abstain: the evidence does not establish that T6CL04 owns the closure action.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "Although no closure action appears in this program, its observed flow is limited to penalty assessment, so the evidence does not establish that the absent closure action belongs here. The implemented penalty calculation has a separate positive day-basis conflict.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: Although no closure action appears in this program, its observed flow is limited to penalty assessment, so the evidence does not establish that the absent closure action belongs here. The implemented penalty calculation has a separate positive day-basis conflict.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "Although no closure action appears in this program, its observed flow is limited to penalty assessment, so the evidence does not establish that the absent closure action belongs here. The implemented penalty calculation has a separate positive day-basis conflict."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: T6CL04.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=none\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=none\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6CL04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 16, \"name\": \"2300-ASSESS-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\a4e236d33777034f8992b0c3cb83ca958961f078fe01decf7efef4a1405ac243\\\\cases\\\\drift_900000\\\\T6CL04.cbl\", \"program\": \"T6CL04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6CL04",
+              "name": "2300-ASSESS-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}], \"code\": \"       2300-ASSESS-PENALTY.\\n           COMPUTE WS-EXCESS-WORK-DAYS =\\n              WS-WORK-DAYS-TO-CLOSE - 7\\n           IF WS-EXCESS-WORK-DAYS IS POSITIVE\\n              COMPUTE WS-AMOUNT-DUE =\\n                 500 * WS-EXCESS-WORK-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-AMOUNT-DUE\\n           END-IF.\", \"name\": \"2300-ASSESS-PENALTY\", \"ref\": {\"line_end\": 24, \"line_start\": 16, \"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-EXCESS-WORK-DAYS",
+              "program": "T6CL04"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}, {\"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}], \"scoped_program\": \"T6CL04\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6CL04\"}, \"text\": \"05  WS-WORK-DAYS-TO-CLOSE PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"T6CL04\"}, \"text\": \"05  WS-EXCESS-WORK-DAYS   PIC S9(5) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}, \"text\": \"ACCEPT WS-WORK-DAYS-TO-CLOSE\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}, \"text\": \"PERFORM 2300-ASSESS-PENALTY\"}, {\"ref\": {\"line_end\": 18, \"line_start\": 17, \"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}, \"text\": \"COMPUTE WS-EXCESS-WORK-DAYS =\\n              WS-WORK-DAYS-TO-CLOSE - 7\"}], \"variable\": \"WS-EXCESS-WORK-DAYS\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The penalty calculation counts excess working days, while the clause requires a calendar-day basis.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=2]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_110008",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "19",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "closure_window": {
+                      "kind": "duration_working_days",
+                      "value": 7,
+                      "comparator": null,
+                      "note": null
+                    },
+                    "penalty_per_day": {
+                      "kind": "amount_inr",
+                      "value": 500,
+                      "comparator": null,
+                      "note": null
+                    },
+                    "day_basis": {
+                      "kind": "enum_set",
+                      "value": [
+                        "calendar_day"
+                      ],
+                      "comparator": null,
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "T6CL04",
+                    "paragraph": "2300-ASSESS-PENALTY",
+                    "file": null,
+                    "line_span": [
+                      17,
+                      21
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "WS-WORK-DAYS-TO-CLOSE",
+                  "WS-EXCESS-WORK-DAYS"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D3_contradictory",
+              "target_path": "day_basis",
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "T6CL04",
+                    "line": 18,
+                    "file": null
+                  },
+                  {
+                    "program": "T6CL04",
+                    "line": 21,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The clause requires a Rs 500 penalty for each calendar day of delay. This paragraph computes WS-EXCESS-WORK-DAYS from WS-WORK-DAYS-TO-CLOSE minus 7, then multiplies Rs 500 by that excess, so the penalty count follows excess working days rather than calendar days."
+            },
+            "claim": "When closure is delayed and no dues are outstanding, the penalty is Rs 500 for each calendar day of delay until closure.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "500",
+              "comparator": "IS POSITIVE",
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The clause requires a Rs 500 penalty for each calendar day of delay when no dues are outstanding. T6CL04 multiplies Rs 500 by excess working days, contradicting the required calendar-day basis.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The penalty calculation counts excess working days, while the clause requires a calendar-day basis.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6CL04\",\"paragraph\":\"2300-ASSESS-PENALTY\",\"file\":\"T6CL04.cbl\",\"line_span\":[17,21]}],\"slice_vars\":[\"WS-WORK-DAYS-TO-CLOSE\",\"WS-EXCESS-WORK-DAYS\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":\"day_basis\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6CL04\",\"line\":18,\"file\":\"T6CL04.cbl\"},{\"program\":\"T6CL04\",\"line\":21,\"file\":\"T6CL04.cbl\"}]},\"rationale\":\"The clause requires a Rs 500 penalty for each calendar day of delay. This paragraph computes WS-EXCESS-WORK-DAYS from WS-WORK-DAYS-TO-CLOSE minus 7, then multiplies Rs 500 by that excess, so the penalty count follows excess working days rather than calendar days.\"},\"claim\":\"When closure is delayed and no dues are outstanding, the penalty is Rs 500 for each calendar day of delay until closure.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"500\",\"comparator\":\"IS POSITIVE\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause requires a Rs 500 penalty for each calendar day of delay when no dues are outstanding. T6CL04 multiplies Rs 500 by excess working days, contradicting the required calendar-day basis.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: D3 rationale must name the conflicting outcomes",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: D3 rationale must name the conflicting outcomes",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: D3 rationale must name the conflicting outcomes"
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: T6CL04.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=none\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=none\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6CL04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 16, \"name\": \"2300-ASSESS-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\a4e236d33777034f8992b0c3cb83ca958961f078fe01decf7efef4a1405ac243\\\\cases\\\\drift_900000\\\\T6CL04.cbl\", \"program\": \"T6CL04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6CL04",
+              "name": "2300-ASSESS-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}], \"code\": \"       2300-ASSESS-PENALTY.\\n           COMPUTE WS-EXCESS-WORK-DAYS =\\n              WS-WORK-DAYS-TO-CLOSE - 7\\n           IF WS-EXCESS-WORK-DAYS IS POSITIVE\\n              COMPUTE WS-AMOUNT-DUE =\\n                 500 * WS-EXCESS-WORK-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-AMOUNT-DUE\\n           END-IF.\", \"name\": \"2300-ASSESS-PENALTY\", \"ref\": {\"line_end\": 24, \"line_start\": 16, \"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "500"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 21, \"program\": \"T6CL04\", \"text\": \"                 500 * WS-EXCESS-WORK-DAYS\"}], \"pattern\": \"500\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current value is composite; its calendar_day leaf is a business-rule value, not an enum_set reference collection.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only when the supplied current value itself is an enum_set reference collection; this clause supplies a composite value.",
+            "final_answer": "Abstain: the clause value is composite, so this is not a D4 reference-data case.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value is composite; its calendar_day leaf is a business-rule value, not an enum_set reference collection.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only when the supplied current value itself is an enum_set reference collection; this clause supplies a composite value.\",\"final_answer\":\"Abstain: the clause value is composite, so this is not a D4 reference-data case.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D4 applies only when the supplied current value itself is an enum_set reference collection; this clause supplies a composite value.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D4 applies only when the supplied current value itself is an enum_set reference collection; this clause supplies a composite value.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D4 applies only when the supplied current value itself is an enum_set reference collection; this clause supplies a composite value."
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: T6CL04.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=none\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=none\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6CL04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 16, \"name\": \"2300-ASSESS-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\a4e236d33777034f8992b0c3cb83ca958961f078fe01decf7efef4a1405ac243\\\\cases\\\\drift_900000\\\\T6CL04.cbl\", \"program\": \"T6CL04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6CL04",
+              "name": "2300-ASSESS-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}], \"code\": \"       2300-ASSESS-PENALTY.\\n           COMPUTE WS-EXCESS-WORK-DAYS =\\n              WS-WORK-DAYS-TO-CLOSE - 7\\n           IF WS-EXCESS-WORK-DAYS IS POSITIVE\\n              COMPUTE WS-AMOUNT-DUE =\\n                 500 * WS-EXCESS-WORK-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-AMOUNT-DUE\\n           END-IF.\", \"name\": \"2300-ASSESS-PENALTY\", \"ref\": {\"line_end\": 24, \"line_start\": 16, \"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-EXCESS-WORK-DAYS",
+              "program": "T6CL04"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}, {\"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}], \"scoped_program\": \"T6CL04\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6CL04\"}, \"text\": \"05  WS-WORK-DAYS-TO-CLOSE PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"T6CL04\"}, \"text\": \"05  WS-EXCESS-WORK-DAYS   PIC S9(5) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}, \"text\": \"ACCEPT WS-WORK-DAYS-TO-CLOSE\"}, {\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}, \"text\": \"PERFORM 2300-ASSESS-PENALTY\"}, {\"ref\": {\"line_end\": 18, \"line_start\": 17, \"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}, \"text\": \"COMPUTE WS-EXCESS-WORK-DAYS =\\n              WS-WORK-DAYS-TO-CLOSE - 7\"}], \"variable\": \"WS-EXCESS-WORK-DAYS\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The source derives excess as workdays minus 7 and applies the penalty only when that excess is positive, so the transition occurs after the 7-day window.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The bounded comparator and branch action do not show an early or late boundary: exactly 7 working days yields no excess, and a positive excess triggers the penalty.",
+            "final_answer": "Abstain: the 7-working-day boundary is implemented at the stated threshold.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source derives excess as workdays minus 7 and applies the penalty only when that excess is positive, so the transition occurs after the 7-day window.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The bounded comparator and branch action do not show an early or late boundary: exactly 7 working days yields no excess, and a positive excess triggers the penalty.\",\"final_answer\":\"Abstain: the 7-working-day boundary is implemented at the stated threshold.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The bounded comparator and branch action do not show an early or late boundary: exactly 7 working days yields no excess, and a positive excess triggers the penalty.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The bounded comparator and branch action do not show an early or late boundary: exactly 7 working days yields no excess, and a positive excess triggers the penalty.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The bounded comparator and branch action do not show an early or late boundary: exactly 7 working days yields no excess, and a positive excess triggers the penalty."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: T6CL04.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=none\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=none\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6CL04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 16, \"name\": \"2300-ASSESS-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\a4e236d33777034f8992b0c3cb83ca958961f078fe01decf7efef4a1405ac243\\\\cases\\\\drift_900000\\\\T6CL04.cbl\", \"program\": \"T6CL04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6CL04",
+              "name": "2300-ASSESS-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}], \"code\": \"       2300-ASSESS-PENALTY.\\n           COMPUTE WS-EXCESS-WORK-DAYS =\\n              WS-WORK-DAYS-TO-CLOSE - 7\\n           IF WS-EXCESS-WORK-DAYS IS POSITIVE\\n              COMPUTE WS-AMOUNT-DUE =\\n                 500 * WS-EXCESS-WORK-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-AMOUNT-DUE\\n           END-IF.\", \"name\": \"2300-ASSESS-PENALTY\", \"ref\": {\"line_end\": 24, \"line_start\": 16, \"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6CL04",
+              "para": "2300-ASSESS-PENALTY"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The penalty paragraph is called from 1000-MAIN, and its positive-excess branch is reachable.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The bounded evidence shows a caller from 1000-MAIN and no always-false or default-off guard in the compliance paragraph.",
+            "final_answer": "Abstain: the compliance paragraph is reachable and no disabled guard is evidenced.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The penalty paragraph is called from 1000-MAIN, and its positive-excess branch is reachable.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The bounded evidence shows a caller from 1000-MAIN and no always-false or default-off guard in the compliance paragraph.\",\"final_answer\":\"Abstain: the compliance paragraph is reachable and no disabled guard is evidenced.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The bounded evidence shows a caller from 1000-MAIN and no always-false or default-off guard in the compliance paragraph.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The bounded evidence shows a caller from 1000-MAIN and no always-false or default-off guard in the compliance paragraph.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The bounded evidence shows a caller from 1000-MAIN and no always-false or default-off guard in the compliance paragraph."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: T6CL04.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=none\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=none\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6CL04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 16, \"name\": \"2300-ASSESS-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\a4e236d33777034f8992b0c3cb83ca958961f078fe01decf7efef4a1405ac243\\\\cases\\\\drift_900000\\\\T6CL04.cbl\", \"program\": \"T6CL04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 31.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6CL04",
+              "name": "2300-ASSESS-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6CL04\"}], \"code\": \"       2300-ASSESS-PENALTY.\\n           COMPUTE WS-EXCESS-WORK-DAYS =\\n              WS-WORK-DAYS-TO-CLOSE - 7\\n           IF WS-EXCESS-WORK-DAYS IS POSITIVE\\n              COMPUTE WS-AMOUNT-DUE =\\n                 500 * WS-EXCESS-WORK-DAYS\\n           ELSE\\n              MOVE ZERO TO WS-AMOUNT-DUE\\n           END-IF.\", \"name\": \"2300-ASSESS-PENALTY\", \"ref\": {\"line_end\": 24, \"line_start\": 16, \"paragraph\": \"2300-ASSESS-PENALTY\", \"program\": \"T6CL04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "7"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"T6CL04\", \"text\": \"           05  WS-AMOUNT-DUE         PIC 9(7)V99 VALUE ZERO.\"}, {\"line\": 18, \"program\": \"T6CL04\", \"text\": \"              WS-WORK-DAYS-TO-CLOSE - 7\"}], \"pattern\": \"7\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The source uses the 7-day threshold, but the penalty count follows excess working days rather than calendar days.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D7 requires positive evidence that the full regulated check matches; the source's penalty basis conflicts with the supplied calendar-day requirement.",
+            "final_answer": "Abstain: the implemented penalty calculation does not match the clause's calendar-day basis.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source uses the 7-day threshold, but the penalty count follows excess working days rather than calendar days.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D7 requires positive evidence that the full regulated check matches; the source's penalty basis conflicts with the supplied calendar-day requirement.\",\"final_answer\":\"Abstain: the implemented penalty calculation does not match the clause's calendar-day basis.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D7 requires positive evidence that the full regulated check matches; the source's penalty basis conflicts with the supplied calendar-day requirement.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D7 requires positive evidence that the full regulated check matches; the source's penalty basis conflicts with the supplied calendar-day requirement.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D7 requires positive evidence that the full regulated check matches; the source's penalty basis conflicts with the supplied calendar-day requirement."
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "The bounded evidence shows no stale scalar leaf: source 7 matches closure_window=7, and source 500 matches penalty_per_day=500.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "f39430b2134315bfc4213384a7db8abe025a2e9457bc0e428b6e83d4358759b4",
+  "run_key": "274a465bcb5330a317a72e60b2eb72f37c6da6e0044230280d8178fc70e448b3"
+}

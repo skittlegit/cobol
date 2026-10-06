@@ -1,0 +1,121 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "finding",
+        "thought": "BOIDENT2 defines a 15.00 threshold and applies it to the capital and profit percentage tests.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {"program": "BOIDENT2", "paragraph": null, "file": "BOIDENT2.cbl", "line_span": [18, 18]},
+              {"program": "BOIDENT2", "paragraph": "2000-IDENTIFY-BO", "file": "BOIDENT2.cbl", "line_span": [31, 34]}
+            ],
+            "slice_vars": ["WS-BO-THRESHOLD", "WS-CAPITAL-PCT", "WS-PROFIT-PCT"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "current_value.value",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {"program": "BOIDENT2", "line": 18, "file": "BOIDENT2.cbl"},
+              {"program": "BOIDENT2", "line": 31, "file": "BOIDENT2.cbl"},
+              {"program": "BOIDENT2", "line": 32, "file": "BOIDENT2.cbl"},
+              {"program": "BOIDENT2", "line": 34, "file": "BOIDENT2.cbl"}
+            ]
+          },
+          "rationale": "The source defines WS-BO-THRESHOLD as 15.00 at line 18 and uses > for both capital and profit percentages in 2000-IDENTIFY-BO at lines 31-32. The clause's current_value.value is 10 with comparator strictly_greater, so the source threshold is stale; percentages above 10% through 15% do not satisfy either percentage test."
+        },
+        "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+        "exec_probe": null,
+        "static_claim": {"literal": "15.00", "comparator": ">", "dead_paragraph": null},
+        "abstention_reason": null,
+        "final_answer": "The clause requires more than 10% ownership or entitlement. The source sets the threshold to 15.00 and uses > for the capital and profit tests, leaving percentages above 10% through 15% outside those tests. This is stale threshold drift."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The transcript does not meet D2's all-negative observation gate.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D2 can be emitted only when all four reserved observations are negative. find_callers returned 1000-MAIN, so that gate is not met.",
+        "final_answer": "The clause requires beneficial owners to be natural persons with more than 10% ownership or entitlement. The data slice shows classification from capital, profit, and control inputs without a natural-person check, but find_callers returned 1000-MAIN, so the all-negative D2 gate is unmet and I abstain."
+      },
+      "D3_contradictory": {
+        "kind": "finding",
+        "thought": "The percentage tests positively apply a 15.00 threshold where the clause sets a strict 10 percent threshold.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {"program": "BOIDENT2", "paragraph": null, "file": "BOIDENT2.cbl", "line_span": [18, 18]},
+              {"program": "BOIDENT2", "paragraph": "2000-IDENTIFY-BO", "file": "BOIDENT2.cbl", "line_span": [31, 34]}
+            ],
+            "slice_vars": ["WS-BO-THRESHOLD", "WS-CAPITAL-PCT", "WS-PROFIT-PCT"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {"program": "BOIDENT2", "line": 18, "file": "BOIDENT2.cbl"},
+              {"program": "BOIDENT2", "line": 31, "file": "BOIDENT2.cbl"},
+              {"program": "BOIDENT2", "line": 32, "file": "BOIDENT2.cbl"},
+              {"program": "BOIDENT2", "line": 34, "file": "BOIDENT2.cbl"}
+            ]
+          },
+          "rationale": "The source's percentage route requires capital or profit to be greater than the 15.00 threshold, whereas the clause requires more than 10%. Thus percentages above 10% through 15% do not meet the implemented percentage condition, directly contradicting the clause for those values."
+        },
+        "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+        "exec_probe": null,
+        "static_claim": {"literal": "15.00", "comparator": ">", "dead_paragraph": null},
+        "abstention_reason": null,
+        "final_answer": "The clause sets a strict threshold above 10%. The source's capital and profit tests instead require values above 15.00, so the implemented percentage condition contradicts the clause for values above 10% through 15%."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied clause value is a percentage, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only when the clause current value is an enum_set reference collection; the supplied current_value has kind percentage.",
+        "final_answer": "D4 does not apply because the clause supplies a percentage value rather than an enum_set reference collection."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The source comparator matches the clause's strict-greater boundary; the configured threshold is stale.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The source uses > and branches only above its configured threshold, matching strictly_greater. The discrepancy is the 15.00 threshold, already identified as stale, rather than an early or late boundary comparator.",
+        "final_answer": "The clause requires strictly more than 10%, and the source uses > for its percentage tests, so the comparator boundary matches. The 15.00 configured value is a stale threshold, not a boundary error."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The compliance paragraph is reachable from the main paragraph.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The read paragraph and caller evidence show 1000-MAIN performs 2000-IDENTIFY-BO; no dead-paragraph or disabled-guard evidence supports D6.",
+        "final_answer": "The classification paragraph is reachable: 1000-MAIN performs 2000-IDENTIFY-BO. The bounded evidence does not show dead or disabled compliance code."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The source contains a relevant check, but its threshold does not match the clause.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D7 requires positive evidence that the implemented literal and comparator match the clause; the comparator matches but the literal is 15.00 rather than 10.",
+        "final_answer": "The source has a strict > percentage check, but its 15.00 threshold differs from the clause's 10% threshold, so conformance is not established."
+      }
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "instance_id": "drift_785915",
+  "gold": {
+    "instance_id": "drift_785915",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(xiv)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "passport",
+          "driving-licence",
+          "aadhaar-possession-proof",
+          "voter-id-ECI",
+          "nrega-job-card",
+          "npr-letter"
+        ],
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "OVDCHK1",
+          "paragraph": null,
+          "file": "OVDLIST.cpy",
+          "line_span": [
+            5,
+            5
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-KYC-DECISION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "OVDCHK1",
+          "line": 5,
+          "file": "OVDLIST.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'NPR' to '(deleted)' at OVDCHK1:OVDLIST.cpy:5-5, producing D4_stale_reference_data. MO-4 drops an OVD code that para 5(xiv) enumerates, so the accepted-document table no longer admits a valid Officially Valid Document; scored directly against the in-clause enumeration.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "OVDCHK1.cbl",
+      "mutation": "MO-4; locus=OVDCHK1:OVDLIST.cpy:5-5; old='NPR'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops an OVD code that para 5(xiv) enumerates, so the accepted-document table no longer admits a valid Officially Valid Document; scored directly against the in-clause enumeration."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(xiv)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"passport\",\"driving-licence\",\"aadhaar-possession-proof\",\"voter-id-ECI\",\"nrega-job-card\",\"npr-letter\"],\"comparator\":null,\"note\":null}},\"program\":\"OVDCHK1\",\"slices\":[{\"variable\":\"WS-KYC-DECISION\",\"scoped_program\":\"OVDCHK1\",\"statements\":[{\"ref\":{\"program\":\"OVDCHK1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"01  WS-KYC-DECISION PIC X(6) VALUE 'REJECT'.\"},{\"ref\":{\"program\":\"OVDCHK1\",\"paragraph\":\"2000-SCREEN-OVD\",\"line_start\":20,\"line_end\":21},\"text\":\"IF ACCEPTED-OVD\\n              MOVE 'ACCEPT' TO WS-KYC-DECISION\"},{\"ref\":{\"program\":\"OVDCHK1\",\"paragraph\":\"2000-SCREEN-OVD\",\"line_start\":21,\"line_end\":21},\"text\":\"MOVE 'ACCEPT' TO WS-KYC-DECISION\"},{\"ref\":{\"program\":\"OVDCHK1\",\"paragraph\":\"2000-SCREEN-OVD\",\"line_start\":23,\"line_end\":23},\"text\":\"MOVE 'REJECT' TO WS-KYC-DECISION\"}],\"paragraphs\":[{\"program\":\"OVDCHK1\",\"paragraph\":\"2000-SCREEN-OVD\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The clause lists the documents that qualify as OVDs. The supplied code shows that ACCEPTED-OVD leads to acceptance, but does not show how that value is derived or which documents qualify, so the comparison is incomplete.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied slice does not show how ACCEPTED-OVD is derived or which documents it includes, so it cannot establish conformance or drift against the clause's listed document types.",
+        "final_answer": "Abstain: the snippet shows that ACCEPTED-OVD leads to acceptance, but does not expose which documents set that condition. The clause's document list therefore cannot be compared with the supplied code evidence.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause lists the documents that qualify as OVDs. The supplied code shows that ACCEPTED-OVD leads to acceptance, but does not show how that value is derived or which documents qualify, so the comparison is incomplete.\",\"prediction\":null,\"claim\":\"An OVD is a passport, driving licence, proof of possession of an Aadhaar number, Voter's Identity Card issued by the Election Commission of India, NREGA job card duly signed by a State Government officer, or National Population Register letter containing name and address details.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied slice does not show how ACCEPTED-OVD is derived or which documents it includes, so it cannot establish conformance or drift against the clause's listed document types.\",\"final_answer\":\"Abstain: the snippet shows that ACCEPTED-OVD leads to acceptance, but does not expose which documents set that condition. The clause's document list therefore cannot be compared with the supplied code evidence.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied slice does not show how ACCEPTED-OVD is derived or which documents it includes, so it cannot establish conformance or drift against the clause's listed document types.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain: the snippet shows that ACCEPTED-OVD leads to acceptance, but does not expose which documents set that condition. The clause's document list therefore cannot be compared with the supplied code evidence.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied slice does not show how ACCEPTED-OVD is derived or which documents it includes, so it cannot establish conformance or drift against the clause's listed document types.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "813b4a880d950744b2ce62060398b4820d1c794f7b1bda8fb424c37a5f7b55bd",
+  "run_key": "70fc05d1ded8ba219517eaa443f72fc2a1a9a34f9952afb115bd281ea7d801b2"
+}

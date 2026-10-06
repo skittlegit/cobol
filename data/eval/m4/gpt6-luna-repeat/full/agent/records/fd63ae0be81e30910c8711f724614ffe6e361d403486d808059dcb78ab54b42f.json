@@ -1,0 +1,726 @@
+{
+  "instance_id": "drift_024882",
+  "gold": {
+    "instance_id": "drift_024882",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC2",
+          "paragraph": "2000-CHECK-SLA",
+          "file": null,
+          "line_span": [
+            27,
+            27
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSYNC2",
+          "line": 27,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-5 changes '>' to '>=' at KYCSYNC2:2000-CHECK-SLA:27-27, producing D5_boundary_error.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSYNC2.cbl",
+      "mutation": "MO-5; locus=KYCSYNC2:2000-CHECK-SLA:27-27; old='>'; new='>='; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: KYCSYNC2.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "KYCSYNC2"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 25, \"line_start\": 20, \"name\": \"1000-MAIN\"}, {\"line_end\": 31, \"line_start\": 26, \"name\": \"2000-CHECK-SLA\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\3f4f9d2f3b728b6d063b91662413279f0bfb8671af647079f82caa9154e0c445\\\\cases\\\\drift_900000\\\\KYCSYNC2.cbl\", \"program\": \"KYCSYNC2\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 31.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "KYCSYNC2",
+          "name": "2000-CHECK-SLA"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}], \"code\": \"       2000-CHECK-SLA.\\n           IF WS-DAYS-SINCE-UPD >= 7\\n              MOVE 'OVERDUE' TO WS-SLA-STATUS\\n           ELSE\\n              MOVE 'INSLA' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 31, \"line_start\": 26, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-DAYS-SINCE-UPD"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 12, \"program\": \"KYCSYNC2\", \"text\": \"           05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"line\": 22, \"program\": \"KYCSYNC2\", \"text\": \"           ACCEPT WS-DAYS-SINCE-UPD\"}, {\"line\": 27, \"program\": \"KYCSYNC2\", \"text\": \"           IF WS-DAYS-SINCE-UPD >= 7\"}], \"pattern\": \"WS-DAYS-SINCE-UPD\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The source uses the clause's 7-day literal, so no stale threshold is established.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed literal 7 matches the clause value. The >= comparator raises a boundary issue assessed under D5, not a stale threshold under D1.",
+        "final_answer": "D1 is unsupported because the source literal 7 matches the clause's 7-day value; the comparator issue is a D5 boundary question.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source uses the clause's 7-day literal, so no stale threshold is established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The observed literal 7 matches the clause value. The >= comparator raises a boundary issue assessed under D5, not a stale threshold under D1.\",\"final_answer\":\"D1 is unsupported because the source literal 7 matches the clause's 7-day value; the comparator issue is a D5 boundary question.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The observed literal 7 matches the clause value. The >= comparator raises a boundary issue assessed under D5, not a stale threshold under D1.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: The observed literal 7 matches the clause value. The >= comparator raises a boundary issue assessed under D5, not a stale threshold under D1.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: KYCSYNC2.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSYNC2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 25, \"line_start\": 20, \"name\": \"1000-MAIN\"}, {\"line_end\": 31, \"line_start\": 26, \"name\": \"2000-CHECK-SLA\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\3f4f9d2f3b728b6d063b91662413279f0bfb8671af647079f82caa9154e0c445\\\\cases\\\\drift_900000\\\\KYCSYNC2.cbl\", \"program\": \"KYCSYNC2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 31.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC2",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}], \"code\": \"       2000-CHECK-SLA.\\n           IF WS-DAYS-SINCE-UPD >= 7\\n              MOVE 'OVERDUE' TO WS-SLA-STATUS\\n           ELSE\\n              MOVE 'INSLA' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 31, \"line_start\": 26, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-DAYS-SINCE-UPD"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 12, \"program\": \"KYCSYNC2\", \"text\": \"           05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"line\": 22, \"program\": \"KYCSYNC2\", \"text\": \"           ACCEPT WS-DAYS-SINCE-UPD\"}, {\"line\": 27, \"program\": \"KYCSYNC2\", \"text\": \"           IF WS-DAYS-SINCE-UPD >= 7\"}], \"pattern\": \"WS-DAYS-SINCE-UPD\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The source uses the clause's 7-day literal, so no stale threshold is established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The observed literal 7 matches the clause value. The >= comparator raises a boundary issue assessed under D5, not a stale threshold under D1.",
+            "final_answer": "D1 is unsupported because the source literal 7 matches the clause's 7-day value; the comparator issue is a D5 boundary question.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source uses the clause's 7-day literal, so no stale threshold is established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The observed literal 7 matches the clause value. The >= comparator raises a boundary issue assessed under D5, not a stale threshold under D1.\",\"final_answer\":\"D1 is unsupported because the source literal 7 matches the clause's 7-day value; the comparator issue is a D5 boundary question.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The observed literal 7 matches the clause value. The >= comparator raises a boundary issue assessed under D5, not a stale threshold under D1.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The observed literal 7 matches the clause value. The >= comparator raises a boundary issue assessed under D5, not a stale threshold under D1.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The observed literal 7 matches the clause value. The >= comparator raises a boundary issue assessed under D5, not a stale threshold under D1."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: KYCSYNC2.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-SLA-STATUS"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 14, \"program\": \"KYCSYNC2\", \"text\": \"           05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.\"}, {\"line\": 24, \"program\": \"KYCSYNC2\", \"text\": \"           DISPLAY 'SLA: ' WS-SLA-STATUS\"}, {\"line\": 28, \"program\": \"KYCSYNC2\", \"text\": \"              MOVE 'OVERDUE' TO WS-SLA-STATUS\"}, {\"line\": 30, \"program\": \"KYCSYNC2\", \"text\": \"              MOVE 'INSLA' TO WS-SLA-STATUS\"}], \"pattern\": \"WS-SLA-STATUS\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "KYCSYNC2",
+              "para": "2000-CHECK-SLA"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "KYCSYNC2",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[{\"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-SLA-STATUS",
+              "program": "KYCSYNC2"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}, {\"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}], \"scoped_program\": \"KYCSYNC2\", \"statements\": [{\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": null, \"program\": \"KYCSYNC2\"}, \"text\": \"05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 14, \"line_start\": 14, \"paragraph\": null, \"program\": \"KYCSYNC2\"}, \"text\": \"05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.\"}, {\"ref\": {\"line_end\": 22, \"line_start\": 22, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}, \"text\": \"ACCEPT WS-DAYS-SINCE-UPD\"}, {\"ref\": {\"line_end\": 23, \"line_start\": 23, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}, \"text\": \"PERFORM 2000-CHECK-SLA\"}, {\"ref\": {\"line_end\": 28, \"line_start\": 27, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"text\": \"IF WS-DAYS-SINCE-UPD >= 7\\n              MOVE 'OVERDUE' TO WS-SLA-STATUS\"}, {\"ref\": {\"line_end\": 28, \"line_start\": 28, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"text\": \"MOVE 'OVERDUE' TO WS-SLA-STATUS\"}, {\"ref\": {\"line_end\": 30, \"line_start\": 30, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"text\": \"MOVE 'INSLA' TO WS-SLA-STATUS\"}], \"variable\": \"WS-SLA-STATUS\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The required D2 observations are not all negative; the bounded evidence includes existing SLA status assignments and connected control flow.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The grep showed WS-SLA-STATUS assignments, and the caller, callee, and slice observations showed connected SLA logic. The required all-negative D2 evidence set is not met, so absence of the registry update behavior is not established.",
+            "final_answer": "D2 is unproven because the recorded observations include existing connected SLA status logic, so the required all-negative evidence set is not met.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The required D2 observations are not all negative; the bounded evidence includes existing SLA status assignments and connected control flow.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The grep showed WS-SLA-STATUS assignments, and the caller, callee, and slice observations showed connected SLA logic. The required all-negative D2 evidence set is not met, so absence of the registry update behavior is not established.\",\"final_answer\":\"D2 is unproven because the recorded observations include existing connected SLA status logic, so the required all-negative evidence set is not met.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The grep showed WS-SLA-STATUS assignments, and the caller, callee, and slice observations showed connected SLA logic. The required all-negative D2 evidence set is not met, so absence of the registry update behavior is not established.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The grep showed WS-SLA-STATUS assignments, and the caller, callee, and slice observations showed connected SLA logic. The required all-negative D2 evidence set is not met, so absence of the registry update behavior is not established.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The grep showed WS-SLA-STATUS assignments, and the caller, callee, and slice observations showed connected SLA logic. The required all-negative D2 evidence set is not met, so absence of the registry update behavior is not established."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: KYCSYNC2.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC2",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}], \"code\": \"       2000-CHECK-SLA.\\n           IF WS-DAYS-SINCE-UPD >= 7\\n              MOVE 'OVERDUE' TO WS-SLA-STATUS\\n           ELSE\\n              MOVE 'INSLA' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 31, \"line_start\": 26, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC2",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUST-ID\\n           ACCEPT WS-DAYS-SINCE-UPD\\n           PERFORM 2000-CHECK-SLA\\n           DISPLAY 'SLA: ' WS-SLA-STATUS\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 25, \"line_start\": 20, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "UPDATE|REGISTRY|OVERDUE"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 5, \"program\": \"KYCSYNC2\", \"text\": \"      * UPDATED KYC INFORMATION FROM CUSTOMER\"}, {\"line\": 28, \"program\": \"KYCSYNC2\", \"text\": \"              MOVE 'OVERDUE' TO WS-SLA-STATUS\"}], \"pattern\": \"UPDATE|REGISTRY|OVERDUE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observed issue is the threshold transition at the seven-day boundary; no separate contradictory downstream action was established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The paragraph assigns OVERDUE when elapsed days are >= 7. This establishes the boundary issue assessed under D5, but the evidence does not establish a separate contradictory action for D3.",
+            "final_answer": "The evidence supports the D5 boundary issue at day 7 but does not establish a separate D3 contradiction.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observed issue is the threshold transition at the seven-day boundary; no separate contradictory downstream action was established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The paragraph assigns OVERDUE when elapsed days are >= 7. This establishes the boundary issue assessed under D5, but the evidence does not establish a separate contradictory action for D3.\",\"final_answer\":\"The evidence supports the D5 boundary issue at day 7 but does not establish a separate D3 contradiction.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The paragraph assigns OVERDUE when elapsed days are >= 7. This establishes the boundary issue assessed under D5, but the evidence does not establish a separate contradictory action for D3.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The paragraph assigns OVERDUE when elapsed days are >= 7. This establishes the boundary issue assessed under D5, but the evidence does not establish a separate contradictory action for D3.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The paragraph assigns OVERDUE when elapsed days are >= 7. This establishes the boundary issue assessed under D5, but the evidence does not establish a separate contradictory action for D3."
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: KYCSYNC2.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current value is a duration, not a reference enumeration.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The clause current_value is a duration_days value, not an enum_set reference collection required for D4.",
+            "final_answer": "D4 does not apply because the clause supplies a duration_days current value rather than an enum_set reference collection.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value is a duration, not a reference enumeration.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The clause current_value is a duration_days value, not an enum_set reference collection required for D4.\",\"final_answer\":\"D4 does not apply because the clause supplies a duration_days current value rather than an enum_set reference collection.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: KYCSYNC2.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC2",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}], \"code\": \"       2000-CHECK-SLA.\\n           IF WS-DAYS-SINCE-UPD >= 7\\n              MOVE 'OVERDUE' TO WS-SLA-STATUS\\n           ELSE\\n              MOVE 'INSLA' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 31, \"line_start\": 26, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "OVERDUE"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 28, \"program\": \"KYCSYNC2\", \"text\": \"              MOVE 'OVERDUE' TO WS-SLA-STATUS\"}], \"pattern\": \"OVERDUE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 3,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-SLA-STATUS",
+              "program": "KYCSYNC2"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}, {\"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}], \"scoped_program\": \"KYCSYNC2\", \"statements\": [{\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": null, \"program\": \"KYCSYNC2\"}, \"text\": \"05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 14, \"line_start\": 14, \"paragraph\": null, \"program\": \"KYCSYNC2\"}, \"text\": \"05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.\"}, {\"ref\": {\"line_end\": 22, \"line_start\": 22, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}, \"text\": \"ACCEPT WS-DAYS-SINCE-UPD\"}, {\"ref\": {\"line_end\": 23, \"line_start\": 23, \"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}, \"text\": \"PERFORM 2000-CHECK-SLA\"}, {\"ref\": {\"line_end\": 28, \"line_start\": 27, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"text\": \"IF WS-DAYS-SINCE-UPD >= 7\\n              MOVE 'OVERDUE' TO WS-SLA-STATUS\"}, {\"ref\": {\"line_end\": 28, \"line_start\": 28, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"text\": \"MOVE 'OVERDUE' TO WS-SLA-STATUS\"}, {\"ref\": {\"line_end\": 30, \"line_start\": 30, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"text\": \"MOVE 'INSLA' TO WS-SLA-STATUS\"}], \"variable\": \"WS-SLA-STATUS\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The source sends elapsed day 7 to OVERDUE through a >= 7 condition. The clause allows updates within 7 days, so the overdue transition occurs at the allowed boundary.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, target_path 'comparator' does not resolve into current_value [type=value_error, input_value={'instance_id': 'drift_02...nsition one day early.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+            "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, target_path 'comparator' does not resolve into current_value [type=value_error, input_value={'instance_id': 'drift_02...nsition one day early.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The source sends elapsed day 7 to OVERDUE through a >= 7 condition. The clause allows updates within 7 days, so the overdue transition occurs at the allowed boundary.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSYNC2\",\"paragraph\":\"2000-CHECK-SLA\",\"file\":\"KYCSYNC2.cbl\",\"line_span\":[27,28]}],\"slice_vars\":[\"WS-DAYS-SINCE-UPD\",\"WS-SLA-STATUS\"],\"is_interprocedural\":false},\"drift_type\":\"D5_boundary_error\",\"target_path\":\"comparator\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"KYCSYNC2\",\"line\":27,\"file\":\"KYCSYNC2.cbl\"},{\"program\":\"KYCSYNC2\",\"line\":28,\"file\":\"KYCSYNC2.cbl\"}]},\"rationale\":\"The source condition WS-DAYS-SINCE-UPD >= 7 takes the OVERDUE branch at exactly 7 elapsed days (lines 27–28). The clause sets an at-most-7-day update deadline, so the overdue transition should occur only after that limit; the comparator moves the transition one day early.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry no later than seven days after receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"7\",\"comparator\":\">=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"At exactly 7 days, WS-DAYS-SINCE-UPD >= 7 assigns OVERDUE (KYCSYNC2.cbl:27–28). Because the clause allows the update within 7 days, the overdue transition occurs one day early.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, target_path 'comparator' does not resolve into current_value [type=value_error, input_value={'instance_id': 'drift_02...nsition one day early.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, target_path 'comparator' does not resolve into current_value [type=value_error, input_value={'instance_id': 'drift_02...nsition one day early.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, target_path 'comparator' does not resolve into current_value [type=value_error, input_value={'instance_id': 'drift_02...nsition one day early.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error"
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: KYCSYNC2.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC2",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}], \"code\": \"       2000-CHECK-SLA.\\n           IF WS-DAYS-SINCE-UPD >= 7\\n              MOVE 'OVERDUE' TO WS-SLA-STATUS\\n           ELSE\\n              MOVE 'INSLA' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 31, \"line_start\": 26, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "KYCSYNC2",
+              "para": "2000-CHECK-SLA"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "FALSE"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"FALSE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The SLA check has a caller and an active conditional; no dead paragraph or disabled guard was established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "2000-CHECK-SLA is called by 1000-MAIN and contains an active IF branch. The bounded evidence did not provide dead_paragraph evidence or an exact always-false/default-off guard literal.",
+            "final_answer": "D6 is unsupported because the SLA paragraph is called and no dead-paragraph or disabled-guard evidence was found.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The SLA check has a caller and an active conditional; no dead paragraph or disabled guard was established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"2000-CHECK-SLA is called by 1000-MAIN and contains an active IF branch. The bounded evidence did not provide dead_paragraph evidence or an exact always-false/default-off guard literal.\",\"final_answer\":\"D6 is unsupported because the SLA paragraph is called and no dead-paragraph or disabled-guard evidence was found.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "2000-CHECK-SLA is called by 1000-MAIN and contains an active IF branch. The bounded evidence did not provide dead_paragraph evidence or an exact always-false/default-off guard literal.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: 2000-CHECK-SLA is called by 1000-MAIN and contains an active IF branch. The bounded evidence did not provide dead_paragraph evidence or an exact always-false/default-off guard literal.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "2000-CHECK-SLA is called by 1000-MAIN and contains an active IF branch. The bounded evidence did not provide dead_paragraph evidence or an exact always-false/default-off guard literal."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: KYCSYNC2.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "KYCSYNC2"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 25, \"line_start\": 20, \"name\": \"1000-MAIN\"}, {\"line_end\": 31, \"line_start\": 26, \"name\": \"2000-CHECK-SLA\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\3f4f9d2f3b728b6d063b91662413279f0bfb8671af647079f82caa9154e0c445\\\\cases\\\\drift_900000\\\\KYCSYNC2.cbl\", \"program\": \"KYCSYNC2\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "KYCSYNC2",
+              "name": "2000-CHECK-SLA"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"KYCSYNC2\"}], \"code\": \"       2000-CHECK-SLA.\\n           IF WS-DAYS-SINCE-UPD >= 7\\n              MOVE 'OVERDUE' TO WS-SLA-STATUS\\n           ELSE\\n              MOVE 'INSLA' TO WS-SLA-STATUS\\n           END-IF.\", \"name\": \"2000-CHECK-SLA\", \"ref\": {\"line_end\": 31, \"line_start\": 26, \"paragraph\": \"2000-CHECK-SLA\", \"program\": \"KYCSYNC2\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "WS-DAYS-SINCE-UPD"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 12, \"program\": \"KYCSYNC2\", \"text\": \"           05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"}, {\"line\": 22, \"program\": \"KYCSYNC2\", \"text\": \"           ACCEPT WS-DAYS-SINCE-UPD\"}, {\"line\": 27, \"program\": \"KYCSYNC2\", \"text\": \"           IF WS-DAYS-SINCE-UPD >= 7\"}], \"pattern\": \"WS-DAYS-SINCE-UPD\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The check exists, but the observed comparator and branch do not positively match the supplied deadline.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D7 requires positive source evidence that the implementation matches the clause. The observed >= 7 condition sends day 7 to OVERDUE, so a conformant match to the at-most-7-day window is not established.",
+            "final_answer": "D7 is unsupported: the source routes elapsed day 7 to OVERDUE, which does not positively establish a match to the clause's at-most-7-day window.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The check exists, but the observed comparator and branch do not positively match the supplied deadline.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D7 requires positive source evidence that the implementation matches the clause. The observed >= 7 condition sends day 7 to OVERDUE, so a conformant match to the at-most-7-day window is not established.\",\"final_answer\":\"D7 is unsupported: the source routes elapsed day 7 to OVERDUE, which does not positively establish a match to the clause's at-most-7-day window.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D7 requires positive source evidence that the implementation matches the clause. The observed >= 7 condition sends day 7 to OVERDUE, so a conformant match to the at-most-7-day window is not established.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D7 requires positive source evidence that the implementation matches the clause. The observed >= 7 condition sends day 7 to OVERDUE, so a conformant match to the at-most-7-day window is not established.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D7 requires positive source evidence that the implementation matches the clause. The observed >= 7 condition sends day 7 to OVERDUE, so a conformant match to the at-most-7-day window is not established."
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "The observed literal 7 matches the clause value. The >= comparator raises a boundary issue assessed under D5, not a stale threshold under D1.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "7aeee2990625cfd43d34f1af76e186dfd02273f97f0211d847ea0686103785ad",
+  "run_key": "fd63ae0be81e30910c8711f724614ffe6e361d403486d808059dcb78ab54b42f"
+}

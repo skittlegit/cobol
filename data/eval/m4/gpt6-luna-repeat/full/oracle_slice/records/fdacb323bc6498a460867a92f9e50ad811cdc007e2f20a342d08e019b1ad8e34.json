@@ -1,0 +1,412 @@
+{
+  "instance_id": "drift_907751",
+  "gold": {
+    "instance_id": "drift_907751",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN5",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            10,
+            10
+          ]
+        },
+        {
+          "program": "CLOSPEN5",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            20,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PEN-ENABLED",
+        "WS-ELAPSED-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": "penalty_per_day",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN5",
+          "line": 10,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-6 changes \"VALUE 'Y'\" to \"VALUE 'N'\" at CLOSPEN5:<source>:10-10+CLOSPEN5:1000-MAIN:20-20, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CLOSPEN5.cbl",
+      "mutation": "MO-6; locus=CLOSPEN5:<source>:10-10+CLOSPEN5:1000-MAIN:20-20; old=\"VALUE 'Y'\"; new=\"VALUE 'N'\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_907751",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN5",
+          "paragraph": "2000-PENALTY",
+          "file": null,
+          "line_span": [
+            26,
+            28
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-ELAPSED-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN5",
+          "line": 27,
+          "file": null
+        },
+        {
+          "program": "CLOSPEN5",
+          "line": 28,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The visible 2000-PENALTY path calculates delay and computes a penalty when that delay is positive (lines 26–28). The supplied path does not show a check for the clause's no-outstanding qualification before calculating the penalty, so this is a missing-rule finding. The slice does not establish the day basis of WS-ELAPSED-DAYS."
+  },
+  "confidence": 0.6,
+  "verification": {
+    "verified": true,
+    "tier": 3,
+    "evidence": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 entails the claim (P=0.9527, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)",
+    "citation_ok": true,
+    "entailment_probability": 0.9527,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "unavailable",
+        "detail": "static claim carried no checkable literal/comparator/dead_paragraph"
+      },
+      {
+        "tier": 3,
+        "outcome": "verified",
+        "detail": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 entails the claim (P=0.9527, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"CLOSPEN5\",\"slices\":[{\"variable\":\"WS-PEN-ENABLED\",\"scoped_program\":\"CLOSPEN5\",\"statements\":[{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":null,\"line_start\":10,\"line_end\":10},\"text\":\"05  WS-PEN-ENABLED        PIC X(1) VALUE 'N'.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"WS-ELAPSED-DAYS\",\"scoped_program\":\"CLOSPEN5\",\"statements\":[{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"ACCEPT WS-ELAPSED-DAYS\"}],\"paragraphs\":[{\"program\":\"CLOSPEN5\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-PENALTY-AMT\",\"scoped_program\":\"CLOSPEN5\",\"statements\":[{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":null,\"line_start\":15,\"line_end\":15},\"text\":\"05  WS-DELAY-DAYS         PIC S9(5) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":null,\"line_start\":16,\"line_end\":16},\"text\":\"05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"ACCEPT WS-ELAPSED-DAYS\"},{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":\"1000-MAIN\",\"line_start\":21,\"line_end\":21},\"text\":\"PERFORM 2000-PENALTY\"},{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":\"2000-PENALTY\",\"line_start\":26,\"line_end\":26},\"text\":\"COMPUTE WS-DELAY-DAYS = WS-ELAPSED-DAYS - 7\"},{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":\"2000-PENALTY\",\"line_start\":27,\"line_end\":28},\"text\":\"IF WS-DELAY-DAYS > ZERO\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\"},{\"ref\":{\"program\":\"CLOSPEN5\",\"paragraph\":\"2000-PENALTY\",\"line_start\":28,\"line_end\":28},\"text\":\"COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\"}],\"paragraphs\":[{\"program\":\"CLOSPEN5\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"CLOSPEN5\",\"paragraph\":\"2000-PENALTY\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The supplied penalty path shows a positive-delay calculation but does not show the clause's no-outstanding qualification. The supplied evidence does not establish whether elapsed days are working days or calendar days.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_907751",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "19",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "penalty_per_day": {
+                  "kind": "amount_inr",
+                  "value": 500,
+                  "comparator": "at_least",
+                  "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                },
+                "day_basis": {
+                  "kind": "enum_set",
+                  "value": [
+                    "calendar_day"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN5",
+                "paragraph": "2000-PENALTY",
+                "file": null,
+                "line_span": [
+                  26,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ELAPSED-DAYS",
+              "WS-PENALTY-AMT"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLOSPEN5",
+                "line": 27,
+                "file": null
+              },
+              {
+                "program": "CLOSPEN5",
+                "line": 28,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The visible 2000-PENALTY path calculates delay and computes a penalty when that delay is positive (lines 26–28). The supplied path does not show a check for the clause's no-outstanding qualification before calculating the penalty, so this is a missing-rule finding. The slice does not establish the day basis of WS-ELAPSED-DAYS."
+        },
+        "claim": "A closure request must be honoured within seven working days, subject to dues; failure incurs a penalty of Rs 500 per calendar day of delay until closure when no outstanding dues remain.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": null,
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The visible penalty path calculates a penalty when the computed delay is positive, without showing the clause's no-outstanding qualification. This supports a missing-rule finding. The supplied slice does not establish whether the elapsed-day input uses working days or calendar days.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The supplied penalty path shows a positive-delay calculation but does not show the clause's no-outstanding qualification. The supplied evidence does not establish whether elapsed days are working days or calendar days.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CLOSPEN5\",\"paragraph\":\"2000-PENALTY\",\"file\":null,\"line_span\":[26,28]}],\"slice_vars\":[\"WS-ELAPSED-DAYS\",\"WS-PENALTY-AMT\"],\"is_interprocedural\":true},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"CLOSPEN5\",\"line\":27,\"file\":null},{\"program\":\"CLOSPEN5\",\"line\":28,\"file\":null}]},\"rationale\":\"The visible 2000-PENALTY path calculates delay and computes a penalty when that delay is positive (lines 26–28). The supplied path does not show a check for the clause's no-outstanding qualification before calculating the penalty, so this is a missing-rule finding. The slice does not establish the day basis of WS-ELAPSED-DAYS.\"},\"claim\":\"A closure request must be honoured within seven working days, subject to dues; failure incurs a penalty of Rs 500 per calendar day of delay until closure when no outstanding dues remain.\",\"exec_probe\":null,\"static_claim\":{\"literal\":null,\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The visible penalty path calculates a penalty when the computed delay is positive, without showing the clause's no-outstanding qualification. This supports a missing-rule finding. The supplied slice does not establish whether the elapsed-day input uses working days or calendar days.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 3,
+      "evidence": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 entails the claim (P=0.9527, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)",
+      "citation_ok": true,
+      "entailment_probability": 0.9527,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "unavailable",
+          "detail": "static claim carried no checkable literal/comparator/dead_paragraph"
+        },
+        {
+          "tier": 3,
+          "outcome": "verified",
+          "detail": "clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 entails the claim (P=0.9527, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli); Tier-3 is entailment-only (weakest tier)"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_907751",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "19",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "closure_window": {
+              "kind": "duration_working_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            },
+            "penalty_per_day": {
+              "kind": "amount_inr",
+              "value": 500,
+              "comparator": "at_least",
+              "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+            },
+            "day_basis": {
+              "kind": "enum_set",
+              "value": [
+                "calendar_day"
+              ],
+              "comparator": null,
+              "note": null
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "CLOSPEN5",
+            "paragraph": "2000-PENALTY",
+            "file": null,
+            "line_span": [
+              26,
+              28
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-ELAPSED-DAYS",
+          "WS-PENALTY-AMT"
+        ],
+        "is_interprocedural": true
+      },
+      "drift_type": "D2_missing_rule",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "CLOSPEN5",
+            "line": 27,
+            "file": null
+          },
+          {
+            "program": "CLOSPEN5",
+            "line": 28,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The visible 2000-PENALTY path calculates delay and computes a penalty when that delay is positive (lines 26–28). The supplied path does not show a check for the clause's no-outstanding qualification before calculating the penalty, so this is a missing-rule finding. The slice does not establish the day basis of WS-ELAPSED-DAYS."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The visible penalty path calculates a penalty when the computed delay is positive, without showing the clause's no-outstanding qualification. This supports a missing-rule finding. The supplied slice does not establish whether the elapsed-day input uses working days or calendar days.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "6fdf936e3aa6d8125aa540f044b644192576a069a99d3594228f7f030470ada2",
+  "run_key": "fdacb323bc6498a460867a92f9e50ad811cdc007e2f20a342d08e019b1ad8e34"
+}

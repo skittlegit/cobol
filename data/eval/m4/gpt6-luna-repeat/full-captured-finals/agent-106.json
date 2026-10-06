@@ -1,0 +1,77 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "BATCHCT2 contains 1000-MAIN and 2000-ACCRUE; the latter computes WS-PENALTY as 500 times WS-DELAY-DAYS. That amount is not a stale threshold for the clause's boolean requirement.",
+        "prediction": null,
+        "claim": "Minimum Amount Due must be stipulated to prevent negative amortization, and unpaid charges, levies, and taxes must not be capitalized when charging or compounding interest.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No source literal comparable to the resolved boolean current-value leaf was found.",
+        "final_answer": "The observed 500-times-delay calculation is a penalty amount, while the clause requires no capitalization of unpaid charges. The source does not establish a drifted threshold for that requirement."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The scoped grep returned no CAPITAL, CHARGE, INTEREST, or DUE matches; find_callers returned 1000-MAIN, find_callees returned none, and the WS-PENALTY slice showed the delay-day penalty calculation. The four observations do not all show a negative result, so the required D2 condition is unmet.",
+        "prediction": null,
+        "claim": "Minimum Amount Due must be stipulated to prevent negative amortization, and unpaid charges, levies, and taxes must not be capitalized when charging or compounding interest.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The required all-negative D2 evidence was not obtained, and the observed penalty calculation does not itself positively conflict with the clause.",
+        "final_answer": "BATCHCT2's observed path computes and displays a delay penalty. The bounded evidence does not establish the required minimum-due or capitalization treatment, and it does not satisfy D2's all-negative observation requirement."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "1000-MAIN accepts a run flag and delay days, then may perform 2000-ACCRUE; 2000-ACCRUE computes WS-PENALTY as 500 times WS-DELAY-DAYS. This does not show unpaid charges being capitalized or interest being compounded.",
+        "prediction": null,
+        "claim": "Minimum Amount Due must be stipulated to prevent negative amortization, and unpaid charges, levies, and taxes must not be capitalized when charging or compounding interest.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No observed source action positively contradicts the clause.",
+        "final_answer": "The observed penalty computation does not establish capitalization of unpaid charges or charging or compounding interest, so a direct contradiction is not evidenced."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current_value has kind boolean_required, not enum_set.",
+        "prediction": null,
+        "claim": "Minimum Amount Due must be stipulated to prevent negative amortization, and unpaid charges, levies, and taxes must not be capitalized when charging or compounding interest.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only when the clause's current value is an enum_set reference collection.",
+        "final_answer": "The clause supplies a boolean requirement rather than an enum_set collection, so there is no regulated reference list to compare with a hardcoded enumeration."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The supplied current_value is a boolean requirement and has no scalar boundary or comparator.",
+        "prediction": null,
+        "claim": "Minimum Amount Due must be stipulated to prevent negative amortization, and unpaid charges, levies, and taxes must not be capitalized when charging or compounding interest.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The clause provides no resolved threshold whose early or late transition can be assessed.",
+        "final_answer": "The clause does not provide a numeric boundary or comparator, so the evidence cannot establish an early or late source transition."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The bounded observations show 1000-MAIN performing 2000-ACCRUE, whose body computes WS-PENALTY. The paragraph has a caller and no always-false guard was observed.",
+        "prediction": null,
+        "claim": "Minimum Amount Due must be stipulated to prevent negative amortization, and unpaid charges, levies, and taxes must not be capitalized when charging or compounding interest.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No unreachable compliance paragraph or disabled compliance guard was evidenced.",
+        "final_answer": "The observed accrual paragraph is called from 1000-MAIN, and its penalty computation has no observed disabled guard; no dead compliance code is established."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The bounded observations show a delay-penalty path but no check for minimum due or capitalization of unpaid charges.",
+        "prediction": null,
+        "claim": "Minimum Amount Due must be stipulated to prevent negative amortization, and unpaid charges, levies, and taxes must not be capitalized when charging or compounding interest.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No positive source evidence shows a check that matches the clause.",
+        "final_answer": "The observed penalty path does not demonstrate a conformant check for the clause's minimum-due and no-capitalization requirements."
+      }
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "instance_id": "drift_366948",
+  "gold": {
+    "instance_id": "drift_366948",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SCRNGATE1",
+          "paragraph": null,
+          "file": "SANCREG.cpy",
+          "line_span": [
+            6,
+            6
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-SCREEN-RESULT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SCRNGATE1",
+          "line": 6,
+          "file": "SANCREG.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'S88' to '(deleted)' at SCRNGATE1:SANCREG.cpy:6-6, producing D4_stale_reference_data. MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "SCRNGATE1.cbl",
+      "mutation": "MO-4; locus=SCRNGATE1:SANCREG.cpy:6-6; old='S88'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: RAG+reranker single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"56(prevention)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"UNSC-ISIL-Daesh-AlQaida-1267-1989-2253\",\"UNSC-Taliban-1988\"],\"comparator\":null,\"note\":\"clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally\"}},\"score\":9.705252647399902}],\"program\":\"FILE SANCREG.cpy LINES 1-6\\n0001:       *----------------------------------------------------------------\\n0002:       * UNSC SANCTIONS SCREENING REGISTRY - MANDATED LIST SOURCES.\\n0003:       * SEE RBI KYC DIRECTIONS PARA 56.\\n0004:       *----------------------------------------------------------------\\n0005:        01  WS-LIST-SOURCE PIC X(3) VALUE 'S67'.\\n0006:            88  MANDATED-LIST VALUES 'S67' ''.\\nFILE SCRNGATE1.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. SCRNGATE1.\\n0003:       *----------------------------------------------------------------\\n0004:       * UNSC SANCTIONS SCREENING GATE - THE APPLICANT LIST-SOURCE IS\\n0005:       * SCREENED AGAINST THE MANDATED SANCTIONS REGISTRY; A MATCH\\n0006:       * BLOCKS ONBOARDING.\\n0007:       *----------------------------------------------------------------\\n0008:        ENVIRONMENT DIVISION.\\n0009:        DATA DIVISION.\\n0010:        WORKING-STORAGE SECTION.\\n0011:        COPY SANCREG.\\n0012:        01  WS-SCREEN-RESULT PIC X(5) VALUE 'CLEAR'.\\n0013:        PROCEDURE DIVISION.\\n0014:        1000-MAIN.\\n0015:            ACCEPT WS-LIST-SOURCE\\n0016:            PERFORM 2000-SCREEN-SANCTIONS\\n0017:            DISPLAY 'SCREEN: ' WS-SCREEN-RESULT\\n0018:            STOP RUN.\\n0019:        2000-SCREEN-SANCTIONS.\\n0020:            IF MANDATED-LIST\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible source shows registry values 'S67' and blank, then ends at the start of the screening condition. It does not define how those values map to the two UNSC list identities or show the screening outcome, so a drift or conformance finding is not supported.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied source does not show the screening action or establish how the visible registry values correspond to the required UNSC lists.",
+        "final_answer": "The clause requires accounts to be screened against the specified UNSC lists, but the visible code does not show enough of the list mapping or screening behavior to compare.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible source shows registry values 'S67' and blank, then ends at the start of the screening condition. It does not define how those values map to the two UNSC list identities or show the screening outcome, so a drift or conformance finding is not supported.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied source does not show the screening action or establish how the visible registry values correspond to the required UNSC lists.\",\"final_answer\":\"The clause requires accounts to be screened against the specified UNSC lists, but the visible code does not show enough of the list mapping or screening behavior to compare.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied source does not show the screening action or establish how the visible registry values correspond to the required UNSC lists.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires accounts to be screened against the specified UNSC lists, but the visible code does not show enough of the list mapping or screening behavior to compare.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied source does not show the screening action or establish how the visible registry values correspond to the required UNSC lists.",
+  "infrastructure_error": null,
+  "system_id": "rag_reranker",
+  "source_sha256": "0292275b046125ef2b6100699e4b1542b3be090dc4d28c4d6feb767735b36a0a",
+  "run_key": "7c81dbd6b9ecaeb018cb8fa9125435c0cedf87f1f0dade6eed46c4cac3e0c438"
+}

@@ -1,0 +1,110 @@
+{
+  "instance_id": "drift_366948",
+  "gold": {
+    "instance_id": "drift_366948",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SCRNGATE1",
+          "paragraph": null,
+          "file": "SANCREG.cpy",
+          "line_span": [
+            6,
+            6
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-SCREEN-RESULT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SCRNGATE1",
+          "line": 6,
+          "file": "SANCREG.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'S88' to '(deleted)' at SCRNGATE1:SANCREG.cpy:6-6, producing D4_stale_reference_data. MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "SCRNGATE1.cbl",
+      "mutation": "MO-4; locus=SCRNGATE1:SANCREG.cpy:6-6; old='S88'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"56(prevention)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"UNSC-ISIL-Daesh-AlQaida-1267-1989-2253\",\"UNSC-Taliban-1988\"],\"comparator\":null,\"note\":\"clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally\"}},\"program\":\"SCRNGATE1\",\"slices\":[{\"variable\":\"WS-SCREEN-RESULT\",\"scoped_program\":\"SCRNGATE1\",\"statements\":[{\"ref\":{\"program\":\"SCRNGATE1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"01  WS-SCREEN-RESULT PIC X(5) VALUE 'CLEAR'.\"},{\"ref\":{\"program\":\"SCRNGATE1\",\"paragraph\":\"2000-SCREEN-SANCTIONS\",\"line_start\":20,\"line_end\":21},\"text\":\"IF MANDATED-LIST\\n              MOVE 'BLOCK' TO WS-SCREEN-RESULT\"},{\"ref\":{\"program\":\"SCRNGATE1\",\"paragraph\":\"2000-SCREEN-SANCTIONS\",\"line_start\":21,\"line_end\":21},\"text\":\"MOVE 'BLOCK' TO WS-SCREEN-RESULT\"},{\"ref\":{\"program\":\"SCRNGATE1\",\"paragraph\":\"2000-SCREEN-SANCTIONS\",\"line_start\":23,\"line_end\":23},\"text\":\"MOVE 'CLEAR' TO WS-SCREEN-RESULT\"}],\"paragraphs\":[{\"program\":\"SCRNGATE1\",\"paragraph\":\"2000-SCREEN-SANCTIONS\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The slice shows a generic list flag controlling BLOCK or CLEAR, but does not establish which UNSC lists that flag covers.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied slice shows blocking conditional on MANDATED-LIST, but does not identify whether that condition covers both UNSC list identities named by the clause. The comparison is insufficient to classify the code.",
+        "final_answer": "The clause requires accounts to be absent for persons or entities on the specified UNSC lists. The visible code gates BLOCK on MANDATED-LIST, but the slice does not show which lists that flag covers, so compliance cannot be determined.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The slice shows a generic list flag controlling BLOCK or CLEAR, but does not establish which UNSC lists that flag covers.\",\"prediction\":null,\"claim\":\"The institution must not have an account in the name of a person or entity appearing on a terrorist-link list approved by and periodically circulated by the United Nations Security Council.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"MANDATED-LIST\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":\"The supplied slice shows blocking conditional on MANDATED-LIST, but does not identify whether that condition covers both UNSC list identities named by the clause. The comparison is insufficient to classify the code.\",\"final_answer\":\"The clause requires accounts to be absent for persons or entities on the specified UNSC lists. The visible code gates BLOCK on MANDATED-LIST, but the slice does not show which lists that flag covers, so compliance cannot be determined.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied slice shows blocking conditional on MANDATED-LIST, but does not identify whether that condition covers both UNSC list identities named by the clause. The comparison is insufficient to classify the code.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires accounts to be absent for persons or entities on the specified UNSC lists. The visible code gates BLOCK on MANDATED-LIST, but the slice does not show which lists that flag covers, so compliance cannot be determined.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied slice shows blocking conditional on MANDATED-LIST, but does not identify whether that condition covers both UNSC list identities named by the clause. The comparison is insufficient to classify the code.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "0292275b046125ef2b6100699e4b1542b3be090dc4d28c4d6feb767735b36a0a",
+  "run_key": "e1c29be107af027eb4336da13001cdc989bc043cfa5c4061c1d9cca83cd2e19e"
+}

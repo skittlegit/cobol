@@ -1,0 +1,122 @@
+{
+  "instance_id": "drift_000016",
+  "gold": {
+    "instance_id": "drift_000016",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "42(1)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "high_risk": {
+            "kind": "duration_years",
+            "value": 2,
+            "comparator": null,
+            "note": null
+          },
+          "medium_risk": {
+            "kind": "duration_years",
+            "value": 8,
+            "comparator": null,
+            "note": null
+          },
+          "low_risk": {
+            "kind": "duration_years",
+            "value": 10,
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSCHED1",
+          "paragraph": "2000-CHECK-DUE",
+          "file": null,
+          "line_span": [
+            24,
+            38
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-RISK-RATING",
+        "WS-YEARS-SINCE-KYC",
+        "WS-KYC-DUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "Clause 42(1) requires periodic KYC updation at least every 2 years (high risk), 8 years (medium risk), and 10 years (low risk). 2000-CHECK-DUE's EVALUATE correctly applies >=2 for 'H' (lines 26-29), >=8 for 'M' (lines 30-33), and >=10 for any other rating including 'L' (lines 34-37), matching all three composite leaves and the at-least semantics.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "KYCSCHED1.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"42(1)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Periodic updation of KYC shall be carried out at least once every two years for high-risk, once every eight years for medium-risk, and once every ten years for low-risk customers, from the date of account opening or last KYC updation.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"high_risk\":{\"kind\":\"duration_years\",\"value\":2,\"comparator\":null,\"note\":null},\"medium_risk\":{\"kind\":\"duration_years\",\"value\":8,\"comparator\":null,\"note\":null},\"low_risk\":{\"kind\":\"duration_years\",\"value\":10,\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"KYCSCHED1\",\"slices\":[{\"variable\":\"WS-RISK-RATING\",\"scoped_program\":\"KYCSCHED1\",\"statements\":[{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":null,\"line_start\":11,\"line_end\":11},\"text\":\"05  WS-RISK-RATING        PIC X(1) VALUE SPACE.\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"ACCEPT WS-RISK-RATING\"}],\"paragraphs\":[{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-YEARS-SINCE-KYC\",\"scoped_program\":\"KYCSCHED1\",\"statements\":[{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-YEARS-SINCE-KYC    PIC 9(2) VALUE ZERO.\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\",\"line_start\":20,\"line_end\":20},\"text\":\"ACCEPT WS-YEARS-SINCE-KYC\"}],\"paragraphs\":[{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-KYC-DUE\",\"scoped_program\":\"KYCSCHED1\",\"statements\":[{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":null,\"line_start\":11,\"line_end\":11},\"text\":\"05  WS-RISK-RATING        PIC X(1) VALUE SPACE.\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-YEARS-SINCE-KYC    PIC 9(2) VALUE ZERO.\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":null,\"line_start\":14,\"line_end\":14},\"text\":\"05  WS-KYC-DUE            PIC X(1) VALUE 'N'.\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"ACCEPT WS-RISK-RATING\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\",\"line_start\":20,\"line_end\":20},\"text\":\"ACCEPT WS-YEARS-SINCE-KYC\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\",\"line_start\":21,\"line_end\":21},\"text\":\"PERFORM 2000-CHECK-DUE\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"line_start\":25,\"line_end\":38},\"text\":\"EVALUATE WS-RISK-RATING\\n             WHEN 'H'\\n               IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN 'M'\\n               IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n             WHEN OTHER\\n               IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\\n               END-IF\\n           END-EVALUATE.\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"line_start\":26,\"line_end\":28},\"text\":\"WHEN 'H'\\n               IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"line_start\":27,\"line_end\":28},\"text\":\"IF WS-YEARS-SINCE-KYC >= 2\\n                  MOVE 'Y' TO WS-KYC-DUE\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"line_start\":28,\"line_end\":28},\"text\":\"MOVE 'Y' TO WS-KYC-DUE\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"line_start\":30,\"line_end\":32},\"text\":\"WHEN 'M'\\n               IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"line_start\":31,\"line_end\":32},\"text\":\"IF WS-YEARS-SINCE-KYC >= 8\\n                  MOVE 'Y' TO WS-KYC-DUE\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"line_start\":32,\"line_end\":32},\"text\":\"MOVE 'Y' TO WS-KYC-DUE\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"line_start\":34,\"line_end\":36},\"text\":\"WHEN OTHER\\n               IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"line_start\":35,\"line_end\":36},\"text\":\"IF WS-YEARS-SINCE-KYC >= 10\\n                  MOVE 'Y' TO WS-KYC-DUE\"},{\"ref\":{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"line_start\":36,\"line_end\":36},\"text\":\"MOVE 'Y' TO WS-KYC-DUE\"}],\"paragraphs\":[{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible branches use the clause’s three stated intervals and mark KYC due at each interval.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_00...hose stated intervals.\"}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_00...hose stated intervals.\"}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The visible branches use the clause’s three stated intervals and mark KYC due at each interval.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSCHED1\",\"paragraph\":\"1000-MAIN\",\"file\":null,\"line_span\":[19,21]},{\"program\":\"KYCSCHED1\",\"paragraph\":\"2000-CHECK-DUE\",\"file\":null,\"line_span\":[25,38]}],\"slice_vars\":[\"WS-RISK-RATING\",\"WS-YEARS-SINCE-KYC\",\"WS-KYC-DUE\"],\"is_interprocedural\":true},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[{\"program\":\"KYCSCHED1\",\"line\":26,\"file\":null},{\"program\":\"KYCSCHED1\",\"line\":27,\"file\":null},{\"program\":\"KYCSCHED1\",\"line\":28,\"file\":null},{\"program\":\"KYCSCHED1\",\"line\":30,\"file\":null},{\"program\":\"KYCSCHED1\",\"line\":31,\"file\":null},{\"program\":\"KYCSCHED1\",\"line\":32,\"file\":null},{\"program\":\"KYCSCHED1\",\"line\":34,\"file\":null},{\"program\":\"KYCSCHED1\",\"line\":35,\"file\":null},{\"program\":\"KYCSCHED1\",\"line\":36,\"file\":null}]},\"rationale\":\"The clause sets periodic KYC intervals of two years for high-risk, eight years for medium-risk, and ten years for low-risk customers. The code marks KYC due at >=2 for 'H', >=8 for 'M', and >=10 in the remaining branch, matching those stated intervals.\"},\"claim\":\"Periodic KYC updation must occur at least once every two years for high-risk customers, once every eight years for medium-risk customers, and once every ten years for low-risk customers, measured from account opening or the last KYC updation.\",\"exec_probe\":null,\"static_claim\":{\"literal\":null,\"comparator\":\">=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause sets periodic KYC intervals of two years for high-risk, eight years for medium-risk, and ten years for low-risk customers. The code marks KYC due at >=2 for 'H', >=8 for 'M', and >=10 in the remaining branch, matching those stated intervals.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_00...hose stated intervals.\"}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_00...hose stated intervals.\"}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "prediction failed host-input binding; refusing emission: 1 validation error for DriftPrediction\n  Value error, D7_conformant requires conformant program/paragraph labels and an empty line_level [type=value_error, input_value={'instance_id': 'drift_00...hose stated intervals.\"}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "8bcba756329620b5f02424dcb2a0f4969d3ae94056cefa5cd139e0210ae37e50",
+  "run_key": "f0553228a9bb5ae73820833d30bab888527d73ac14da70c787b96b71e3b53983"
+}

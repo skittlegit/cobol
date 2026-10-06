@@ -1,0 +1,263 @@
+{
+  "instance_id": "drift_000002",
+  "gold": {
+    "instance_id": "drift_000002",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": null,
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": null,
+            "note": null
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN1",
+          "paragraph": "2000-COMPUTE-PENALTY",
+          "file": null,
+          "line_span": [
+            31,
+            39
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-WORKING-DAYS",
+        "WS-DELAY-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "day_basis",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN1",
+          "line": 34,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 19 requires penalty accrual on a calendar_day basis after the 7-working-day closure window. CLOSPEN1 computes WS-DELAY-DAYS as WS-WORKING-DAYS - WS-SLA-DAYS (line 34), i.e. the delay itself is counted in working days (weekends/holidays already stripped at line 32-33), then multiplied by the ₹500 rate. The implemented day_basis is working_day, not the mandated calendar_day.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "CLOSPEN1.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": {
+    "verified": false,
+    "tier": null,
+    "evidence": "CLOSPEN1:2000-COMPUTE-PENALTY — literal 'WS-WEEKEND-DAYS' present",
+    "citation_ok": false,
+    "entailment_probability": 0.0132,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": "citation rejected: cited clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 does not entail the claim (P=0.0132, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli) — a correct code fact attached to the wrong clause",
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "CLOSPEN1:2000-COMPUTE-PENALTY — literal 'WS-WEEKEND-DAYS' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.8343702981801698},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"20\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a card is unused for more than one year, initiate closure after intimating the cardholder; if no reply within 30 days, close the account (subject to dues) and update the CIC within 30 days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"inactivity_threshold\":{\"kind\":\"duration_years\",\"value\":1,\"comparator\":\"strictly_greater\",\"note\":\"Trigger: closure workflow fires when unused for MORE THAN one year. Stale side is UP (later closure of dormant accounts = laxer).\"},\"reply_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"cic_update_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.6849142702525457},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"31\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"cutoff\":{\"kind\":\"formula\",\"value\":\"min(0.01 * credit_limit, 5000_inr)\",\"comparator\":null,\"note\":null},\"consent_window\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"reversal_window\":{\"kind\":\"duration_working_days\",\"value\":3,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.6795666166575288}],\"program\":\"FILE CLOSPEN1.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. CLOSPEN1.\\n0003:       *----------------------------------------------------------------\\n0004:       * CARD ACCOUNT CLOSURE PENALTY CALCULATON\\n0005:       * REF: MASTER DIRECTION 2022 PARA 8(A) - PENALTY OF RS 500 PER\\n0006:       * DAY OF DELAY BEYOND SEVEN WORKING DAYS FROM CLOSURE REQUEST.\\n0007:       * BUSINESS RULE: PENALTY ACCRUES ON WORKING DAYS ONLY, AS\\n0008:       * PENALTY IS PER DAY AND SLA ITSELF IS IN WORKING DAYS.\\n0009:       *----------------------------------------------------------------\\n0010:        ENVIRONMENT DIVISION.\\n0011:        DATA DIVISION.\\n0012:        WORKING-STORAGE SECTION.\\n0013:        01  WS-INPUTS.\\n0014:            05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\\n0015:            05  WS-WEEKEND-DAYS       PIC 9(4) VALUE ZERO.\\n0016:            05  WS-HOLIDAY-DAYS       PIC 9(4) VALUE ZERO.\\n0017:        01  WS-WORK-AREAS.\\n0018:            05  WS-WORKING-DAYS       PIC S9(5) VALUE ZERO.\\n0019:            05  WS-DELAY-DAYS         PIC S9(5) VALUE ZERO.\\n0020:            05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.\\nFILE CLOSPEN1.cbl LINES 21-39\\n0021:            05  WS-PEN-RATE           PIC 9(3) VALUE 500.\\n0022:            05  WS-SLA-DAYS           PIC 9(2) VALUE 7.\\n0023:        PROCEDURE DIVISION.\\n0024:        1000-MAIN.\\n0025:            ACCEPT WS-ELAPSED-DAYS\\n0026:            ACCEPT WS-WEEKEND-DAYS\\n0027:            ACCEPT WS-HOLIDAY-DAYS\\n0028:            PERFORM 2000-COMPUTE-PENALTY\\n0029:            DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n0030:            STOP RUN.\\n0031:        2000-COMPUTE-PENALTY.\\n0032:            COMPUTE WS-WORKING-DAYS = WS-ELAPSED-DAYS\\n0033:                    - WS-WEEKEND-DAYS - WS-HOLIDAY-DAYS\\n0034:            COMPUTE WS-DELAY-DAYS = WS-WORKING-DAYS - WS-SLA-DAYS\\n0035:            IF WS-DELAY-DAYS > ZERO\\n0036:               COMPUTE WS-PENALTY-AMT = WS-PEN-RATE * WS-DELAY-DAYS\\n0037:            ELSE\\n0038:               MOVE ZERO TO WS-PENALTY-AMT\\n0039:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The penalty calculation subtracts weekends and holidays, so it accrues on working days despite the clause specifying calendar days.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_000002",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "19",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "penalty_per_day": {
+                  "kind": "amount_inr",
+                  "value": 500,
+                  "comparator": "at_least",
+                  "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                },
+                "day_basis": {
+                  "kind": "enum_set",
+                  "value": [
+                    "calendar_day"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CLOSPEN1",
+                "paragraph": "2000-COMPUTE-PENALTY",
+                "file": "CLOSPEN1.cbl",
+                "line_span": [
+                  32,
+                  36
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ELAPSED-DAYS",
+              "WS-WEEKEND-DAYS",
+              "WS-HOLIDAY-DAYS",
+              "WS-WORKING-DAYS",
+              "WS-DELAY-DAYS",
+              "WS-PENALTY-AMT",
+              "WS-PEN-RATE",
+              "WS-SLA-DAYS"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CLOSPEN1",
+                "line": 32,
+                "file": "CLOSPEN1.cbl"
+              },
+              {
+                "program": "CLOSPEN1",
+                "line": 33,
+                "file": "CLOSPEN1.cbl"
+              },
+              {
+                "program": "CLOSPEN1",
+                "line": 34,
+                "file": "CLOSPEN1.cbl"
+              },
+              {
+                "program": "CLOSPEN1",
+                "line": 36,
+                "file": "CLOSPEN1.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause requires a Rs 500 penalty for each calendar day of delay. CLOSPEN1 subtracts weekend and holiday days from elapsed days, then multiplies the resulting working-day delay by the rate, so its penalty accrues on a different day basis."
+        },
+        "claim": "Closure requests must be honoured within 7 working days, subject to dues; if delayed, the bank must pay Rs 500 per calendar day until closure, provided there is no outstanding amount.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "WS-WEEKEND-DAYS",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The clause requires Rs 500 per calendar day of delay. CLOSPEN1 subtracts weekends and holidays before calculating the penalty, so it counts working-day delay instead of calendar-day delay.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The penalty calculation subtracts weekends and holidays, so it accrues on working days despite the clause specifying calendar days.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CLOSPEN1\",\"paragraph\":\"2000-COMPUTE-PENALTY\",\"file\":\"CLOSPEN1.cbl\",\"line_span\":[32,36]}],\"slice_vars\":[\"WS-ELAPSED-DAYS\",\"WS-WEEKEND-DAYS\",\"WS-HOLIDAY-DAYS\",\"WS-WORKING-DAYS\",\"WS-DELAY-DAYS\",\"WS-PENALTY-AMT\",\"WS-PEN-RATE\",\"WS-SLA-DAYS\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"CLOSPEN1\",\"line\":32,\"file\":\"CLOSPEN1.cbl\"},{\"program\":\"CLOSPEN1\",\"line\":33,\"file\":\"CLOSPEN1.cbl\"},{\"program\":\"CLOSPEN1\",\"line\":34,\"file\":\"CLOSPEN1.cbl\"},{\"program\":\"CLOSPEN1\",\"line\":36,\"file\":\"CLOSPEN1.cbl\"}]},\"rationale\":\"The clause requires a Rs 500 penalty for each calendar day of delay. CLOSPEN1 subtracts weekend and holiday days from elapsed days, then multiplies the resulting working-day delay by the rate, so its penalty accrues on a different day basis.\"},\"claim\":\"Closure requests must be honoured within 7 working days, subject to dues; if delayed, the bank must pay Rs 500 per calendar day until closure, provided there is no outstanding amount.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"WS-WEEKEND-DAYS\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause requires Rs 500 per calendar day of delay. CLOSPEN1 subtracts weekends and holidays before calculating the penalty, so it counts working-day delay instead of calendar-day delay.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": false,
+      "tier": null,
+      "evidence": "CLOSPEN1:2000-COMPUTE-PENALTY — literal 'WS-WEEKEND-DAYS' present",
+      "citation_ok": false,
+      "entailment_probability": 0.0132,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": "citation rejected: cited clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 does not entail the claim (P=0.0132, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli) — a correct code fact attached to the wrong clause",
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "CLOSPEN1:2000-COMPUTE-PENALTY — literal 'WS-WEEKEND-DAYS' present"
+        }
+      ]
+    },
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "citation rejected: cited clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 does not entail the claim (P=0.0132, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli) — a correct code fact attached to the wrong clause",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires Rs 500 per calendar day of delay. CLOSPEN1 subtracts weekends and holidays before calculating the penalty, so it counts working-day delay instead of calendar-day delay.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "citation rejected: cited clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 does not entail the claim (P=0.0132, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli) — a correct code fact attached to the wrong clause",
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "5b1a638140274e3d4f7c9e91279460772353f05560afbb31b2701dc0b56ba710",
+  "run_key": "ba030dc7b604ab19dcc3973fcd297082c5638aa77202236e7aa51d707b745308"
+}

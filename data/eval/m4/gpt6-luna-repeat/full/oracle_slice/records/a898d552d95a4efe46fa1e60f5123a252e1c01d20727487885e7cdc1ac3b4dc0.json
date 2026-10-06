@@ -1,0 +1,123 @@
+{
+  "instance_id": "drift_000021",
+  "gold": {
+    "instance_id": "drift_000021",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(6)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Interest shall be levied only on the outstanding amount, adjusted for payments, refunds and reversed transactions.",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "interest_base=outstanding_adjusted"
+        ],
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CBACT04C",
+          "paragraph": "1300-COMPUTE-INTEREST",
+          "file": null,
+          "line_span": [
+            462,
+            467
+          ]
+        },
+        {
+          "program": "CBTRN02C",
+          "paragraph": "2700-B-UPDATE-TCATBAL-REC",
+          "file": null,
+          "line_span": [
+            526,
+            527
+          ]
+        },
+        {
+          "program": "CBTRN02C",
+          "paragraph": "2800-UPDATE-ACCOUNT-REC",
+          "file": null,
+          "line_span": [
+            547,
+            548
+          ]
+        }
+      ],
+      "slice_vars": [
+        "TRAN-CAT-BAL",
+        "WS-MONTHLY-INT",
+        "DALYTRAN-AMT"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "Clause 23(6) requires interest be levied only on the outstanding amount, adjusted for payments, refunds, and reversed transactions. CBACT04C's 1300-COMPUTE-INTEREST computes interest directly from TRAN-CAT-BAL (lines 464-466). Per adjudication cross-reference to CBTRN02C (the program maintaining TCATBAL-FILE), TRAN-CAT-BAL is accumulated via signed ADD DALYTRAN-AMT (2700-B-UPDATE-TCATBAL-REC, line 527), and DALYTRAN-AMT is confirmed signed by the adjacent IF DALYTRAN-AMT >= 0 branch in 2800-UPDATE-ACCOUNT-REC (line 548). Signed accumulation nets offsetting payment/refund/reversal entries into the category balance by construction, satisfying the clause's adjustment requirement.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "CBACT04C.cbl",
+      "mutation": null,
+      "annotator_notes": "Adjudicated 2026-07-28: both passes independently reached needs_adjudication, citing insufficient evidence from CBACT04C alone about whether TRAN-CAT-BAL already nets payments, refunds, and reversed transactions. Cross-referencing the sibling real-curated candidate CBTRN02C in the same evidence bundle (the program that posts to TCATBAL-FILE) resolves this: CBTRN02C's 2700-B-UPDATE-TCATBAL-REC accumulates the category balance via 'ADD DALYTRAN-AMT TO TRAN-CAT-BAL', and 2800-UPDATE-ACCOUNT-REC's 'IF DALYTRAN-AMT >= 0' branch (immediately following) confirms DALYTRAN-AMT is a signed amount -- positive for debits/purchases, negative for credits/payments/refunds/reversals. Signed accumulation means TRAN-CAT-BAL already reflects netting of offsetting entries by construction, before CBACT04C ever reads it. This is decisive primary evidence within the same bundle, not external or historical evidence, so the needs_adjudication gap is resolved rather than defaulted to exclude."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(6)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Interest shall be levied only on the outstanding amount, adjusted for payments, refunds and reversed transactions.\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"interest_base=outstanding_adjusted\"],\"comparator\":null,\"note\":null}},\"program\":\"CBACT04C\",\"slices\":[{\"variable\":\"TRAN-CAT-BAL\",\"scoped_program\":\"CBACT04C\",\"statements\":[],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"WS-MONTHLY-INT\",\"scoped_program\":\"CBACT04C\",\"statements\":[{\"ref\":{\"program\":\"CBACT04C\",\"paragraph\":\"1300-COMPUTE-INTEREST\",\"line_start\":464,\"line_end\":465},\"text\":\"COMPUTE WS-MONTHLY-INT\\n            = ( TRAN-CAT-BAL * DIS-INT-RATE) / 1200\"}],\"paragraphs\":[{\"program\":\"CBACT04C\",\"paragraph\":\"1300-COMPUTE-INTEREST\"}],\"is_interprocedural\":false},{\"variable\":\"DALYTRAN-AMT\",\"scoped_program\":\"CBACT04C\",\"statements\":[],\"paragraphs\":[],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "In CBACT04C, paragraph 1300-COMPUTE-INTEREST, lines 464–465 compute interest using TRAN-CAT-BAL. The supplied context does not show whether that amount is adjusted for payments, refunds, and reversals, so it cannot establish drift or conformance.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The context does not establish what amount TRAN-CAT-BAL represents or whether it is the required adjusted outstanding amount.",
+        "final_answer": "CBACT04C paragraph 1300-COMPUTE-INTEREST, lines 464–465 use TRAN-CAT-BAL in the interest calculation. The clause requires an outstanding amount adjusted for payments, refunds, and reversed transactions. Since the supplied context does not show whether TRAN-CAT-BAL includes those adjustments, drift or conformance cannot be determined.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"In CBACT04C, paragraph 1300-COMPUTE-INTEREST, lines 464–465 compute interest using TRAN-CAT-BAL. The supplied context does not show whether that amount is adjusted for payments, refunds, and reversals, so it cannot establish drift or conformance.\",\"prediction\":null,\"claim\":\"Interest shall be levied only on the outstanding amount, adjusted for payments, refunds and reversed transactions.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The context does not establish what amount TRAN-CAT-BAL represents or whether it is the required adjusted outstanding amount.\",\"final_answer\":\"CBACT04C paragraph 1300-COMPUTE-INTEREST, lines 464–465 use TRAN-CAT-BAL in the interest calculation. The clause requires an outstanding amount adjusted for payments, refunds, and reversed transactions. Since the supplied context does not show whether TRAN-CAT-BAL includes those adjustments, drift or conformance cannot be determined.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The context does not establish what amount TRAN-CAT-BAL represents or whether it is the required adjusted outstanding amount.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "CBACT04C paragraph 1300-COMPUTE-INTEREST, lines 464–465 use TRAN-CAT-BAL in the interest calculation. The clause requires an outstanding amount adjusted for payments, refunds, and reversed transactions. Since the supplied context does not show whether TRAN-CAT-BAL includes those adjustments, drift or conformance cannot be determined.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The context does not establish what amount TRAN-CAT-BAL represents or whether it is the required adjusted outstanding amount.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "446a824e1ba593dc81a59f3eaadc022e143441ff3cd825297dda354f684c3d5c",
+  "run_key": "a898d552d95a4efe46fa1e60f5123a252e1c01d20727487885e7cdc1ac3b4dc0"
+}

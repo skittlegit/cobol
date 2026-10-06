@@ -1,0 +1,107 @@
+{
+  "instance_id": "drift_425267",
+  "gold": {
+    "instance_id": "drift_425267",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC2",
+          "paragraph": "2000-CHECK-SLA",
+          "file": null,
+          "line_span": [
+            27,
+            27
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSYNC2",
+          "line": 27,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-5 changes '>' to '>=' at KYCSYNC2:2000-CHECK-SLA:27-27, producing D5_boundary_error.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSYNC2.cbl",
+      "mutation": "MO-5; locus=KYCSYNC2:2000-CHECK-SLA:27-27; old='>'; new='>='; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"program\":\"KYCSYNC2\",\"slices\":[{\"variable\":\"WS-DAYS-SINCE-UPD\",\"scoped_program\":\"KYCSYNC2\",\"statements\":[{\"ref\":{\"program\":\"KYCSYNC2\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"KYCSYNC2\",\"paragraph\":\"1000-MAIN\",\"line_start\":22,\"line_end\":22},\"text\":\"ACCEPT WS-DAYS-SINCE-UPD\"}],\"paragraphs\":[{\"program\":\"KYCSYNC2\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied slice shows a declaration and an ACCEPT of the elapsed-days value. It does not show a KYC Registry update or a seven-day check, so there is not enough source evidence to classify drift or conformance.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The visible source statements do not show how the elapsed-days value is used or whether the required update occurs.",
+        "final_answer": "The clause requires a KYC Registry update within seven days. The supplied code slice only declares and accepts an elapsed-days value; it does not show the update or a check against the deadline. I abstain because the code-versus-clause comparison is inconclusive.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied slice shows a declaration and an ACCEPT of the elapsed-days value. It does not show a KYC Registry update or a seven-day check, so there is not enough source evidence to classify drift or conformance.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The visible source statements do not show how the elapsed-days value is used or whether the required update occurs.\",\"final_answer\":\"The clause requires a KYC Registry update within seven days. The supplied code slice only declares and accepts an elapsed-days value; it does not show the update or a check against the deadline. I abstain because the code-versus-clause comparison is inconclusive.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The visible source statements do not show how the elapsed-days value is used or whether the required update occurs.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires a KYC Registry update within seven days. The supplied code slice only declares and accepts an elapsed-days value; it does not show the update or a check against the deadline. I abstain because the code-versus-clause comparison is inconclusive.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The visible source statements do not show how the elapsed-days value is used or whether the required update occurs.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "7aeee2990625cfd43d34f1af76e186dfd02273f97f0211d847ea0686103785ad",
+  "run_key": "6a42fa3e66343725dfb08cbad64cf9e41037fbf8288a9f659a1b8c1496490afc"
+}

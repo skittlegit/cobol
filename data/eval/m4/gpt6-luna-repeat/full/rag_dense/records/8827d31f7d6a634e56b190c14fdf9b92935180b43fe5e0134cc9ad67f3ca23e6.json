@@ -1,0 +1,408 @@
+{
+  "instance_id": "drift_110006",
+  "gold": {
+    "instance_id": "drift_110006",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": null,
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": null,
+            "note": null
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6CL03",
+          "paragraph": "2200-APPLY-DAY-BASIS",
+          "file": null,
+          "line_span": [
+            19,
+            31
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-NONWORKING-DAYS",
+        "WS-ACCRUAL-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "day_basis",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6CL03",
+          "line": 27,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "T6CL03 subtracts non-working days from elapsed days before subtracting the 7-day SLA (lines 20-27), so WS-ACCRUAL-DAYS is a working-day-equivalent count, then multiplies by 500. This implements working_day accrual, not the clause 19 calendar_day requirement.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6CL03.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110006",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6CL03",
+          "paragraph": "2200-APPLY-DAY-BASIS",
+          "file": "T6CL03.cbl",
+          "line_span": [
+            20,
+            30
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-ELAPSED-DAYS",
+        "WS-NONWORKING-DAYS",
+        "WS-ACCRUAL-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6CL03",
+          "line": 23,
+          "file": "T6CL03.cbl"
+        },
+        {
+          "program": "T6CL03",
+          "line": 27,
+          "file": "T6CL03.cbl"
+        },
+        {
+          "program": "T6CL03",
+          "line": 29,
+          "file": "T6CL03.cbl"
+        }
+      ]
+    },
+    "rationale": "Lines 22–23 subtract non-working days from elapsed days; line 27 subtracts seven from the resulting accrual count, and lines 28–30 apply 500 to that count. The selected clause requires a penalty per calendar day of delay, while this calculation excludes non-working days."
+  },
+  "confidence": 0.95,
+  "verification": {
+    "verified": true,
+    "tier": 1,
+    "evidence": "ran T6CL03; observed '000050000' in output ('000050000')",
+    "citation_ok": true,
+    "entailment_probability": 0.6877,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "verified",
+        "detail": "ran T6CL03; observed '000050000' in output ('000050000')"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":\"at_least\",\"note\":\"Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred.\"},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.8343702981801698},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"20\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a card is unused for more than one year, initiate closure after intimating the cardholder; if no reply within 30 days, close the account (subject to dues) and update the CIC within 30 days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"inactivity_threshold\":{\"kind\":\"duration_years\",\"value\":1,\"comparator\":\"strictly_greater\",\"note\":\"Trigger: closure workflow fires when unused for MORE THAN one year. Stale side is UP (later closure of dormant accounts = laxer).\"},\"reply_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null},\"cic_update_window\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.6849142702525457},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"31\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"cutoff\":{\"kind\":\"formula\",\"value\":\"min(0.01 * credit_limit, 5000_inr)\",\"comparator\":null,\"note\":null},\"consent_window\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null},\"reversal_window\":{\"kind\":\"duration_working_days\",\"value\":3,\"comparator\":\"at_most\",\"note\":null}},\"comparator\":null,\"note\":null}},\"score\":0.6795666166575288}],\"program\":\"FILE T6CL03.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6CL03.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-INPUTS.\\n0007:            05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\\n0008:            05  WS-NONWORKING-DAYS    PIC 9(3) VALUE ZERO.\\n0009:        01  WS-CALCULATION.\\n0010:            05  WS-ACCRUAL-DAYS       PIC S9(5) VALUE ZERO.\\n0011:            05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.\\n0012:        PROCEDURE DIVISION.\\n0013:        1000-MAIN.\\n0014:            ACCEPT WS-ELAPSED-DAYS\\n0015:            ACCEPT WS-NONWORKING-DAYS\\n0016:            PERFORM 2200-APPLY-DAY-BASIS\\n0017:            DISPLAY WS-PENALTY-AMT\\n0018:            STOP RUN.\\n0019:        2200-APPLY-DAY-BASIS.\\n0020:            MOVE WS-ELAPSED-DAYS TO WS-ACCRUAL-DAYS\\nFILE T6CL03.cbl LINES 21-31\\n0021:            EVALUATE TRUE\\n0022:               WHEN WS-NONWORKING-DAYS > ZERO\\n0023:                  SUBTRACT WS-NONWORKING-DAYS FROM WS-ACCRUAL-DAYS\\n0024:               WHEN OTHER\\n0025:                  CONTINUE\\n0026:            END-EVALUATE\\n0027:            SUBTRACT 7 FROM WS-ACCRUAL-DAYS\\n0028:            IF WS-ACCRUAL-DAYS > ZERO\\n0029:               MULTIPLY 500 BY WS-ACCRUAL-DAYS\\n0030:                  GIVING WS-PENALTY-AMT\\n0031:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The code subtracts non-working days from elapsed days before calculating the penalty, making its accrual basis working days rather than calendar days.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110006",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "19",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+            "current_value": {
+              "kind": "composite",
+              "value": {
+                "closure_window": {
+                  "kind": "duration_working_days",
+                  "value": 7,
+                  "comparator": "at_most",
+                  "note": null
+                },
+                "penalty_per_day": {
+                  "kind": "amount_inr",
+                  "value": 500,
+                  "comparator": "at_least",
+                  "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                },
+                "day_basis": {
+                  "kind": "enum_set",
+                  "value": [
+                    "calendar_day"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6CL03",
+                "paragraph": "2200-APPLY-DAY-BASIS",
+                "file": "T6CL03.cbl",
+                "line_span": [
+                  20,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-ELAPSED-DAYS",
+              "WS-NONWORKING-DAYS",
+              "WS-ACCRUAL-DAYS",
+              "WS-PENALTY-AMT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6CL03",
+                "line": 23,
+                "file": "T6CL03.cbl"
+              },
+              {
+                "program": "T6CL03",
+                "line": 27,
+                "file": "T6CL03.cbl"
+              },
+              {
+                "program": "T6CL03",
+                "line": 29,
+                "file": "T6CL03.cbl"
+              }
+            ]
+          },
+          "rationale": "Lines 22–23 subtract non-working days from elapsed days; line 27 subtracts seven from the resulting accrual count, and lines 28–30 apply 500 to that count. The selected clause requires a penalty per calendar day of delay, while this calculation excludes non-working days."
+        },
+        "claim": "Closure requests must be honoured within seven working days, subject to dues; for failure without outstanding dues, the penalty is at least Rs 500 per calendar day of delay until closure.",
+        "exec_probe": {
+          "stdin": "10\n2\n",
+          "expect_substring": "000050000",
+          "description": "With ten elapsed days and two non-working days, check that the program applies Rs 500 to the adjusted accrual count."
+        },
+        "static_claim": {
+          "literal": "500",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The selected clause requires at least Rs 500 per calendar day of delay. T6CL03 subtracts non-working days before applying Rs 500, so its penalty calculation counts adjusted days instead of calendar days.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The code subtracts non-working days from elapsed days before calculating the penalty, making its accrual basis working days rather than calendar days.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6CL03\",\"paragraph\":\"2200-APPLY-DAY-BASIS\",\"file\":\"T6CL03.cbl\",\"line_span\":[20,30]}],\"slice_vars\":[\"WS-ELAPSED-DAYS\",\"WS-NONWORKING-DAYS\",\"WS-ACCRUAL-DAYS\",\"WS-PENALTY-AMT\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6CL03\",\"line\":23,\"file\":\"T6CL03.cbl\"},{\"program\":\"T6CL03\",\"line\":27,\"file\":\"T6CL03.cbl\"},{\"program\":\"T6CL03\",\"line\":29,\"file\":\"T6CL03.cbl\"}]},\"rationale\":\"Lines 22–23 subtract non-working days from elapsed days; line 27 subtracts seven from the resulting accrual count, and lines 28–30 apply 500 to that count. The selected clause requires a penalty per calendar day of delay, while this calculation excludes non-working days.\"},\"claim\":\"Closure requests must be honoured within seven working days, subject to dues; for failure without outstanding dues, the penalty is at least Rs 500 per calendar day of delay until closure.\",\"exec_probe\":{\"stdin\":\"10\\n2\\n\",\"expect_substring\":\"000050000\",\"description\":\"With ten elapsed days and two non-working days, check that the program applies Rs 500 to the adjusted accrual count.\"},\"static_claim\":{\"literal\":\"500\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The selected clause requires at least Rs 500 per calendar day of delay. T6CL03 subtracts non-working days before applying Rs 500, so its penalty calculation counts adjusted days instead of calendar days.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 1,
+      "evidence": "ran T6CL03; observed '000050000' in output ('000050000')",
+      "citation_ok": true,
+      "entailment_probability": 0.6877,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "verified",
+          "detail": "ran T6CL03; observed '000050000' in output ('000050000')"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110006",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "19",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+        "current_value": {
+          "kind": "composite",
+          "value": {
+            "closure_window": {
+              "kind": "duration_working_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            },
+            "penalty_per_day": {
+              "kind": "amount_inr",
+              "value": 500,
+              "comparator": "at_least",
+              "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+            },
+            "day_basis": {
+              "kind": "enum_set",
+              "value": [
+                "calendar_day"
+              ],
+              "comparator": null,
+              "note": null
+            }
+          },
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6CL03",
+            "paragraph": "2200-APPLY-DAY-BASIS",
+            "file": "T6CL03.cbl",
+            "line_span": [
+              20,
+              30
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-ELAPSED-DAYS",
+          "WS-NONWORKING-DAYS",
+          "WS-ACCRUAL-DAYS",
+          "WS-PENALTY-AMT"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D3_contradictory",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6CL03",
+            "line": 23,
+            "file": "T6CL03.cbl"
+          },
+          {
+            "program": "T6CL03",
+            "line": 27,
+            "file": "T6CL03.cbl"
+          },
+          {
+            "program": "T6CL03",
+            "line": 29,
+            "file": "T6CL03.cbl"
+          }
+        ]
+      },
+      "rationale": "Lines 22–23 subtract non-working days from elapsed days; line 27 subtracts seven from the resulting accrual count, and lines 28–30 apply 500 to that count. The selected clause requires a penalty per calendar day of delay, while this calculation excludes non-working days."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The selected clause requires at least Rs 500 per calendar day of delay. T6CL03 subtracts non-working days before applying Rs 500, so its penalty calculation counts adjusted days instead of calendar days.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "6b4e7badac6b2ecdd4291604508693abd5be2445064fb4af5102600e355f3845",
+  "run_key": "8827d31f7d6a634e56b190c14fdf9b92935180b43fe5e0134cc9ad67f3ca23e6"
+}

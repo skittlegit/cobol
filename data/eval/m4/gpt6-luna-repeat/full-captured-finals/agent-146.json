@@ -1,0 +1,111 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The supplied current value is an explicit-consent condition, while the bounded source observations do not expose a comparable consent literal and threshold.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D1 requires a source literal that can be compared with a resolved clause-value leaf. The observed source supplies numeric limit and projected-balance fields, but no consent literal from which a stale-value comparison can be grounded.",
+        "final_answer": "Abstain from a D1 finding: the clause's current value is a boolean consent requirement, and the source observations provide no comparable implementation literal."
+      },
+      "D2_missing_rule": {
+        "kind": "finding",
+        "thought": "The consent prerequisite is absent from bounded source evidence. The numeric validation does not establish consent, while compilation failure prevents treating the apparent zero-limit post sequence as reachable D3 behavior.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "TRNVAL1",
+                "paragraph": "1000-MAIN",
+                "file": "TRNVAL1.cbl",
+                "line_span": [
+                  16,
+                  16
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-LIMIT",
+              "WS-PROJ-BAL",
+              "WS-FAIL-REASON"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "TRNVAL1",
+                "line": 16,
+                "file": "TRNVAL1.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause requires explicit cardholder consent before a credit-limit breach. The bounded 1000-MAIN source accepts WS-LIMIT and WS-PROJ-BAL and applies a numeric comparison, which does not establish consent. The scoped CONSENT search returned no matches, and the bounded WS-FAIL-REASON slice returned only its declaration. The paragraph also shows an apparent zero-limit posting fragment, but the bounded compilation probe fails at its OR/END-IF sequence, so no reachable contradictory action is established. Insert the missing consent gate before the posting decision at line 16."
+        },
+        "claim": "The sanctioned credit limit shall not be breached at any point in time without explicit consent from the cardholder.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": null,
+        "final_answer": "The clause requires explicit cardholder consent before a credit-limit breach. 1000-MAIN accepts the limit and projected balance, then compares those values; the scoped consent search found no match. The apparent posting fragment fails the bounded compilation probe, so the supported omission is D2, with a consent gate needed before line 16."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The zero-limit posting sequence appears to bypass the failure state, but it is syntactically invalid in the bounded run probe.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The source excerpt's OR WS-LIMIT = ZERO / END-IF sequence fails compilation in run_cobol; therefore reachable conflicting behavior is not established for D3.",
+        "final_answer": "Abstain from D3: the apparent zero-limit posting branch does not compile in the bounded probe, so this evidence does not establish a reachable action that contradicts the clause."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied clause value is boolean_required, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only when the clause current value is itself an enum_set reference collection; this case supplies a boolean_required consent condition.",
+        "final_answer": "Abstain from D4: the clause supplies a boolean consent requirement, not a reference collection whose enumeration can be compared."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The supplied current value is a consent condition and has no numeric boundary comparator.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D5 requires a resolved boundary value and a source comparator whose early or late transition can be evaluated; the supplied clause value is boolean_required with no comparator.",
+        "final_answer": "Abstain from D5: this clause defines an explicit-consent condition rather than a numeric boundary."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The bounded paragraph read does not establish an unreachable compliance paragraph or a disabled guard.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No dead_paragraph evidence or always-false/default-off compliance guard was established. Caller absence alone cannot prove deadness.",
+        "final_answer": "Abstain from D6: the source observations provide neither a dead-paragraph hook nor a disabled-guard literal."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The bounded source shows a numeric limit/balance check, while D7 requires positive evidence of a check matching the consent condition.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No positive source evidence establishes an explicit-consent check; D7 cannot be inferred from the absence of drift.",
+        "final_answer": "Abstain from D7: the numeric WS-LIMIT/WS-PROJ-BAL comparison does not establish the clause's explicit-consent condition, and the bounded consent search is empty."
+      }
+    }
+  ]
+}

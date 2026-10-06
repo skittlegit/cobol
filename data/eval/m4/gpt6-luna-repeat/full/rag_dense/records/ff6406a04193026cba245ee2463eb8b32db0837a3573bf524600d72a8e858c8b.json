@@ -1,0 +1,302 @@
+{
+  "instance_id": "drift_110030",
+  "gold": {
+    "instance_id": "drift_110030",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC05",
+          "paragraph": "2400-RECORD-UPLOAD-REQUEST",
+          "file": null,
+          "line_span": [
+            15,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CHANGE-REFERENCE",
+        "WS-AUDIT-MESSAGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6KYC05",
+          "line": 15,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 65(8) requires CKYCR updates within 7 days of receiving updated information (at_most 7). The program (byte-identical to the pre-2024 candidate) has no day-count or date field and no 7-day deadline check anywhere in its reachable logic.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6KYC05.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110030",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC05",
+          "paragraph": "1000-MAIN",
+          "file": "T6KYC05.cbl",
+          "line_span": [
+            10,
+            14
+          ]
+        },
+        {
+          "program": "T6KYC05",
+          "paragraph": "2400-RECORD-UPLOAD-REQUEST",
+          "file": "T6KYC05.cbl",
+          "line_span": [
+            15,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CHANGE-REFERENCE",
+        "WS-AUDIT-MESSAGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": []
+    },
+    "rationale": "The selected clause requires a KYC record update in the Central KYC Records Registry within 7 days of receiving updated information. The visible main flow only calls 2400-RECORD-UPLOAD-REQUEST and displays WS-AUDIT-MESSAGE; that paragraph constructs a 'CKYCR REQUEST' string from a reference. No update action or deadline check appears in the supplied program, so the required rule is missing."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "literal 'CKYCR REQUEST' present in ['T6KYC05:2400-RECORD-UPLOAD-REQUEST']",
+    "citation_ok": true,
+    "entailment_probability": 0.9936,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "literal 'CKYCR REQUEST' present in ['T6KYC05:2400-RECORD-UPLOAD-REQUEST']"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"score\":0.8152306609113623}],\"program\":\"FILE T6KYC05.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6KYC05.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-AUDIT.\\n0007:            05  WS-CHANGE-REFERENCE   PIC X(12) VALUE SPACES.\\n0008:            05  WS-AUDIT-MESSAGE      PIC X(30) VALUE SPACES.\\n0009:        PROCEDURE DIVISION.\\n0010:        1000-MAIN.\\n0011:            ACCEPT WS-CHANGE-REFERENCE\\n0012:            PERFORM 2400-RECORD-UPLOAD-REQUEST\\n0013:            DISPLAY WS-AUDIT-MESSAGE\\n0014:            STOP RUN.\\n0015:        2400-RECORD-UPLOAD-REQUEST.\\n0016:            STRING 'CKYCR REQUEST '\\n0017:               WS-CHANGE-REFERENCE\\n0018:               DELIMITED BY SIZE\\n0019:               INTO WS-AUDIT-MESSAGE\\n0020:            END-STRING.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The supplied program builds and displays a CKYCR request message, but its visible flow contains no record update or seven-day timing check.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110030",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "65(8)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6KYC05",
+                "paragraph": "1000-MAIN",
+                "file": "T6KYC05.cbl",
+                "line_span": [
+                  10,
+                  14
+                ]
+              },
+              {
+                "program": "T6KYC05",
+                "paragraph": "2400-RECORD-UPLOAD-REQUEST",
+                "file": "T6KYC05.cbl",
+                "line_span": [
+                  15,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CHANGE-REFERENCE",
+              "WS-AUDIT-MESSAGE"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": []
+          },
+          "rationale": "The selected clause requires a KYC record update in the Central KYC Records Registry within 7 days of receiving updated information. The visible main flow only calls 2400-RECORD-UPLOAD-REQUEST and displays WS-AUDIT-MESSAGE; that paragraph constructs a 'CKYCR REQUEST' string from a reference. No update action or deadline check appears in the supplied program, so the required rule is missing."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "CKYCR REQUEST",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The clause requires a KYC record update in the Central KYC Records Registry within 7 days of receiving updated information. The visible program only constructs and displays a CKYCR request message, with no record update or deadline check, so the required rule is missing.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The supplied program builds and displays a CKYCR request message, but its visible flow contains no record update or seven-day timing check.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6KYC05\",\"paragraph\":\"1000-MAIN\",\"file\":\"T6KYC05.cbl\",\"line_span\":[10,14]},{\"program\":\"T6KYC05\",\"paragraph\":\"2400-RECORD-UPLOAD-REQUEST\",\"file\":\"T6KYC05.cbl\",\"line_span\":[15,20]}],\"slice_vars\":[\"WS-CHANGE-REFERENCE\",\"WS-AUDIT-MESSAGE\"],\"is_interprocedural\":false},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[]},\"rationale\":\"The selected clause requires a KYC record update in the Central KYC Records Registry within 7 days of receiving updated information. The visible main flow only calls 2400-RECORD-UPLOAD-REQUEST and displays WS-AUDIT-MESSAGE; that paragraph constructs a 'CKYCR REQUEST' string from a reference. No update action or deadline check appears in the supplied program, so the required rule is missing.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"CKYCR REQUEST\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause requires a KYC record update in the Central KYC Records Registry within 7 days of receiving updated information. The visible program only constructs and displays a CKYCR request message, with no record update or deadline check, so the required rule is missing.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "literal 'CKYCR REQUEST' present in ['T6KYC05:2400-RECORD-UPLOAD-REQUEST']",
+      "citation_ok": true,
+      "entailment_probability": 0.9936,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "literal 'CKYCR REQUEST' present in ['T6KYC05:2400-RECORD-UPLOAD-REQUEST']"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110030",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "65(8)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "current_value": {
+          "kind": "duration_days",
+          "value": 7,
+          "comparator": "at_most",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6KYC05",
+            "paragraph": "1000-MAIN",
+            "file": "T6KYC05.cbl",
+            "line_span": [
+              10,
+              14
+            ]
+          },
+          {
+            "program": "T6KYC05",
+            "paragraph": "2400-RECORD-UPLOAD-REQUEST",
+            "file": "T6KYC05.cbl",
+            "line_span": [
+              15,
+              20
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CHANGE-REFERENCE",
+          "WS-AUDIT-MESSAGE"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D2_missing_rule",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": []
+      },
+      "rationale": "The selected clause requires a KYC record update in the Central KYC Records Registry within 7 days of receiving updated information. The visible main flow only calls 2400-RECORD-UPLOAD-REQUEST and displays WS-AUDIT-MESSAGE; that paragraph constructs a 'CKYCR REQUEST' string from a reference. No update action or deadline check appears in the supplied program, so the required rule is missing."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires a KYC record update in the Central KYC Records Registry within 7 days of receiving updated information. The visible program only constructs and displays a CKYCR request message, with no record update or deadline check, so the required rule is missing.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "e417a27b1076b4585d884a63638ae352e05d8da7fe36942746a935910e3d2e8e",
+  "run_key": "ff6406a04193026cba245ee2463eb8b32db0837a3573bf524600d72a8e858c8b"
+}

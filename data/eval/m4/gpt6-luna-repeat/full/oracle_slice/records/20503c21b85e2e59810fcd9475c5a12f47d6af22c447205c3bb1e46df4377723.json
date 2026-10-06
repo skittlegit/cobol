@@ -1,0 +1,104 @@
+{
+  "instance_id": "drift_110027",
+  "gold": {
+    "instance_id": "drift_110027",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "para 56, clause (h)",
+      "version": "pre-2024-11-06 form",
+      "effective_date": "2016-02-25",
+      "text": "ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "no_deadline"
+        ],
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC04",
+          "paragraph": "2300-ROUTE-UPDATE",
+          "file": null,
+          "line_span": [
+            15,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-RISK-CODE",
+        "WS-WORK-QUEUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "The pre-2024-11-06 clause (h) requires uploading/updating KYC data at periodic updation or on receipt of updated information, with NO time-bound deadline. T6KYC04 routes to a priority or standard queue by risk code (lines 16-20) with no deadline concept. There is no elapsed-time or deadline gate anywhere in the program, consistent with an obligation that has no deadline to violate.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6KYC04.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Master-Direction-2016\",\"clause_id\":\"para 56, clause (h)\",\"version\":\"pre-2024-11-06 form\",\"effective_date\":\"2016-02-25\",\"text\":\"ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"no_deadline\"],\"comparator\":null,\"note\":null}},\"program\":\"T6KYC04\",\"slices\":[{\"variable\":\"WS-RISK-CODE\",\"scoped_program\":\"T6KYC04\",\"statements\":[{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"05  WS-RISK-CODE          PIC X VALUE SPACE.\"},{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":\"1000-MAIN\",\"line_start\":11,\"line_end\":11},\"text\":\"ACCEPT WS-RISK-CODE\"}],\"paragraphs\":[{\"program\":\"T6KYC04\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-WORK-QUEUE\",\"scoped_program\":\"T6KYC04\",\"statements\":[{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"05  WS-RISK-CODE          PIC X VALUE SPACE.\"},{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":null,\"line_start\":8,\"line_end\":8},\"text\":\"05  WS-WORK-QUEUE         PIC X(8) VALUE SPACES.\"},{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":\"1000-MAIN\",\"line_start\":11,\"line_end\":11},\"text\":\"ACCEPT WS-RISK-CODE\"},{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":\"1000-MAIN\",\"line_start\":12,\"line_end\":12},\"text\":\"PERFORM 2300-ROUTE-UPDATE\"},{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":\"2300-ROUTE-UPDATE\",\"line_start\":16,\"line_end\":21},\"text\":\"EVALUATE WS-RISK-CODE\\n              WHEN 'H'\\n                 MOVE 'PRIORITY' TO WS-WORK-QUEUE\\n              WHEN OTHER\\n                 MOVE 'STANDARD' TO WS-WORK-QUEUE\\n           END-EVALUATE.\"},{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":\"2300-ROUTE-UPDATE\",\"line_start\":17,\"line_end\":18},\"text\":\"WHEN 'H'\\n                 MOVE 'PRIORITY' TO WS-WORK-QUEUE\"},{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":\"2300-ROUTE-UPDATE\",\"line_start\":18,\"line_end\":18},\"text\":\"MOVE 'PRIORITY' TO WS-WORK-QUEUE\"},{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":\"2300-ROUTE-UPDATE\",\"line_start\":19,\"line_end\":20},\"text\":\"WHEN OTHER\\n                 MOVE 'STANDARD' TO WS-WORK-QUEUE\"},{\"ref\":{\"program\":\"T6KYC04\",\"paragraph\":\"2300-ROUTE-UPDATE\",\"line_start\":20,\"line_end\":20},\"text\":\"MOVE 'STANDARD' TO WS-WORK-QUEUE\"}],\"paragraphs\":[{\"program\":\"T6KYC04\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"T6KYC04\",\"paragraph\":\"2300-ROUTE-UPDATE\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied statements show risk-code input and queue routing, but do not establish how KYC records are uploaded or updated. There is insufficient evidence to classify compliance with this clause.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied COBOL statements show risk-code input and priority/standard queue routing, with no evidence about KYC data updates or their timing.",
+        "final_answer": "The visible clause requires KYC data to be uploaded or updated at periodic updation or upon receiving updated information, without a time-bound deadline in this version. The supplied COBOL statements accept a risk code and route work to a priority or standard queue; they do not show KYC update behavior. I abstain because the code-versus-clause comparison is unsupported by the available source evidence.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied statements show risk-code input and queue routing, but do not establish how KYC records are uploaded or updated. There is insufficient evidence to classify compliance with this clause.\",\"prediction\":null,\"claim\":\"Under clause (h), regulated entities had to upload or update KYC data at periodic updation or when they received updated information.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied COBOL statements show risk-code input and priority/standard queue routing, with no evidence about KYC data updates or their timing.\",\"final_answer\":\"The visible clause requires KYC data to be uploaded or updated at periodic updation or upon receiving updated information, without a time-bound deadline in this version. The supplied COBOL statements accept a risk code and route work to a priority or standard queue; they do not show KYC update behavior. I abstain because the code-versus-clause comparison is unsupported by the available source evidence.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied COBOL statements show risk-code input and priority/standard queue routing, with no evidence about KYC data updates or their timing.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The visible clause requires KYC data to be uploaded or updated at periodic updation or upon receiving updated information, without a time-bound deadline in this version. The supplied COBOL statements accept a risk code and route work to a priority or standard queue; they do not show KYC update behavior. I abstain because the code-versus-clause comparison is unsupported by the available source evidence.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied COBOL statements show risk-code input and priority/standard queue routing, with no evidence about KYC data updates or their timing.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "df15358c9362015de47308aac4316e234985f333855bbb6cbb6199764ad7e450",
+  "run_key": "20503c21b85e2e59810fcd9475c5a12f47d6af22c447205c3bb1e46df4377723"
+}

@@ -1,0 +1,293 @@
+{
+  "instance_id": "drift_110012",
+  "gold": {
+    "instance_id": "drift_110012",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO01",
+          "paragraph": "2000-IDENTIFY-OWNER",
+          "file": null,
+          "line_span": [
+            15,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAPITAL-PCT",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO01",
+          "line": 16,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 5(iv)(b) lowers the threshold to strictly_greater 10 percent. T6BO01 (byte-identical code) still checks IF WS-CAPITAL-PCT > 15 (line 16), a stale threshold.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6BO01.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110012",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO01",
+          "paragraph": "2000-IDENTIFY-OWNER",
+          "file": "T6BO01.cbl",
+          "line_span": [
+            15,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAPITAL-PCT",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO01",
+          "line": 16,
+          "file": "T6BO01.cbl"
+        }
+      ]
+    },
+    "rationale": "T6BO01.cbl line 16 classifies an owner only when WS-CAPITAL-PCT is greater than 15. Clause 5(iv)(b) sets the threshold at more than 10 percent, so the code omits persons whose ownership is greater than 10 percent and at most 15 percent."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9955,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: RAG+reranker single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"hybrid_rerank\",\"clause_query\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"score\":7.156122207641602}],\"program\":\"FILE T6BO01.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. T6BO01.\\n0003:        ENVIRONMENT DIVISION.\\n0004:        DATA DIVISION.\\n0005:        WORKING-STORAGE SECTION.\\n0006:        01  WS-PARTNER.\\n0007:            05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\\n0008:            05  WS-IS-BO              PIC X VALUE 'N'.\\n0009:        PROCEDURE DIVISION.\\n0010:        1000-MAIN.\\n0011:            ACCEPT WS-CAPITAL-PCT\\n0012:            PERFORM 2000-IDENTIFY-OWNER\\n0013:            DISPLAY WS-IS-BO\\n0014:            STOP RUN.\\n0015:        2000-IDENTIFY-OWNER.\\n0016:            IF WS-CAPITAL-PCT > 15\\n0017:               MOVE 'Y' TO WS-IS-BO\\n0018:            ELSE\\n0019:               MOVE 'N' TO WS-IS-BO\\n0020:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The source compares the partnership ownership percentage with 15, while the supplied clause sets the threshold at more than 10 percent.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110012",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6BO01",
+                "paragraph": "2000-IDENTIFY-OWNER",
+                "file": "T6BO01.cbl",
+                "line_span": [
+                  15,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CAPITAL-PCT",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6BO01",
+                "line": 16,
+                "file": "T6BO01.cbl"
+              }
+            ]
+          },
+          "rationale": "T6BO01.cbl line 16 classifies an owner only when WS-CAPITAL-PCT is greater than 15. Clause 5(iv)(b) sets the threshold at more than 10 percent, so the code omits persons whose ownership is greater than 10 percent and at most 15 percent."
+        },
+        "claim": "For a partnership firm, a natural person with ownership of or entitlement to more than 10 percent of its capital or profits is a beneficial owner.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "15",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "Clause 5(iv)(b) defines the partnership beneficial owner threshold as more than 10 percent. T6BO01.cbl line 16 instead tests for more than 15 percent, so it misses ownership shares above 10 percent through 15 percent.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The source compares the partnership ownership percentage with 15, while the supplied clause sets the threshold at more than 10 percent.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6BO01\",\"paragraph\":\"2000-IDENTIFY-OWNER\",\"file\":\"T6BO01.cbl\",\"line_span\":[15,20]}],\"slice_vars\":[\"WS-CAPITAL-PCT\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6BO01\",\"line\":16,\"file\":\"T6BO01.cbl\"}]},\"rationale\":\"T6BO01.cbl line 16 classifies an owner only when WS-CAPITAL-PCT is greater than 15. Clause 5(iv)(b) sets the threshold at more than 10 percent, so the code omits persons whose ownership is greater than 10 percent and at most 15 percent.\"},\"claim\":\"For a partnership firm, a natural person with ownership of or entitlement to more than 10 percent of its capital or profits is a beneficial owner.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"15\",\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"Clause 5(iv)(b) defines the partnership beneficial owner threshold as more than 10 percent. T6BO01.cbl line 16 instead tests for more than 15 percent, so it misses ownership shares above 10 percent through 15 percent.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9955,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "T6BO01:2000-IDENTIFY-OWNER — literal '15' present; comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110012",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "5(iv)(b)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "current_value": {
+          "kind": "percentage",
+          "value": 10,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6BO01",
+            "paragraph": "2000-IDENTIFY-OWNER",
+            "file": "T6BO01.cbl",
+            "line_span": [
+              15,
+              20
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CAPITAL-PCT",
+          "WS-IS-BO"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6BO01",
+            "line": 16,
+            "file": "T6BO01.cbl"
+          }
+        ]
+      },
+      "rationale": "T6BO01.cbl line 16 classifies an owner only when WS-CAPITAL-PCT is greater than 15. Clause 5(iv)(b) sets the threshold at more than 10 percent, so the code omits persons whose ownership is greater than 10 percent and at most 15 percent."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Clause 5(iv)(b) defines the partnership beneficial owner threshold as more than 10 percent. T6BO01.cbl line 16 instead tests for more than 15 percent, so it misses ownership shares above 10 percent through 15 percent.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "rag_reranker",
+  "source_sha256": "48672f5e81b246b2214d5bda162a28151eda8d46bf29a209306c2c87a464371c",
+  "run_key": "fd52c4d65fc2efe9f46252e30623147fbf3a3e1ecb2e2b036878abab92ebba29"
+}

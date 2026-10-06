@@ -1,0 +1,202 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "finding",
+        "thought": "The typed duration threshold is 14 days while the clause's resolved leaf is 7 days.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSYNC2",
+                "paragraph": "2000-CHECK-SLA",
+                "file": "KYCSYNC2.cbl",
+                "line_span": [
+                  27,
+                  27
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-UPD"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "value",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSYNC2",
+                "line": 27,
+                "file": "KYCSYNC2.cbl"
+              }
+            ]
+          },
+          "rationale": "The supplied current_value.value is 7 days. Line 27 compares WS-DAYS-SINCE-UPD with the stale literal 14."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "14",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "KYCSYNC2 tests WS-DAYS-SINCE-UPD > 14, while the clause requires the KYC update within 7 days; the 14-day threshold is stale."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The reserved D2 observations are not all negative: grep finds the day-count condition, the call graph is nonempty, and the slice finds the input read.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D2 requires four negative observations. The grep found the > 14 condition, find_callers and find_callees returned the connected SLA paragraphs, and the slice found the input field. Existing SLA state behavior makes this a conflicting implemented condition rather than absence alone.",
+        "final_answer": "Abstain for D2 because the source contains the relevant condition and SLA state branch; an absence-only classification is not supported."
+      },
+      "D3_contradictory": {
+        "kind": "finding",
+        "thought": "The source assigns INSLA through day 14, which conflicts with the seven-day obligation.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSYNC2",
+                "paragraph": "2000-CHECK-SLA",
+                "file": "KYCSYNC2.cbl",
+                "line_span": [
+                  27,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-UPD",
+              "WS-SLA-STATUS"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSYNC2",
+                "line": 27,
+                "file": "KYCSYNC2.cbl"
+              },
+              {
+                "program": "KYCSYNC2",
+                "line": 30,
+                "file": "KYCSYNC2.cbl"
+              }
+            ]
+          },
+          "rationale": "When WS-DAYS-SINCE-UPD is 8 through 14, the > 14 test takes the ELSE branch and sets INSLA. That positive in-SLA result conflicts with the clause's seven-day update limit."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "14",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The reachable ELSE branch sets INSLA for days 8 through 14, although the clause requires the update within 7 days."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The clause supplies a duration_days rule, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only when current_value is itself an enum_set reference collection. Here current_value.kind is duration_days and its value is 7, so there is no regulated enumeration to compare with the source statuses.",
+        "final_answer": "Abstain for D4 because the clause does not regulate an enum_set reference collection."
+      },
+      "D5_boundary_error": {
+        "kind": "finding",
+        "thought": "The overdue status transition occurs only after 14 days, beyond the clause's seven-day limit.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSYNC2",
+                "paragraph": "2000-CHECK-SLA",
+                "file": "KYCSYNC2.cbl",
+                "line_span": [
+                  27,
+                  30
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-UPD",
+              "WS-SLA-STATUS"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D5_boundary_error",
+          "target_path": "value",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSYNC2",
+                "line": 27,
+                "file": "KYCSYNC2.cbl"
+              },
+              {
+                "program": "KYCSYNC2",
+                "line": 28,
+                "file": "KYCSYNC2.cbl"
+              },
+              {
+                "program": "KYCSYNC2",
+                "line": 30,
+                "file": "KYCSYNC2.cbl"
+              }
+            ]
+          },
+          "rationale": "The > 14 comparator paired with MOVE 'OVERDUE' means the overdue transition occurs at day 15, while the clause's maximum is 7 days. The branch transition is late relative to that limit."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "14",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The > 14 test sets OVERDUE only from day 15; the clause requires an update within 7 days, so the status boundary is late."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The compliance check is reachable from the main paragraph.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "read_paragraph shows that 1000-MAIN performs 2000-CHECK-SLA, and find_callers confirms that caller. The inspected check paragraph has no always-false or default-off guard, so dead or disabled compliance code is not established.",
+        "final_answer": "Abstain for D6 because 2000-CHECK-SLA is called from 1000-MAIN and no disabled guard is shown."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The source contains a check, but its 14-day threshold does not match the clause's seven-day limit.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D7 requires positive evidence that the source check matches the clause. The bounded observations show > 14 and an INSLA result through day 14, which do not match the seven-day obligation.",
+        "final_answer": "Abstain for D7 because the observed source condition does not conform to the clause."
+      }
+    }
+  ]
+}

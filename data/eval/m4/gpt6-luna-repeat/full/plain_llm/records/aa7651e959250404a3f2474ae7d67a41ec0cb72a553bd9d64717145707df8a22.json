@@ -1,0 +1,110 @@
+{
+  "instance_id": "drift_066224",
+  "gold": {
+    "instance_id": "drift_066224",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SCRNGATE1",
+          "paragraph": null,
+          "file": "SANCREG.cpy",
+          "line_span": [
+            6,
+            6
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-SCREEN-RESULT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SCRNGATE1",
+          "line": 6,
+          "file": "SANCREG.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'S88' to '(deleted)' at SCRNGATE1:SANCREG.cpy:6-6, producing D4_stale_reference_data. MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "SCRNGATE1.cbl",
+      "mutation": "MO-4; locus=SCRNGATE1:SANCREG.cpy:6-6; old='S88'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"56(prevention)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"UNSC-ISIL-Daesh-AlQaida-1267-1989-2253\",\"UNSC-Taliban-1988\"],\"comparator\":null,\"note\":\"clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally\"}},\"program\":\"FILE SANCREG.cpy LINES 1-6\\n0001:       *----------------------------------------------------------------\\n0002:       * UNSC SANCTIONS SCREENING REGISTRY - MANDATED LIST SOURCES.\\n0003:       * SEE RBI KYC DIRECTIONS PARA 56.\\n0004:       *----------------------------------------------------------------\\n0005:        01  WS-LIST-SOURCE PIC X(3) VALUE 'S67'.\\n0006:            88  MANDATED-LIST VALUES 'S67' ''.\\nFILE SCRNGATE1.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. SCRNGATE1.\\n0003:       *----------------------------------------------------------------\\n0004:       * UNSC SANCTIONS SCREENING GATE - THE APPLICANT LIST-SOURCE IS\\n0005:       * SCREENED AGAINST THE MANDATED SANCTIONS REGISTRY; A MATCH\\n0006:       * BLOCKS ONBOARDING.\\n0007:       *----------------------------------------------------------------\\n0008:        ENVIRONMENT DIVISION.\\n0009:        DATA DIVISION.\\n0010:        WORKING-STORAGE SECTION.\\n0011:        COPY SANCREG.\\n0012:        01  WS-SCREEN-RESULT PIC X(5) VALUE 'CLEAR'.\\n0013:        PROCEDURE DIVISION.\\n0014:        1000-MAIN.\\n0015:            ACCEPT WS-LIST-SOURCE\\n0016:            PERFORM 2000-SCREEN-SANCTIONS\\n0017:            DISPLAY 'SCREEN: ' WS-SCREEN-RESULT\\n0018:            STOP RUN.\\n0019:        2000-SCREEN-SANCTIONS.\\n0020:            IF MANDATED-LIST\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The clause names two UNSC list identities, while the supplied copybook shows the value S67 and a blank value. The excerpt does not define what S67 represents, and the screening logic is truncated, so the source evidence does not establish whether coverage is incomplete.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied source does not establish whether S67 covers either or both list identities named in the clause, and the screening branch is incomplete.",
+        "final_answer": "The clause requires that accounts not be held for persons or entities appearing on the specified UNSC lists. The source excerpt shows a single nonblank list-source value, S67, but does not map it to those identities; the gate excerpt ends before its screening behavior is shown. The available evidence is insufficient to classify the implementation.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The clause names two UNSC list identities, while the supplied copybook shows the value S67 and a blank value. The excerpt does not define what S67 represents, and the screening logic is truncated, so the source evidence does not establish whether coverage is incomplete.\",\"prediction\":null,\"claim\":\"The regulated entity must not have an account in the name of a person or entity appearing on a United Nations Security Council approved list of individuals or entities suspected of terrorist links.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied source does not establish whether S67 covers either or both list identities named in the clause, and the screening branch is incomplete.\",\"final_answer\":\"The clause requires that accounts not be held for persons or entities appearing on the specified UNSC lists. The source excerpt shows a single nonblank list-source value, S67, but does not map it to those identities; the gate excerpt ends before its screening behavior is shown. The available evidence is insufficient to classify the implementation.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied source does not establish whether S67 covers either or both list identities named in the clause, and the screening branch is incomplete.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires that accounts not be held for persons or entities appearing on the specified UNSC lists. The source excerpt shows a single nonblank list-source value, S67, but does not map it to those identities; the gate excerpt ends before its screening behavior is shown. The available evidence is insufficient to classify the implementation.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied source does not establish whether S67 covers either or both list identities named in the clause, and the screening branch is incomplete.",
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "0292275b046125ef2b6100699e4b1542b3be090dc4d28c4d6feb767735b36a0a",
+  "run_key": "aa7651e959250404a3f2474ae7d67a41ec0cb72a553bd9d64717145707df8a22"
+}

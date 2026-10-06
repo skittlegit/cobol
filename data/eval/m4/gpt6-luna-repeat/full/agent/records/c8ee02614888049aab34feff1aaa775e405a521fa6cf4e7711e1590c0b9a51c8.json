@@ -1,0 +1,1005 @@
+{
+  "instance_id": "drift_907751",
+  "gold": {
+    "instance_id": "drift_907751",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": "at_least",
+            "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN5",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            10,
+            10
+          ]
+        },
+        {
+          "program": "CLOSPEN5",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            20,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PEN-ENABLED",
+        "WS-ELAPSED-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": "penalty_per_day",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN5",
+          "line": 10,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-6 changes \"VALUE 'Y'\" to \"VALUE 'N'\" at CLOSPEN5:<source>:10-10+CLOSPEN5:1000-MAIN:20-20, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "CLOSPEN5.cbl",
+      "mutation": "MO-6; locus=CLOSPEN5:<source>:10-10+CLOSPEN5:1000-MAIN:20-20; old=\"VALUE 'Y'\"; new=\"VALUE 'N'\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: CLOSPEN5.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "CLOSPEN5"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 25, \"name\": \"2000-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\86cfe3ceb6bb153c035745845ff63717e510fd671e0248ad84c10e698bcca094\\\\cases\\\\drift_900000\\\\CLOSPEN5.cbl\", \"program\": \"CLOSPEN5\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "CLOSPEN5",
+          "name": "2000-PENALTY"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}], \"code\": \"       2000-PENALTY.\\n           COMPUTE WS-DELAY-DAYS = WS-ELAPSED-DAYS - 7\\n           IF WS-DELAY-DAYS > ZERO\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\\n           END-IF.\", \"name\": \"2000-PENALTY\", \"ref\": {\"line_end\": 29, \"line_start\": 25, \"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 15.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "CLOSPEN5",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-ELAPSED-DAYS\\n           IF PENALTY-ON\\n              PERFORM 2000-PENALTY\\n           END-IF\\n           DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 24, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The typed penalty paragraph shows literals 7 and 500, which match the supplied closure-window and penalty-per-day leaves.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The observed 7-day cutoff and 500-per-day amount match the supplied current-value leaves; no stale threshold is evidenced.",
+        "final_answer": "The staged source literals 7 and 500 match the supplied current values, so this hunt does not establish a stale threshold.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The typed penalty paragraph shows literals 7 and 500, which match the supplied closure-window and penalty-per-day leaves.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The observed 7-day cutoff and 500-per-day amount match the supplied current-value leaves; no stale threshold is evidenced.\",\"final_answer\":\"The staged source literals 7 and 500 match the supplied current values, so this hunt does not establish a stale threshold.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The observed 7-day cutoff and 500-per-day amount match the supplied current-value leaves; no stale threshold is evidenced.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: The observed 7-day cutoff and 500-per-day amount match the supplied current-value leaves; no stale threshold is evidenced.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: CLOSPEN5.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 25, \"name\": \"2000-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\86cfe3ceb6bb153c035745845ff63717e510fd671e0248ad84c10e698bcca094\\\\cases\\\\drift_900000\\\\CLOSPEN5.cbl\", \"program\": \"CLOSPEN5\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "2000-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}], \"code\": \"       2000-PENALTY.\\n           COMPUTE WS-DELAY-DAYS = WS-ELAPSED-DAYS - 7\\n           IF WS-DELAY-DAYS > ZERO\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\\n           END-IF.\", \"name\": \"2000-PENALTY\", \"ref\": {\"line_end\": 29, \"line_start\": 25, \"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-ELAPSED-DAYS\\n           IF PENALTY-ON\\n              PERFORM 2000-PENALTY\\n           END-IF\\n           DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 24, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The typed penalty paragraph shows literals 7 and 500, which match the supplied closure-window and penalty-per-day leaves.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The observed 7-day cutoff and 500-per-day amount match the supplied current-value leaves; no stale threshold is evidenced.",
+            "final_answer": "The staged source literals 7 and 500 match the supplied current values, so this hunt does not establish a stale threshold.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The typed penalty paragraph shows literals 7 and 500, which match the supplied closure-window and penalty-per-day leaves.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The observed 7-day cutoff and 500-per-day amount match the supplied current-value leaves; no stale threshold is evidenced.\",\"final_answer\":\"The staged source literals 7 and 500 match the supplied current values, so this hunt does not establish a stale threshold.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The observed 7-day cutoff and 500-per-day amount match the supplied current-value leaves; no stale threshold is evidenced.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The observed 7-day cutoff and 500-per-day amount match the supplied current-value leaves; no stale threshold is evidenced.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The observed 7-day cutoff and 500-per-day amount match the supplied current-value leaves; no stale threshold is evidenced."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: CLOSPEN5.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 25, \"name\": \"2000-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\86cfe3ceb6bb153c035745845ff63717e510fd671e0248ad84c10e698bcca094\\\\cases\\\\drift_900000\\\\CLOSPEN5.cbl\", \"program\": \"CLOSPEN5\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "2000-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}], \"code\": \"       2000-PENALTY.\\n           COMPUTE WS-DELAY-DAYS = WS-ELAPSED-DAYS - 7\\n           IF WS-DELAY-DAYS > ZERO\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\\n           END-IF.\", \"name\": \"2000-PENALTY\", \"ref\": {\"line_end\": 29, \"line_start\": 25, \"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-ELAPSED-DAYS\\n           IF PENALTY-ON\\n              PERFORM 2000-PENALTY\\n           END-IF\\n           DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 24, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "OUTSTANDING"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"OUTSTANDING\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 5,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "para": "2000-PENALTY"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 6,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "para": "2000-PENALTY"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 7,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-ELAPSED-DAYS",
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}], \"scoped_program\": \"CLOSPEN5\", \"statements\": [{\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": null, \"program\": \"CLOSPEN5\"}, \"text\": \"05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 19, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"text\": \"ACCEPT WS-ELAPSED-DAYS\"}], \"variable\": \"WS-ELAPSED-DAYS\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The required D2 observations are not all negative: the call graph shows 1000-MAIN calls 2000-PENALTY, and the data slice shows an accepted elapsed-days value.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D2 requires all four reserved observations to be negative. The caller observation is positive, and the source contains a penalty action, so an absence-only finding is not supported.",
+            "final_answer": "The D2 all-negative evidence condition is not met, so I cannot report a missing-rule finding.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The required D2 observations are not all negative: the call graph shows 1000-MAIN calls 2000-PENALTY, and the data slice shows an accepted elapsed-days value.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D2 requires all four reserved observations to be negative. The caller observation is positive, and the source contains a penalty action, so an absence-only finding is not supported.\",\"final_answer\":\"The D2 all-negative evidence condition is not met, so I cannot report a missing-rule finding.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D2 requires all four reserved observations to be negative. The caller observation is positive, and the source contains a penalty action, so an absence-only finding is not supported.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D2 requires all four reserved observations to be negative. The caller observation is positive, and the source contains a penalty action, so an absence-only finding is not supported.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D2 requires all four reserved observations to be negative. The caller observation is positive, and the source contains a penalty action, so an absence-only finding is not supported."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: CLOSPEN5.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 25, \"name\": \"2000-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\86cfe3ceb6bb153c035745845ff63717e510fd671e0248ad84c10e698bcca094\\\\cases\\\\drift_900000\\\\CLOSPEN5.cbl\", \"program\": \"CLOSPEN5\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "2000-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}], \"code\": \"       2000-PENALTY.\\n           COMPUTE WS-DELAY-DAYS = WS-ELAPSED-DAYS - 7\\n           IF WS-DELAY-DAYS > ZERO\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\\n           END-IF.\", \"name\": \"2000-PENALTY\", \"ref\": {\"line_end\": 29, \"line_start\": 25, \"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-ELAPSED-DAYS\\n           IF PENALTY-ON\\n              PERFORM 2000-PENALTY\\n           END-IF\\n           DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 24, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "OUTSTANDING"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"OUTSTANDING\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 5,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "PENALTY-ON",
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"scoped_program\": \"CLOSPEN5\", \"sites\": [{\"excerpt\": \"05  WS-PEN-ENABLED        PIC X(1) VALUE 'N'.\", \"kind\": \"def\", \"ref\": {\"line_end\": 10, \"line_start\": 10, \"paragraph\": null, \"program\": \"CLOSPEN5\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"IF PENALTY-ON\", \"kind\": \"use\", \"ref\": {\"line_end\": 20, \"line_start\": 20, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"statement_kind\": \"IF\"}], \"variable\": \"PENALTY-ON\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The calculation follows a delay condition, but this hunt's variable trace shows the penalty guard initialized to N, so the observed action is not established as reachable.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D3 requires positive reachable contradictory behavior. The trace shows the guarded penalty path defaults off, so this evidence supports disabled code rather than a reachable conflicting action.",
+            "final_answer": "The bounded D3 evidence does not establish a reachable contradictory penalty action.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The calculation follows a delay condition, but this hunt's variable trace shows the penalty guard initialized to N, so the observed action is not established as reachable.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D3 requires positive reachable contradictory behavior. The trace shows the guarded penalty path defaults off, so this evidence supports disabled code rather than a reachable conflicting action.\",\"final_answer\":\"The bounded D3 evidence does not establish a reachable contradictory penalty action.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D3 requires positive reachable contradictory behavior. The trace shows the guarded penalty path defaults off, so this evidence supports disabled code rather than a reachable conflicting action.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D3 requires positive reachable contradictory behavior. The trace shows the guarded penalty path defaults off, so this evidence supports disabled code rather than a reachable conflicting action.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D3 requires positive reachable contradictory behavior. The trace shows the guarded penalty path defaults off, so this evidence supports disabled code rather than a reachable conflicting action."
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: CLOSPEN5.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 25, \"name\": \"2000-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\86cfe3ceb6bb153c035745845ff63717e510fd671e0248ad84c10e698bcca094\\\\cases\\\\drift_900000\\\\CLOSPEN5.cbl\", \"program\": \"CLOSPEN5\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "2000-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}], \"code\": \"       2000-PENALTY.\\n           COMPUTE WS-DELAY-DAYS = WS-ELAPSED-DAYS - 7\\n           IF WS-DELAY-DAYS > ZERO\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\\n           END-IF.\", \"name\": \"2000-PENALTY\", \"ref\": {\"line_end\": 29, \"line_start\": 25, \"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-ELAPSED-DAYS\\n           IF PENALTY-ON\\n              PERFORM 2000-PENALTY\\n           END-IF\\n           DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 24, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current_value is composite and its enum_set appears only as the nested day_basis business-rule leaf.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only when the clause current value itself is an enum_set reference collection; this clause supplies a composite value.",
+            "final_answer": "No D4 reference-collection finding is supported by the supplied composite current value.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current_value is composite and its enum_set appears only as the nested day_basis business-rule leaf.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only when the clause current value itself is an enum_set reference collection; this clause supplies a composite value.\",\"final_answer\":\"No D4 reference-collection finding is supported by the supplied composite current value.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D4 applies only when the clause current value itself is an enum_set reference collection; this clause supplies a composite value.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D4 applies only when the clause current value itself is an enum_set reference collection; this clause supplies a composite value.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D4 applies only when the clause current value itself is an enum_set reference collection; this clause supplies a composite value."
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: CLOSPEN5.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 25, \"name\": \"2000-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\86cfe3ceb6bb153c035745845ff63717e510fd671e0248ad84c10e698bcca094\\\\cases\\\\drift_900000\\\\CLOSPEN5.cbl\", \"program\": \"CLOSPEN5\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "2000-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}], \"code\": \"       2000-PENALTY.\\n           COMPUTE WS-DELAY-DAYS = WS-ELAPSED-DAYS - 7\\n           IF WS-DELAY-DAYS > ZERO\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\\n           END-IF.\", \"name\": \"2000-PENALTY\", \"ref\": {\"line_end\": 29, \"line_start\": 25, \"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-ELAPSED-DAYS\\n           IF PENALTY-ON\\n              PERFORM 2000-PENALTY\\n           END-IF\\n           DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 24, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-ELAPSED-DAYS",
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}], \"scoped_program\": \"CLOSPEN5\", \"statements\": [{\"ref\": {\"line_end\": 13, \"line_start\": 13, \"paragraph\": null, \"program\": \"CLOSPEN5\"}, \"text\": \"05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 19, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"text\": \"ACCEPT WS-ELAPSED-DAYS\"}], \"variable\": \"WS-ELAPSED-DAYS\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The paragraph subtracts 7 and applies the penalty when the resulting delay is greater than zero, but the bounded slice does not identify the accepted day count as working days or calendar days.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The source comparator and branch are visible, but the evidence does not establish the unit of WS-ELAPSED-DAYS needed to decide whether the boundary is early or late against a working-day window.",
+            "final_answer": "The boundary cannot be classified from the available evidence because the source does not establish the elapsed-day unit.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The paragraph subtracts 7 and applies the penalty when the resulting delay is greater than zero, but the bounded slice does not identify the accepted day count as working days or calendar days.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The source comparator and branch are visible, but the evidence does not establish the unit of WS-ELAPSED-DAYS needed to decide whether the boundary is early or late against a working-day window.\",\"final_answer\":\"The boundary cannot be classified from the available evidence because the source does not establish the elapsed-day unit.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The source comparator and branch are visible, but the evidence does not establish the unit of WS-ELAPSED-DAYS needed to decide whether the boundary is early or late against a working-day window.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The source comparator and branch are visible, but the evidence does not establish the unit of WS-ELAPSED-DAYS needed to decide whether the boundary is early or late against a working-day window.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The source comparator and branch are visible, but the evidence does not establish the unit of WS-ELAPSED-DAYS needed to decide whether the boundary is early or late against a working-day window."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": {
+        "verified": false,
+        "tier": null,
+        "evidence": "literal \"'N'\" present in ['CLOSPEN5:lines-10-10']",
+        "citation_ok": false,
+        "entailment_probability": 0.0365,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": "citation rejected: cited clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 does not entail the claim (P=0.0365, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli) — a correct code fact attached to the wrong clause",
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "literal \"'N'\" present in ['CLOSPEN5:lines-10-10']"
+          }
+        ]
+      },
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: CLOSPEN5.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 25, \"name\": \"2000-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\86cfe3ceb6bb153c035745845ff63717e510fd671e0248ad84c10e698bcca094\\\\cases\\\\drift_900000\\\\CLOSPEN5.cbl\", \"program\": \"CLOSPEN5\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "2000-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}], \"code\": \"       2000-PENALTY.\\n           COMPUTE WS-DELAY-DAYS = WS-ELAPSED-DAYS - 7\\n           IF WS-DELAY-DAYS > ZERO\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\\n           END-IF.\", \"name\": \"2000-PENALTY\", \"ref\": {\"line_end\": 29, \"line_start\": 25, \"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-ELAPSED-DAYS\\n           IF PENALTY-ON\\n              PERFORM 2000-PENALTY\\n           END-IF\\n           DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 24, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "trace_variable",
+            "arguments": {
+              "var": "PENALTY-ON",
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"scoped_program\": \"CLOSPEN5\", \"sites\": [{\"excerpt\": \"05  WS-PEN-ENABLED        PIC X(1) VALUE 'N'.\", \"kind\": \"def\", \"ref\": {\"line_end\": 10, \"line_start\": 10, \"paragraph\": null, \"program\": \"CLOSPEN5\"}, \"statement_kind\": \"VALUE-clause\"}, {\"excerpt\": \"IF PENALTY-ON\", \"kind\": \"use\", \"ref\": {\"line_end\": 20, \"line_start\": 20, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"statement_kind\": \"IF\"}], \"variable\": \"PENALTY-ON\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The variable trace ties the main penalty guard to a value-clause definition initialized to N, disabling the only observed route to the penalty paragraph.\n[policy telemetry: SourceLocus.file normalized; loci=2; line_refs=2]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_907751",
+              "regulation_clause": {
+                "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+                "clause_id": "19",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+                "current_value": {
+                  "kind": "composite",
+                  "value": {
+                    "closure_window": {
+                      "kind": "duration_working_days",
+                      "value": 7,
+                      "comparator": "at_most",
+                      "note": null
+                    },
+                    "penalty_per_day": {
+                      "kind": "amount_inr",
+                      "value": 500,
+                      "comparator": "at_least",
+                      "note": "Floor: minimum penalty the bank owes per calendar day. Stale side is DOWN (1-2-5 ladder: 500 -> 200) - an un-updated older rule pays the customer less. This leaf is why BL-15 exists; comparator now declared, never inferred."
+                    },
+                    "day_basis": {
+                      "kind": "enum_set",
+                      "value": [
+                        "calendar_day"
+                      ],
+                      "comparator": null,
+                      "note": null
+                    }
+                  },
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "CLOSPEN5",
+                    "paragraph": null,
+                    "file": null,
+                    "line_span": [
+                      10,
+                      10
+                    ]
+                  },
+                  {
+                    "program": "CLOSPEN5",
+                    "paragraph": "1000-MAIN",
+                    "file": null,
+                    "line_span": [
+                      20,
+                      22
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "PENALTY-ON",
+                  "WS-PEN-ENABLED"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D6_dead_code",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "CLOSPEN5",
+                    "line": 10,
+                    "file": null
+                  },
+                  {
+                    "program": "CLOSPEN5",
+                    "line": 20,
+                    "file": null
+                  }
+                ]
+              },
+              "rationale": "The clause requires a penalty for qualifying delayed closures when no dues are outstanding. The trace shows WS-PEN-ENABLED initialized to 'N' at line 10 and the main paragraph tests PENALTY-ON at line 20 before performing 2000-PENALTY. The default-off guard therefore bypasses the only observed penalty path, preventing the required penalty from being applied. The penalty paragraph contains the matching 500 amount and delay check, but that compliance logic is disabled by the initialized guard."
+            },
+            "claim": "The bank must honour closure requests within seven working days, subject to dues, and, when no dues are outstanding, pay a penalty of at least Rs 500 for each calendar day of delay until closure.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "'N'",
+              "comparator": null,
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The clause requires the bank to honour closure within seven working days, subject to dues, and to pay at least Rs 500 per calendar day of delay until closure when no dues are outstanding. CLOSPEN5 initializes the guard used before its penalty paragraph to 'N', so the only observed penalty path is disabled and the required penalty cannot be applied.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The variable trace ties the main penalty guard to a value-clause definition initialized to N, disabling the only observed route to the penalty paragraph.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CLOSPEN5\",\"paragraph\":null,\"file\":\"CLOSPEN5.cbl\",\"line_span\":[10,10]},{\"program\":\"CLOSPEN5\",\"paragraph\":\"1000-MAIN\",\"file\":\"CLOSPEN5.cbl\",\"line_span\":[20,22]}],\"slice_vars\":[\"PENALTY-ON\",\"WS-PEN-ENABLED\"],\"is_interprocedural\":false},\"drift_type\":\"D6_dead_code\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"CLOSPEN5\",\"line\":10,\"file\":\"CLOSPEN5.cbl\"},{\"program\":\"CLOSPEN5\",\"line\":20,\"file\":\"CLOSPEN5.cbl\"}]},\"rationale\":\"The clause requires a penalty for qualifying delayed closures when no dues are outstanding. The trace shows WS-PEN-ENABLED initialized to 'N' at line 10 and the main paragraph tests PENALTY-ON at line 20 before performing 2000-PENALTY. The default-off guard therefore bypasses the only observed penalty path, preventing the required penalty from being applied. The penalty paragraph contains the matching 500 amount and delay check, but that compliance logic is disabled by the initialized guard.\"},\"claim\":\"The bank must honour closure requests within seven working days, subject to dues, and, when no dues are outstanding, pay a penalty of at least Rs 500 for each calendar day of delay until closure.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"'N'\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause requires the bank to honour closure within seven working days, subject to dues, and to pay at least Rs 500 per calendar day of delay until closure when no dues are outstanding. CLOSPEN5 initializes the guard used before its penalty paragraph to 'N', so the only observed penalty path is disabled and the required penalty cannot be applied.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": false,
+          "tier": null,
+          "evidence": "literal \"'N'\" present in ['CLOSPEN5:lines-10-10']",
+          "citation_ok": false,
+          "entailment_probability": 0.0365,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": "citation rejected: cited clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 does not entail the claim (P=0.0365, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli) — a correct code fact attached to the wrong clause",
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "literal \"'N'\" present in ['CLOSPEN5:lines-10-10']"
+            }
+          ]
+        },
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "citation rejected: cited clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 does not entail the claim (P=0.0365, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli) — a correct code fact attached to the wrong clause",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: citation rejected: cited clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 does not entail the claim (P=0.0365, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli) — a correct code fact attached to the wrong clause",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "citation rejected: cited clause RBI-Commercial-Banks-CC-DC-Directions-2025 19 does not entail the claim (P=0.0365, deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli) — a correct code fact attached to the wrong clause"
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: CLOSPEN5.\nClause: RBI-Commercial-Banks-CC-DC-Directions-2025 19 (version 2025-11-28, effective 2025-11-28): Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\nComposite current-value leaves (select one exact target_path):\n- target_path=closure_window: kind=duration_working_days, value=7, comparator=at_most\n- target_path=penalty_per_day: kind=amount_inr, value=500, comparator=at_least\n- target_path=day_basis: kind=enum_set, value=[\"calendar_day\"], comparator=none",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "CLOSPEN5"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 24, \"line_start\": 18, \"name\": \"1000-MAIN\"}, {\"line_end\": 29, \"line_start\": 25, \"name\": \"2000-PENALTY\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\86cfe3ceb6bb153c035745845ff63717e510fd671e0248ad84c10e698bcca094\\\\cases\\\\drift_900000\\\\CLOSPEN5.cbl\", \"program\": \"CLOSPEN5\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "2000-PENALTY"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}], \"code\": \"       2000-PENALTY.\\n           COMPUTE WS-DELAY-DAYS = WS-ELAPSED-DAYS - 7\\n           IF WS-DELAY-DAYS > ZERO\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\\n           END-IF.\", \"name\": \"2000-PENALTY\", \"ref\": {\"line_end\": 29, \"line_start\": 25, \"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "CLOSPEN5",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-PENALTY\", \"program\": \"CLOSPEN5\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-ELAPSED-DAYS\\n           IF PENALTY-ON\\n              PERFORM 2000-PENALTY\\n           END-IF\\n           DISPLAY 'PENALTY: ' WS-PENALTY-AMT\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 24, \"line_start\": 18, \"paragraph\": \"1000-MAIN\", \"program\": \"CLOSPEN5\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The paragraph contains a 500 multiplier and a positive-delay check, but the evidence does not show that the gated path is active or that the source implements the clause's full conditions.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The source excerpt alone does not establish conformance for the working-day window, the no-outstanding qualification, and active application of the penalty until closure; D7 requires positive evidence that the check matches.",
+            "final_answer": "The bounded source evidence is insufficient to assert whole-clause conformance.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The paragraph contains a 500 multiplier and a positive-delay check, but the evidence does not show that the gated path is active or that the source implements the clause's full conditions.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The source excerpt alone does not establish conformance for the working-day window, the no-outstanding qualification, and active application of the penalty until closure; D7 requires positive evidence that the check matches.\",\"final_answer\":\"The bounded source evidence is insufficient to assert whole-clause conformance.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The source excerpt alone does not establish conformance for the working-day window, the no-outstanding qualification, and active application of the penalty until closure; D7 requires positive evidence that the check matches.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The source excerpt alone does not establish conformance for the working-day window, the no-outstanding qualification, and active application of the penalty until closure; D7 requires positive evidence that the check matches.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The source excerpt alone does not establish conformance for the working-day window, the no-outstanding qualification, and active application of the penalty until closure; D7 requires positive evidence that the check matches."
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "The observed 7-day cutoff and 500-per-day amount match the supplied current-value leaves; no stale threshold is evidenced.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "6fdf936e3aa6d8125aa540f044b644192576a069a99d3594228f7f030470ada2",
+  "run_key": "c8ee02614888049aab34feff1aaa775e405a521fa6cf4e7711e1590c0b9a51c8"
+}

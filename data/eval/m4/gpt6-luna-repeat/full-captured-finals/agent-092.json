@@ -1,0 +1,119 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The source threshold is 10.00 and the clause specifies 10 with a strictly greater comparator.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No stale-threshold mismatch is supported: WS-BO-THRESHOLD is initialized to 10.00, and the capital and profit checks use strict > against it, matching the supplied value and comparator.",
+        "final_answer": "Abstain from D1 because the source literal and comparator match the supplied threshold."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The scoped evidence shows profit input and a threshold check, with the identification paragraph called by the main paragraph.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The required absence is not established: scoped grep finds WS-PROFIT-PCT in the input and comparison, and the slice shows its input; the paragraph is called from 1000-MAIN. The four required D2 observations are not all negative.",
+        "final_answer": "Abstain from D2 because the scoped evidence shows relevant input and threshold handling rather than the required absence."
+      },
+      "D3_contradictory": {
+        "kind": "abstain",
+        "thought": "The percentage checks match the clause, while the supplied clause does not establish that the threshold criterion is exclusive.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The capital and profit checks implement the stated threshold. A separate control-indicator route is present, but this clause alone does not establish that such an additional basis is prohibited, so a direct contradiction is not supported.",
+        "final_answer": "Abstain from D3: the percentage branch matches the clause, and the clause does not establish that the separate control-indicator route is contradictory."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current value is a percentage threshold rather than an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 applies only to an enum_set reference collection; the supplied current_value is a percentage with value 10 and comparator strictly_greater.",
+        "final_answer": "Abstain from D4 because the clause supplies a percentage value, not an enum_set."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The code uses strict greater-than and sets BO status when the condition succeeds, matching the clause's strict boundary.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No early or late boundary transition is supported: the source uses > for both capital and profit against 10.00 and moves Y to WS-IS-BO when the condition succeeds, matching strictly_greater at 10.",
+        "final_answer": "Abstain from D5 because the strict comparator and resulting status transition match the clause boundary."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The main paragraph performs the identification paragraph, which has a caller and is not shown as disabled.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The inspected 2000-IDENTIFY-BO paragraph is called by 1000-MAIN, and no always-false or default-off disabling guard is evidenced.",
+        "final_answer": "Abstain from D6 because the identification paragraph is reachable from 1000-MAIN."
+      },
+      "D7_conformant": {
+        "kind": "finding",
+        "thought": "The source positively implements the supplied threshold using the matching literal and strict comparator.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "BOIDENT2",
+                "paragraph": null,
+                "file": "BOIDENT2.cbl",
+                "line_span": [
+                  18,
+                  18
+                ]
+              },
+              {
+                "program": "BOIDENT2",
+                "paragraph": "2000-IDENTIFY-BO",
+                "file": "BOIDENT2.cbl",
+                "line_span": [
+                  31,
+                  34
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-BO-THRESHOLD",
+              "WS-CAPITAL-PCT",
+              "WS-PROFIT-PCT",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": "value",
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "The clause specifies more than 10 percent of capital or profits. BOIDENT2 initializes WS-BO-THRESHOLD to 10.00 at line 18, then 2000-IDENTIFY-BO uses > for both the capital and profit comparisons and moves Y to WS-IS-BO when the condition succeeds. The source literal and strict boundary match the supplied value 10 and comparator strictly_greater."
+        },
+        "claim": "For partnership firms, a natural person is a beneficial owner when that person has ownership of or entitlement to more than 10 percent of capital or profits.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "10.00",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "BOIDENT2 initializes the threshold to 10.00 and assigns BO status when capital or profit is strictly greater than that threshold, matching the supplied more-than-10-percent clause."
+      }
+    }
+  ]
+}

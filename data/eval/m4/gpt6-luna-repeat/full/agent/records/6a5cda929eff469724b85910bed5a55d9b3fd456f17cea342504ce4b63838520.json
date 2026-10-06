@@ -1,0 +1,726 @@
+{
+  "instance_id": "drift_110024",
+  "gold": {
+    "instance_id": "drift_110024",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC02",
+          "paragraph": "2100-VALIDATE-FOR-SYNC",
+          "file": null,
+          "line_span": [
+            15,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CUSTOMER-ID",
+        "WS-SYNC-STATE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6KYC02",
+          "line": 15,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 65(8) requires CKYCR updates within 7 days of receiving updated information (at_most 7). The program (byte-identical to the pre-2024 candidate) has no day-count or date field and no 7-day deadline check anywhere in its reachable logic.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6KYC02.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: T6KYC02.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "T6KYC02"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2100-VALIDATE-FOR-SYNC\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\acf1a0b0803c7da381460f58c758f5de945ea9a22885bdb7a89b82d393f8d187\\\\cases\\\\drift_900000\\\\T6KYC02.cbl\", \"program\": \"T6KYC02\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "T6KYC02",
+          "name": "2100-VALIDATE-FOR-SYNC"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}], \"code\": \"       2100-VALIDATE-FOR-SYNC.\\n           IF WS-CUSTOMER-ID NOT = SPACES\\n              MOVE 'READY' TO WS-SYNC-STATE\\n           ELSE\\n              MOVE 'REJECTED' TO WS-SYNC-STATE\\n           END-IF.\", \"name\": \"2100-VALIDATE-FOR-SYNC\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "7"
+        },
+        "observation_summary": "{\"matches\": [], \"pattern\": \"7\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "T6KYC02 contains 1000-MAIN and 2100-VALIDATE-FOR-SYNC. The validation paragraph checks whether WS-CUSTOMER-ID is blank and assigns READY or REJECTED; scoped grep for 7 returned no matches. No source threshold literal is available to compare with the clause's 7-day limit.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed.",
+        "final_answer": "The clause requires updates within 7 days. The inspected source contains no 7-day literal or duration comparator, so it does not support a stale-threshold finding.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"T6KYC02 contains 1000-MAIN and 2100-VALIDATE-FOR-SYNC. The validation paragraph checks whether WS-CUSTOMER-ID is blank and assigns READY or REJECTED; scoped grep for 7 returned no matches. No source threshold literal is available to compare with the clause's 7-day limit.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed.\",\"final_answer\":\"The clause requires updates within 7 days. The inspected source contains no 7-day literal or duration comparator, so it does not support a stale-threshold finding.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: T6KYC02.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC02"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2100-VALIDATE-FOR-SYNC\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\acf1a0b0803c7da381460f58c758f5de945ea9a22885bdb7a89b82d393f8d187\\\\cases\\\\drift_900000\\\\T6KYC02.cbl\", \"program\": \"T6KYC02\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC02",
+              "name": "2100-VALIDATE-FOR-SYNC"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}], \"code\": \"       2100-VALIDATE-FOR-SYNC.\\n           IF WS-CUSTOMER-ID NOT = SPACES\\n              MOVE 'READY' TO WS-SYNC-STATE\\n           ELSE\\n              MOVE 'REJECTED' TO WS-SYNC-STATE\\n           END-IF.\", \"name\": \"2100-VALIDATE-FOR-SYNC\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "7"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"7\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "T6KYC02 contains 1000-MAIN and 2100-VALIDATE-FOR-SYNC. The validation paragraph checks whether WS-CUSTOMER-ID is blank and assigns READY or REJECTED; scoped grep for 7 returned no matches. No source threshold literal is available to compare with the clause's 7-day limit.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed.",
+            "final_answer": "The clause requires updates within 7 days. The inspected source contains no 7-day literal or duration comparator, so it does not support a stale-threshold finding.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"T6KYC02 contains 1000-MAIN and 2100-VALIDATE-FOR-SYNC. The validation paragraph checks whether WS-CUSTOMER-ID is blank and assigns READY or REJECTED; scoped grep for 7 returned no matches. No source threshold literal is available to compare with the clause's 7-day limit.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed.\",\"final_answer\":\"The clause requires updates within 7 days. The inspected source contains no 7-day literal or duration comparator, so it does not support a stale-threshold finding.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: T6KYC02.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "REGISTRY"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"REGISTRY\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6KYC02",
+              "para": "2100-VALIDATE-FOR-SYNC"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "T6KYC02",
+              "para": "1000-MAIN"
+            },
+            "observation_summary": "[{\"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-SYNC-STATE",
+              "program": "T6KYC02"
+            },
+            "observation_summary": "{\"is_interprocedural\": true, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}, {\"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}], \"scoped_program\": \"T6KYC02\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6KYC02\"}, \"text\": \"05  WS-CUSTOMER-ID        PIC X(10) VALUE SPACES.\"}, {\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"T6KYC02\"}, \"text\": \"05  WS-SYNC-STATE         PIC X(8) VALUE SPACES.\"}, {\"ref\": {\"line_end\": 11, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}, \"text\": \"ACCEPT WS-CUSTOMER-ID\"}, {\"ref\": {\"line_end\": 12, \"line_start\": 12, \"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}, \"text\": \"PERFORM 2100-VALIDATE-FOR-SYNC\"}, {\"ref\": {\"line_end\": 17, \"line_start\": 16, \"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}, \"text\": \"IF WS-CUSTOMER-ID NOT = SPACES\\n              MOVE 'READY' TO WS-SYNC-STATE\"}, {\"ref\": {\"line_end\": 17, \"line_start\": 17, \"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}, \"text\": \"MOVE 'READY' TO WS-SYNC-STATE\"}, {\"ref\": {\"line_end\": 19, \"line_start\": 19, \"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}, \"text\": \"MOVE 'REJECTED' TO WS-SYNC-STATE\"}], \"variable\": \"WS-SYNC-STATE\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The REGISTRY grep returned no matches, but the required D2 observations were not all negative: 1000-MAIN calls 2100-VALIDATE-FOR-SYNC, and the WS-SYNC-STATE slice contains READY and REJECTED assignments. The required D2 evidence contract therefore is not met.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The prescribed D2 grep, caller, callee, and slice observations were not all negative.",
+            "final_answer": "The clause requires updates within 7 days. T6KYC02 sets WS-SYNC-STATE based on customer ID, while the D2 call graph and state slice have positive observations; I cannot classify the missing update outcome under the required all-negative D2 evidence contract.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The REGISTRY grep returned no matches, but the required D2 observations were not all negative: 1000-MAIN calls 2100-VALIDATE-FOR-SYNC, and the WS-SYNC-STATE slice contains READY and REJECTED assignments. The required D2 evidence contract therefore is not met.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The prescribed D2 grep, caller, callee, and slice observations were not all negative.\",\"final_answer\":\"The clause requires updates within 7 days. T6KYC02 sets WS-SYNC-STATE based on customer ID, while the D2 call graph and state slice have positive observations; I cannot classify the missing update outcome under the required all-negative D2 evidence contract.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The prescribed D2 grep, caller, callee, and slice observations were not all negative.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The prescribed D2 grep, caller, callee, and slice observations were not all negative.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The prescribed D2 grep, caller, callee, and slice observations were not all negative."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: T6KYC02.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC02"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2100-VALIDATE-FOR-SYNC\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\acf1a0b0803c7da381460f58c758f5de945ea9a22885bdb7a89b82d393f8d187\\\\cases\\\\drift_900000\\\\T6KYC02.cbl\", \"program\": \"T6KYC02\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC02",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUSTOMER-ID\\n           PERFORM 2100-VALIDATE-FOR-SYNC\\n           DISPLAY WS-SYNC-STATE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 14, \"line_start\": 10, \"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC02",
+              "name": "2100-VALIDATE-FOR-SYNC"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}], \"code\": \"       2100-VALIDATE-FOR-SYNC.\\n           IF WS-CUSTOMER-ID NOT = SPACES\\n              MOVE 'READY' TO WS-SYNC-STATE\\n           ELSE\\n              MOVE 'REJECTED' TO WS-SYNC-STATE\\n           END-IF.\", \"name\": \"2100-VALIDATE-FOR-SYNC\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The source checks customer ID blankness and sets READY or REJECTED. It shows no date comparator or update action that positively contradicts the clause; the evidence suggests possible absence rather than a direct contradiction.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No positively conflicting source behavior was established for D3.",
+            "final_answer": "The clause requires updates within 7 days. The inspected code branches on whether WS-CUSTOMER-ID is blank but contains no explicit behavior that contradicts the 7-day condition, so a D3 finding is unsupported.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The source checks customer ID blankness and sets READY or REJECTED. It shows no date comparator or update action that positively contradicts the clause; the evidence suggests possible absence rather than a direct contradiction.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No positively conflicting source behavior was established for D3.\",\"final_answer\":\"The clause requires updates within 7 days. The inspected code branches on whether WS-CUSTOMER-ID is blank but contains no explicit behavior that contradicts the 7-day condition, so a D3 finding is unsupported.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No positively conflicting source behavior was established for D3.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No positively conflicting source behavior was established for D3.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No positively conflicting source behavior was established for D3."
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: T6KYC02.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current value is a duration_days value of 7 with comparator at_most, not an enum_set reference collection.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D4 applies only to enum_set reference collections, which the supplied clause value does not contain.",
+            "final_answer": "The clause specifies a 7-day duration. It supplies no enum_set collection whose entries could be compared with a hardcoded enumeration, so D4 does not apply.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current value is a duration_days value of 7 with comparator at_most, not an enum_set reference collection.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D4 applies only to enum_set reference collections, which the supplied clause value does not contain.\",\"final_answer\":\"The clause specifies a 7-day duration. It supplies no enum_set collection whose entries could be compared with a hardcoded enumeration, so D4 does not apply.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D4_stale_reference_data"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: T6KYC02.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC02"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2100-VALIDATE-FOR-SYNC\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\acf1a0b0803c7da381460f58c758f5de945ea9a22885bdb7a89b82d393f8d187\\\\cases\\\\drift_900000\\\\T6KYC02.cbl\", \"program\": \"T6KYC02\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC02",
+              "name": "2100-VALIDATE-FOR-SYNC"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}], \"code\": \"       2100-VALIDATE-FOR-SYNC.\\n           IF WS-CUSTOMER-ID NOT = SPACES\\n              MOVE 'READY' TO WS-SYNC-STATE\\n           ELSE\\n              MOVE 'REJECTED' TO WS-SYNC-STATE\\n           END-IF.\", \"name\": \"2100-VALIDATE-FOR-SYNC\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "7"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"7\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The validation paragraph tests WS-CUSTOMER-ID NOT = SPACES and moves READY or REJECTED. Scoped grep for 7 returned no matches, so no duration comparator and branch transition can be evaluated against the 7-day limit.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No source comparator for the 7-day duration was observed.",
+            "final_answer": "The clause sets a 7-day update limit. The inspected branch checks only whether WS-CUSTOMER-ID is blank, so there is no duration boundary to classify as early or late.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The validation paragraph tests WS-CUSTOMER-ID NOT = SPACES and moves READY or REJECTED. Scoped grep for 7 returned no matches, so no duration comparator and branch transition can be evaluated against the 7-day limit.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No source comparator for the 7-day duration was observed.\",\"final_answer\":\"The clause sets a 7-day update limit. The inspected branch checks only whether WS-CUSTOMER-ID is blank, so there is no duration boundary to classify as early or late.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No source comparator for the 7-day duration was observed.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No source comparator for the 7-day duration was observed.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No source comparator for the 7-day duration was observed."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: T6KYC02.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC02"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2100-VALIDATE-FOR-SYNC\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\acf1a0b0803c7da381460f58c758f5de945ea9a22885bdb7a89b82d393f8d187\\\\cases\\\\drift_900000\\\\T6KYC02.cbl\", \"program\": \"T6KYC02\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6KYC02",
+              "para": "2100-VALIDATE-FOR-SYNC"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC02",
+              "name": "2100-VALIDATE-FOR-SYNC"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}], \"code\": \"       2100-VALIDATE-FOR-SYNC.\\n           IF WS-CUSTOMER-ID NOT = SPACES\\n              MOVE 'READY' TO WS-SYNC-STATE\\n           ELSE\\n              MOVE 'REJECTED' TO WS-SYNC-STATE\\n           END-IF.\", \"name\": \"2100-VALIDATE-FOR-SYNC\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "T6KYC02 has two paragraphs, and 2100-VALIDATE-FOR-SYNC is called by 1000-MAIN. The paragraph has no always-false or default-off compliance guard, and no unreachable compliance paragraph was established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No unreachable paragraph or disabled compliance guard was established.",
+            "final_answer": "The clause requires updates within 7 days. The inspected validation paragraph is called from 1000-MAIN and contains no disabled compliance branch, so D6 is unsupported.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"T6KYC02 has two paragraphs, and 2100-VALIDATE-FOR-SYNC is called by 1000-MAIN. The paragraph has no always-false or default-off compliance guard, and no unreachable compliance paragraph was established.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No unreachable paragraph or disabled compliance guard was established.\",\"final_answer\":\"The clause requires updates within 7 days. The inspected validation paragraph is called from 1000-MAIN and contains no disabled compliance branch, so D6 is unsupported.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No unreachable paragraph or disabled compliance guard was established.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No unreachable paragraph or disabled compliance guard was established.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No unreachable paragraph or disabled compliance guard was established."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: T6KYC02.\nClause: RBI-KYC-Directions-2025 65(8) (version 2025-11-28, effective 2025-11-28): Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC02"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 20, \"line_start\": 15, \"name\": \"2100-VALIDATE-FOR-SYNC\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\acf1a0b0803c7da381460f58c758f5de945ea9a22885bdb7a89b82d393f8d187\\\\cases\\\\drift_900000\\\\T6KYC02.cbl\", \"program\": \"T6KYC02\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC02",
+              "name": "2100-VALIDATE-FOR-SYNC"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC02\"}], \"code\": \"       2100-VALIDATE-FOR-SYNC.\\n           IF WS-CUSTOMER-ID NOT = SPACES\\n              MOVE 'READY' TO WS-SYNC-STATE\\n           ELSE\\n              MOVE 'REJECTED' TO WS-SYNC-STATE\\n           END-IF.\", \"name\": \"2100-VALIDATE-FOR-SYNC\", \"ref\": {\"line_end\": 20, \"line_start\": 15, \"paragraph\": \"2100-VALIDATE-FOR-SYNC\", \"program\": \"T6KYC02\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "7"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"7\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The validation paragraph assigns READY or REJECTED based on customer ID blankness; scoped grep for 7 returned no matches. There is no positive literal/comparator evidence that T6KYC02 checks and matches the clause's 7-day limit.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D7 requires positive source evidence of a matching check; none was observed.",
+            "final_answer": "The clause requires updates within 7 days. T6KYC02's inspected validation checks customer ID blankness and has no positive 7-day comparator evidence, so conformance cannot be found.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The validation paragraph assigns READY or REJECTED based on customer ID blankness; scoped grep for 7 returned no matches. There is no positive literal/comparator evidence that T6KYC02 checks and matches the clause's 7-day limit.\",\"prediction\":null,\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D7 requires positive source evidence of a matching check; none was observed.\",\"final_answer\":\"The clause requires updates within 7 days. T6KYC02's inspected validation checks customer ID blankness and has no positive 7-day comparator evidence, so conformance cannot be found.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D7 requires positive source evidence of a matching check; none was observed.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D7 requires positive source evidence of a matching check; none was observed.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D7 requires positive source evidence of a matching check; none was observed."
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "D1 requires a source threshold literal and the resolved current value is 7 days; no such literal was observed.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "3fa0706ff7a58a884263ec0e5f2d35b871f73a096841b0ec7177bdcf8eceaf6b",
+  "run_key": "6a5cda929eff469724b85910bed5a55d9b3fd456f17cea342504ce4b63838520"
+}

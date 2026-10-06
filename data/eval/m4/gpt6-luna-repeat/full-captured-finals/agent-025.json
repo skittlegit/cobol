@@ -1,0 +1,139 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "finding",
+        "thought": "The charge branch uses a zero-day threshold where the clause sets a three-day grace period.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": "LATEFEE1.cbl",
+                "line_span": [26, 26]
+              }
+            ],
+            "slice_vars": ["WS-DAYS-PAST-DUE"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": "past_due_grace",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 26,
+                "file": "LATEFEE1.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause's past_due_grace leaf is 3 days with a strictly_greater comparator. At line 26, the source tests WS-DAYS-PAST-DUE > ZERO, so any positive number of overdue days enables the charge branch. ZERO is a stale threshold."
+        },
+        "claim": "Penal charges may be levied only when a card account is past due for more than three days.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "In 2000-ASSESS, the charge branch is enabled when WS-DAYS-PAST-DUE is greater than ZERO. Clause 23(5) permits penal charges only after more than three days past due, so the source threshold starts the charge branch too early."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The D2 absence-only evidence condition is not met.",
+        "prediction": null,
+        "claim": "A card account may be reported past-due to CICs or levied penal charges only when it is past due for more than three days.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D2 requires negative grep, caller, callee, and data-slice observations. The scoped grep and caller observations are positive, and the assessment paragraph contains a charge action, so the missing-rule finding is not supported.",
+        "final_answer": "The assessment paragraph contains a days-past-due condition and an existing charge calculation. The observed behavior conflicts with the clause, so the absence-only D2 class is not supported."
+      },
+      "D3_contradictory": {
+        "kind": "finding",
+        "thought": "The source uses Total Amount Due as the charge base, which the clause expressly excludes.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "LATEFEE1",
+                "paragraph": "2000-ASSESS",
+                "file": "LATEFEE1.cbl",
+                "line_span": [28, 28]
+              }
+            ],
+            "slice_vars": ["WS-TOTAL-AMT-DUE"],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "LATEFEE1",
+                "line": 28,
+                "file": "LATEFEE1.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause restricts late charges to the outstanding amount after the due date and excludes Total Amount Due. At line 28, the source computes the charge using WS-TOTAL-AMT-DUE, which directly contradicts that restriction."
+        },
+        "claim": "Late charges may apply only to the outstanding amount after the due date, not the Total Amount Due.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "WS-TOTAL-AMT-DUE",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "2000-ASSESS calculates the charge using WS-TOTAL-AMT-DUE. Clause 23(5) restricts late charges to the outstanding amount after the due date and excludes the Total Amount Due, so the implemented charge base contradicts the clause."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The clause does not provide the kind of reference collection required for D4.",
+        "prediction": null,
+        "claim": "Late charges may apply only to the outstanding amount after the due date.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied current_value is composite. Its charge_base leaf is an enum_set business-rule value, not a current_value that is itself an enum_set reference collection; D4's evidence contract does not apply.",
+        "final_answer": "The clause supplies an enum-valued business-rule leaf inside a composite current_value. D4 is reserved for a current_value that is itself an enum_set reference collection, so a D4 finding is unsupported."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The comparator form matches the clause; the differing threshold is a stale-value issue.",
+        "prediction": null,
+        "claim": "Penal charges may be levied only when a card account is past due for more than three days.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The source uses >, matching the clause's strictly_greater boundary form. Its threshold is ZERO rather than 3, which supports D1; the evidence does not establish a separate off-by-one comparator error for D5.",
+        "final_answer": "The branch tests WS-DAYS-PAST-DUE > ZERO while the clause requires more than three days. The comparator is strictly greater in both; the threshold discrepancy is covered by D1, so a separate D5 boundary finding is unsupported."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "The assessed paragraph is reachable from the main paragraph.",
+        "prediction": null,
+        "claim": "Penal charges may be levied only when a card account is past due for more than three days.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "2000-ASSESS has caller 1000-MAIN, whose code performs 2000-ASSESS. The dead-paragraph condition is therefore not supported, and no disabled-guard evidence was observed.",
+        "final_answer": "1000-MAIN performs 2000-ASSESS, where the charge calculation resides. That reachable source code does not support a D6 dead-code finding."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "The source does not positively match the clause's threshold and charge-base requirements.",
+        "prediction": null,
+        "claim": "Late charges may apply only after more than three days past due and only to the outstanding amount after the due date.",
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D7 requires positive evidence of a matching check. The source tests > ZERO and multiplies by WS-TOTAL-AMT-DUE, which do not match the clause's more-than-three-days threshold and outstanding-after-due-date charge base.",
+        "final_answer": "The source enables the charge branch for any positive days-past-due value and computes against WS-TOTAL-AMT-DUE. Clause 23(5) requires more than three days past due and limits charges to the outstanding amount after the due date, so conformance is not established."
+      }
+    }
+  ]
+}

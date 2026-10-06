@@ -1,0 +1,392 @@
+{
+  "instance_id": "drift_120016",
+  "gold": {
+    "instance_id": "drift_120016",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "85",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a complainant does not get a satisfactory response within a maximum period of 30 days from lodging the complaint, they may approach the RBI Ombudsman.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 30,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CMD8L4",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            9,
+            17
+          ]
+        }
+      ],
+      "slice_vars": [],
+      "is_interprocedural": false
+    },
+    "drift_type": "D5_boundary_error",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CMD8L4",
+          "line": 13,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "The source uses a calendar-month threshold of at least one month, which does not precisely implement the authority's fixed 30-day boundary and can trigger early or late depending on the calendar month.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6V2R3C.cbl",
+      "mutation": null,
+      "annotator_notes": "T6-v2 additive proposal-blind replacement review gate"
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_120016",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "85",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "If a complainant does not get a satisfactory response within a maximum period of 30 days from lodging the complaint, they may approach the RBI Ombudsman.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 30,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CMD8L4",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            13,
+            13
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CALENDAR-MONTHS-WAITED"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CMD8L4",
+          "line": 13,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The source grants the Ombudsman option when the unsatisfactory-response condition holds and the entered waited value is at least one calendar month. The clause’s current value is a maximum of 30 days; one calendar month is not a fixed 30-day duration. The only matching decision predicate uses the month-based threshold."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "CMD8L4:1000-MAIN — literal '1' present; comparator '>=' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9972,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "CMD8L4:1000-MAIN — literal '1' present; comparator '>=' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`. Keep the claim as a close paraphrase of the supplied\nclause and preserve its distinctive regulated terms; do not add an entity,\nqualifier, or mechanism that the clause does not state.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor D7 over a boolean-required behavior, choose a literal that directly\nparticipates in the conformant operation (for example, the excluded amount in\nthe subtraction), not an unrelated nearby threshold or branch token.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 when the specific regulated behavior or required violation outcome\n  is absent. Inspect the relevant paragraph, scoped grep, and data slice,\n  but distinguish positive surrounding control flow from positive evidence of\n  the required outcome itself. A present compliant branch does not cure a\n  missing breach/overdue/denial branch. Do not invent an unstated date\n  derivation, preprocessing step, or implementation mechanism as a missing\n  rule. If complete positive code evidence matches the clause and no supported\n  drift remains, consider D7.\n  Treat a one-sided state machine as incomplete when the regulated outcome for\n  the other side is absent: `days <= 30 -> UPDATE` without an explicit\n  `days > 30 -> BREACH` outcome is D2, and `today <= due -> OK` without an\n  explicit overdue outcome is D2. A zero-day `NEW` special case does not\n  implement a required seven-day SLA. Do not call these partial machines D7.\n- Choose D3 when reachable source behavior positively contradicts the trusted\n  clause. Two source loci are required only for an internal source conflict;\n  one typed computation can contradict the clause directly. For a required\n  exclusion, accepting a regulated amount and then computing the base without\n  excluding it is contradictory, not conformant-by-absence.\n  A validation rule that detects the regulated violation and sets a denial or\n  invalid state, followed by a reachable action that ignores or bypasses that\n  state, is also D3: the implemented validation and action conflict. Do not\n  relabel that case D2 merely because the final gate is malformed or absent.\n  Reserve D2 for a required outcome that is absent without an existing source\n  state or action that positively conflicts with the requirement.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- For D7, put the positive source location in `code_locus`, but set\n  `labels.program_level` and `labels.paragraph_level` to `conformant` and set\n  `labels.line_level` to an empty list. D7 line labels identify drift and must\n  therefore stay empty. When the clause current value is composite, set\n  `target_path` to the exact matching non-composite leaf.\n- Interpret a comparator together with the branch action and control-flow\n  polarity. Do not call D5 from a token-only comparison between a clause's\n  typed comparator and a source predicate. In an elapsed-window state machine,\n  `elapsed > limit` can be the conformant transition after the full allowed\n  window, while `elapsed >= limit` can fire one boundary unit early. Trace the\n  resulting action and use a boundary probe when possible before choosing D5.\n  Apply these exact elapsed-window checks: `delay > 7` is conformant for a\n  seven-day allowed window and `delay >= 7` is one unit early; `elapsed > 30`\n  is conformant for an at-most-30-day window and `elapsed >= 30` is early;\n  `notice >= 30` is conformant for an at-least-30-day requirement and\n  `notice > 30` is late. Do not cancel an early transition merely because a\n  downstream arithmetic expression happens to evaluate to zero at the edge.\n- Choose D6 when the relevant compliance action is unreachable, including a\n  reachable paragraph whose compliance branch is disabled by an always-false\n  or default-off flag. A paragraph caller does not make guarded statements\n  live. Inspect the guard definition and its uses. Use `dead_paragraph` only\n  for a truly unreachable paragraph; for a disabled guard use an exact source\n  literal as the static hook and explain why the action cannot execute.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"T6V2R3C\",\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"85\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"If a complainant does not get a satisfactory response within a maximum period of 30 days from lodging the complaint, they may approach the RBI Ombudsman.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":30,\"comparator\":\"at_most\",\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "T6V2R3C"
+        },
+        "observation_summary": "ToolLookupError: \"unknown program 'T6V2R3C' (corpus: C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\temporal\\\\adaptive_agent\\\\task-staging\\\\a961a8cace5377a7d279e3c2db452df48650fcd0836c0efac641c685dd1bfb22\\\\cases\\\\drift_900000)\"",
+        "observation_truncated": false,
+        "error": "ToolLookupError: \"unknown program 'T6V2R3C' (corpus: C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\temporal\\\\adaptive_agent\\\\task-staging\\\\a961a8cace5377a7d279e3c2db452df48650fcd0836c0efac641c685dd1bfb22\\\\cases\\\\drift_900000)\"",
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "PROGRAM-ID"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 2, \"program\": \"CMD8L4\", \"text\": \"       PROGRAM-ID. CMD8L4.\"}], \"pattern\": \"PROGRAM-ID\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_program",
+        "arguments": {
+          "program": "CMD8L4"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 17, \"line_start\": 9, \"name\": \"1000-MAIN\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\temporal\\\\adaptive_agent\\\\task-staging\\\\a961a8cace5377a7d279e3c2db452df48650fcd0836c0efac641c685dd1bfb22\\\\cases\\\\drift_900000\\\\T6V2R3C.cbl\", \"program\": \"CMD8L4\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "CMD8L4",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-SATISFACTORY-RESPONSE\\n           ACCEPT WS-CALENDAR-MONTHS-WAITED\\n           IF WS-SATISFACTORY-RESPONSE = 'N' AND\\n              WS-CALENDAR-MONTHS-WAITED >= 1\\n              MOVE 'Y' TO WS-OMBUDSMAN-OPTION\\n           END-IF\\n           DISPLAY WS-OMBUDSMAN-OPTION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 17, \"line_start\": 9, \"paragraph\": \"1000-MAIN\", \"program\": \"CMD8L4\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 5,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-CALENDAR-MONTHS-WAITED",
+          "program": "CMD8L4"
+        },
+        "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"CMD8L4\"}], \"scoped_program\": \"CMD8L4\", \"statements\": [{\"ref\": {\"line_end\": 6, \"line_start\": 6, \"paragraph\": null, \"program\": \"CMD8L4\"}, \"text\": \"01  WS-CALENDAR-MONTHS-WAITED PIC 99 VALUE ZERO.\"}, {\"ref\": {\"line_end\": 11, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"CMD8L4\"}, \"text\": \"ACCEPT WS-CALENDAR-MONTHS-WAITED\"}], \"variable\": \"WS-CALENDAR-MONTHS-WAITED\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 15.0
+      },
+      {
+        "step": 6,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "WS-CALENDAR-MONTHS-WAITED"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 6, \"program\": \"CMD8L4\", \"text\": \"       01  WS-CALENDAR-MONTHS-WAITED PIC 99 VALUE ZERO.\"}, {\"line\": 11, \"program\": \"CMD8L4\", \"text\": \"           ACCEPT WS-CALENDAR-MONTHS-WAITED\"}, {\"line\": 13, \"program\": \"CMD8L4\", \"text\": \"              WS-CALENDAR-MONTHS-WAITED >= 1\"}], \"pattern\": \"WS-CALENDAR-MONTHS-WAITED\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The option is granted when the response is unsatisfactory and the entered elapsed value reaches at least one calendar month. The clause specifies a maximum period of 30 days; a calendar month is not a fixed 30-day duration. The evidence supports D1_stale_threshold at the sole predicate for this condition.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_120016",
+          "regulation_clause": {
+            "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+            "clause_id": "85",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "If a complainant does not get a satisfactory response within a maximum period of 30 days from lodging the complaint, they may approach the RBI Ombudsman.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 30,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "CMD8L4",
+                "paragraph": "1000-MAIN",
+                "file": null,
+                "line_span": [
+                  13,
+                  13
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CALENDAR-MONTHS-WAITED"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D1_stale_threshold",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "CMD8L4",
+                "line": 13,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The source grants the Ombudsman option when the unsatisfactory-response condition holds and the entered waited value is at least one calendar month. The clause’s current value is a maximum of 30 days; one calendar month is not a fixed 30-day duration. The only matching decision predicate uses the month-based threshold."
+        },
+        "claim": "A complainant who does not receive a satisfactory response within a maximum period of 30 days from lodging a complaint may approach the RBI Ombudsman.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "1",
+          "comparator": ">=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The source grants the option after at least one calendar month without a satisfactory response. Since a calendar month is not a fixed 30-day period, this threshold does not match the clause’s 30-day maximum.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The option is granted when the response is unsatisfactory and the entered elapsed value reaches at least one calendar month. The clause specifies a maximum period of 30 days; a calendar month is not a fixed 30-day duration. The evidence supports D1_stale_threshold at the sole predicate for this condition.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"CMD8L4\",\"paragraph\":\"1000-MAIN\",\"file\":null,\"line_span\":[13,13]}],\"slice_vars\":[\"WS-CALENDAR-MONTHS-WAITED\"],\"is_interprocedural\":false},\"drift_type\":\"D1_stale_threshold\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"CMD8L4\",\"line\":13,\"file\":null}]},\"rationale\":\"The source grants the Ombudsman option when the unsatisfactory-response condition holds and the entered waited value is at least one calendar month. The clause’s current value is a maximum of 30 days; one calendar month is not a fixed 30-day duration. The only matching decision predicate uses the month-based threshold.\"},\"claim\":\"A complainant who does not receive a satisfactory response within a maximum period of 30 days from lodging a complaint may approach the RBI Ombudsman.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"1\",\"comparator\":\">=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The source grants the option after at least one calendar month without a satisfactory response. Since a calendar month is not a fixed 30-day period, this threshold does not match the clause’s 30-day maximum.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 2,
+            "observation_sha256": "b42441a40592f7733f58737c63728ae0c434a45d8ea2fbf2916fc18207c75a27",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "context",
+            "rationale": "The staged source identifies program CMD8L4, allowing the case-local program index and relevant paragraph to be queried. This observation does not establish the threshold behavior."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "7c741c5c6f5e41b655b528a4a4fbf51d75b19a3d6232c40bb267c8dc046bd993",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "context",
+            "rationale": "The program index lists paragraph 1000-MAIN; as instructed, the index itself supplies no statement evidence, so the paragraph was read before drawing a conclusion."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "330cbd1d3d3f0f719f0d64154d131fb78703a9bb3a14d9547877c4a01e40a246",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "supports",
+            "rationale": "The paragraph sets WS-OMBUDSMAN-OPTION to Y when the response is N and WS-CALENDAR-MONTHS-WAITED is >= 1, showing the operative threshold and action."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "33e96a9f3953e8bdb17243527e0641d65a1422a828fa3f4f1cbc9875b987ef94",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "supports",
+            "rationale": "The data slice shows WS-CALENDAR-MONTHS-WAITED is an entered numeric month count, confirming that the threshold is expressed in months rather than days."
+          },
+          {
+            "observation_step": 6,
+            "observation_sha256": "f28c31af04dd0fee0d1fbb5870696bcd347dd9e24cfe0bc1987ca0351a03f26c",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "supports",
+            "rationale": "The scoped search finds one decision predicate for this elapsed-month value: >= 1. The source threshold is therefore one calendar month, while the clause’s resolved threshold is 30 days."
+          }
+        ]
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "CMD8L4:1000-MAIN — literal '1' present; comparator '>=' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9972,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "CMD8L4:1000-MAIN — literal '1' present; comparator '>=' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_120016",
+      "regulation_clause": {
+        "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+        "clause_id": "85",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "If a complainant does not get a satisfactory response within a maximum period of 30 days from lodging the complaint, they may approach the RBI Ombudsman.",
+        "current_value": {
+          "kind": "duration_days",
+          "value": 30,
+          "comparator": "at_most",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "CMD8L4",
+            "paragraph": "1000-MAIN",
+            "file": null,
+            "line_span": [
+              13,
+              13
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CALENDAR-MONTHS-WAITED"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D1_stale_threshold",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "CMD8L4",
+            "line": 13,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The source grants the Ombudsman option when the unsatisfactory-response condition holds and the entered waited value is at least one calendar month. The clause’s current value is a maximum of 30 days; one calendar month is not a fixed 30-day duration. The only matching decision predicate uses the month-based threshold."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The source grants the option after at least one calendar month without a satisfactory response. Since a calendar month is not a fixed 30-day period, this threshold does not match the clause’s 30-day maximum.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "96b7d2eae95c7a182b17b34373b6449f9a83ec1da1cee4932c5c841b0dd0e4a8",
+  "run_key": "a961a8cace5377a7d279e3c2db452df48650fcd0836c0efac641c685dd1bfb22"
+}

@@ -1,13 +1,13 @@
 # STATUS - current project dashboard
 
-Last updated: **2026-09-23 IST**.
+Last updated: **2026-10-06 IST**.
 
 This is the authoritative current-state dashboard. Historical evidence remains
 in `docs/tasks/` and immutable evaluation artifacts.
 
 ## Model transition
 
-- New repository work uses `gpt-6-sol`. The original `gpt-5.6-luna`/`max`
+- New repository work uses `gpt-6.1-sol` (updated 2026-10-02). The original `gpt-5.6-luna`/`max`
   R1.5 lineage is preserved at 78/305 first-half tasks. Its sealed keys are
   not rerun or relabeled. The completed T6 reviews keep their recorded models.
 - The user authorized a separate `gpt-6-luna`/`max` follow-up on 2026-09-23.
@@ -15,14 +15,39 @@ in `docs/tasks/` and immutable evaluation artifacts.
   smoke tasks are sealed and replay valid, all six systems are `VALID`, and the
   all-system readiness receipt is verified. One isolated qualification is also
   sealed and replay valid. The frozen full-run preparation covers 196 rows and
-  610 model tasks (305 in the first half), with zero full-run provider calls.
+  610 model tasks (305 in the first half). Preparation performed zero provider calls.
   Execution began at the user's request on 2026-09-23; only frozen pending
   keys may be scheduled. A repeated hidden-roster result must be described as a follow-up
   comparison, not a first-look estimate.
-  The first handoff has **17/305** first-half keys sealed and replayed,
-  **287** pending runnable keys, and **one** terminal contract rejection.
-  See `full/r1.5-checkpoint.json` and `full/terminal-attempts.json` under the
-  GPT-6 lineage. No second-half key has been launched.
+  **R1.5 is COMPLETE at 305/305 sealed and replay-valid first-half keys**,
+  with zero pending runnable keys and zero terminal contract rejections.
+  Fresh-session recovery sealed the eight remaining keys under the unchanged
+  evaluator identity; rejected and interrupted attempts remain diagnostics.
+  Native compiler execution backing passed 16/16 harness tests and 12/12
+  compiler policy tests. No frozen method, request, or threshold changed.
+  See `full/r1.5-checkpoint.json`, `full/r1.5-handoff.json`, and
+  `diagnostics/fresh-session-resume.json` under the follow-up lineage.
+  Twelve second-half oracle batches (ordinals 50-61) executed early in the
+  earlier session remain preserved. There are **610/610** sealed full-run
+  tasks overall and **0** pending for R1.6. R1.6 is COMPLETE at 610/610 full tasks and 40/40 temporal sides; full-run execution and replay are complete; the current full-run checkpoint is `full/r1.6-checkpoint.json`.
+  The first window added 69 replay-valid captures and drained all workers; see
+  `full/r1.6-handoff-20261004T054308Z.json` for the hash-bound continuation.
+  One late launch is preserved in `diagnostics/r1.6-window-timing-deviation.json`.
+  An additional provider-free ledger metadata check found two signed-hash
+  mismatches in sealed adaptive tasks 154 and 173. Results remain preserved;
+  frozen host replay totals do not establish ledger-hash equality. See
+  `diagnostics/r1.6-signed-ledger-check-196.json`.
+  Temporal preparation is frozen at 20 pairs / 40 adaptive tasks with zero
+  provider calls during preparation; all 40/40 sides are sealed and host-replayed.
+  All six full-run systems have 196/196 canonical records and host status VALID.
+  Temporal host validity is VALID (zero infrastructure errors, unverified emissions,
+  and contract repairs); paired accuracy is 7/20 (35%), below the reporting bar.
+  The separate signed-reference check preserves two mismatched entries in temporal
+  side 40, plus the two previously recorded full-run entries in adaptive 154 and 173.
+  Host validity does not imply signed-reference equality. No sealed result was rerun.
+  Terminal receipt: `diagnostics/r1.6-terminal-receipt.json`; full metrics and cell
+  denominators: `diagnostics/r1.6-full-terminal-reconciliation.json` under the lineage.
+  Provider resource telemetry remains unavailable. R1.7 has not started.
 - R2 migration generation is planned for `gpt-6-luna`/`max`. R2.2 must freeze
   new requests and pass a fresh qualification under that identity before live
   generation. R2 remains blocked on the R1.7 detector decision.
@@ -159,16 +184,16 @@ in `docs/tasks/` and immutable evaluation artifacts.
 | Config-3 transport repair | ready | Additive `lineage-v4`; 37/37 requests; 44 focused tests pass | No implementation blocker remains before smoke |
 | Config-3 smoke | terminal `NOT_EVALUABLE` for the candidate | 37/37 sealed tasks; 84/84 host-replayed evaluations; five systems VALID; adaptive 14/14 abstained | Preserve as configuration-3 evidence; repair only through the governed successor path |
 | Original detector/full evaluation | Preserved and paused | Immutable identity `455d6f604b6f29b1fb7b14011bdfc2fbe7b28e18aea1205015774b72891e05b6`; 78/305 R1.5 tasks sealed and replay-valid | Preserve 227 pending keys and the original model identity |
-| GPT-6 Luna follow-up evaluation | Smoke VALID; full run in progress | 44/44 smoke tasks sealed; six systems VALID; 196 hidden rows, 610 frozen full-run requests; 17/305 first-half keys sealed, 1 terminal contract rejection | Resume 287 pending runnable first-half keys; preserve original R1.5 separately |
+| GPT-6 Luna follow-up evaluation | R1.5 COMPLETE; R1.6 COMPLETE | 305/305 first-half keys sealed; 610/610 full-run tasks sealed; 0 terminal contract rejections | R1.7: reports and detector decision; preserve measured failures and original R1.5 |
 | T6.2-T6.4 migration | ready offline, live pending | Offline migration suite previously 30/30 green | Run after detector freeze |
 | M5/release record | historical T5.5/T5.5A closed; successor addendum pending | `benchmark-first-analysis` and `ablations/report`; historical T5.4 remains immutable | Integrate configuration-4 and migration results in R2.6 |
 
 ## Next execution order
 
-1. Continue the GPT-6 Luna follow-up full run
-   from `data/eval/m4/gpt6-luna-repeat`. Preserve the original R1.5 keys and
-   follow the five-hour handoff rule in `docs/tasks/GOAL-R1-work-order.md`.
-   Continue R1.6 and R1.7 only after the full-run handoff is terminal.
+1. R1.6 is terminal. R1.7 is next: publish the reports and detector decision
+   from the sealed evidence at `data/eval/m4/gpt6-luna-repeat`, preserving
+   signed-reference discrepancies, measured quality failures, and missing telemetry.
+   Start R1.7 only when requested; no R1.7 work has begun.
 2. After R1.7 freezes the detector roster, run R2.1 through R2.10 sequentially
    from `docs/tasks/GOAL-R2-work-order.md` under the same window rule.
 3. Keep UI/T7.4 deferred.
@@ -261,7 +286,7 @@ in `docs/tasks/` and immutable evaluation artifacts.
 | T8.2 | done offline |
 | T8.3 | configuration-4 successor smoke globally VALID at 44/44 tasks and 84/84 system-row evaluations; immutable R1.5 hidden run active at 78/305 sealed tasks |
 | T8.4 | queued in GOAL-R1 after a valid successor smoke/full run |
-| GOAL-R1 | R1.4 globally VALID; R1.5-R1.7 remain |
+| GOAL-R1 | R1.4 globally VALID; GPT-6 follow-up R1.5 complete at 305/305; R1.6 complete; R1.7 remains |
 | GOAL-R2 | blocked on R1.7; ten conservative five-hour sections R2.1-R2.10 at the 24-task ceiling (eight if only one 12-case track is eligible) cover T6.2-T6.4 and the successor release addendum/close |
 
 ## Update policy

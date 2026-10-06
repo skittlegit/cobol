@@ -1,0 +1,942 @@
+{
+  "instance_id": "drift_091821",
+  "gold": {
+    "instance_id": "drift_091821",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SCRNGATE1",
+          "paragraph": null,
+          "file": "SANCREG.cpy",
+          "line_span": [
+            6,
+            6
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-SCREEN-RESULT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SCRNGATE1",
+          "line": 6,
+          "file": "SANCREG.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'S88' to '(deleted)' at SCRNGATE1:SANCREG.cpy:6-6, producing D4_stale_reference_data. MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "SCRNGATE1.cbl",
+      "mutation": "MO-4; locus=SCRNGATE1:SANCREG.cpy:6-6; old='S88'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_091821",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SCRNGATE1",
+          "paragraph": null,
+          "file": "SANCREG.cpy",
+          "line_span": [
+            6,
+            6
+          ]
+        }
+      ],
+      "slice_vars": [
+        "MANDATED-LIST"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SCRNGATE1",
+          "line": 6,
+          "file": "SANCREG.cpy"
+        }
+      ]
+    },
+    "rationale": "The clause-side enum set names both UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. The resolved SANCREG.cpy MANDATED-LIST collection explicitly contains only 'S67' and '', with no explicit UNSC-Taliban-1988 member; the reference enumeration therefore does not represent the full clause-side set."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "SCRNGATE1:SANCREG.cpy — literal \"VALUES 'S67' ''\" present",
+    "citation_ok": true,
+    "entailment_probability": 0.9758,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "SCRNGATE1:SANCREG.cpy — literal \"VALUES 'S67' ''\" present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: SCRNGATE1.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "SCRNGATE1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 14, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 19, \"name\": \"2000-SCREEN-SANCTIONS\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\e1bd6c362626802b534a180de2028f56d8aaa6aea07d00422a65394f3ace3178\\\\cases\\\\drift_900000\\\\SCRNGATE1.cbl\", \"program\": \"SCRNGATE1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "SCRNGATE1",
+          "name": "2000-SCREEN-SANCTIONS"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"SCRNGATE1\"}], \"code\": \"       2000-SCREEN-SANCTIONS.\\n           IF MANDATED-LIST\\n              MOVE 'BLOCK' TO WS-SCREEN-RESULT\\n           ELSE\\n              MOVE 'CLEAR' TO WS-SCREEN-RESULT\\n           END-IF.\", \"name\": \"2000-SCREEN-SANCTIONS\", \"ref\": {\"line_end\": 24, \"line_start\": 19, \"paragraph\": \"2000-SCREEN-SANCTIONS\", \"program\": \"SCRNGATE1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "MANDATED-LIST"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 20, \"program\": \"SCRNGATE1\", \"text\": \"           IF MANDATED-LIST\"}, {\"line\": 6, \"program\": \"SANCREG\", \"text\": \"           88  MANDATED-LIST VALUES 'S67' ''.\"}], \"pattern\": \"MANDATED-LIST\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "resolve_copybook",
+        "arguments": {
+          "name": "SANCREG"
+        },
+        "observation_summary": "{\"line_map\": [{\"expanded_end\": 6, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\e1bd6c362626802b534a180de2028f56d8aaa6aea07d00422a65394f3ace3178\\\\cases\\\\drift_900000\\\\SANCREG.cpy\", \"source_line_start\": 1}], \"name\": \"SANCREG\", \"text\": \"      *----------------------------------------------------------------\\n      * UNSC SANCTIONS SCREENING REGISTRY - MANDATED LIST SOURCES.\\n      * SEE RBI KYC DIRECTIONS PARA 56.\\n      *----------------------------------------------------------------\\n       01  WS-LIST-SOURCE PIC X(3) VALUE 'S67'.\\n           88  MANDATED-LIST VALUES 'S67' ''.\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The resolved screening collection explicitly lists only S67 and a blank value, with no explicit member for the clause-mandated UNSC-Taliban-1988 identity.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_091821",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "56(prevention)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+            "current_value": {
+              "kind": "enum_set",
+              "value": [
+                "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+                "UNSC-Taliban-1988"
+              ],
+              "comparator": null,
+              "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "SCRNGATE1",
+                "paragraph": null,
+                "file": "SANCREG.cpy",
+                "line_span": [
+                  6,
+                  6
+                ]
+              }
+            ],
+            "slice_vars": [
+              "MANDATED-LIST"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D4_stale_reference_data",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "SCRNGATE1",
+                "line": 6,
+                "file": "SANCREG.cpy"
+              }
+            ]
+          },
+          "rationale": "The clause-side enum set names both UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. The resolved SANCREG.cpy MANDATED-LIST collection explicitly contains only 'S67' and '', with no explicit UNSC-Taliban-1988 member; the reference enumeration therefore does not represent the full clause-side set."
+        },
+        "claim": "The institution must not hold an account in the name of an individual or entity appearing on a United Nations Security Council approved and periodically circulated list of individuals and entities suspected of terrorist links.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "VALUES 'S67' ''",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The clause names the UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988 lists. SCRNGATE1's SANCREG.cpy MANDATED-LIST collection explicitly enumerates only 'S67' and a blank value, with no explicit UNSC-Taliban-1988 member.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The resolved screening collection explicitly lists only S67 and a blank value, with no explicit member for the clause-mandated UNSC-Taliban-1988 identity.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"SCRNGATE1\",\"paragraph\":null,\"file\":\"SANCREG.cpy\",\"line_span\":[6,6]}],\"slice_vars\":[\"MANDATED-LIST\"],\"is_interprocedural\":false},\"drift_type\":\"D4_stale_reference_data\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"SCRNGATE1\",\"line\":6,\"file\":\"SANCREG.cpy\"}]},\"rationale\":\"The clause-side enum set names both UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. The resolved SANCREG.cpy MANDATED-LIST collection explicitly contains only 'S67' and '', with no explicit UNSC-Taliban-1988 member; the reference enumeration therefore does not represent the full clause-side set.\"},\"claim\":\"The institution must not hold an account in the name of an individual or entity appearing on a United Nations Security Council approved and periodically circulated list of individuals and entities suspected of terrorist links.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"VALUES 'S67' ''\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause names the UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988 lists. SCRNGATE1's SANCREG.cpy MANDATED-LIST collection explicitly enumerates only 'S67' and a blank value, with no explicit UNSC-Taliban-1988 member.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "SCRNGATE1:SANCREG.cpy — literal \"VALUES 'S67' ''\" present",
+      "citation_ok": true,
+      "entailment_probability": 0.9758,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "SCRNGATE1:SANCREG.cpy — literal \"VALUES 'S67' ''\" present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_091821",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "56(prevention)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "current_value": {
+          "kind": "enum_set",
+          "value": [
+            "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+            "UNSC-Taliban-1988"
+          ],
+          "comparator": null,
+          "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "SCRNGATE1",
+            "paragraph": null,
+            "file": "SANCREG.cpy",
+            "line_span": [
+              6,
+              6
+            ]
+          }
+        ],
+        "slice_vars": [
+          "MANDATED-LIST"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D4_stale_reference_data",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "SCRNGATE1",
+            "line": 6,
+            "file": "SANCREG.cpy"
+          }
+        ]
+      },
+      "rationale": "The clause-side enum set names both UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. The resolved SANCREG.cpy MANDATED-LIST collection explicitly contains only 'S67' and '', with no explicit UNSC-Taliban-1988 member; the reference enumeration therefore does not represent the full clause-side set."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause names the UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988 lists. SCRNGATE1's SANCREG.cpy MANDATED-LIST collection explicitly enumerates only 'S67' and a blank value, with no explicit UNSC-Taliban-1988 member.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: SCRNGATE1.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The available evidence concerns an enum-set reference collection, and does not establish a stale scalar or leaf value for D1.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No D1-specific stale value is established by the bounded observations.",
+            "final_answer": "Abstain: the evidence does not establish a D1 stale value.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The available evidence concerns an enum-set reference collection, and does not establish a stale scalar or leaf value for D1.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No D1-specific stale value is established by the bounded observations.\",\"final_answer\":\"Abstain: the evidence does not establish a D1 stale value.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D1_stale_threshold",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D1_stale_threshold",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D1_stale_threshold"
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: SCRNGATE1.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The required absence evidence from the scoped grep, caller and callee checks, and data slice was not established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D2 requires negative observations from grep, find_callers, find_callees, and slice_on.",
+            "final_answer": "Abstain: the required D2 absence evidence is incomplete.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The required absence evidence from the scoped grep, caller and callee checks, and data slice was not established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D2 requires negative observations from grep, find_callers, find_callees, and slice_on.\",\"final_answer\":\"Abstain: the required D2 absence evidence is incomplete.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 4 required for D2_missing_rule",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 4 required for D2_missing_rule",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 4 required for D2_missing_rule"
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: SCRNGATE1.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "No positively contradictory source behavior was established by the bounded observations.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The available observations do not establish a source action that contradicts the clause.",
+            "final_answer": "Abstain: no D3 contradiction is established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"No positively contradictory source behavior was established by the bounded observations.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The available observations do not establish a source action that contradicts the clause.\",\"final_answer\":\"Abstain: no D3 contradiction is established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 2 required for D3_contradictory",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 2 required for D3_contradictory",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 2 required for D3_contradictory"
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": true,
+      "finding": {
+        "instance_id": "drift_091821",
+        "regulation_clause": {
+          "doc": "RBI-KYC-Directions-2025",
+          "clause_id": "56(prevention)",
+          "version": "2025-11-28",
+          "effective_date": "2025-11-28",
+          "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+          "current_value": {
+            "kind": "enum_set",
+            "value": [
+              "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+              "UNSC-Taliban-1988"
+            ],
+            "comparator": null,
+            "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+          }
+        },
+        "code_locus": {
+          "loci": [
+            {
+              "program": "SCRNGATE1",
+              "paragraph": null,
+              "file": "SANCREG.cpy",
+              "line_span": [
+                6,
+                6
+              ]
+            }
+          ],
+          "slice_vars": [
+            "MANDATED-LIST"
+          ],
+          "is_interprocedural": false
+        },
+        "drift_type": "D4_stale_reference_data",
+        "target_path": null,
+        "labels": {
+          "program_level": "drift",
+          "paragraph_level": "drift",
+          "line_level": [
+            {
+              "program": "SCRNGATE1",
+              "line": 6,
+              "file": "SANCREG.cpy"
+            }
+          ]
+        },
+        "rationale": "The clause-side enum set names both UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. The resolved SANCREG.cpy MANDATED-LIST collection explicitly contains only 'S67' and '', with no explicit UNSC-Taliban-1988 member; the reference enumeration therefore does not represent the full clause-side set."
+      },
+      "confidence": 0.85,
+      "verification": {
+        "verified": true,
+        "tier": 2,
+        "evidence": "SCRNGATE1:SANCREG.cpy — literal \"VALUES 'S67' ''\" present",
+        "citation_ok": true,
+        "entailment_probability": 0.9758,
+        "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "rejected_reason": null,
+        "tier_attempts": [
+          {
+            "tier": 1,
+            "outcome": "unavailable",
+            "detail": "no execution probe; Tier-1 not applicable to this finding"
+          },
+          {
+            "tier": 2,
+            "outcome": "verified",
+            "detail": "SCRNGATE1:SANCREG.cpy — literal \"VALUES 'S67' ''\" present"
+          }
+        ]
+      },
+      "verification_tier": 2,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: SCRNGATE1.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "SCRNGATE1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 14, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 19, \"name\": \"2000-SCREEN-SANCTIONS\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\e1bd6c362626802b534a180de2028f56d8aaa6aea07d00422a65394f3ace3178\\\\cases\\\\drift_900000\\\\SCRNGATE1.cbl\", \"program\": \"SCRNGATE1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "SCRNGATE1",
+              "name": "2000-SCREEN-SANCTIONS"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"SCRNGATE1\"}], \"code\": \"       2000-SCREEN-SANCTIONS.\\n           IF MANDATED-LIST\\n              MOVE 'BLOCK' TO WS-SCREEN-RESULT\\n           ELSE\\n              MOVE 'CLEAR' TO WS-SCREEN-RESULT\\n           END-IF.\", \"name\": \"2000-SCREEN-SANCTIONS\", \"ref\": {\"line_end\": 24, \"line_start\": 19, \"paragraph\": \"2000-SCREEN-SANCTIONS\", \"program\": \"SCRNGATE1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "MANDATED-LIST"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 20, \"program\": \"SCRNGATE1\", \"text\": \"           IF MANDATED-LIST\"}, {\"line\": 6, \"program\": \"SANCREG\", \"text\": \"           88  MANDATED-LIST VALUES 'S67' ''.\"}], \"pattern\": \"MANDATED-LIST\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "resolve_copybook",
+            "arguments": {
+              "name": "SANCREG"
+            },
+            "observation_summary": "{\"line_map\": [{\"expanded_end\": 6, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\e1bd6c362626802b534a180de2028f56d8aaa6aea07d00422a65394f3ace3178\\\\cases\\\\drift_900000\\\\SANCREG.cpy\", \"source_line_start\": 1}], \"name\": \"SANCREG\", \"text\": \"      *----------------------------------------------------------------\\n      * UNSC SANCTIONS SCREENING REGISTRY - MANDATED LIST SOURCES.\\n      * SEE RBI KYC DIRECTIONS PARA 56.\\n      *----------------------------------------------------------------\\n       01  WS-LIST-SOURCE PIC X(3) VALUE 'S67'.\\n           88  MANDATED-LIST VALUES 'S67' ''.\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The resolved screening collection explicitly lists only S67 and a blank value, with no explicit member for the clause-mandated UNSC-Taliban-1988 identity.",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_091821",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "56(prevention)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+                "current_value": {
+                  "kind": "enum_set",
+                  "value": [
+                    "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+                    "UNSC-Taliban-1988"
+                  ],
+                  "comparator": null,
+                  "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "SCRNGATE1",
+                    "paragraph": null,
+                    "file": "SANCREG.cpy",
+                    "line_span": [
+                      6,
+                      6
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "MANDATED-LIST"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D4_stale_reference_data",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "SCRNGATE1",
+                    "line": 6,
+                    "file": "SANCREG.cpy"
+                  }
+                ]
+              },
+              "rationale": "The clause-side enum set names both UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. The resolved SANCREG.cpy MANDATED-LIST collection explicitly contains only 'S67' and '', with no explicit UNSC-Taliban-1988 member; the reference enumeration therefore does not represent the full clause-side set."
+            },
+            "claim": "The institution must not hold an account in the name of an individual or entity appearing on a United Nations Security Council approved and periodically circulated list of individuals and entities suspected of terrorist links.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "VALUES 'S67' ''",
+              "comparator": null,
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "The clause names the UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988 lists. SCRNGATE1's SANCREG.cpy MANDATED-LIST collection explicitly enumerates only 'S67' and a blank value, with no explicit UNSC-Taliban-1988 member.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The resolved screening collection explicitly lists only S67 and a blank value, with no explicit member for the clause-mandated UNSC-Taliban-1988 identity.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"SCRNGATE1\",\"paragraph\":null,\"file\":\"SANCREG.cpy\",\"line_span\":[6,6]}],\"slice_vars\":[\"MANDATED-LIST\"],\"is_interprocedural\":false},\"drift_type\":\"D4_stale_reference_data\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"SCRNGATE1\",\"line\":6,\"file\":\"SANCREG.cpy\"}]},\"rationale\":\"The clause-side enum set names both UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. The resolved SANCREG.cpy MANDATED-LIST collection explicitly contains only 'S67' and '', with no explicit UNSC-Taliban-1988 member; the reference enumeration therefore does not represent the full clause-side set.\"},\"claim\":\"The institution must not hold an account in the name of an individual or entity appearing on a United Nations Security Council approved and periodically circulated list of individuals and entities suspected of terrorist links.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"VALUES 'S67' ''\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause names the UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988 lists. SCRNGATE1's SANCREG.cpy MANDATED-LIST collection explicitly enumerates only 'S67' and a blank value, with no explicit UNSC-Taliban-1988 member.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": {
+          "verified": true,
+          "tier": 2,
+          "evidence": "SCRNGATE1:SANCREG.cpy — literal \"VALUES 'S67' ''\" present",
+          "citation_ok": true,
+          "entailment_probability": 0.9758,
+          "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+          "rejected_reason": null,
+          "tier_attempts": [
+            {
+              "tier": 1,
+              "outcome": "unavailable",
+              "detail": "no execution probe; Tier-1 not applicable to this finding"
+            },
+            {
+              "tier": 2,
+              "outcome": "verified",
+              "detail": "SCRNGATE1:SANCREG.cpy — literal \"VALUES 'S67' ''\" present"
+            }
+          ]
+        },
+        "finding": {
+          "instance_id": "drift_091821",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "56(prevention)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+            "current_value": {
+              "kind": "enum_set",
+              "value": [
+                "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+                "UNSC-Taliban-1988"
+              ],
+              "comparator": null,
+              "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "SCRNGATE1",
+                "paragraph": null,
+                "file": "SANCREG.cpy",
+                "line_span": [
+                  6,
+                  6
+                ]
+              }
+            ],
+            "slice_vars": [
+              "MANDATED-LIST"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D4_stale_reference_data",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "SCRNGATE1",
+                "line": 6,
+                "file": "SANCREG.cpy"
+              }
+            ]
+          },
+          "rationale": "The clause-side enum set names both UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988. The resolved SANCREG.cpy MANDATED-LIST collection explicitly contains only 'S67' and '', with no explicit UNSC-Taliban-1988 member; the reference enumeration therefore does not represent the full clause-side set."
+        },
+        "abstained": false,
+        "abstention_reason": null,
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "The clause names the UNSC-ISIL-Daesh-AlQaida-1267-1989-2253 and UNSC-Taliban-1988 lists. SCRNGATE1's SANCREG.cpy MANDATED-LIST collection explicitly enumerates only 'S67' and a blank value, with no explicit UNSC-Taliban-1988 member.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": false,
+      "abstention_reason": null
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: SCRNGATE1.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "No source comparator and branch action establishing an early or late transition were observed.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The bounded evidence does not establish a D5 boundary condition.",
+            "final_answer": "Abstain: no D5 boundary error is established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"No source comparator and branch action establishing an early or late transition were observed.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The bounded evidence does not establish a D5 boundary condition.\",\"final_answer\":\"Abstain: no D5 boundary error is established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D5_boundary_error",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D5_boundary_error",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D5_boundary_error"
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: SCRNGATE1.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "No unreachable paragraph or disabled compliance guard was established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The bounded observations do not establish dead or disabled compliance code.",
+            "final_answer": "Abstain: no D6 dead-code evidence is established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"No unreachable paragraph or disabled compliance guard was established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The bounded observations do not establish dead or disabled compliance code.\",\"final_answer\":\"Abstain: no D6 dead-code evidence is established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D6_dead_code",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D6_dead_code",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D6_dead_code"
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: SCRNGATE1.\nClause: RBI-KYC-Directions-2025 56(prevention) (version 2025-11-28, effective 2025-11-28): it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "steps": [],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The observations do not positively establish that the implemented enumeration matches both mandated list identities.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "Positive evidence that the check and its reference data match the clause is incomplete.",
+            "final_answer": "Abstain: the evidence does not establish D7 conformance.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The observations do not positively establish that the implemented enumeration matches both mandated list identities.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"Positive evidence that the check and its reference data match the clause is incomplete.\",\"final_answer\":\"Abstain: the evidence does not establish D7 conformance.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "batched evidence minimum not met: 0 successful observation(s), 1 required for D7_conformant"
+    }
+  ],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "0292275b046125ef2b6100699e4b1542b3be090dc4d28c4d6feb767735b36a0a",
+  "run_key": "84651f1950c5e89df23e52babcebc896bb32d19786c739854daed1f1ef892f0d"
+}

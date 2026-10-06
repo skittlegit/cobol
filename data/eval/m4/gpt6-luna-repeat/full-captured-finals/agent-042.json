@@ -1,0 +1,136 @@
+{
+  "results": [
+    {
+      "alias": "drift_900000",
+      "D1_stale_threshold": {
+        "kind": "abstain",
+        "thought": "The D1 observations show a numeric limit comparison and a failure code, but do not establish a stale source literal corresponding to the clause's explicit-consent value.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No stale literal mismatch against the resolved explicit-consent value is established.",
+        "final_answer": "Abstain: No stale literal mismatch against the resolved explicit-consent value is established."
+      },
+      "D2_missing_rule": {
+        "kind": "abstain",
+        "thought": "The required D2 observations are not all negative: scoped grep finds writes to both WS-FAIL-REASON and WS-POSTED, while the data slice does not locate executable uses.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The D2 all-negative evidence contract is unmet, so a missing-rule finding is not established.",
+        "final_answer": "Abstain: The D2 all-negative evidence contract is unmet, so a missing-rule finding is not established."
+      },
+      "D3_contradictory": {
+        "kind": "finding",
+        "thought": "The validation branch records the over-limit condition as a failure, but the visible main flow proceeds to the posting paragraph without checking that failure state or explicit consent.",
+        "prediction": {
+          "code_locus": {
+            "loci": [
+              {
+                "program": "TRNVAL1",
+                "paragraph": "1000-MAIN",
+                "file": "TRNVAL1.cbl",
+                "line_span": [
+                  12,
+                  29
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-LIMIT",
+              "WS-PROJ-BAL",
+              "WS-FAIL-REASON",
+              "WS-POSTED"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": "value",
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "TRNVAL1",
+                "line": 16,
+                "file": "TRNVAL1.cbl"
+              },
+              {
+                "program": "TRNVAL1",
+                "line": 17,
+                "file": "TRNVAL1.cbl"
+              },
+              {
+                "program": "TRNVAL1",
+                "line": 22,
+                "file": "TRNVAL1.cbl"
+              },
+              {
+                "program": "TRNVAL1",
+                "line": 25,
+                "file": "TRNVAL1.cbl"
+              },
+              {
+                "program": "TRNVAL1",
+                "line": 28,
+                "file": "TRNVAL1.cbl"
+              }
+            ]
+          },
+          "rationale": "The clause requires explicit cardholder consent before a limit breach. TRNVAL1 checks WS-LIMIT >= WS-PROJ-BAL and moves 102 to WS-FAIL-REASON on the other branch, but the visible main flow performs 3000-POST without checking WS-FAIL-REASON or any consent indicator. The rejection state therefore does not gate the posting action when the projected balance exceeds the limit."
+        },
+        "claim": "Explicit cardholder consent is required before any breach of the sanctioned credit limit.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "102",
+          "comparator": ">=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "TRNVAL1's validation moves 102 to WS-FAIL-REASON for the over-limit branch, but the visible main flow performs 3000-POST without consulting that marker or explicit consent. This conflicts with clause 12(5), which permits a limit breach only with the cardholder's explicit consent."
+      },
+      "D4_stale_reference_data": {
+        "kind": "abstain",
+        "thought": "The supplied current value is a boolean_required rule value, not an enum_set reference collection.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "D4 does not apply because the clause current value is not an enum_set reference collection.",
+        "final_answer": "Abstain: D4 does not apply because the clause current value is not an enum_set reference collection."
+      },
+      "D5_boundary_error": {
+        "kind": "abstain",
+        "thought": "The supplied clause value requires explicit consent and provides no numeric boundary or comparator value to test for an early or late transition.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No clause-defined numeric boundary is available for a D5 comparison.",
+        "final_answer": "Abstain: No clause-defined numeric boundary is available for a D5 comparison."
+      },
+      "D6_dead_code": {
+        "kind": "abstain",
+        "thought": "No D6-specific dead_paragraph result or disabled-guard literal establishes unreachable or disabled compliance code.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Deadness or a disabled compliance guard is not established by the available D6 evidence.",
+        "final_answer": "Abstain: Deadness or a disabled compliance guard is not established by the available D6 evidence."
+      },
+      "D7_conformant": {
+        "kind": "abstain",
+        "thought": "No positive evidence establishes a check that enforces explicit consent before an over-limit action.",
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "Positive source evidence matching the clause is not established, so conformance cannot be claimed.",
+        "final_answer": "Abstain: Positive source evidence matching the clause is not established, so conformance cannot be claimed."
+      }
+    }
+  ]
+}

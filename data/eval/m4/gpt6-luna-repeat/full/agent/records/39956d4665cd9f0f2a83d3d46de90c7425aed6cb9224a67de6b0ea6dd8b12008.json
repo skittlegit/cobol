@@ -1,0 +1,759 @@
+{
+  "instance_id": "drift_110027",
+  "gold": {
+    "instance_id": "drift_110027",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "para 56, clause (h)",
+      "version": "pre-2024-11-06 form",
+      "effective_date": "2016-02-25",
+      "text": "ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "no_deadline"
+        ],
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC04",
+          "paragraph": "2300-ROUTE-UPDATE",
+          "file": null,
+          "line_span": [
+            15,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-RISK-CODE",
+        "WS-WORK-QUEUE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "The pre-2024-11-06 clause (h) requires uploading/updating KYC data at periodic updation or on receipt of updated information, with NO time-bound deadline. T6KYC04 routes to a priority or standard queue by risk code (lines 16-20) with no deadline concept. There is no elapsed-time or deadline gate anywhere in the program, consistent with an obligation that has no deadline to violate.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6KYC04.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: T6KYC04.\nClause: RBI-KYC-Master-Direction-2016 para 56, clause (h) (version pre-2024-11-06 form, effective 2016-02-25): ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "T6KYC04"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 21, \"line_start\": 15, \"name\": \"2300-ROUTE-UPDATE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\0fc0b03801a0534df075e70c6ca1af6c09852affd97401ef7188aa41f8b59136\\\\cases\\\\drift_900000\\\\T6KYC04.cbl\", \"program\": \"T6KYC04\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "T6KYC04",
+          "name": "2300-ROUTE-UPDATE"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}], \"code\": \"       2300-ROUTE-UPDATE.\\n           EVALUATE WS-RISK-CODE\\n              WHEN 'H'\\n                 MOVE 'PRIORITY' TO WS-WORK-QUEUE\\n              WHEN OTHER\\n                 MOVE 'STANDARD' TO WS-WORK-QUEUE\\n           END-EVALUATE.\", \"name\": \"2300-ROUTE-UPDATE\", \"ref\": {\"line_end\": 21, \"line_start\": 15, \"paragraph\": \"2300-ROUTE-UPDATE\", \"program\": \"T6KYC04\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "T6KYC04",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2300-ROUTE-UPDATE\", \"program\": \"T6KYC04\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-RISK-CODE\\n           PERFORM 2300-ROUTE-UPDATE\\n           DISPLAY WS-WORK-QUEUE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 14, \"line_start\": 10, \"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.",
+        "final_answer": "The supplied current-value leaf is no_deadline; the inspected source only routes WS-RISK-CODE to queue labels, so it does not provide a typed stale-value locus to compare with the clause.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.\",\"final_answer\":\"The supplied current-value leaf is no_deadline; the inspected source only routes WS-RISK-CODE to queue labels, so it does not provide a typed stale-value locus to compare with the clause.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: T6KYC04.\nClause: RBI-KYC-Master-Direction-2016 para 56, clause (h) (version pre-2024-11-06 form, effective 2016-02-25): ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 21, \"line_start\": 15, \"name\": \"2300-ROUTE-UPDATE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\0fc0b03801a0534df075e70c6ca1af6c09852affd97401ef7188aa41f8b59136\\\\cases\\\\drift_900000\\\\T6KYC04.cbl\", \"program\": \"T6KYC04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC04",
+              "name": "2300-ROUTE-UPDATE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}], \"code\": \"       2300-ROUTE-UPDATE.\\n           EVALUATE WS-RISK-CODE\\n              WHEN 'H'\\n                 MOVE 'PRIORITY' TO WS-WORK-QUEUE\\n              WHEN OTHER\\n                 MOVE 'STANDARD' TO WS-WORK-QUEUE\\n           END-EVALUATE.\", \"name\": \"2300-ROUTE-UPDATE\", \"ref\": {\"line_end\": 21, \"line_start\": 15, \"paragraph\": \"2300-ROUTE-UPDATE\", \"program\": \"T6KYC04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC04",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2300-ROUTE-UPDATE\", \"program\": \"T6KYC04\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-RISK-CODE\\n           PERFORM 2300-ROUTE-UPDATE\\n           DISPLAY WS-WORK-QUEUE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 14, \"line_start\": 10, \"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.",
+            "final_answer": "The supplied current-value leaf is no_deadline; the inspected source only routes WS-RISK-CODE to queue labels, so it does not provide a typed stale-value locus to compare with the clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.\",\"final_answer\":\"The supplied current-value leaf is no_deadline; the inspected source only routes WS-RISK-CODE to queue labels, so it does not provide a typed stale-value locus to compare with the clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: T6KYC04.\nClause: RBI-KYC-Master-Direction-2016 para 56, clause (h) (version pre-2024-11-06 form, effective 2016-02-25): ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "DEADLINE"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"DEADLINE\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6KYC04",
+              "para": "2300-ROUTE-UPDATE"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "T6KYC04",
+              "para": "2300-ROUTE-UPDATE"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "WS-RISK-CODE",
+              "program": "T6KYC04"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}], \"scoped_program\": \"T6KYC04\", \"statements\": [{\"ref\": {\"line_end\": 7, \"line_start\": 7, \"paragraph\": null, \"program\": \"T6KYC04\"}, \"text\": \"05  WS-RISK-CODE          PIC X VALUE SPACE.\"}, {\"ref\": {\"line_end\": 11, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}, \"text\": \"ACCEPT WS-RISK-CODE\"}], \"variable\": \"WS-RISK-CODE\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The DEADLINE grep is empty, but the caller and data-slice observations are positive; the required all-negative D2 gate is unmet, so the specific required outcome's absence is not established.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The DEADLINE grep is empty, but the caller and data-slice observations are positive; the required all-negative D2 gate is unmet, so the specific required outcome's absence is not established.",
+            "final_answer": "Although the DEADLINE grep returned no matches, the caller and data-slice observations are positive. The required all-negative gate is unmet, so the source evidence does not establish the missing timing behavior.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The DEADLINE grep is empty, but the caller and data-slice observations are positive; the required all-negative D2 gate is unmet, so the specific required outcome's absence is not established.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The DEADLINE grep is empty, but the caller and data-slice observations are positive; the required all-negative D2 gate is unmet, so the specific required outcome's absence is not established.\",\"final_answer\":\"Although the DEADLINE grep returned no matches, the caller and data-slice observations are positive. The required all-negative gate is unmet, so the source evidence does not establish the missing timing behavior.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The DEADLINE grep is empty, but the caller and data-slice observations are positive; the required all-negative D2 gate is unmet, so the specific required outcome's absence is not established.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The DEADLINE grep is empty, but the caller and data-slice observations are positive; the required all-negative D2 gate is unmet, so the specific required outcome's absence is not established.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The DEADLINE grep is empty, but the caller and data-slice observations are positive; the required all-negative D2 gate is unmet, so the specific required outcome's absence is not established."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: T6KYC04.\nClause: RBI-KYC-Master-Direction-2016 para 56, clause (h) (version pre-2024-11-06 form, effective 2016-02-25): ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 21, \"line_start\": 15, \"name\": \"2300-ROUTE-UPDATE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\0fc0b03801a0534df075e70c6ca1af6c09852affd97401ef7188aa41f8b59136\\\\cases\\\\drift_900000\\\\T6KYC04.cbl\", \"program\": \"T6KYC04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC04",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2300-ROUTE-UPDATE\", \"program\": \"T6KYC04\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-RISK-CODE\\n           PERFORM 2300-ROUTE-UPDATE\\n           DISPLAY WS-WORK-QUEUE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 14, \"line_start\": 10, \"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC04",
+              "name": "2300-ROUTE-UPDATE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}], \"code\": \"       2300-ROUTE-UPDATE.\\n           EVALUATE WS-RISK-CODE\\n              WHEN 'H'\\n                 MOVE 'PRIORITY' TO WS-WORK-QUEUE\\n              WHEN OTHER\\n                 MOVE 'STANDARD' TO WS-WORK-QUEUE\\n           END-EVALUATE.\", \"name\": \"2300-ROUTE-UPDATE\", \"ref\": {\"line_end\": 21, \"line_start\": 15, \"paragraph\": \"2300-ROUTE-UPDATE\", \"program\": \"T6KYC04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The inspected paragraphs describe risk-code queue routing and provide no positive behavior that contradicts the supplied no-deadline clause.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The inspected paragraphs describe risk-code queue routing and provide no positive behavior that contradicts the supplied no-deadline clause.",
+            "final_answer": "The inspected paragraphs route a risk code to queue labels and do not show behavior that positively contradicts the supplied no-deadline clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The inspected paragraphs describe risk-code queue routing and provide no positive behavior that contradicts the supplied no-deadline clause.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The inspected paragraphs describe risk-code queue routing and provide no positive behavior that contradicts the supplied no-deadline clause.\",\"final_answer\":\"The inspected paragraphs route a risk code to queue labels and do not show behavior that positively contradicts the supplied no-deadline clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The inspected paragraphs describe risk-code queue routing and provide no positive behavior that contradicts the supplied no-deadline clause.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The inspected paragraphs describe risk-code queue routing and provide no positive behavior that contradicts the supplied no-deadline clause.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The inspected paragraphs describe risk-code queue routing and provide no positive behavior that contradicts the supplied no-deadline clause."
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: T6KYC04.\nClause: RBI-KYC-Master-Direction-2016 para 56, clause (h) (version pre-2024-11-06 form, effective 2016-02-25): ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 21, \"line_start\": 15, \"name\": \"2300-ROUTE-UPDATE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\0fc0b03801a0534df075e70c6ca1af6c09852affd97401ef7188aa41f8b59136\\\\cases\\\\drift_900000\\\\T6KYC04.cbl\", \"program\": \"T6KYC04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "PRIORITY"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 18, \"program\": \"T6KYC04\", \"text\": \"                 MOVE 'PRIORITY' TO WS-WORK-QUEUE\"}], \"pattern\": \"PRIORITY\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "STANDARD"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 20, \"program\": \"T6KYC04\", \"text\": \"                 MOVE 'STANDARD' TO WS-WORK-QUEUE\"}], \"pattern\": \"STANDARD\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The supplied enum_set contains the business-rule value no_deadline, not a reference collection for list reconciliation; the observed queue labels do not support a D4 finding.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The supplied enum_set contains the business-rule value no_deadline, not a reference collection for list reconciliation; the observed queue labels do not support a D4 finding.",
+            "final_answer": "The supplied enum_set value no_deadline is a business-rule leaf, not a reference collection to reconcile against source entries. The observed queue labels provide no D4 comparison.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied enum_set contains the business-rule value no_deadline, not a reference collection for list reconciliation; the observed queue labels do not support a D4 finding.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied enum_set contains the business-rule value no_deadline, not a reference collection for list reconciliation; the observed queue labels do not support a D4 finding.\",\"final_answer\":\"The supplied enum_set value no_deadline is a business-rule leaf, not a reference collection to reconcile against source entries. The observed queue labels provide no D4 comparison.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The supplied enum_set contains the business-rule value no_deadline, not a reference collection for list reconciliation; the observed queue labels do not support a D4 finding.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The supplied enum_set contains the business-rule value no_deadline, not a reference collection for list reconciliation; the observed queue labels do not support a D4 finding.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The supplied enum_set contains the business-rule value no_deadline, not a reference collection for list reconciliation; the observed queue labels do not support a D4 finding."
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: T6KYC04.\nClause: RBI-KYC-Master-Direction-2016 para 56, clause (h) (version pre-2024-11-06 form, effective 2016-02-25): ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 21, \"line_start\": 15, \"name\": \"2300-ROUTE-UPDATE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\0fc0b03801a0534df075e70c6ca1af6c09852affd97401ef7188aa41f8b59136\\\\cases\\\\drift_900000\\\\T6KYC04.cbl\", \"program\": \"T6KYC04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC04",
+              "name": "2300-ROUTE-UPDATE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}], \"code\": \"       2300-ROUTE-UPDATE.\\n           EVALUATE WS-RISK-CODE\\n              WHEN 'H'\\n                 MOVE 'PRIORITY' TO WS-WORK-QUEUE\\n              WHEN OTHER\\n                 MOVE 'STANDARD' TO WS-WORK-QUEUE\\n           END-EVALUATE.\", \"name\": \"2300-ROUTE-UPDATE\", \"ref\": {\"line_end\": 21, \"line_start\": 15, \"paragraph\": \"2300-ROUTE-UPDATE\", \"program\": \"T6KYC04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": ">="
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \">=\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The inspected route logic has no update-date comparator and associated boundary transition to compare with the no-deadline clause.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The inspected route logic has no update-date comparator and associated boundary transition to compare with the no-deadline clause.",
+            "final_answer": "The inspected route logic has no update-date comparator or associated branch transition, so there is no boundary behavior to compare with the no-deadline clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The inspected route logic has no update-date comparator and associated boundary transition to compare with the no-deadline clause.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The inspected route logic has no update-date comparator and associated boundary transition to compare with the no-deadline clause.\",\"final_answer\":\"The inspected route logic has no update-date comparator or associated branch transition, so there is no boundary behavior to compare with the no-deadline clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The inspected route logic has no update-date comparator and associated boundary transition to compare with the no-deadline clause.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The inspected route logic has no update-date comparator and associated boundary transition to compare with the no-deadline clause.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The inspected route logic has no update-date comparator and associated boundary transition to compare with the no-deadline clause."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: T6KYC04.\nClause: RBI-KYC-Master-Direction-2016 para 56, clause (h) (version pre-2024-11-06 form, effective 2016-02-25): ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 21, \"line_start\": 15, \"name\": \"2300-ROUTE-UPDATE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\0fc0b03801a0534df075e70c6ca1af6c09852affd97401ef7188aa41f8b59136\\\\cases\\\\drift_900000\\\\T6KYC04.cbl\", \"program\": \"T6KYC04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC04",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2300-ROUTE-UPDATE\", \"program\": \"T6KYC04\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-RISK-CODE\\n           PERFORM 2300-ROUTE-UPDATE\\n           DISPLAY WS-WORK-QUEUE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 14, \"line_start\": 10, \"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          },
+          {
+            "step": 3,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "T6KYC04",
+              "para": "2300-ROUTE-UPDATE"
+            },
+            "observation_summary": "[{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The route paragraph is called by 1000-MAIN, and the inspected code shows no disabled compliance guard; there is no evidence for unreachable or disabled compliance code.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The route paragraph is called by 1000-MAIN, and the inspected code shows no disabled compliance guard; there is no evidence for unreachable or disabled compliance code.",
+            "final_answer": "The route paragraph is called by 1000-MAIN, and the inspected code shows no disabled compliance guard. It does not establish dead or disabled compliance code.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The route paragraph is called by 1000-MAIN, and the inspected code shows no disabled compliance guard; there is no evidence for unreachable or disabled compliance code.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The route paragraph is called by 1000-MAIN, and the inspected code shows no disabled compliance guard; there is no evidence for unreachable or disabled compliance code.\",\"final_answer\":\"The route paragraph is called by 1000-MAIN, and the inspected code shows no disabled compliance guard. It does not establish dead or disabled compliance code.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The route paragraph is called by 1000-MAIN, and the inspected code shows no disabled compliance guard; there is no evidence for unreachable or disabled compliance code.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The route paragraph is called by 1000-MAIN, and the inspected code shows no disabled compliance guard; there is no evidence for unreachable or disabled compliance code.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The route paragraph is called by 1000-MAIN, and the inspected code shows no disabled compliance guard; there is no evidence for unreachable or disabled compliance code."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: T6KYC04.\nClause: RBI-KYC-Master-Direction-2016 para 56, clause (h) (version pre-2024-11-06 form, effective 2016-02-25): ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "T6KYC04"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 14, \"line_start\": 10, \"name\": \"1000-MAIN\"}, {\"line_end\": 21, \"line_start\": 15, \"name\": \"2300-ROUTE-UPDATE\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\0fc0b03801a0534df075e70c6ca1af6c09852affd97401ef7188aa41f8b59136\\\\cases\\\\drift_900000\\\\T6KYC04.cbl\", \"program\": \"T6KYC04\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC04",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2300-ROUTE-UPDATE\", \"program\": \"T6KYC04\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-RISK-CODE\\n           PERFORM 2300-ROUTE-UPDATE\\n           DISPLAY WS-WORK-QUEUE\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 14, \"line_start\": 10, \"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "T6KYC04",
+              "name": "2300-ROUTE-UPDATE"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC04\"}], \"code\": \"       2300-ROUTE-UPDATE.\\n           EVALUATE WS-RISK-CODE\\n              WHEN 'H'\\n                 MOVE 'PRIORITY' TO WS-WORK-QUEUE\\n              WHEN OTHER\\n                 MOVE 'STANDARD' TO WS-WORK-QUEUE\\n           END-EVALUATE.\", \"name\": \"2300-ROUTE-UPDATE\", \"ref\": {\"line_end\": 21, \"line_start\": 15, \"paragraph\": \"2300-ROUTE-UPDATE\", \"program\": \"T6KYC04\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The inspected code routes a risk code to queue values but gives no positive evidence of a compliance check matching the supplied no-deadline clause; conformance cannot be inferred from absence.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The inspected code routes a risk code to queue values but gives no positive evidence of a compliance check matching the supplied no-deadline clause; conformance cannot be inferred from absence.",
+            "final_answer": "The inspected code routes a risk code to queue values but provides no positive evidence of a compliance check matching the supplied no-deadline clause. Conformance cannot be established from the observed source.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The inspected code routes a risk code to queue values but gives no positive evidence of a compliance check matching the supplied no-deadline clause; conformance cannot be inferred from absence.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The inspected code routes a risk code to queue values but gives no positive evidence of a compliance check matching the supplied no-deadline clause; conformance cannot be inferred from absence.\",\"final_answer\":\"The inspected code routes a risk code to queue values but provides no positive evidence of a compliance check matching the supplied no-deadline clause. Conformance cannot be established from the observed source.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The inspected code routes a risk code to queue values but gives no positive evidence of a compliance check matching the supplied no-deadline clause; conformance cannot be inferred from absence.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The inspected code routes a risk code to queue values but gives no positive evidence of a compliance check matching the supplied no-deadline clause; conformance cannot be inferred from absence.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The inspected code routes a risk code to queue values but gives no positive evidence of a compliance check matching the supplied no-deadline clause; conformance cannot be inferred from absence."
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "The supplied current-value leaf is no_deadline, while the inspected source routes WS-RISK-CODE to queue labels and supplies no update-timing literal or comparator. There is no typed stale-value locus.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "df15358c9362015de47308aac4316e234985f333855bbb6cbb6199764ad7e450",
+  "run_key": "39956d4665cd9f0f2a83d3d46de90c7425aed6cb9224a67de6b0ea6dd8b12008"
+}

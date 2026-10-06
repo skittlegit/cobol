@@ -1,0 +1,429 @@
+{
+  "instance_id": "drift_110025",
+  "gold": {
+    "instance_id": "drift_110025",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "para 56, clause (h)",
+      "version": "pre-2024-11-06 form",
+      "effective_date": "2016-02-25",
+      "text": "ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "no_deadline"
+        ],
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC03",
+          "paragraph": "2200-PREPARE-UPLOAD",
+          "file": null,
+          "line_span": [
+            16,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CUSTOMER-NAME",
+        "WS-UPLOAD-FLAG"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "The pre-2024-11-06 clause (h) requires uploading/updating KYC data at periodic updation or on receipt of updated information, with NO time-bound deadline. T6KYC03 normalizes the customer name and sets the upload flag on any non-blank name (lines 17-20) with no deadline concept. There is no elapsed-time or deadline gate anywhere in the program, consistent with an obligation that has no deadline to violate.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6KYC03.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_110025",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Master-Direction-2016",
+      "clause_id": "para 56, clause (h)",
+      "version": "pre-2024-11-06 form",
+      "effective_date": "2016-02-25",
+      "text": "ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "no_deadline"
+        ],
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6KYC03",
+          "paragraph": "2200-PREPARE-UPLOAD",
+          "file": null,
+          "line_span": [
+            19,
+            20
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CUSTOMER-NAME",
+        "WS-NORMALIZED-NAME",
+        "WS-UPLOAD-FLAG"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6KYC03",
+          "line": 19,
+          "file": null
+        },
+        {
+          "program": "T6KYC03",
+          "line": 20,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The only reachable upload decision checks whether the normalized customer name is nonblank and then sets an upload flag. The program has no condition for periodic updation or receipt of updated information and performs no upload/update action, leaving the clause-required behavior absent. The relevant insertion point is the existing upload decision."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "T6KYC03:2200-PREPARE-UPLOAD — literal 'WS-UPLOAD-FLAG' present; comparator 'NOT =' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9975,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "T6KYC03:2200-PREPARE-UPLOAD — literal 'WS-UPLOAD-FLAG' present; comparator 'NOT =' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "You are the configuration-3 adaptive COBOL compliance agent. Work on exactly\none opaque case and maintain one evolving D1-D7 hypothesis ledger. This task\nhas no access to benchmark labels, mutation provenance, scoring data, other\ncases, or the orchestration chat.\n\nUse only this bounded command for source evidence:\n  <frozen-task-tool-command> drift_900000 adaptive TOOL --arguments 'JSON_OBJECT'\nThe command returns an observation sequence, bounded observation summary, and\nthe SHA-256 of that exact summary. You may make at most 16 total tool calls.\nEvery final evidence-ledger note must cite a successful returned sequence and\nhash, name its D1-D7 hypothesis, mark supports/refutes/context, and explain its\nbearing. Preserve notes as the investigation evolves. One case may change\nhypotheses; do not run seven independent hunts.\n\nThe host owns and attaches the real instance identity and trusted clause. Your\nprediction therefore contains only the provider-facing fields required by the\noutput schema. Emit one finding only when its class evidence contract is met,\notherwise emit one explicit abstention. The unchanged host policy guard and\nverifier decide whether a finding may be emitted. Do not inspect files except\nthrough the bounded command, parent directories, git data, timestamps,\nformatting, comments as edit cues, or identifier style.\n\nShared adaptive instructions:\nInvestigate whether COBOL behavior matches the cited regulation.\nThe code is not included in this prompt: acquire it through the supplied\nToolLayer tools such as read_program, read_paragraph, slice_on, trace_variable,\nor grep. Tool signatures are: read_paragraph(program, name);\nread_program(program); find_callers(program, para);\nfind_callees(program, para); trace_variable(var, program?);\nslice_on(var, program?); resolve_copybook(name); get_data_layout(record);\ngrep(pattern); run_cobol(snippet, inputs?); search_regulations(query).\nCall one tool per turn and keep observations bounded. Return exactly one JSON\nobject and stop. A tool object is the entire turn: never append an abstention,\nfinding, alternative, or corrected object after it. A proposed finding must\ninclude a complete DriftPrediction and a separate claim, plus concrete\nexecution/static evidence hooks when available. The runtime will verify every\nproposed finding; if evidence is insufficient, abstain.\n`claim` is the clause-grounded regulatory proposition that the cited clause\nentails. Restate the applicable regulated entity, action, trigger, threshold,\ncomparator, and unit in natural language. Never put a COBOL program,\nparagraph, identifier, line, implementation fact, or drift diagnosis in\n`claim`; those code facts belong in `prediction.rationale`, `static_claim`,\nand `final_answer`. Keep the claim as a close paraphrase of the supplied\nclause and preserve its distinctive regulated terms; do not add an entity,\nqualifier, or mechanism that the clause does not state.\nFor a static evidence hook, copy `static_claim.literal` and\n`static_claim.comparator` exactly from source text returned by a cited tool\nobservation. These fields contain source tokens, never a prose comparison;\nput the explanation in prediction.rationale.\nFor D7 over a boolean-required behavior, choose a literal that directly\nparticipates in the conformant operation (for example, the excluded amount in\nthe subtraction), not an unrelated nearby threshold or branch token.\nFor every predicted source locus, `file` is null when the line is in the\nprogram's own source; it is never the program filename. Negative example\n(own source): {\"program\": \"CLOSPEN1\", \"file\": null}. Positive example\n(COPY expansion): {\"program\": \"CLOSPEN2\", \"file\": \"WSDAYBAS.cpy\"}.\nread_program returns a paragraph index, not statement text. Follow it with\nread_paragraph for a relevant paragraph before concluding that source evidence\nis unavailable. If an observation is insufficient and another listed bounded\ntool can obtain the needed evidence, call that tool; abstain only after the\nrelevant available evidence paths have been attempted.\n\nThis is one adaptive investigation, not seven independent hunts. Maintain a\nsingle evidence ledger from the accumulated bounded tool observations. At\neach turn, compare the viable D1-D7 hypotheses, choose the next tool for the\nlargest useful uncertainty reduction, and revise or reject hypotheses when\nobservations conflict with them. Do not commit to a class before its evidence\nrequirements are met. Emit at most one final finding for the best-supported\nhypothesis, or abstain when the bounded evidence cannot support any class.\nBefore emitting, perform this class-arbitration preflight:\n- Enumerate every typed locus found for the same regulated condition before\n  choosing D1. If two reachable typed loci produce conflicting outcomes,\n  choose D3 rather than selecting one locus as a stale D1 value.\n- Choose D2 when the specific regulated behavior or required violation outcome\n  is absent. Inspect the relevant paragraph, scoped grep, and data slice,\n  but distinguish positive surrounding control flow from positive evidence of\n  the required outcome itself. A present compliant branch does not cure a\n  missing breach/overdue/denial branch. Do not invent an unstated date\n  derivation, preprocessing step, or implementation mechanism as a missing\n  rule. If complete positive code evidence matches the clause and no supported\n  drift remains, consider D7.\n  Treat a one-sided state machine as incomplete when the regulated outcome for\n  the other side is absent: `days <= 30 -> UPDATE` without an explicit\n  `days > 30 -> BREACH` outcome is D2, and `today <= due -> OK` without an\n  explicit overdue outcome is D2. A zero-day `NEW` special case does not\n  implement a required seven-day SLA. Do not call these partial machines D7.\n- Choose D3 when reachable source behavior positively contradicts the trusted\n  clause. Two source loci are required only for an internal source conflict;\n  one typed computation can contradict the clause directly. For a required\n  exclusion, accepting a regulated amount and then computing the base without\n  excluding it is contradictory, not conformant-by-absence.\n  A validation rule that detects the regulated violation and sets a denial or\n  invalid state, followed by a reachable action that ignores or bypasses that\n  state, is also D3: the implemented validation and action conflict. Do not\n  relabel that case D2 merely because the final gate is malformed or absent.\n  Reserve D2 for a required outcome that is absent without an existing source\n  state or action that positively conflicts with the requirement.\n- Choose D4 only for an enum_set reference collection, and quote at least one\n  complete canonical missing or extra enum member verbatim, including its\n  prefixes and punctuation, in `prediction.rationale`.\n- For D7, put the positive source location in `code_locus`, but set\n  `labels.program_level` and `labels.paragraph_level` to `conformant` and set\n  `labels.line_level` to an empty list. D7 line labels identify drift and must\n  therefore stay empty. When the clause current value is composite, set\n  `target_path` to the exact matching non-composite leaf.\n- Interpret a comparator together with the branch action and control-flow\n  polarity. Do not call D5 from a token-only comparison between a clause's\n  typed comparator and a source predicate. In an elapsed-window state machine,\n  `elapsed > limit` can be the conformant transition after the full allowed\n  window, while `elapsed >= limit` can fire one boundary unit early. Trace the\n  resulting action and use a boundary probe when possible before choosing D5.\n  Apply these exact elapsed-window checks: `delay > 7` is conformant for a\n  seven-day allowed window and `delay >= 7` is one unit early; `elapsed > 30`\n  is conformant for an at-most-30-day window and `elapsed >= 30` is early;\n  `notice >= 30` is conformant for an at-least-30-day requirement and\n  `notice > 30` is late. Do not cancel an early transition merely because a\n  downstream arithmetic expression happens to evaluate to zero at the edge.\n- Choose D6 when the relevant compliance action is unreachable, including a\n  reachable paragraph whose compliance branch is disabled by an always-false\n  or default-off flag. A paragraph caller does not make guarded statements\n  live. Inspect the guard definition and its uses. Use `dead_paragraph` only\n  for a truly unreachable paragraph; for a disabled guard use an exact source\n  literal as the static hook and explain why the action cannot execute.\n- Copy every ledger step and observation SHA-256 exactly from the bounded\n  command output. Recheck them before the final response.\nIf the bounded command returns `infrastructure_error`, correct the invocation\nand retry while the command and call budget remain available; an invocation\nerror is not case evidence and is not by itself grounds for a final abstention.\nAfter the first observation, every response must carry the complete current\n`evidence_ledger`. Each ledger note names a D1-D7 hypothesis, marks the exact\nobservation as supports/refutes/context, cites its transcript step and SHA-256,\nand explains the evidence bearing. Preserve accepted notes in later turns;\nnever rewrite, omit, or invent them.\n\nThe complete hypothesis policy is:\n- D1_stale_threshold: Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\n- D2_missing_rule: Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\n- D3_contradictory: Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\n- D4_stale_reference_data: Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\n- D5_boundary_error: Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\n- D6_dead_code: Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\n- D7_conformant: Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\n\nThe host binds the trusted clause and instance identity, applies the selected\nclass policy guard, and runs the unchanged verifier. Never infer benchmark\nanswers, edit provenance, mutation history, source formatting, or hidden\nannotations. Treat every observation as case-local; no fact carries to a\ndifferent case.\n\n\nDetector-visible case:\n{\"alias\":\"drift_900000\",\"program_scope\":\"T6KYC03\",\"clause\":{\"doc\":\"RBI-KYC-Master-Direction-2016\",\"clause_id\":\"para 56, clause (h)\",\"version\":\"pre-2024-11-06 form\",\"effective_date\":\"2016-02-25\",\"text\":\"ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"no_deadline\"],\"comparator\":null,\"note\":null}}}\n",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "T6KYC03"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 15, \"line_start\": 11, \"name\": \"1000-MAIN\"}, {\"line_end\": 21, \"line_start\": 16, \"name\": \"2200-PREPARE-UPLOAD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\adaptive_agent\\\\task-staging\\\\52160c382c0616f186779d37a5c0bb21a9336bb18d58f2b644d4218ce218757d\\\\cases\\\\drift_900000\\\\T6KYC03.cbl\", \"program\": \"T6KYC03\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 16.0
+      },
+      {
+        "step": 2,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "T6KYC03",
+          "name": "1000-MAIN"
+        },
+        "observation_summary": "{\"callees\": [{\"paragraph\": \"2200-PREPARE-UPLOAD\", \"program\": \"T6KYC03\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-CUSTOMER-NAME\\n           PERFORM 2200-PREPARE-UPLOAD\\n           DISPLAY WS-UPLOAD-FLAG\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 15, \"line_start\": 11, \"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC03\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "T6KYC03",
+          "name": "2200-PREPARE-UPLOAD"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"T6KYC03\"}], \"code\": \"       2200-PREPARE-UPLOAD.\\n           MOVE FUNCTION UPPER-CASE(WS-CUSTOMER-NAME)\\n              TO WS-NORMALIZED-NAME\\n           IF WS-NORMALIZED-NAME NOT = SPACES\\n              MOVE 'Y' TO WS-UPLOAD-FLAG\\n           END-IF.\", \"name\": \"2200-PREPARE-UPLOAD\", \"ref\": {\"line_end\": 21, \"line_start\": 16, \"paragraph\": \"2200-PREPARE-UPLOAD\", \"program\": \"T6KYC03\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 4,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "UPLOAD|UPDATE|PERIOD|DEADLINE|DAY|RECEIV"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 9, \"program\": \"T6KYC03\", \"text\": \"           05  WS-UPLOAD-FLAG        PIC X VALUE 'N'.\"}, {\"line\": 13, \"program\": \"T6KYC03\", \"text\": \"           PERFORM 2200-PREPARE-UPLOAD\"}, {\"line\": 14, \"program\": \"T6KYC03\", \"text\": \"           DISPLAY WS-UPLOAD-FLAG\"}, {\"line\": 16, \"program\": \"T6KYC03\", \"text\": \"       2200-PREPARE-UPLOAD.\"}, {\"line\": 20, \"program\": \"T6KYC03\", \"text\": \"              MOVE 'Y' TO WS-UPLOAD-FLAG\"}], \"pattern\": \"UPLOAD|UPDATE|PERIOD|DEADLINE|DAY|RECEIV\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 5,
+        "tool": "slice_on",
+        "arguments": {
+          "var": "WS-UPLOAD-FLAG",
+          "program": "T6KYC03"
+        },
+        "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [{\"paragraph\": \"2200-PREPARE-UPLOAD\", \"program\": \"T6KYC03\"}], \"scoped_program\": \"T6KYC03\", \"statements\": [{\"ref\": {\"line_end\": 8, \"line_start\": 8, \"paragraph\": null, \"program\": \"T6KYC03\"}, \"text\": \"05  WS-NORMALIZED-NAME    PIC X(30) VALUE SPACES.\"}, {\"ref\": {\"line_end\": 9, \"line_start\": 9, \"paragraph\": null, \"program\": \"T6KYC03\"}, \"text\": \"05  WS-UPLOAD-FLAG        PIC X VALUE 'N'.\"}, {\"ref\": {\"line_end\": 18, \"line_start\": 17, \"paragraph\": \"2200-PREPARE-UPLOAD\", \"program\": \"T6KYC03\"}, \"text\": \"MOVE FUNCTION UPPER-CASE(WS-CUSTOMER-NAME)\\n              TO WS-NORMALIZED-NAME\"}, {\"ref\": {\"line_end\": 20, \"line_start\": 19, \"paragraph\": \"2200-PREPARE-UPLOAD\", \"program\": \"T6KYC03\"}, \"text\": \"IF WS-NORMALIZED-NAME NOT = SPACES\\n              MOVE 'Y' TO WS-UPLOAD-FLAG\"}, {\"ref\": {\"line_end\": 20, \"line_start\": 20, \"paragraph\": \"2200-PREPARE-UPLOAD\", \"program\": \"T6KYC03\"}, \"text\": \"MOVE 'Y' TO WS-UPLOAD-FLAG\"}], \"variable\": \"WS-UPLOAD-FLAG\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The upload preparation path is reachable, but it only sets a flag for a nonblank customer name. The evidence supports a missing required trigger, not a stale deadline value or a positively contradictory rule; the source does not positively implement the clause's periodic-updation or updated-information behavior.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_110025",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Master-Direction-2016",
+            "clause_id": "para 56, clause (h)",
+            "version": "pre-2024-11-06 form",
+            "effective_date": "2016-02-25",
+            "text": "ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+            "current_value": {
+              "kind": "enum_set",
+              "value": [
+                "no_deadline"
+              ],
+              "comparator": null,
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "T6KYC03",
+                "paragraph": "2200-PREPARE-UPLOAD",
+                "file": null,
+                "line_span": [
+                  19,
+                  20
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CUSTOMER-NAME",
+              "WS-NORMALIZED-NAME",
+              "WS-UPLOAD-FLAG"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "T6KYC03",
+                "line": 19,
+                "file": null
+              },
+              {
+                "program": "T6KYC03",
+                "line": 20,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The only reachable upload decision checks whether the normalized customer name is nonblank and then sets an upload flag. The program has no condition for periodic updation or receipt of updated information and performs no upload/update action, leaving the clause-required behavior absent. The relevant insertion point is the existing upload decision."
+        },
+        "claim": "Under clause (h), KYC data must be uploaded or updated at periodic updation or when updated information is received; the clause specifies no time-bound deadline.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "WS-UPLOAD-FLAG",
+          "comparator": "NOT =",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "D2: the reachable upload path sets a flag based on a nonblank customer name, without implementing the required periodic-updation or updated-information triggers.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The upload preparation path is reachable, but it only sets a flag for a nonblank customer name. The evidence supports a missing required trigger, not a stale deadline value or a positively contradictory rule; the source does not positively implement the clause's periodic-updation or updated-information behavior.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"T6KYC03\",\"paragraph\":\"2200-PREPARE-UPLOAD\",\"file\":null,\"line_span\":[19,20]}],\"slice_vars\":[\"WS-CUSTOMER-NAME\",\"WS-NORMALIZED-NAME\",\"WS-UPLOAD-FLAG\"],\"is_interprocedural\":false},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"T6KYC03\",\"line\":19,\"file\":null},{\"program\":\"T6KYC03\",\"line\":20,\"file\":null}]},\"rationale\":\"The only reachable upload decision checks whether the normalized customer name is nonblank and then sets an upload flag. The program has no condition for periodic updation or receipt of updated information and performs no upload/update action, leaving the clause-required behavior absent. The relevant insertion point is the existing upload decision.\"},\"claim\":\"Under clause (h), KYC data must be uploaded or updated at periodic updation or when updated information is received; the clause specifies no time-bound deadline.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"WS-UPLOAD-FLAG\",\"comparator\":\"NOT =\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"D2: the reachable upload path sets a flag based on a nonblank customer name, without implementing the required periodic-updation or updated-information triggers.\"}",
+        "contract_error": null,
+        "evidence_ledger": [
+          {
+            "observation_step": 1,
+            "observation_sha256": "083c090b269f3a5cd88e52a858bf51a46eca1624194b95738f8ac7146ea8e32f",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "context",
+            "rationale": "The paragraph index scopes the program to 1000-MAIN and 2200-PREPARE-UPLOAD; it identifies the preparation paragraph that must be checked for the required triggers."
+          },
+          {
+            "observation_step": 2,
+            "observation_sha256": "1c9167249de598344480525a447603408ed1f2437a2265c87cd59b7f78d2d99b",
+            "hypothesis": "D6_dead_code",
+            "bearing": "refutes",
+            "rationale": "1000-MAIN performs 2200-PREPARE-UPLOAD on the main path, so the relevant paragraph is reachable."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "2296c1efc5c30d0da59888feca194ed23c39c48b5024170520a0cee36c6f1b12",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "The paragraph uppercases the customer name and sets the upload flag when it is nonblank; it contains no periodic-updation or updated-information trigger and no upload/update operation."
+          },
+          {
+            "observation_step": 3,
+            "observation_sha256": "2296c1efc5c30d0da59888feca194ed23c39c48b5024170520a0cee36c6f1b12",
+            "hypothesis": "D3_contradictory",
+            "bearing": "context",
+            "rationale": "The name-based flag path does not establish that the supplied name is unrelated to updated information, so it does not by itself prove a positive contradiction."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "e4098c55d490d681d1c22f7811183a23d28c5801b7de7555aa9ed562329b77f5",
+            "hypothesis": "D1_stale_threshold",
+            "bearing": "refutes",
+            "rationale": "The scoped search found no deadline, day, period, update, or received terms that identify a typed source value differing from the clause's no-deadline value."
+          },
+          {
+            "observation_step": 4,
+            "observation_sha256": "e4098c55d490d681d1c22f7811183a23d28c5801b7de7555aa9ed562329b77f5",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "The only upload-related matches are the flag definition, its display, and its name-based assignment; the search found no periodic or updated-information handling."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "9869eabbc7b36e2b1f7908a0be712f9917e234ba3393e2973d0a17a15924595e",
+            "hypothesis": "D2_missing_rule",
+            "bearing": "supports",
+            "rationale": "The scoped slice shows the flag initialized to 'N' and set to 'Y' only under the nonblank-name condition; it exposes no periodic-updation or updated-information trigger."
+          },
+          {
+            "observation_step": 5,
+            "observation_sha256": "9869eabbc7b36e2b1f7908a0be712f9917e234ba3393e2973d0a17a15924595e",
+            "hypothesis": "D7_conformant",
+            "bearing": "refutes",
+            "rationale": "The positive behavior shown is name-based flagging; it does not positively implement the clause's required periodic-updation or updated-information triggers."
+          }
+        ]
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "T6KYC03:2200-PREPARE-UPLOAD — literal 'WS-UPLOAD-FLAG' present; comparator 'NOT =' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9975,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "T6KYC03:2200-PREPARE-UPLOAD — literal 'WS-UPLOAD-FLAG' present; comparator 'NOT =' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_110025",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Master-Direction-2016",
+        "clause_id": "para 56, clause (h)",
+        "version": "pre-2024-11-06 form",
+        "effective_date": "2016-02-25",
+        "text": "ABSENCE (old side is the absence of any update-deadline): clause (h) required uploading/updating KYC data at periodic updation or when updated information was received, with NO time-bound deadline. The seven-day sentence carries footnote 148: 'Inserted vide circular DOR.AML.REC.49/14.01.001/2024-25 dated November 6, 2024' - 'Inserted', not 'Amended': the sentence had no predecessor in any form.",
+        "current_value": {
+          "kind": "enum_set",
+          "value": [
+            "no_deadline"
+          ],
+          "comparator": null,
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "T6KYC03",
+            "paragraph": "2200-PREPARE-UPLOAD",
+            "file": null,
+            "line_span": [
+              19,
+              20
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CUSTOMER-NAME",
+          "WS-NORMALIZED-NAME",
+          "WS-UPLOAD-FLAG"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D2_missing_rule",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "T6KYC03",
+            "line": 19,
+            "file": null
+          },
+          {
+            "program": "T6KYC03",
+            "line": 20,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The only reachable upload decision checks whether the normalized customer name is nonblank and then sets an upload flag. The program has no condition for periodic updation or receipt of updated information and performs no upload/update action, leaving the clause-required behavior absent. The relevant insertion point is the existing upload decision."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 16,
+      "max_tool_calls": 16,
+      "max_tokens": 98304,
+      "wall_clock_timeout_s": 1200.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "D2: the reachable upload path sets a flag based on a nonblank customer name, without implementing the required periodic-updation or updated-information triggers.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "adaptive_agent",
+  "source_sha256": "9135626710f4d44c996b4d780995400bae361259336add1080f88072a1080051",
+  "run_key": "52160c382c0616f186779d37a5c0bb21a9336bb18d58f2b644d4218ce218757d"
+}

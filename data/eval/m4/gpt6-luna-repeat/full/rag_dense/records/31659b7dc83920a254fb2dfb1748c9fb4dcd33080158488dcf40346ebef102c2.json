@@ -1,0 +1,116 @@
+{
+  "instance_id": "drift_615442",
+  "gold": {
+    "instance_id": "drift_615442",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "23(2)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.",
+      "current_value": {
+        "kind": "boolean_required",
+        "value": "no_capitalization_of_unpaid_charges",
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BATCHCT1",
+          "paragraph": "1000-MAIN",
+          "file": "BATCHCT1.cbl",
+          "line_span": [
+            13,
+            13
+          ]
+        },
+        {
+          "program": "BATCHCT2",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            14,
+            14
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PENALTY"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "BATCHCT1",
+          "line": 13,
+          "file": "BATCHCT1.cbl"
+        }
+      ]
+    },
+    "gold_rationale": "MO-6× changes \"MOVE 'Y' TO WS-PEN-RUN-FLAG\" to \"MOVE 'N' TO WS-PEN-RUN-FLAG\" at BATCHCT1:BATCHCT1.cbl:13-13+BATCHCT2:1000-MAIN:14-14, producing D6_dead_code.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "BATCHCT2.cbl",
+      "mutation": "MO-6×; locus=BATCHCT1:BATCHCT1.cbl:13-13+BATCHCT2:1000-MAIN:14-14; old=\"MOVE 'Y' TO WS-PEN-RUN-FLAG\"; new=\"MOVE 'N' TO WS-PEN-RUN-FLAG\"; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: dense-RAG single-shot single-shot compliance detector.\nVisible context (JSON):\n{\"retrieval_mode\":\"dense\",\"clause_query\":\"Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.\",\"retrieved_clauses\":[{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(2)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Minimum Amount Due must be stipulated so there is no negative amortization; unpaid charges, levies and taxes shall not be capitalized for charging or compounding of interest.\",\"current_value\":{\"kind\":\"boolean_required\",\"value\":\"no_capitalization_of_unpaid_charges\",\"comparator\":null,\"note\":null}},\"score\":0.8332425368870748},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"23(6)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Interest shall be levied only on the outstanding amount, adjusted for payments, refunds and reversed transactions.\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"interest_base=outstanding_adjusted\"],\"comparator\":null,\"note\":null}},\"score\":0.7279321623490056},{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"5(21)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Total Amount Due is the total amount (net of credit received during the billing cycle, if any) payable by the cardholder as per the statement generated at the end of a billing cycle.\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"TAD=statement_total_net_of_cycle_credits\"],\"comparator\":null,\"note\":null}},\"score\":0.6924419871071099}],\"program\":\"FILE BATCHCT1.cbl LINES 1-16\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. BATCHCT1.\\n0003:       * CHAIN STEP 1 - SETS THE PENALTY-RUN CONTROL FLAG\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        COPY WSCTLFLG.\\n0008:        01  WS-CYCLE-DAY              PIC 9(2) VALUE ZERO.\\n0009:        PROCEDURE DIVISION.\\n0010:        1000-MAIN.\\n0011:            ACCEPT WS-CYCLE-DAY\\n0012:            IF WS-CYCLE-DAY = 1\\n0013:               MOVE 'N' TO WS-PEN-RUN-FLAG\\n0014:            END-IF\\n0015:            DISPLAY 'PENFLAG: ' WS-PEN-RUN-FLAG\\n0016:            STOP RUN.\\nFILE BATCHCT2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. BATCHCT2.\\n0003:       * CHAIN STEP 2 - PENALTY ACCRUAL GUARDED BY CONTROL FLAG\\n0004:        ENVIRONMENT DIVISION.\\n0005:        DATA DIVISION.\\n0006:        WORKING-STORAGE SECTION.\\n0007:        COPY WSCTLFLG.\\n0008:        01  WS-DELAY-DAYS             PIC 9(4) VALUE ZERO.\\n0009:        01  WS-PENALTY                PIC 9(9)V99 VALUE ZERO.\\n0010:        PROCEDURE DIVISION.\\n0011:        1000-MAIN.\\n0012:            ACCEPT WS-PEN-RUN-FLAG\\n0013:            ACCEPT WS-DELAY-DAYS\\n0014:            IF PEN-RUN-ON\\n0015:               PERFORM 2000-ACCRUE\\n0016:            END-IF\\n0017:            DISPLAY 'PEN: ' WS-PENALTY\\n0018:            STOP RUN.\\n0019:        2000-ACCRUE.\\n0020:            COMPUTE WS-PENALTY = 500 * WS-DELAY-DAYS.\\nFILE WSCTLFLG.cpy LINES 1-4\\n0001:       * BATCH CONTROL FLAGS SHARED ACROSS THE PENALTY CHAIN\\n0002:        01  WS-CTL-FLAGS.\\n0003:            05  WS-PEN-RUN-FLAG       PIC X(1) VALUE 'N'.\\n0004:                88  PEN-RUN-ON        VALUE 'Y'.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied files show a penalty run flag and penalty arithmetic. They do not show interest calculation, capitalization, or Minimum Amount Due handling.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The visible penalty-chain source does not provide evidence about the regulatory requirements in the retrieved clause.",
+        "final_answer": "I cannot assess the clause from these excerpts. BATCHCT1, BATCHCT2, and WSCTLFLG.cpy show penalty-run control and accrual, but do not show whether unpaid charges are capitalized for interest or how Minimum Amount Due prevents negative amortization.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied files show a penalty run flag and penalty arithmetic. They do not show interest calculation, capitalization, or Minimum Amount Due handling.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The visible penalty-chain source does not provide evidence about the regulatory requirements in the retrieved clause.\",\"final_answer\":\"I cannot assess the clause from these excerpts. BATCHCT1, BATCHCT2, and WSCTLFLG.cpy show penalty-run control and accrual, but do not show whether unpaid charges are capitalized for interest or how Minimum Amount Due prevents negative amortization.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The visible penalty-chain source does not provide evidence about the regulatory requirements in the retrieved clause.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "I cannot assess the clause from these excerpts. BATCHCT1, BATCHCT2, and WSCTLFLG.cpy show penalty-run control and accrual, but do not show whether unpaid charges are capitalized for interest or how Minimum Amount Due prevents negative amortization.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The visible penalty-chain source does not provide evidence about the regulatory requirements in the retrieved clause.",
+  "infrastructure_error": null,
+  "system_id": "rag_dense",
+  "source_sha256": "6b07cf5a4909c16671ed88b387cbcfc6a67df2ab0d5b765f37bf46e979147219",
+  "run_key": "31659b7dc83920a254fb2dfb1748c9fb4dcd33080158488dcf40346ebef102c2"
+}

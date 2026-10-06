@@ -1,0 +1,898 @@
+{
+  "instance_id": "drift_191889",
+  "gold": {
+    "instance_id": "drift_191889",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(xiv)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "passport",
+          "driving-licence",
+          "aadhaar-possession-proof",
+          "voter-id-ECI",
+          "nrega-job-card",
+          "npr-letter"
+        ],
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "OVDCHK1",
+          "paragraph": null,
+          "file": "OVDLIST.cpy",
+          "line_span": [
+            5,
+            5
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-KYC-DECISION"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "OVDCHK1",
+          "line": 5,
+          "file": "OVDLIST.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'NPR' to '(deleted)' at OVDCHK1:OVDLIST.cpy:5-5, producing D4_stale_reference_data. MO-4 drops an OVD code that para 5(xiv) enumerates, so the accepted-document table no longer admits a valid Officially Valid Document; scored directly against the in-clause enumeration.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "OVDCHK1.cbl",
+      "mutation": "MO-4; locus=OVDCHK1:OVDLIST.cpy:5-5; old='NPR'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops an OVD code that para 5(xiv) enumerates, so the accepted-document table no longer admits a valid Officially Valid Document; scored directly against the in-clause enumeration."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: OVDCHK1.\nClause: RBI-KYC-Directions-2025 5(xiv) (version 2025-11-28, effective 2025-11-28): 'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+    "steps": [
+      {
+        "step": 1,
+        "tool": "read_program",
+        "arguments": {
+          "program": "OVDCHK1"
+        },
+        "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 14, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 19, \"name\": \"2000-SCREEN-OVD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\be4494c27ab28088bdd21543ed6e259ac5e4d3a915775ba23b9566dd3d176ab1\\\\cases\\\\drift_900000\\\\OVDCHK1.cbl\", \"program\": \"OVDCHK1\"}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 2,
+        "tool": "grep",
+        "arguments": {
+          "pattern": "OVD"
+        },
+        "observation_summary": "{\"matches\": [{\"line\": 2, \"program\": \"OVDCHK1\", \"text\": \"       PROGRAM-ID. OVDCHK1.\"}, {\"line\": 4, \"program\": \"OVDCHK1\", \"text\": \"      * KYC ONBOARDING - ACCEPT ONLY OFFICIALLY VALID DOCUMENTS (OVD).\"}, {\"line\": 5, \"program\": \"OVDCHK1\", \"text\": \"      * THE PRESENTED DOCUMENT CODE IS SCREENED AGAINST THE SHARED OVD\"}, {\"line\": 11, \"program\": \"OVDCHK1\", \"text\": \"       COPY OVDLIST.\"}, {\"line\": 15, \"program\": \"OVDCHK1\", \"text\": \"           ACCEPT WS-OVD-CODE\"}, {\"line\": 16, \"program\": \"OVDCHK1\", \"text\": \"           PERFORM 2000-SCREEN-OVD\"}, {\"line\": 19, \"program\": \"OVDCHK1\", \"text\": \"       2000-SCREEN-OVD.\"}, {\"line\": 20, \"program\": \"OVDCHK1\", \"text\": \"           IF ACCEPTED-OVD\"}, {\"line\": 2, \"program\": \"OVDLIST\", \"text\": \"      * ACCEPTED-OVD REGISTRY (SHARED). SEE RBI KYC DIRECTIONS 5(XIV).\"}, {\"line\": 4, \"program\": \"OVDLIST\", \"text\": \"       01  WS-OVD-CODE PIC X(3) VALUE 'PSP'.\"}, {\"line\": 5, \"program\": \"OVDLIST\", \"text\": \"           88  ACCEPTED-OVD VALUES 'PSP' 'DLC' 'ADH' 'VTR' 'NRG' ''.\"}], \"pattern\": \"OVD\", \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      },
+      {
+        "step": 3,
+        "tool": "read_paragraph",
+        "arguments": {
+          "program": "OVDCHK1",
+          "name": "2000-SCREEN-OVD"
+        },
+        "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"OVDCHK1\"}], \"code\": \"       2000-SCREEN-OVD.\\n           IF ACCEPTED-OVD\\n              MOVE 'ACCEPT' TO WS-KYC-DECISION\\n           ELSE\\n              MOVE 'REJECT' TO WS-KYC-DECISION\\n           END-IF.\", \"name\": \"2000-SCREEN-OVD\", \"ref\": {\"line_end\": 24, \"line_start\": 19, \"paragraph\": \"2000-SCREEN-OVD\", \"program\": \"OVDCHK1\"}, \"truncated\": false}",
+        "observation_truncated": false,
+        "error": null,
+        "latency_ms": 0.0
+      }
+    ],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The available literals are coded members of a reference list, not directly comparable clause values.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "No directly comparable stale value can be established from the code tokens without assuming their meanings; this points to a reference-enumeration review instead.",
+        "final_answer": "Abstain: the source uses coded reference-list values, so a D1 literal-to-clause comparison is not established.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The available literals are coded members of a reference list, not directly comparable clause values.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No directly comparable stale value can be established from the code tokens without assuming their meanings; this points to a reference-enumeration review instead.\",\"final_answer\":\"Abstain: the source uses coded reference-list values, so a D1 literal-to-clause comparison is not established.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "No directly comparable stale value can be established from the code tokens without assuming their meanings; this points to a reference-enumeration review instead.",
+    "budget": {
+      "max_steps": 8,
+      "max_tool_calls": 8,
+      "max_tokens": 65536,
+      "wall_clock_timeout_s": 600.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstained: No directly comparable stale value can be established from the code tokens without assuming their meanings; this points to a reference-enumeration review instead.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [
+    {
+      "hunt": "D1_stale_threshold",
+      "selected": true,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D1 stale values: compare the literal at each typed locus with the clause's resolved current-value leaf, including scalar, list, or enum-valued leaves; resolve composite target_path. A resolved current_value is required for D1.\nScope: OVDCHK1.\nClause: RBI-KYC-Directions-2025 5(xiv) (version 2025-11-28, effective 2025-11-28): 'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "OVDCHK1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 14, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 19, \"name\": \"2000-SCREEN-OVD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\be4494c27ab28088bdd21543ed6e259ac5e4d3a915775ba23b9566dd3d176ab1\\\\cases\\\\drift_900000\\\\OVDCHK1.cbl\", \"program\": \"OVDCHK1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "OVD"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 2, \"program\": \"OVDCHK1\", \"text\": \"       PROGRAM-ID. OVDCHK1.\"}, {\"line\": 4, \"program\": \"OVDCHK1\", \"text\": \"      * KYC ONBOARDING - ACCEPT ONLY OFFICIALLY VALID DOCUMENTS (OVD).\"}, {\"line\": 5, \"program\": \"OVDCHK1\", \"text\": \"      * THE PRESENTED DOCUMENT CODE IS SCREENED AGAINST THE SHARED OVD\"}, {\"line\": 11, \"program\": \"OVDCHK1\", \"text\": \"       COPY OVDLIST.\"}, {\"line\": 15, \"program\": \"OVDCHK1\", \"text\": \"           ACCEPT WS-OVD-CODE\"}, {\"line\": 16, \"program\": \"OVDCHK1\", \"text\": \"           PERFORM 2000-SCREEN-OVD\"}, {\"line\": 19, \"program\": \"OVDCHK1\", \"text\": \"       2000-SCREEN-OVD.\"}, {\"line\": 20, \"program\": \"OVDCHK1\", \"text\": \"           IF ACCEPTED-OVD\"}, {\"line\": 2, \"program\": \"OVDLIST\", \"text\": \"      * ACCEPTED-OVD REGISTRY (SHARED). SEE RBI KYC DIRECTIONS 5(XIV).\"}, {\"line\": 4, \"program\": \"OVDLIST\", \"text\": \"       01  WS-OVD-CODE PIC X(3) VALUE 'PSP'.\"}, {\"line\": 5, \"program\": \"OVDLIST\", \"text\": \"           88  ACCEPTED-OVD VALUES 'PSP' 'DLC' 'ADH' 'VTR' 'NRG' ''.\"}], \"pattern\": \"OVD\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "OVDCHK1",
+              "name": "2000-SCREEN-OVD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"OVDCHK1\"}], \"code\": \"       2000-SCREEN-OVD.\\n           IF ACCEPTED-OVD\\n              MOVE 'ACCEPT' TO WS-KYC-DECISION\\n           ELSE\\n              MOVE 'REJECT' TO WS-KYC-DECISION\\n           END-IF.\", \"name\": \"2000-SCREEN-OVD\", \"ref\": {\"line_end\": 24, \"line_start\": 19, \"paragraph\": \"2000-SCREEN-OVD\", \"program\": \"OVDCHK1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The available literals are coded members of a reference list, not directly comparable clause values.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "No directly comparable stale value can be established from the code tokens without assuming their meanings; this points to a reference-enumeration review instead.",
+            "final_answer": "Abstain: the source uses coded reference-list values, so a D1 literal-to-clause comparison is not established.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The available literals are coded members of a reference list, not directly comparable clause values.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"No directly comparable stale value can be established from the code tokens without assuming their meanings; this points to a reference-enumeration review instead.\",\"final_answer\":\"Abstain: the source uses coded reference-list values, so a D1 literal-to-clause comparison is not established.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "No directly comparable stale value can be established from the code tokens without assuming their meanings; this points to a reference-enumeration review instead.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: No directly comparable stale value can be established from the code tokens without assuming their meanings; this points to a reference-enumeration review instead.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "No directly comparable stale value can be established from the code tokens without assuming their meanings; this points to a reference-enumeration review instead."
+    },
+    {
+      "hunt": "D2_missing_rule",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D2 missing rules or required outcomes: inspect the relevant paragraph, scoped grep, and data slice, and show that the specific required behavior or violation branch is absent. Positive surrounding control flow does not prove that the required outcome exists. Report typed insertion points. Reserve D2 for absence without an existing source state or action that positively conflicts with the requirement. The clause current_value may be null for D2.\nScope: OVDCHK1.\nClause: RBI-KYC-Directions-2025 5(xiv) (version 2025-11-28, effective 2025-11-28): 'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "find_callees",
+            "arguments": {
+              "program": "OVDCHK1",
+              "para": "NPR"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "slice_on",
+            "arguments": {
+              "var": "NPR",
+              "program": "OVDCHK1"
+            },
+            "observation_summary": "{\"is_interprocedural\": false, \"paragraphs\": [], \"scoped_program\": \"OVDCHK1\", \"statements\": [], \"variable\": \"NPR\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "NPR"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"NPR\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 4,
+            "tool": "find_callers",
+            "arguments": {
+              "program": "OVDCHK1",
+              "para": "NPR"
+            },
+            "observation_summary": "[]",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 16.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The four reserved absence observations are negative, but the existing allow-list and decision branch govern nonmembers.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "This is not absence-only: the existing ACCEPTED-OVD allow-list and ACCEPT/REJECT branch positively determine treatment of values outside that list.",
+            "final_answer": "Abstain from D2 because the existing allow-list and decision branch already determine treatment of nonmembers.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The four reserved absence observations are negative, but the existing allow-list and decision branch govern nonmembers.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"This is not absence-only: the existing ACCEPTED-OVD allow-list and ACCEPT/REJECT branch positively determine treatment of values outside that list.\",\"final_answer\":\"Abstain from D2 because the existing allow-list and decision branch already determine treatment of nonmembers.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "This is not absence-only: the existing ACCEPTED-OVD allow-list and ACCEPT/REJECT branch positively determine treatment of values outside that list.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: This is not absence-only: the existing ACCEPTED-OVD allow-list and ACCEPT/REJECT branch positively determine treatment of values outside that list.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "This is not absence-only: the existing ACCEPTED-OVD allow-list and ACCEPT/REJECT branch positively determine treatment of values outside that list."
+    },
+    {
+      "hunt": "D3_contradictory",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D3 contradictions: identify source behavior that positively contradicts the regulated condition. Use multiple typed loci when the contradiction is internal, but one typed source locus may contradict the trusted clause directly. If validation detects a violation and sets a denial or invalid state but a reachable downstream action ignores or bypasses that state, classify the conflicting implemented behavior as D3 rather than D2.\nScope: OVDCHK1.\nClause: RBI-KYC-Directions-2025 5(xiv) (version 2025-11-28, effective 2025-11-28): 'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "OVDCHK1",
+              "name": "2000-SCREEN-OVD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"OVDCHK1\"}], \"code\": \"       2000-SCREEN-OVD.\\n           IF ACCEPTED-OVD\\n              MOVE 'ACCEPT' TO WS-KYC-DECISION\\n           ELSE\\n              MOVE 'REJECT' TO WS-KYC-DECISION\\n           END-IF.\", \"name\": \"2000-SCREEN-OVD\", \"ref\": {\"line_end\": 24, \"line_start\": 19, \"paragraph\": \"2000-SCREEN-OVD\", \"program\": \"OVDCHK1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "OVDCHK1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-SCREEN-OVD\", \"program\": \"OVDCHK1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-OVD-CODE\\n           PERFORM 2000-SCREEN-OVD\\n           DISPLAY 'KYC: ' WS-KYC-DECISION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 14, \"paragraph\": \"1000-MAIN\", \"program\": \"OVDCHK1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "ACCEPTED-OVD"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 20, \"program\": \"OVDCHK1\", \"text\": \"           IF ACCEPTED-OVD\"}, {\"line\": 2, \"program\": \"OVDLIST\", \"text\": \"      * ACCEPTED-OVD REGISTRY (SHARED). SEE RBI KYC DIRECTIONS 5(XIV).\"}, {\"line\": 5, \"program\": \"OVDLIST\", \"text\": \"           88  ACCEPTED-OVD VALUES 'PSP' 'DLC' 'ADH' 'VTR' 'NRG' ''.\"}], \"pattern\": \"ACCEPTED-OVD\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The allow-list includes an empty value, and the screening paragraph accepts any value satisfying that condition.\n[policy telemetry: SourceLocus.file normalized; loci=1; line_refs=1]",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_191889",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "5(xiv)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+                "current_value": {
+                  "kind": "enum_set",
+                  "value": [
+                    "passport",
+                    "driving-licence",
+                    "aadhaar-possession-proof",
+                    "voter-id-ECI",
+                    "nrega-job-card",
+                    "npr-letter"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "OVDCHK1",
+                    "paragraph": "2000-SCREEN-OVD",
+                    "file": null,
+                    "line_span": [
+                      20,
+                      20
+                    ]
+                  },
+                  {
+                    "program": "OVDCHK1",
+                    "paragraph": null,
+                    "file": "OVDLIST.cpy",
+                    "line_span": [
+                      5,
+                      5
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "ACCEPTED-OVD",
+                  "WS-KYC-DECISION",
+                  "WS-OVD-CODE"
+                ],
+                "is_interprocedural": true
+              },
+              "drift_type": "D3_contradictory",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "OVDCHK1",
+                    "line": 20,
+                    "file": null
+                  },
+                  {
+                    "program": "OVDCHK1",
+                    "line": 5,
+                    "file": "OVDLIST.cpy"
+                  }
+                ]
+              },
+              "rationale": "The `ACCEPTED-OVD` values include the empty literal `''`, and `2000-SCREEN-OVD` sets the decision to ACCEPT when `ACCEPTED-OVD` is true. The clause defines OVD as one of six named document forms; an empty code is none of those forms, so the implemented acceptance contradicts the clause."
+            },
+            "claim": "An Officially Valid Document is a passport, driving licence, proof of possession of an Aadhaar number, an ECI Voter's Identity Card, a duly signed State Government NREGA job card, or an NPR letter containing name and address.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "''",
+              "comparator": null,
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "`OVDLIST.cpy` includes the blank value `''` in `ACCEPTED-OVD`, and `OVDCHK1` writes `ACCEPT` whenever that condition is true. The RBI clause limits OVD status to its six named document forms, so accepting an empty code contradicts the rule.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The allow-list includes an empty value, and the screening paragraph accepts any value satisfying that condition.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"OVDCHK1\",\"paragraph\":\"2000-SCREEN-OVD\",\"file\":\"OVDCHK1.cbl\",\"line_span\":[20,20]},{\"program\":\"OVDCHK1\",\"paragraph\":null,\"file\":\"OVDLIST.cpy\",\"line_span\":[5,5]}],\"slice_vars\":[\"ACCEPTED-OVD\",\"WS-KYC-DECISION\",\"WS-OVD-CODE\"],\"is_interprocedural\":true},\"drift_type\":\"D3_contradictory\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"OVDCHK1\",\"line\":20,\"file\":\"OVDCHK1.cbl\"},{\"program\":\"OVDCHK1\",\"line\":5,\"file\":\"OVDLIST.cpy\"}]},\"rationale\":\"The `ACCEPTED-OVD` values include the empty literal `''`, and `2000-SCREEN-OVD` sets the decision to ACCEPT when `ACCEPTED-OVD` is true. The clause defines OVD as one of six named document forms; an empty code is none of those forms, so the implemented acceptance contradicts the clause.\"},\"claim\":\"An Officially Valid Document is a passport, driving licence, proof of possession of an Aadhaar number, an ECI Voter's Identity Card, a duly signed State Government NREGA job card, or an NPR letter containing name and address.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"''\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"`OVDLIST.cpy` includes the blank value `''` in `ACCEPTED-OVD`, and `OVDCHK1` writes `ACCEPT` whenever that condition is true. The RBI clause limits OVD status to its six named document forms, so accepting an empty code contradicts the rule.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: static-claim source-token validator: literal \"''\" is not an exact substring of any source-bearing observation bound to the claimed loci",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: static-claim source-token validator: literal \"''\" is not an exact substring of any source-bearing observation bound to the claimed loci",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: static-claim source-token validator: literal \"''\" is not an exact substring of any source-bearing observation bound to the claimed loci"
+    },
+    {
+      "hunt": "D4_stale_reference_data",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D4 stale reference data only when the clause current value is itself an enum_set reference collection: compare the hardcoded enumeration and name missing or extra entries. A composite clause's enum-valued business-rule leaf remains D1. A resolved current_value is required for D4.\nScope: OVDCHK1.\nClause: RBI-KYC-Directions-2025 5(xiv) (version 2025-11-28, effective 2025-11-28): 'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "VALUES"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 5, \"program\": \"OVDLIST\", \"text\": \"           88  ACCEPTED-OVD VALUES 'PSP' 'DLC' 'ADH' 'VTR' 'NRG' ''.\"}], \"pattern\": \"VALUES\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "resolve_copybook",
+            "arguments": {
+              "name": "OVDLIST"
+            },
+            "observation_summary": "{\"line_map\": [{\"expanded_end\": 5, \"expanded_start\": 1, \"source_file\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\be4494c27ab28088bdd21543ed6e259ac5e4d3a915775ba23b9566dd3d176ab1\\\\cases\\\\drift_900000\\\\OVDLIST.cpy\", \"source_line_start\": 1}], \"name\": \"OVDLIST\", \"text\": \"      *----------------------------------------------------------------\\n      * ACCEPTED-OVD REGISTRY (SHARED). SEE RBI KYC DIRECTIONS 5(XIV).\\n      *----------------------------------------------------------------\\n       01  WS-OVD-CODE PIC X(3) VALUE 'PSP'.\\n           88  ACCEPTED-OVD VALUES 'PSP' 'DLC' 'ADH' 'VTR' 'NRG' ''.\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "NPR"
+            },
+            "observation_summary": "{\"matches\": [], \"pattern\": \"NPR\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "finding",
+            "thought": "The shared accepted-document enumeration contains a blank member and has no NPR-specific member although the clause defines six document categories.",
+            "tool": null,
+            "arguments": {},
+            "prediction": {
+              "instance_id": "drift_191889",
+              "regulation_clause": {
+                "doc": "RBI-KYC-Directions-2025",
+                "clause_id": "5(xiv)",
+                "version": "2025-11-28",
+                "effective_date": "2025-11-28",
+                "text": "'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+                "current_value": {
+                  "kind": "enum_set",
+                  "value": [
+                    "passport",
+                    "driving-licence",
+                    "aadhaar-possession-proof",
+                    "voter-id-ECI",
+                    "nrega-job-card",
+                    "npr-letter"
+                  ],
+                  "comparator": null,
+                  "note": null
+                }
+              },
+              "code_locus": {
+                "loci": [
+                  {
+                    "program": "OVDCHK1",
+                    "paragraph": null,
+                    "file": "OVDLIST.cpy",
+                    "line_span": [
+                      5,
+                      5
+                    ]
+                  }
+                ],
+                "slice_vars": [
+                  "ACCEPTED-OVD",
+                  "WS-OVD-CODE"
+                ],
+                "is_interprocedural": false
+              },
+              "drift_type": "D4_stale_reference_data",
+              "target_path": null,
+              "labels": {
+                "program_level": "drift",
+                "paragraph_level": "drift",
+                "line_level": [
+                  {
+                    "program": "OVDCHK1",
+                    "line": 5,
+                    "file": "OVDLIST.cpy"
+                  }
+                ]
+              },
+              "rationale": "The clause's enum set names six document types, including the National Population Register letter. The hard-coded `ACCEPTED-OVD` enumeration contains five nonblank codes plus `''`; that blank entry is extra, and there is no NPR-specific entry for the sixth type."
+            },
+            "claim": "An Officially Valid Document is a passport, driving licence, proof of possession of an Aadhaar number, an ECI Voter's Identity Card, a duly signed State Government NREGA job card, or an NPR letter containing name and address.",
+            "exec_probe": null,
+            "static_claim": {
+              "literal": "''",
+              "comparator": null,
+              "dead_paragraph": null
+            },
+            "abstention_reason": null,
+            "final_answer": "`OVDLIST.cpy` hard-codes `'PSP' 'DLC' 'ADH' 'VTR' 'NRG' ''`: the clause defines six valid document types, including the NPR letter, and a blank entry is not one of them. The reference enumeration therefore has an extra blank and no NPR-specific entry.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The shared accepted-document enumeration contains a blank member and has no NPR-specific member although the clause defines six document categories.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"OVDCHK1\",\"paragraph\":null,\"file\":\"OVDLIST.cpy\",\"line_span\":[5,5]}],\"slice_vars\":[\"ACCEPTED-OVD\",\"WS-OVD-CODE\"],\"is_interprocedural\":false},\"drift_type\":\"D4_stale_reference_data\",\"target_path\":\"value\",\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"OVDCHK1\",\"line\":5,\"file\":\"OVDLIST.cpy\"}]},\"rationale\":\"The clause's enum set names six document types, including the National Population Register letter. The hard-coded `ACCEPTED-OVD` enumeration contains five nonblank codes plus `''`; that blank entry is extra, and there is no NPR-specific entry for the sixth type.\"},\"claim\":\"An Officially Valid Document is a passport, driving licence, proof of possession of an Aadhaar number, an ECI Voter's Identity Card, a duly signed State Government NREGA job card, or an NPR letter containing name and address.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"''\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"`OVDLIST.cpy` hard-codes `'PSP' 'DLC' 'ADH' 'VTR' 'NRG' ''`: the clause defines six valid document types, including the NPR letter, and a blank entry is not one of them. The reference enumeration therefore has an extra blank and no NPR-specific entry.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "policy evidence guard: D4 rationale must name a missing or extra enum entry",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: policy evidence guard: D4 rationale must name a missing or extra enum entry",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "policy evidence guard: D4 rationale must name a missing or extra enum entry"
+    },
+    {
+      "hunt": "D5_boundary_error",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D5 boundary errors: evaluate the source comparator together with the branch action and say whether the transition occurs early or late. A resolved current_value is required for D5.\nScope: OVDCHK1.\nClause: RBI-KYC-Directions-2025 5(xiv) (version 2025-11-28, effective 2025-11-28): 'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "OVDCHK1",
+              "name": "2000-SCREEN-OVD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"OVDCHK1\"}], \"code\": \"       2000-SCREEN-OVD.\\n           IF ACCEPTED-OVD\\n              MOVE 'ACCEPT' TO WS-KYC-DECISION\\n           ELSE\\n              MOVE 'REJECT' TO WS-KYC-DECISION\\n           END-IF.\", \"name\": \"2000-SCREEN-OVD\", \"ref\": {\"line_end\": 24, \"line_start\": 19, \"paragraph\": \"2000-SCREEN-OVD\", \"program\": \"OVDCHK1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "arguments": {
+              "pattern": "IF"
+            },
+            "observation_summary": "{\"matches\": [{\"line\": 1, \"program\": \"OVDCHK1\", \"text\": \"       IDENTIFICATION DIVISION.\"}, {\"line\": 20, \"program\": \"OVDCHK1\", \"text\": \"           IF ACCEPTED-OVD\"}, {\"line\": 24, \"program\": \"OVDCHK1\", \"text\": \"           END-IF.\"}], \"pattern\": \"IF\", \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_program",
+            "arguments": {
+              "program": "OVDCHK1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 14, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 19, \"name\": \"2000-SCREEN-OVD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\be4494c27ab28088bdd21543ed6e259ac5e4d3a915775ba23b9566dd3d176ab1\\\\cases\\\\drift_900000\\\\OVDCHK1.cbl\", \"program\": \"OVDCHK1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The screening code uses a membership condition rather than a numeric or ordered boundary comparator.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The examined source has no boundary comparator whose transition can be evaluated as early or late.",
+            "final_answer": "Abstain: no comparator-and-branch boundary condition is present in the examined screening source.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The screening code uses a membership condition rather than a numeric or ordered boundary comparator.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The examined source has no boundary comparator whose transition can be evaluated as early or late.\",\"final_answer\":\"Abstain: no comparator-and-branch boundary condition is present in the examined screening source.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The examined source has no boundary comparator whose transition can be evaluated as early or late.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The examined source has no boundary comparator whose transition can be evaluated as early or late.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The examined source has no boundary comparator whose transition can be evaluated as early or late."
+    },
+    {
+      "hunt": "D6_dead_code",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D6 dead or disabled compliance code: use dead_paragraph for an unreachable paragraph, or an exact literal hook for a reachable compliance branch disabled by an always-false/default-off guard. Do not infer deadness from caller absence alone. The clause current_value may be null for D6.\nScope: OVDCHK1.\nClause: RBI-KYC-Directions-2025 5(xiv) (version 2025-11-28, effective 2025-11-28): 'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "OVDCHK1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 14, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 19, \"name\": \"2000-SCREEN-OVD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\be4494c27ab28088bdd21543ed6e259ac5e4d3a915775ba23b9566dd3d176ab1\\\\cases\\\\drift_900000\\\\OVDCHK1.cbl\", \"program\": \"OVDCHK1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "OVDCHK1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-SCREEN-OVD\", \"program\": \"OVDCHK1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-OVD-CODE\\n           PERFORM 2000-SCREEN-OVD\\n           DISPLAY 'KYC: ' WS-KYC-DECISION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 14, \"paragraph\": \"1000-MAIN\", \"program\": \"OVDCHK1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "OVDCHK1",
+              "name": "2000-SCREEN-OVD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"OVDCHK1\"}], \"code\": \"       2000-SCREEN-OVD.\\n           IF ACCEPTED-OVD\\n              MOVE 'ACCEPT' TO WS-KYC-DECISION\\n           ELSE\\n              MOVE 'REJECT' TO WS-KYC-DECISION\\n           END-IF.\", \"name\": \"2000-SCREEN-OVD\", \"ref\": {\"line_end\": 24, \"line_start\": 19, \"paragraph\": \"2000-SCREEN-OVD\", \"program\": \"OVDCHK1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 15.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "The program contains a main paragraph that performs the screening paragraph.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "The inspected paragraphs show a reachable screening path and no disabled compliance guard or dead paragraph.",
+            "final_answer": "Abstain: the inspected screening paragraph is called by `1000-MAIN`, and no disabled compliance branch is evidenced.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The program contains a main paragraph that performs the screening paragraph.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The inspected paragraphs show a reachable screening path and no disabled compliance guard or dead paragraph.\",\"final_answer\":\"Abstain: the inspected screening paragraph is called by `1000-MAIN`, and no disabled compliance branch is evidenced.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "The inspected paragraphs show a reachable screening path and no disabled compliance guard or dead paragraph.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: The inspected paragraphs show a reachable screening path and no disabled compliance guard or dead paragraph.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "The inspected paragraphs show a reachable screening path and no disabled compliance guard or dead paragraph."
+    },
+    {
+      "hunt": "D7_conformant",
+      "selected": false,
+      "finding": null,
+      "confidence": null,
+      "verification": null,
+      "verification_tier": null,
+      "trajectory": {
+        "question": "Hunt D7 conformance: require positive code evidence that the check exists and matches; absence is never a conformant default. The clause current_value may be null for D7.\nScope: OVDCHK1.\nClause: RBI-KYC-Directions-2025 5(xiv) (version 2025-11-28, effective 2025-11-28): 'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "read_program",
+            "arguments": {
+              "program": "OVDCHK1"
+            },
+            "observation_summary": "{\"paragraphs\": [{\"line_end\": 18, \"line_start\": 14, \"name\": \"1000-MAIN\"}, {\"line_end\": 24, \"line_start\": 19, \"name\": \"2000-SCREEN-OVD\"}], \"path\": \"C:\\\\Users\\\\deepa\\\\Github\\\\cobol\\\\data\\\\eval\\\\m4\\\\gpt6-luna-repeat\\\\full\\\\agent\\\\task-staging\\\\be4494c27ab28088bdd21543ed6e259ac5e4d3a915775ba23b9566dd3d176ab1\\\\cases\\\\drift_900000\\\\OVDCHK1.cbl\", \"program\": \"OVDCHK1\"}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 2,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "OVDCHK1",
+              "name": "1000-MAIN"
+            },
+            "observation_summary": "{\"callees\": [{\"paragraph\": \"2000-SCREEN-OVD\", \"program\": \"OVDCHK1\"}], \"callers\": [], \"code\": \"       1000-MAIN.\\n           ACCEPT WS-OVD-CODE\\n           PERFORM 2000-SCREEN-OVD\\n           DISPLAY 'KYC: ' WS-KYC-DECISION\\n           STOP RUN.\", \"name\": \"1000-MAIN\", \"ref\": {\"line_end\": 18, \"line_start\": 14, \"paragraph\": \"1000-MAIN\", \"program\": \"OVDCHK1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          },
+          {
+            "step": 3,
+            "tool": "read_paragraph",
+            "arguments": {
+              "program": "OVDCHK1",
+              "name": "2000-SCREEN-OVD"
+            },
+            "observation_summary": "{\"callees\": [], \"callers\": [{\"paragraph\": \"1000-MAIN\", \"program\": \"OVDCHK1\"}], \"code\": \"       2000-SCREEN-OVD.\\n           IF ACCEPTED-OVD\\n              MOVE 'ACCEPT' TO WS-KYC-DECISION\\n           ELSE\\n              MOVE 'REJECT' TO WS-KYC-DECISION\\n           END-IF.\", \"name\": \"2000-SCREEN-OVD\", \"ref\": {\"line_end\": 24, \"line_start\": 19, \"paragraph\": \"2000-SCREEN-OVD\", \"program\": \"OVDCHK1\"}, \"truncated\": false}",
+            "observation_truncated": false,
+            "error": null,
+            "latency_ms": 0.0
+          }
+        ],
+        "model_responses": [
+          {
+            "kind": "abstain",
+            "thought": "A screening check exists, but the accepted values do not match the clause's six named document categories.",
+            "tool": null,
+            "arguments": {},
+            "prediction": null,
+            "claim": null,
+            "exec_probe": null,
+            "static_claim": null,
+            "abstention_reason": "D7 requires positive evidence that the implemented values match the supplied clause; the inspected enumeration contains a blank member and lacks the NPR category.",
+            "final_answer": "Abstain from D7 because the source enumeration does not match the clause.",
+            "token_count": 0,
+            "token_count_recorded": false,
+            "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"A screening check exists, but the accepted values do not match the clause's six named document categories.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"D7 requires positive evidence that the implemented values match the supplied clause; the inspected enumeration contains a blank member and lacks the NPR category.\",\"final_answer\":\"Abstain from D7 because the source enumeration does not match the clause.\"}",
+            "contract_error": null,
+            "evidence_ledger": []
+          }
+        ],
+        "verification": null,
+        "finding": null,
+        "abstained": true,
+        "abstention_reason": "D7 requires positive evidence that the implemented values match the supplied clause; the inspected enumeration contains a blank member and lacks the NPR category.",
+        "budget": {
+          "max_steps": 8,
+          "max_tool_calls": 8,
+          "max_tokens": 65536,
+          "wall_clock_timeout_s": 600.0,
+          "max_contract_repairs": 1
+        },
+        "budget_exhausted": false,
+        "tokens_used": 0,
+        "token_usage_recorded": false,
+        "contract_repairs": 0,
+        "final_answer": "Abstained: D7 requires positive evidence that the implemented values match the supplied clause; the inspected enumeration contains a blank member and lacks the NPR category.",
+        "model_id": "gpt-5.6-luna",
+        "seed": null
+      },
+      "abstained": true,
+      "abstention_reason": "D7 requires positive evidence that the implemented values match the supplied clause; the inspected enumeration contains a blank member and lacks the NPR category."
+    }
+  ],
+  "abstained": true,
+  "abstention_reason": "No directly comparable stale value can be established from the code tokens without assuming their meanings; this points to a reference-enumeration review instead.",
+  "infrastructure_error": null,
+  "system_id": "agent",
+  "source_sha256": "813b4a880d950744b2ce62060398b4820d1c794f7b1bda8fb424c37a5f7b55bd",
+  "run_key": "81dcd40a1b775741d9c8ddc3cf37b954b6f9ad97c0f6c55c32416a6206c42ef8"
+}

@@ -1,0 +1,143 @@
+{
+  "instance_id": "drift_000013",
+  "gold": {
+    "instance_id": "drift_000013",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": null,
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": null,
+            "note": null
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPN5D",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            9,
+            11
+          ]
+        },
+        {
+          "program": "CLOSPN5D",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            18,
+            24
+          ]
+        },
+        {
+          "program": "CLOSPN5D",
+          "paragraph": "2000-PENALTY",
+          "file": null,
+          "line_span": [
+            25,
+            29
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PEN-ENABLED",
+        "PENALTY-ON",
+        "WS-ELAPSED-DAYS",
+        "WS-PENALTY-AMT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D6_dead_code",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": []
+    },
+    "gold_rationale": "2000-PENALTY correctly implements the 7-day/₹500 calculation, but it only executes when 88-level PENALTY-ON is true (line 20). WS-PEN-ENABLED is declared VALUE 'N' (line 10, PENALTY-ON = 'Y' only) and no statement anywhere in this program ever moves 'Y' into WS-PEN-ENABLED -- the only ACCEPT in the program (line 19) reads WS-ELAPSED-DAYS, not the flag. Under the program's own reachable control flow from its true entry, PERFORM 2000-PENALTY is therefore never actually taken.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "CLOSPN5D.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":null,\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":null,\"note\":null},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"CLOSPN5D\",\"slices\":[{\"variable\":\"WS-PEN-ENABLED\",\"scoped_program\":\"CLOSPN5D\",\"statements\":[{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":null,\"line_start\":10,\"line_end\":10},\"text\":\"05  WS-PEN-ENABLED        PIC X(1) VALUE 'N'.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"PENALTY-ON\",\"scoped_program\":\"CLOSPN5D\",\"statements\":[{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":null,\"line_start\":10,\"line_end\":10},\"text\":\"05  WS-PEN-ENABLED        PIC X(1) VALUE 'N'.\"}],\"paragraphs\":[],\"is_interprocedural\":false},{\"variable\":\"WS-ELAPSED-DAYS\",\"scoped_program\":\"CLOSPN5D\",\"statements\":[{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"ACCEPT WS-ELAPSED-DAYS\"}],\"paragraphs\":[{\"program\":\"CLOSPN5D\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-PENALTY-AMT\",\"scoped_program\":\"CLOSPN5D\",\"statements\":[{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":null,\"line_start\":13,\"line_end\":13},\"text\":\"05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":null,\"line_start\":15,\"line_end\":15},\"text\":\"05  WS-DELAY-DAYS         PIC S9(5) VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":null,\"line_start\":16,\"line_end\":16},\"text\":\"05  WS-PENALTY-AMT        PIC 9(7)V99 VALUE ZERO.\"},{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"ACCEPT WS-ELAPSED-DAYS\"},{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":\"1000-MAIN\",\"line_start\":21,\"line_end\":21},\"text\":\"PERFORM 2000-PENALTY\"},{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":\"2000-PENALTY\",\"line_start\":26,\"line_end\":26},\"text\":\"COMPUTE WS-DELAY-DAYS = WS-ELAPSED-DAYS - 7\"},{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":\"2000-PENALTY\",\"line_start\":27,\"line_end\":28},\"text\":\"IF WS-DELAY-DAYS > ZERO\\n              COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\"},{\"ref\":{\"program\":\"CLOSPN5D\",\"paragraph\":\"2000-PENALTY\",\"line_start\":28,\"line_end\":28},\"text\":\"COMPUTE WS-PENALTY-AMT = 500 * WS-DELAY-DAYS\"}],\"paragraphs\":[{\"program\":\"CLOSPN5D\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"CLOSPN5D\",\"paragraph\":\"2000-PENALTY\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The visible code subtracts 7 from a single elapsed-day input and multiplies the result by 500, but the slice does not establish whether that input counts working days or calendar days. It also does not show how the penalty-enabled flag affects execution, so the code cannot be reliably compared with the clause's two time bases.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The elapsed-day unit and the penalty flag's operational effect are not established by the supplied source context.",
+        "final_answer": "The clause requires a 7-working-day closure window and a Rs 500 penalty per calendar day of delay. The slice shows a calculation using one elapsed-day input and a 7-day subtraction, but does not establish that input's day basis or the effect of the penalty flag. The evidence is insufficient to determine whether the implementation conforms.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The visible code subtracts 7 from a single elapsed-day input and multiplies the result by 500, but the slice does not establish whether that input counts working days or calendar days. It also does not show how the penalty-enabled flag affects execution, so the code cannot be reliably compared with the clause's two time bases.\",\"prediction\":null,\"claim\":\"Closure requests must be honoured within 7 working days, subject to dues; delay incurs a penalty of Rs 500 per calendar day until closure, provided there is no outstanding amount.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The elapsed-day unit and the penalty flag's operational effect are not established by the supplied source context.\",\"final_answer\":\"The clause requires a 7-working-day closure window and a Rs 500 penalty per calendar day of delay. The slice shows a calculation using one elapsed-day input and a 7-day subtraction, but does not establish that input's day basis or the effect of the penalty flag. The evidence is insufficient to determine whether the implementation conforms.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The elapsed-day unit and the penalty flag's operational effect are not established by the supplied source context.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires a 7-working-day closure window and a Rs 500 penalty per calendar day of delay. The slice shows a calculation using one elapsed-day input and a 7-day subtraction, but does not establish that input's day basis or the effect of the penalty flag. The evidence is insufficient to determine whether the implementation conforms.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The elapsed-day unit and the penalty flag's operational effect are not established by the supplied source context.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "258d3b15ccc31c67b6c7d24b80db6989085fbe30508f4f0f8f97f928b7e6c124",
+  "run_key": "f1d58bace4365a81e48683984332716ea1c45a92c248387448b0d685761fc00c"
+}

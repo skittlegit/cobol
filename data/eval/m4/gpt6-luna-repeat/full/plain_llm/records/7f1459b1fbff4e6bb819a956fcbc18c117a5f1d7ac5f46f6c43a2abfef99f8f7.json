@@ -1,0 +1,130 @@
+{
+  "instance_id": "drift_000012",
+  "gold": {
+    "instance_id": "drift_000012",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "19",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "closure_window": {
+            "kind": "duration_working_days",
+            "value": 7,
+            "comparator": null,
+            "note": null
+          },
+          "penalty_per_day": {
+            "kind": "amount_inr",
+            "value": 500,
+            "comparator": null,
+            "note": null
+          },
+          "day_basis": {
+            "kind": "enum_set",
+            "value": [
+              "calendar_day"
+            ],
+            "comparator": null,
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "CLOSPEN4",
+          "paragraph": "2000-CLOSE-ACCT",
+          "file": null,
+          "line_span": [
+            21,
+            27
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-OUTSTANDING",
+        "WS-ELAPSED-DAYS",
+        "WS-CLOSE-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "CLOSPEN4",
+          "line": 27,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 19 requires a 7-working-day closure SLA backed by a ₹500/calendar-day penalty. CLOSPEN4 accepts WS-ELAPSED-DAYS as input but never uses it: 2000-CLOSE-ACCT only checks WS-OUTSTANDING and marks BLOCKED/CLOSED. The trailing comment '* NOTE: SLA TRACKING TBD' (line 27) is the program's own acknowledgment that the SLA/penalty logic is unimplemented.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "CLOSPEN4.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-Commercial-Banks-CC-DC-Directions-2025\",\"clause_id\":\"19\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Closure requests must be honoured within 7 working days (subject to dues); failure incurs a penalty of Rs 500 per calendar day of delay until closure, provided no outstanding.\",\"current_value\":{\"kind\":\"composite\",\"value\":{\"closure_window\":{\"kind\":\"duration_working_days\",\"value\":7,\"comparator\":null,\"note\":null},\"penalty_per_day\":{\"kind\":\"amount_inr\",\"value\":500,\"comparator\":null,\"note\":null},\"day_basis\":{\"kind\":\"enum_set\",\"value\":[\"calendar_day\"],\"comparator\":null,\"note\":null}},\"comparator\":null,\"note\":null}},\"program\":\"FILE CLOSPEN4.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. CLOSPEN4.\\n0003:       *----------------------------------------------------------------\\n0004:       * ACCOUNT CLOSURE PROCESSOR - VALIDATES DUES AND MARKS CLOSED\\n0005:       *----------------------------------------------------------------\\n0006:        ENVIRONMENT DIVISION.\\n0007:        DATA DIVISION.\\n0008:        WORKING-STORAGE SECTION.\\n0009:        01  WS-INPUTS.\\n0010:            05  WS-OUTSTANDING        PIC 9(9)V99 VALUE ZERO.\\n0011:            05  WS-ELAPSED-DAYS       PIC 9(4) VALUE ZERO.\\n0012:        01  WS-STATUS-AREAS.\\n0013:            05  WS-CLOSE-STATUS       PIC X(8) VALUE SPACES.\\n0014:        PROCEDURE DIVISION.\\n0015:        1000-MAIN.\\n0016:            ACCEPT WS-OUTSTANDING\\n0017:            ACCEPT WS-ELAPSED-DAYS\\n0018:            PERFORM 2000-CLOSE-ACCT\\n0019:            DISPLAY 'STATUS: ' WS-CLOSE-STATUS\\n0020:            STOP RUN.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The excerpt calls the account-closing routine but does not show how it handles the closure window, dues, or penalty.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The excerpt ends after the call to 2000-CLOSE-ACCT and omits that paragraph. The visible code does not establish how the required closure timing and penalty are implemented.",
+        "final_answer": "The clause specifies a seven-working-day closure period, subject to dues, and a Rs 500-per-calendar-day penalty where nothing is outstanding. CLOSPEN4.cbl calls 2000-CLOSE-ACCT, but the called paragraph is omitted, so the excerpt is insufficient to compare its behavior with the clause.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The excerpt calls the account-closing routine but does not show how it handles the closure window, dues, or penalty.\",\"prediction\":null,\"claim\":\"Closure requests must be honoured within seven working days, subject to dues; where no amount is outstanding, a failure to meet that period incurs a penalty of Rs 500 per calendar day until closure.\",\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The excerpt ends after the call to 2000-CLOSE-ACCT and omits that paragraph. The visible code does not establish how the required closure timing and penalty are implemented.\",\"final_answer\":\"The clause specifies a seven-working-day closure period, subject to dues, and a Rs 500-per-calendar-day penalty where nothing is outstanding. CLOSPEN4.cbl calls 2000-CLOSE-ACCT, but the called paragraph is omitted, so the excerpt is insufficient to compare its behavior with the clause.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The excerpt ends after the call to 2000-CLOSE-ACCT and omits that paragraph. The visible code does not establish how the required closure timing and penalty are implemented.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause specifies a seven-working-day closure period, subject to dues, and a Rs 500-per-calendar-day penalty where nothing is outstanding. CLOSPEN4.cbl calls 2000-CLOSE-ACCT, but the called paragraph is omitted, so the excerpt is insufficient to compare its behavior with the clause.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The excerpt ends after the call to 2000-CLOSE-ACCT and omits that paragraph. The visible code does not establish how the required closure timing and penalty are implemented.",
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "228a9c3e3119b22a57a09c4265f3dd8818099182860a2336dfad2d049ca1ab8c",
+  "run_key": "7f1459b1fbff4e6bb819a956fcbc18c117a5f1d7ac5f46f6c43a2abfef99f8f7"
+}

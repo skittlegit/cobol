@@ -1,0 +1,316 @@
+{
+  "instance_id": "drift_066224",
+  "gold": {
+    "instance_id": "drift_066224",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SCRNGATE1",
+          "paragraph": null,
+          "file": "SANCREG.cpy",
+          "line_span": [
+            6,
+            6
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-SCREEN-RESULT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D4_stale_reference_data",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SCRNGATE1",
+          "line": 6,
+          "file": "SANCREG.cpy"
+        }
+      ]
+    },
+    "gold_rationale": "MO-4 changes 'S88' to '(deleted)' at SCRNGATE1:SANCREG.cpy:6-6, producing D4_stale_reference_data. MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "SCRNGATE1.cbl",
+      "mutation": "MO-4; locus=SCRNGATE1:SANCREG.cpy:6-6; old='S88'; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "MO-4 drops the registry entry standing for the Taliban Sanctions List (para 56(ii)), so one of the two mandated UNSC lists is no longer screened -- a missing mandated list. The code-side identifier is a synthetic registry code, so the comparison is against registry completeness (both mandated sources present) rather than list membership."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_066224",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "56(prevention)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+      "current_value": {
+        "kind": "enum_set",
+        "value": [
+          "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+          "UNSC-Taliban-1988"
+        ],
+        "comparator": null,
+        "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "SCRNGATE1",
+          "paragraph": "2000-SCREEN-SANCTIONS",
+          "file": null,
+          "line_span": [
+            20,
+            23
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-SCREEN-RESULT"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D3_contradictory",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "SCRNGATE1",
+          "line": 21,
+          "file": null
+        },
+        {
+          "program": "SCRNGATE1",
+          "line": 23,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The clause requires that an account not be held in a name appearing on the specified UNSC lists. The supplied code assigns BLOCK when MANDATED-LIST is true, then assigns CLEAR later, contradicting enforcement for a matching list entry."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "SCRNGATE1:2000-SCREEN-SANCTIONS — literal \"'CLEAR'\" present",
+    "citation_ok": true,
+    "entailment_probability": 0.9541,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "SCRNGATE1:2000-SCREEN-SANCTIONS — literal \"'CLEAR'\" present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"56(prevention)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).\",\"current_value\":{\"kind\":\"enum_set\",\"value\":[\"UNSC-ISIL-Daesh-AlQaida-1267-1989-2253\",\"UNSC-Taliban-1988\"],\"comparator\":null,\"note\":\"clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally\"}},\"program\":\"SCRNGATE1\",\"slices\":[{\"variable\":\"WS-SCREEN-RESULT\",\"scoped_program\":\"SCRNGATE1\",\"statements\":[{\"ref\":{\"program\":\"SCRNGATE1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"01  WS-SCREEN-RESULT PIC X(5) VALUE 'CLEAR'.\"},{\"ref\":{\"program\":\"SCRNGATE1\",\"paragraph\":\"2000-SCREEN-SANCTIONS\",\"line_start\":20,\"line_end\":21},\"text\":\"IF MANDATED-LIST\\n              MOVE 'BLOCK' TO WS-SCREEN-RESULT\"},{\"ref\":{\"program\":\"SCRNGATE1\",\"paragraph\":\"2000-SCREEN-SANCTIONS\",\"line_start\":21,\"line_end\":21},\"text\":\"MOVE 'BLOCK' TO WS-SCREEN-RESULT\"},{\"ref\":{\"program\":\"SCRNGATE1\",\"paragraph\":\"2000-SCREEN-SANCTIONS\",\"line_start\":23,\"line_end\":23},\"text\":\"MOVE 'CLEAR' TO WS-SCREEN-RESULT\"}],\"paragraphs\":[{\"program\":\"SCRNGATE1\",\"paragraph\":\"2000-SCREEN-SANCTIONS\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The supplied slice assigns BLOCK for a mandated-list match and then assigns CLEAR later in the same paragraph, which can undo that result.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_066224",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "56(prevention)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+            "current_value": {
+              "kind": "enum_set",
+              "value": [
+                "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+                "UNSC-Taliban-1988"
+              ],
+              "comparator": null,
+              "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "SCRNGATE1",
+                "paragraph": "2000-SCREEN-SANCTIONS",
+                "file": null,
+                "line_span": [
+                  20,
+                  23
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-SCREEN-RESULT"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D3_contradictory",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "SCRNGATE1",
+                "line": 21,
+                "file": null
+              },
+              {
+                "program": "SCRNGATE1",
+                "line": 23,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The clause requires that an account not be held in a name appearing on the specified UNSC lists. The supplied code assigns BLOCK when MANDATED-LIST is true, then assigns CLEAR later, contradicting enforcement for a matching list entry."
+        },
+        "claim": "An institution must not have an account in the name of an individual or entity appearing on the UNSC-approved lists of individuals and entities suspected of terrorist links.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "'CLEAR'",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The later CLEAR assignment can undo the BLOCK result for a mandated-list match, contradicting the clause’s requirement not to have an account in a name appearing on the specified UNSC lists.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The supplied slice assigns BLOCK for a mandated-list match and then assigns CLEAR later in the same paragraph, which can undo that result.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"SCRNGATE1\",\"paragraph\":\"2000-SCREEN-SANCTIONS\",\"file\":null,\"line_span\":[20,23]}],\"slice_vars\":[\"WS-SCREEN-RESULT\"],\"is_interprocedural\":false},\"drift_type\":\"D3_contradictory\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"SCRNGATE1\",\"line\":21,\"file\":null},{\"program\":\"SCRNGATE1\",\"line\":23,\"file\":null}]},\"rationale\":\"The clause requires that an account not be held in a name appearing on the specified UNSC lists. The supplied code assigns BLOCK when MANDATED-LIST is true, then assigns CLEAR later, contradicting enforcement for a matching list entry.\"},\"claim\":\"An institution must not have an account in the name of an individual or entity appearing on the UNSC-approved lists of individuals and entities suspected of terrorist links.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"'CLEAR'\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The later CLEAR assignment can undo the BLOCK result for a mandated-list match, contradicting the clause’s requirement not to have an account in a name appearing on the specified UNSC lists.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "SCRNGATE1:2000-SCREEN-SANCTIONS — literal \"'CLEAR'\" present",
+      "citation_ok": true,
+      "entailment_probability": 0.9541,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "SCRNGATE1:2000-SCREEN-SANCTIONS — literal \"'CLEAR'\" present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_066224",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "56(prevention)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "it does not have any account in the name of individuals / entities appearing in the lists of individuals and entities, suspected of having terrorist links, which are approved by and periodically circulated by the United Nations Security Council (UNSC).",
+        "current_value": {
+          "kind": "enum_set",
+          "value": [
+            "UNSC-ISIL-Daesh-AlQaida-1267-1989-2253",
+            "UNSC-Taliban-1988"
+          ],
+          "comparator": null,
+          "note": "clause-side set = the two mandated UNSC list identities named in para 56; member entries are UNSC-maintained externally"
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "SCRNGATE1",
+            "paragraph": "2000-SCREEN-SANCTIONS",
+            "file": null,
+            "line_span": [
+              20,
+              23
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-SCREEN-RESULT"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D3_contradictory",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "SCRNGATE1",
+            "line": 21,
+            "file": null
+          },
+          {
+            "program": "SCRNGATE1",
+            "line": 23,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The clause requires that an account not be held in a name appearing on the specified UNSC lists. The supplied code assigns BLOCK when MANDATED-LIST is true, then assigns CLEAR later, contradicting enforcement for a matching list entry."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The later CLEAR assignment can undo the BLOCK result for a mandated-list match, contradicting the clause’s requirement not to have an account in a name appearing on the specified UNSC lists.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "0292275b046125ef2b6100699e4b1542b3be090dc4d28c4d6feb767735b36a0a",
+  "run_key": "77399602f49343cf665b2471912c056329dbcb57731dfd6e5fe64c5eafb727f4"
+}

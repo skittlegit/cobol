@@ -1,0 +1,350 @@
+{
+  "instance_id": "drift_000010",
+  "gold": {
+    "instance_id": "drift_000010",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC1",
+          "paragraph": "2000-QUEUE-UPLOAD",
+          "file": null,
+          "line_span": [
+            22,
+            27
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-UPD-RECEIVED",
+        "WS-QUEUE-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSYNC1",
+          "line": 23,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 65(8) (footnote-148 insertion into the 2016 MD, now 2025 clause 65(8)) requires CKYCR updates within 7 days of receiving updated customer information (duration_days=7, at_most). KYCSYNC1's WORKING-STORAGE (lines 10-14) has no elapsed-day or date field at all, and 2000-QUEUE-UPLOAD only branches on the boolean WS-UPD-RECEIVED (line 23); there is no 7-day deadline check anywhere in the program's reachable logic.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "KYCSYNC1.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_000010",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSYNC1",
+          "paragraph": "1000-MAIN",
+          "file": null,
+          "line_span": [
+            18,
+            19
+          ]
+        },
+        {
+          "program": "KYCSYNC1",
+          "paragraph": "2000-QUEUE-UPLOAD",
+          "file": null,
+          "line_span": [
+            23,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-UPD-RECEIVED",
+        "WS-QUEUE-STATUS"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSYNC1",
+          "line": 23,
+          "file": null
+        },
+        {
+          "program": "KYCSYNC1",
+          "line": 24,
+          "file": null
+        },
+        {
+          "program": "KYCSYNC1",
+          "line": 26,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "Clause 65(8) requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated information. KYCSYNC1 1000-MAIN performs 2000-QUEUE-UPLOAD, where lines 23–26 select QUEUED or NOCHANGE based on the receipt flag; the shown logic has no seven-day timing rule. The evidence supports a missing deadline rule in this path."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "literal 'QUEUED' present in ['KYCSYNC1:2000-QUEUE-UPLOAD']",
+    "citation_ok": true,
+    "entailment_probability": 0.9946,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "literal 'QUEUED' present in ['KYCSYNC1:2000-QUEUE-UPLOAD']"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"program\":\"KYCSYNC1\",\"slices\":[{\"variable\":\"WS-UPD-RECEIVED\",\"scoped_program\":\"KYCSYNC1\",\"statements\":[{\"ref\":{\"program\":\"KYCSYNC1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-UPD-RECEIVED       PIC X(1) VALUE 'N'.\"},{\"ref\":{\"program\":\"KYCSYNC1\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"ACCEPT WS-UPD-RECEIVED\"}],\"paragraphs\":[{\"program\":\"KYCSYNC1\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-QUEUE-STATUS\",\"scoped_program\":\"KYCSYNC1\",\"statements\":[{\"ref\":{\"program\":\"KYCSYNC1\",\"paragraph\":null,\"line_start\":12,\"line_end\":12},\"text\":\"05  WS-UPD-RECEIVED       PIC X(1) VALUE 'N'.\"},{\"ref\":{\"program\":\"KYCSYNC1\",\"paragraph\":null,\"line_start\":14,\"line_end\":14},\"text\":\"05  WS-QUEUE-STATUS       PIC X(8) VALUE SPACES.\"},{\"ref\":{\"program\":\"KYCSYNC1\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"ACCEPT WS-UPD-RECEIVED\"},{\"ref\":{\"program\":\"KYCSYNC1\",\"paragraph\":\"1000-MAIN\",\"line_start\":19,\"line_end\":19},\"text\":\"PERFORM 2000-QUEUE-UPLOAD\"},{\"ref\":{\"program\":\"KYCSYNC1\",\"paragraph\":\"2000-QUEUE-UPLOAD\",\"line_start\":23,\"line_end\":24},\"text\":\"IF WS-UPD-RECEIVED = 'Y'\\n              MOVE 'QUEUED' TO WS-QUEUE-STATUS\"},{\"ref\":{\"program\":\"KYCSYNC1\",\"paragraph\":\"2000-QUEUE-UPLOAD\",\"line_start\":24,\"line_end\":24},\"text\":\"MOVE 'QUEUED' TO WS-QUEUE-STATUS\"},{\"ref\":{\"program\":\"KYCSYNC1\",\"paragraph\":\"2000-QUEUE-UPLOAD\",\"line_start\":26,\"line_end\":26},\"text\":\"MOVE 'NOCHANGE' TO WS-QUEUE-STATUS\"}],\"paragraphs\":[{\"program\":\"KYCSYNC1\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"KYCSYNC1\",\"paragraph\":\"2000-QUEUE-UPLOAD\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The clause requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated customer information. The shown path queues an upload when information is received but contains no deadline check or timing rule in the queue-status logic, so the required time-bound rule is missing from the shown path.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_000010",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "65(8)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSYNC1",
+                "paragraph": "1000-MAIN",
+                "file": null,
+                "line_span": [
+                  18,
+                  19
+                ]
+              },
+              {
+                "program": "KYCSYNC1",
+                "paragraph": "2000-QUEUE-UPLOAD",
+                "file": null,
+                "line_span": [
+                  23,
+                  26
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-UPD-RECEIVED",
+              "WS-QUEUE-STATUS"
+            ],
+            "is_interprocedural": true
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSYNC1",
+                "line": 23,
+                "file": null
+              },
+              {
+                "program": "KYCSYNC1",
+                "line": 24,
+                "file": null
+              },
+              {
+                "program": "KYCSYNC1",
+                "line": 26,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "Clause 65(8) requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated information. KYCSYNC1 1000-MAIN performs 2000-QUEUE-UPLOAD, where lines 23–26 select QUEUED or NOCHANGE based on the receipt flag; the shown logic has no seven-day timing rule. The evidence supports a missing deadline rule in this path."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "QUEUED",
+          "comparator": null,
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The code queues an upload when updated information is received, but the shown queue-status logic has no seven-day timing rule. Clause 65(8) requires the KYC record update within seven days, so the shown path is missing that rule.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The clause requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated customer information. The shown path queues an upload when information is received but contains no deadline check or timing rule in the queue-status logic, so the required time-bound rule is missing from the shown path.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSYNC1\",\"paragraph\":\"1000-MAIN\",\"file\":null,\"line_span\":[18,19]},{\"program\":\"KYCSYNC1\",\"paragraph\":\"2000-QUEUE-UPLOAD\",\"file\":null,\"line_span\":[23,26]}],\"slice_vars\":[\"WS-UPD-RECEIVED\",\"WS-QUEUE-STATUS\"],\"is_interprocedural\":true},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"KYCSYNC1\",\"line\":23,\"file\":null},{\"program\":\"KYCSYNC1\",\"line\":24,\"file\":null},{\"program\":\"KYCSYNC1\",\"line\":26,\"file\":null}]},\"rationale\":\"Clause 65(8) requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated information. KYCSYNC1 1000-MAIN performs 2000-QUEUE-UPLOAD, where lines 23–26 select QUEUED or NOCHANGE based on the receipt flag; the shown logic has no seven-day timing rule. The evidence supports a missing deadline rule in this path.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"QUEUED\",\"comparator\":null,\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The code queues an upload when updated information is received, but the shown queue-status logic has no seven-day timing rule. Clause 65(8) requires the KYC record update within seven days, so the shown path is missing that rule.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "literal 'QUEUED' present in ['KYCSYNC1:2000-QUEUE-UPLOAD']",
+      "citation_ok": true,
+      "entailment_probability": 0.9946,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "literal 'QUEUED' present in ['KYCSYNC1:2000-QUEUE-UPLOAD']"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_000010",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "65(8)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "current_value": {
+          "kind": "duration_days",
+          "value": 7,
+          "comparator": "at_most",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "KYCSYNC1",
+            "paragraph": "1000-MAIN",
+            "file": null,
+            "line_span": [
+              18,
+              19
+            ]
+          },
+          {
+            "program": "KYCSYNC1",
+            "paragraph": "2000-QUEUE-UPLOAD",
+            "file": null,
+            "line_span": [
+              23,
+              26
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-UPD-RECEIVED",
+          "WS-QUEUE-STATUS"
+        ],
+        "is_interprocedural": true
+      },
+      "drift_type": "D2_missing_rule",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "KYCSYNC1",
+            "line": 23,
+            "file": null
+          },
+          {
+            "program": "KYCSYNC1",
+            "line": 24,
+            "file": null
+          },
+          {
+            "program": "KYCSYNC1",
+            "line": 26,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "Clause 65(8) requires updating KYC records in the Central KYC Records Registry within seven days of receiving updated information. KYCSYNC1 1000-MAIN performs 2000-QUEUE-UPLOAD, where lines 23–26 select QUEUED or NOCHANGE based on the receipt flag; the shown logic has no seven-day timing rule. The evidence supports a missing deadline rule in this path."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The code queues an upload when updated information is received, but the shown queue-status logic has no seven-day timing rule. Clause 65(8) requires the KYC record update within seven days, so the shown path is missing that rule.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "005c9c39fd7f10da8654c2c2010153b36869a5cffdebf55d8f19dcd8539e210c",
+  "run_key": "431589127a042faf8c6c9c4b62b902f4a3f66a74b08eda6ec0f4ad07f94e0ffa"
+}

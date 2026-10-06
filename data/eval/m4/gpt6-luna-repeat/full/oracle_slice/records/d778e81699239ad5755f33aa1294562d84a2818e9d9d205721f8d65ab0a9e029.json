@@ -1,0 +1,308 @@
+{
+  "instance_id": "drift_247749",
+  "gold": {
+    "instance_id": "drift_247749",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSY201",
+          "paragraph": "2000-CHECK-SLA",
+          "file": null,
+          "line_span": [
+            22,
+            26
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD",
+        "WS-SLA-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSY201",
+          "line": 22,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "MO-2 removes the live seven-day SLA branch from KYCSY201:2000-CHECK-SLA:22-26. The remaining zero-day NEW-status special case is credible legacy classification logic but does not enforce CKYCR update within seven days, producing D2_missing_rule.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "KYCSY201.cbl",
+      "mutation": "MO-2; locus=KYCSY201:2000-CHECK-SLA:22-26; old=\"IF WS-DAYS-SINCE-UPD > 7 MOVE 'OVERDUE' TO WS-SLA-STATUS ELSE MOVE 'INSLA' TO WS-SLA-STATUS END-IF\"; new='(deleted)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": "task=T2.7; supersession_map=t2_7_plausibility.jsonl; plausibility=t2_7_plausibility.jsonl"
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_247749",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "65(8)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+      "current_value": {
+        "kind": "duration_days",
+        "value": 7,
+        "comparator": "at_most",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "KYCSY201",
+          "paragraph": "2000-CHECK-SLA",
+          "file": null,
+          "line_span": [
+            27,
+            28
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-DAYS-SINCE-UPD",
+        "WS-SLA-STATUS"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D2_missing_rule",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "KYCSY201",
+          "line": 27,
+          "file": null
+        },
+        {
+          "program": "KYCSY201",
+          "line": 28,
+          "file": null
+        }
+      ]
+    },
+    "rationale": "The clause requires KYC records to be updated in the registry within seven days. The visible SLA logic tests whether WS-DAYS-SINCE-UPD is ZERO and then sets WS-SLA-STATUS to NEW; it shows no seven-day comparison or registry update action, so the supplied logic is missing the required rule."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "KYCSY201:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9946,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "KYCSY201:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"65(8)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.\",\"current_value\":{\"kind\":\"duration_days\",\"value\":7,\"comparator\":\"at_most\",\"note\":null}},\"program\":\"KYCSY201\",\"slices\":[{\"variable\":\"WS-DAYS-SINCE-UPD\",\"scoped_program\":\"KYCSY201\",\"statements\":[{\"ref\":{\"program\":\"KYCSY201\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"KYCSY201\",\"paragraph\":\"1000-MAIN\",\"line_start\":17,\"line_end\":17},\"text\":\"ACCEPT WS-DAYS-SINCE-UPD\"}],\"paragraphs\":[{\"program\":\"KYCSY201\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"WS-SLA-STATUS\",\"scoped_program\":\"KYCSY201\",\"statements\":[{\"ref\":{\"program\":\"KYCSY201\",\"paragraph\":null,\"line_start\":9,\"line_end\":9},\"text\":\"05  WS-DAYS-SINCE-UPD     PIC 9(4) VALUE ZERO.\"},{\"ref\":{\"program\":\"KYCSY201\",\"paragraph\":null,\"line_start\":11,\"line_end\":11},\"text\":\"05  WS-SLA-STATUS         PIC X(8) VALUE SPACES.\"},{\"ref\":{\"program\":\"KYCSY201\",\"paragraph\":\"1000-MAIN\",\"line_start\":17,\"line_end\":17},\"text\":\"ACCEPT WS-DAYS-SINCE-UPD\"},{\"ref\":{\"program\":\"KYCSY201\",\"paragraph\":\"1000-MAIN\",\"line_start\":18,\"line_end\":18},\"text\":\"PERFORM 2000-CHECK-SLA\"},{\"ref\":{\"program\":\"KYCSY201\",\"paragraph\":\"2000-CHECK-SLA\",\"line_start\":27,\"line_end\":28},\"text\":\"IF WS-DAYS-SINCE-UPD = ZERO\\n              MOVE 'NEW' TO WS-SLA-STATUS\"},{\"ref\":{\"program\":\"KYCSY201\",\"paragraph\":\"2000-CHECK-SLA\",\"line_start\":28,\"line_end\":28},\"text\":\"MOVE 'NEW' TO WS-SLA-STATUS\"}],\"paragraphs\":[{\"program\":\"KYCSY201\",\"paragraph\":\"1000-MAIN\"},{\"program\":\"KYCSY201\",\"paragraph\":\"2000-CHECK-SLA\"}],\"is_interprocedural\":true}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The supplied slice ties a status assignment to a zero-day condition but does not show the required seven-day registry update rule.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_247749",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "65(8)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+            "current_value": {
+              "kind": "duration_days",
+              "value": 7,
+              "comparator": "at_most",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "KYCSY201",
+                "paragraph": "2000-CHECK-SLA",
+                "file": null,
+                "line_span": [
+                  27,
+                  28
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-DAYS-SINCE-UPD",
+              "WS-SLA-STATUS"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D2_missing_rule",
+          "target_path": null,
+          "labels": {
+            "program_level": "drift",
+            "paragraph_level": "drift",
+            "line_level": [
+              {
+                "program": "KYCSY201",
+                "line": 27,
+                "file": null
+              },
+              {
+                "program": "KYCSY201",
+                "line": 28,
+                "file": null
+              }
+            ]
+          },
+          "rationale": "The clause requires KYC records to be updated in the registry within seven days. The visible SLA logic tests whether WS-DAYS-SINCE-UPD is ZERO and then sets WS-SLA-STATUS to NEW; it shows no seven-day comparison or registry update action, so the supplied logic is missing the required rule."
+        },
+        "claim": "Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": "ZERO",
+          "comparator": "=",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The clause requires registry updates within seven days. The shown SLA logic sets the status to NEW when the day count is zero, with no visible seven-day cutoff or registry update action, so the supplied logic is missing the required rule.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The supplied slice ties a status assignment to a zero-day condition but does not show the required seven-day registry update rule.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"KYCSY201\",\"paragraph\":\"2000-CHECK-SLA\",\"file\":null,\"line_span\":[27,28]}],\"slice_vars\":[\"WS-DAYS-SINCE-UPD\",\"WS-SLA-STATUS\"],\"is_interprocedural\":false},\"drift_type\":\"D2_missing_rule\",\"target_path\":null,\"labels\":{\"program_level\":\"drift\",\"paragraph_level\":\"drift\",\"line_level\":[{\"program\":\"KYCSY201\",\"line\":27,\"file\":null},{\"program\":\"KYCSY201\",\"line\":28,\"file\":null}]},\"rationale\":\"The clause requires KYC records to be updated in the registry within seven days. The visible SLA logic tests whether WS-DAYS-SINCE-UPD is ZERO and then sets WS-SLA-STATUS to NEW; it shows no seven-day comparison or registry update action, so the supplied logic is missing the required rule.\"},\"claim\":\"Regulated entities must update KYC records in the Central KYC Records Registry within seven days of receiving updated information from a customer.\",\"exec_probe\":null,\"static_claim\":{\"literal\":\"ZERO\",\"comparator\":\"=\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The clause requires registry updates within seven days. The shown SLA logic sets the status to NEW when the day count is zero, with no visible seven-day cutoff or registry update action, so the supplied logic is missing the required rule.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "KYCSY201:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9946,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "KYCSY201:2000-CHECK-SLA — literal 'ZERO' present; comparator '=' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_247749",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "65(8)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "Regulated entities must update KYC records in the Central KYC Records Registry within 7 days of receiving updated information from a customer.",
+        "current_value": {
+          "kind": "duration_days",
+          "value": 7,
+          "comparator": "at_most",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "KYCSY201",
+            "paragraph": "2000-CHECK-SLA",
+            "file": null,
+            "line_span": [
+              27,
+              28
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-DAYS-SINCE-UPD",
+          "WS-SLA-STATUS"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D2_missing_rule",
+      "target_path": null,
+      "labels": {
+        "program_level": "drift",
+        "paragraph_level": "drift",
+        "line_level": [
+          {
+            "program": "KYCSY201",
+            "line": 27,
+            "file": null
+          },
+          {
+            "program": "KYCSY201",
+            "line": 28,
+            "file": null
+          }
+        ]
+      },
+      "rationale": "The clause requires KYC records to be updated in the registry within seven days. The visible SLA logic tests whether WS-DAYS-SINCE-UPD is ZERO and then sets WS-SLA-STATUS to NEW; it shows no seven-day comparison or registry update action, so the supplied logic is missing the required rule."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The clause requires registry updates within seven days. The shown SLA logic sets the status to NEW when the day count is zero, with no visible seven-day cutoff or registry update action, so the supplied logic is missing the required rule.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "75e34c41ab3844be13f72bf7b7b93f9c7b53197eae81157e2acc9641e3a60c60",
+  "run_key": "d778e81699239ad5755f33aa1294562d84a2818e9d9d205721f8d65ab0a9e029"
+}

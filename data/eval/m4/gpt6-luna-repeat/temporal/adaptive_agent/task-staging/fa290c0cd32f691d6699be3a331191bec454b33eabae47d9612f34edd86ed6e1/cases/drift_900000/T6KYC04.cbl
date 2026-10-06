@@ -1,0 +1,21 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. T6KYC04.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-ROUTING.
+           05  WS-RISK-CODE          PIC X VALUE SPACE.
+           05  WS-WORK-QUEUE         PIC X(8) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-RISK-CODE
+           PERFORM 2300-ROUTE-UPDATE
+           DISPLAY WS-WORK-QUEUE
+           STOP RUN.
+       2300-ROUTE-UPDATE.
+           EVALUATE WS-RISK-CODE
+              WHEN 'H'
+                 MOVE 'PRIORITY' TO WS-WORK-QUEUE
+              WHEN OTHER
+                 MOVE 'STANDARD' TO WS-WORK-QUEUE
+           END-EVALUATE.

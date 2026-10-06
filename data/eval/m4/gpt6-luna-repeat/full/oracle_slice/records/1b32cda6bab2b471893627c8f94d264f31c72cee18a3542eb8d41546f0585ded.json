@@ -1,0 +1,117 @@
+{
+  "instance_id": "drift_110020",
+  "gold": {
+    "instance_id": "drift_110020",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "T6BO05",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            6,
+            9
+          ]
+        },
+        {
+          "program": "T6BO05",
+          "paragraph": "2400-SET-REVIEW-CODE",
+          "file": null,
+          "line_span": [
+            16,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-PARTNER-PCT",
+        "LEGACY-BO-RANGE"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": null,
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "T6BO05",
+          "line": 8,
+          "file": null
+        }
+      ]
+    },
+    "gold_rationale": "Clause 5(iv)(b) lowers the threshold to strictly_greater 10 percent, which for this integer-only field should be range 11 THRU 100. T6BO05 (byte-identical code) still declares LEGACY-BO-RANGE VALUE 16 THRU 100 (line 8), a stale threshold boundary.",
+    "provenance": {
+      "source": "real_curated",
+      "base_program": "T6BO05.cbl",
+      "mutation": null,
+      "annotator_notes": "Human primary annotation and Claude verification agreed on this classification without final review."
+    }
+  },
+  "prediction": null,
+  "confidence": null,
+  "verification": null,
+  "trajectory": {
+    "question": "System: oracle-slice single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"program\":\"T6BO05\",\"slices\":[{\"variable\":\"WS-PARTNER-PCT\",\"scoped_program\":\"T6BO05\",\"statements\":[{\"ref\":{\"program\":\"T6BO05\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"05  WS-PARTNER-PCT        PIC 9(3) VALUE ZERO.\"},{\"ref\":{\"program\":\"T6BO05\",\"paragraph\":\"1000-MAIN\",\"line_start\":12,\"line_end\":12},\"text\":\"ACCEPT WS-PARTNER-PCT\"}],\"paragraphs\":[{\"program\":\"T6BO05\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false},{\"variable\":\"LEGACY-BO-RANGE\",\"scoped_program\":\"T6BO05\",\"statements\":[{\"ref\":{\"program\":\"T6BO05\",\"paragraph\":null,\"line_start\":7,\"line_end\":7},\"text\":\"05  WS-PARTNER-PCT        PIC 9(3) VALUE ZERO.\"},{\"ref\":{\"program\":\"T6BO05\",\"paragraph\":\"1000-MAIN\",\"line_start\":12,\"line_end\":12},\"text\":\"ACCEPT WS-PARTNER-PCT\"}],\"paragraphs\":[{\"program\":\"T6BO05\",\"paragraph\":\"1000-MAIN\"}],\"is_interprocedural\":false}]}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "abstain",
+        "thought": "The supplied slice shows the percentage being accepted, but does not show how it is evaluated or used. It is insufficient to classify compliance with the more-than-10-percent requirement.",
+        "tool": null,
+        "arguments": {},
+        "prediction": null,
+        "claim": null,
+        "exec_probe": null,
+        "static_claim": null,
+        "abstention_reason": "The supplied source slice does not show a threshold comparison or the resulting decision.",
+        "final_answer": "Abstain: the supplied code accepts a percentage but does not show whether the more-than-10-percent requirement is applied.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"abstain\",\"thought\":\"The supplied slice shows the percentage being accepted, but does not show how it is evaluated or used. It is insufficient to classify compliance with the more-than-10-percent requirement.\",\"prediction\":null,\"claim\":null,\"exec_probe\":null,\"static_claim\":null,\"abstention_reason\":\"The supplied source slice does not show a threshold comparison or the resulting decision.\",\"final_answer\":\"Abstain: the supplied code accepts a percentage but does not show whether the more-than-10-percent requirement is applied.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": null,
+    "finding": null,
+    "abstained": true,
+    "abstention_reason": "The supplied source slice does not show a threshold comparison or the resulting decision.",
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "Abstain: the supplied code accepts a percentage but does not show whether the more-than-10-percent requirement is applied.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": true,
+  "abstention_reason": "The supplied source slice does not show a threshold comparison or the resulting decision.",
+  "infrastructure_error": null,
+  "system_id": "oracle_slice",
+  "source_sha256": "8766acc56226b751dc6eef49f9c44f3bdae9f003e4e7a7b9884203918efeb7e3",
+  "run_key": "1b32cda6bab2b471893627c8f94d264f31c72cee18a3542eb8d41546f0585ded"
+}

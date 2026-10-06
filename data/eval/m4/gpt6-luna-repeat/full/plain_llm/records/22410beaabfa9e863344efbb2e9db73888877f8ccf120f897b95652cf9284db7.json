@@ -1,0 +1,284 @@
+{
+  "instance_id": "drift_305779",
+  "gold": {
+    "instance_id": "drift_305779",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            19,
+            19
+          ]
+        },
+        {
+          "program": "BOIDENT2",
+          "paragraph": null,
+          "file": null,
+          "line_span": [
+            21,
+            21
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-BO-THRESHOLD",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "gold_rationale": "MO-0 applies only benign surface variation at BOIDENT2:<source>:19-19+BOIDENT2:<source>:21-21; the regulatory behavior is unchanged.",
+    "provenance": {
+      "source": "synthetic",
+      "base_program": "BOIDENT2.cbl",
+      "mutation": "MO-0; locus=BOIDENT2:<source>:19-19+BOIDENT2:<source>:21-21; old='01  WS-RPT-HEADING            PIC X(7)'; new='01  WS-RPT-HEADING            PIC X(14)'; validation=compiled; diversify=deterministic",
+      "annotator_notes": null
+    }
+  },
+  "prediction": {
+    "instance_id": "drift_305779",
+    "regulation_clause": {
+      "doc": "RBI-KYC-Directions-2025",
+      "clause_id": "5(iv)(b)",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+      "current_value": {
+        "kind": "percentage",
+        "value": 10,
+        "comparator": "strictly_greater",
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "BOIDENT2",
+          "paragraph": "2000-IDENTIFY-BO",
+          "file": "BOIDENT2.cbl",
+          "line_span": [
+            31,
+            33
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CAPITAL-PCT",
+        "WS-PROFIT-PCT",
+        "WS-BO-THRESHOLD",
+        "WS-IS-BO"
+      ],
+      "is_interprocedural": false
+    },
+    "drift_type": "D7_conformant",
+    "target_path": null,
+    "labels": {
+      "program_level": "conformant",
+      "paragraph_level": "conformant",
+      "line_level": []
+    },
+    "rationale": "For capital and profit, the code identifies a beneficial owner only when the percentage is greater than the 10.00 threshold. That strict comparison matches the clause’s more-than-10-percent criterion."
+  },
+  "confidence": 0.85,
+  "verification": {
+    "verified": true,
+    "tier": 2,
+    "evidence": "BOIDENT2:2000-IDENTIFY-BO — comparator '>' present",
+    "citation_ok": true,
+    "entailment_probability": 0.9941,
+    "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "rejected_reason": null,
+    "tier_attempts": [
+      {
+        "tier": 1,
+        "outcome": "unavailable",
+        "detail": "no execution probe; Tier-1 not applicable to this finding"
+      },
+      {
+        "tier": 2,
+        "outcome": "verified",
+        "detail": "BOIDENT2:2000-IDENTIFY-BO — comparator '>' present"
+      }
+    ]
+  },
+  "trajectory": {
+    "question": "System: plain single-shot LLM single-shot compliance detector.\nVisible context (JSON):\n{\"clause\":{\"doc\":\"RBI-KYC-Directions-2025\",\"clause_id\":\"5(iv)(b)\",\"version\":\"2025-11-28\",\"effective_date\":\"2025-11-28\",\"text\":\"For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).\",\"current_value\":{\"kind\":\"percentage\",\"value\":10,\"comparator\":\"strictly_greater\",\"note\":null}},\"program\":\"FILE BOIDENT2.cbl LINES 1-20\\n0001:        IDENTIFICATION DIVISION.\\n0002:        PROGRAM-ID. BOIDENT2.\\n0003:       *----------------------------------------------------------------\\n0004:       * BENEFICIAL OWNER IDENTIFICATION - PARTNERSHIP FIRMS\\n0005:       * OWNERSHIP/ENTITLEMENT ABOVE 10 PER CENT OF CAPITAL OR\\n0006:       * PROFITS, OR CONTROL THROUGH OTHER MEANS\\n0007:       *----------------------------------------------------------------\\n0008:        ENVIRONMENT DIVISION.\\n0009:        DATA DIVISION.\\n0010:        WORKING-STORAGE SECTION.\\n0011:        01  WS-PARTNER-REC.\\n0012:            05  WS-CAPITAL-PCT        PIC 9(3)V99 VALUE ZERO.\\n0013:            05  WS-PROFIT-PCT         PIC 9(3)V99 VALUE ZERO.\\n0014:            05  WS-CONTROL-IND        PIC X(1) VALUE 'N'.\\n0015:        01  WS-FLAGS.\\n0016:            05  WS-IS-BO              PIC X(1) VALUE 'N'.\\n0017:        01  WS-CONSTANTS.\\n0018:            05  WS-BO-THRESHOLD       PIC 9(3)V99 VALUE 10.00.\\n0019:        01  WS-RPT-HEADING            PIC X(14)\\n0020:            VALUE SPACES.\\nFILE BOIDENT2.cbl LINES 21-35\\n0021:        01  FILLER                    PIC X(7) VALUE SPACES.\\n0022:        PROCEDURE DIVISION.\\n0023:        1000-MAIN.\\n0024:            ACCEPT WS-CAPITAL-PCT\\n0025:            ACCEPT WS-PROFIT-PCT\\n0026:            ACCEPT WS-CONTROL-IND\\n0027:            PERFORM 2000-IDENTIFY-BO\\n0028:            DISPLAY 'BO: ' WS-IS-BO\\n0029:            STOP RUN.\\n0030:        2000-IDENTIFY-BO.\\n0031:            IF WS-CAPITAL-PCT > WS-BO-THRESHOLD\\n0032:               OR WS-PROFIT-PCT > WS-BO-THRESHOLD\\n0033:               OR WS-CONTROL-IND = 'Y'\\n0034:               MOVE 'Y' TO WS-IS-BO\\n0035:            END-IF.\"}\nReturn one finding or abstain. Tool calls are not available.",
+    "steps": [],
+    "model_responses": [
+      {
+        "kind": "finding",
+        "thought": "The capital and profit checks both use a strict greater-than comparison against the 10.00 threshold, matching the clause’s more-than-10-percent rule.",
+        "tool": null,
+        "arguments": {},
+        "prediction": {
+          "instance_id": "drift_305779",
+          "regulation_clause": {
+            "doc": "RBI-KYC-Directions-2025",
+            "clause_id": "5(iv)(b)",
+            "version": "2025-11-28",
+            "effective_date": "2025-11-28",
+            "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+            "current_value": {
+              "kind": "percentage",
+              "value": 10,
+              "comparator": "strictly_greater",
+              "note": null
+            }
+          },
+          "code_locus": {
+            "loci": [
+              {
+                "program": "BOIDENT2",
+                "paragraph": "2000-IDENTIFY-BO",
+                "file": "BOIDENT2.cbl",
+                "line_span": [
+                  31,
+                  33
+                ]
+              }
+            ],
+            "slice_vars": [
+              "WS-CAPITAL-PCT",
+              "WS-PROFIT-PCT",
+              "WS-BO-THRESHOLD",
+              "WS-IS-BO"
+            ],
+            "is_interprocedural": false
+          },
+          "drift_type": "D7_conformant",
+          "target_path": null,
+          "labels": {
+            "program_level": "conformant",
+            "paragraph_level": "conformant",
+            "line_level": []
+          },
+          "rationale": "For capital and profit, the code identifies a beneficial owner only when the percentage is greater than the 10.00 threshold. That strict comparison matches the clause’s more-than-10-percent criterion."
+        },
+        "claim": "For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.",
+        "exec_probe": null,
+        "static_claim": {
+          "literal": null,
+          "comparator": ">",
+          "dead_paragraph": null
+        },
+        "abstention_reason": null,
+        "final_answer": "The capital and profit checks use > against the 10.00 threshold, matching the clause’s more-than-10-percent criterion.",
+        "token_count": 0,
+        "token_count_recorded": false,
+        "raw_provider_text": "{\"kind\":\"finding\",\"thought\":\"The capital and profit checks both use a strict greater-than comparison against the 10.00 threshold, matching the clause’s more-than-10-percent rule.\",\"prediction\":{\"code_locus\":{\"loci\":[{\"program\":\"BOIDENT2\",\"paragraph\":\"2000-IDENTIFY-BO\",\"file\":\"BOIDENT2.cbl\",\"line_span\":[31,33]}],\"slice_vars\":[\"WS-CAPITAL-PCT\",\"WS-PROFIT-PCT\",\"WS-BO-THRESHOLD\",\"WS-IS-BO\"],\"is_interprocedural\":false},\"drift_type\":\"D7_conformant\",\"target_path\":null,\"labels\":{\"program_level\":\"conformant\",\"paragraph_level\":\"conformant\",\"line_level\":[]},\"rationale\":\"For capital and profit, the code identifies a beneficial owner only when the percentage is greater than the 10.00 threshold. That strict comparison matches the clause’s more-than-10-percent criterion.\"},\"claim\":\"For partnership firms, the beneficial owner is the natural person with ownership of or entitlement to more than 10 percent of capital or profits.\",\"exec_probe\":null,\"static_claim\":{\"literal\":null,\"comparator\":\">\",\"dead_paragraph\":null},\"abstention_reason\":null,\"final_answer\":\"The capital and profit checks use > against the 10.00 threshold, matching the clause’s more-than-10-percent criterion.\"}",
+        "contract_error": null,
+        "evidence_ledger": []
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "tier": 2,
+      "evidence": "BOIDENT2:2000-IDENTIFY-BO — comparator '>' present",
+      "citation_ok": true,
+      "entailment_probability": 0.9941,
+      "entailment_backend": "deberta:MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "rejected_reason": null,
+      "tier_attempts": [
+        {
+          "tier": 1,
+          "outcome": "unavailable",
+          "detail": "no execution probe; Tier-1 not applicable to this finding"
+        },
+        {
+          "tier": 2,
+          "outcome": "verified",
+          "detail": "BOIDENT2:2000-IDENTIFY-BO — comparator '>' present"
+        }
+      ]
+    },
+    "finding": {
+      "instance_id": "drift_305779",
+      "regulation_clause": {
+        "doc": "RBI-KYC-Directions-2025",
+        "clause_id": "5(iv)(b)",
+        "version": "2025-11-28",
+        "effective_date": "2025-11-28",
+        "text": "For partnership firms, the beneficial owner is the natural person with ownership of/entitlement to more than 10 percent of capital or profits (lowered from 15 percent by the 2023-10-17 amendment to the 2016 MD).",
+        "current_value": {
+          "kind": "percentage",
+          "value": 10,
+          "comparator": "strictly_greater",
+          "note": null
+        }
+      },
+      "code_locus": {
+        "loci": [
+          {
+            "program": "BOIDENT2",
+            "paragraph": "2000-IDENTIFY-BO",
+            "file": "BOIDENT2.cbl",
+            "line_span": [
+              31,
+              33
+            ]
+          }
+        ],
+        "slice_vars": [
+          "WS-CAPITAL-PCT",
+          "WS-PROFIT-PCT",
+          "WS-BO-THRESHOLD",
+          "WS-IS-BO"
+        ],
+        "is_interprocedural": false
+      },
+      "drift_type": "D7_conformant",
+      "target_path": null,
+      "labels": {
+        "program_level": "conformant",
+        "paragraph_level": "conformant",
+        "line_level": []
+      },
+      "rationale": "For capital and profit, the code identifies a beneficial owner only when the percentage is greater than the 10.00 threshold. That strict comparison matches the clause’s more-than-10-percent criterion."
+    },
+    "abstained": false,
+    "abstention_reason": null,
+    "budget": {
+      "max_steps": 1,
+      "max_tool_calls": 0,
+      "max_tokens": 16384,
+      "wall_clock_timeout_s": 180.0,
+      "max_contract_repairs": 1
+    },
+    "budget_exhausted": false,
+    "tokens_used": 0,
+    "token_usage_recorded": false,
+    "contract_repairs": 0,
+    "final_answer": "The capital and profit checks use > against the 10.00 threshold, matching the clause’s more-than-10-percent criterion.",
+    "model_id": "gpt-5.6-luna",
+    "seed": null
+  },
+  "agent_hunts": [],
+  "abstained": false,
+  "abstention_reason": null,
+  "infrastructure_error": null,
+  "system_id": "plain_llm",
+  "source_sha256": "caf7862aa4b234be9dec312ec4a75f2c3e40834b5055bbaf53a776f9ceb8c062",
+  "run_key": "22410beaabfa9e863344efbb2e9db73888877f8ccf120f897b95652cf9284db7"
+}
