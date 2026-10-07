@@ -43,6 +43,6 @@ have not been run; the official report stays
 | E1 | Official run and decision | todo | [E1](docs/tasks/E1.md) |
 | M1 | Simplify migration | done | [M1](docs/tasks/M1.md) |
 | P1 | Regenerate paper, datasheet, and release | todo | [P1](docs/tasks/P1.md) |
-| S1 | Project site generated from the canonical results | todo | [S1](docs/tasks/S1.md) |
+| S1 | Project site generated from the canonical results | in progress | [S1](docs/tasks/S1.md) |
 
 Order: D4 → D5 → B1/B2 → E1 → P1/S1.

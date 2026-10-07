@@ -244,15 +244,9 @@ def build_report(split: Split) -> dict[str, Any]:
     return report
 
 
-def render_markdown(report: dict[str, Any]) -> str:
-    lines = [f"# Detector report: {report['split']} split", ""]
-    lines.append(f"**Decision: {report['decision']}**")
-    lines.append("")
-    if report["decision"] == "NOT_EVALUABLE":
-        lines.append(report["reason"])
-        for system, ids in report["missing_or_failed"].items():
-            lines.append(f"- {system}: {len(ids)} rows missing/failed")
-        return "\n".join(lines) + "\n"
+def gate_rows(report: dict[str, Any]) -> list[tuple[str, str, str, bool]]:
+    """(gate, measured, required, passed) for an evaluated report."""
+
     t1 = report["detector"]["t1"]
     comparison = report["interprocedural_comparison"] or {
         "delta_f1": float("nan"),
@@ -306,12 +300,24 @@ def render_markdown(report: dict[str, Any]) -> str:
             "zero_unverified_findings",
         ),
     ]
+    return [
+        (name, measured, required, bool(report["gate_results"][key]))
+        for name, measured, required, key in rows
+    ]
+
+
+def render_markdown(report: dict[str, Any]) -> str:
+    lines = [f"# Detector report: {report['split']} split", ""]
+    lines.append(f"**Decision: {report['decision']}**")
+    lines.append("")
+    if report["decision"] == "NOT_EVALUABLE":
+        lines.append(report["reason"])
+        for system, ids in report["missing_or_failed"].items():
+            lines.append(f"- {system}: {len(ids)} rows missing/failed")
+        return "\n".join(lines) + "\n"
     lines += ["| Gate | Measured | Required | Pass |", "| --- | --- | --- | --- |"]
-    for name, measured, required, key in rows:
-        lines.append(
-            f"| {name} | {measured} | {required} | "
-            f"{'yes' if report['gate_results'][key] else 'NO'} |"
-        )
+    for name, measured, required, passed in gate_rows(report):
+        lines.append(f"| {name} | {measured} | {required} | {'yes' if passed else 'NO'} |")
     lines += ["", "## Confusion matrix (detector)", ""]
     matrix = report["detector"]["confusion"]
     columns = list(next(iter(matrix.values())))
