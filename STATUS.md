@@ -37,7 +37,7 @@ have not been run; the official report stays
 | D2 | `check_finding` self-check inside the task | done (offline) | [D2](docs/tasks/D2.md) |
 | D3 | Error analysis of the last official run | done | [D3](docs/tasks/D3.md) |
 | D4 | Detector improvements: D6, D7-vs-D2, temporal | in progress | [D4](docs/tasks/D4.md) |
-| D5 | Live dev runs and tuning | todo | [D5](docs/tasks/D5.md) |
+| D5 | Live dev runs and tuning | in progress | [D5](docs/tasks/D5.md) |
 | B1 | Fresh held-out test split (145 rows) | done | [B1](docs/tasks/B1.md) |
 | B2 | Fresh temporal pairs (22) | done | [B2](docs/tasks/B2.md) |
 | E1 | Official run and decision | todo | [E1](docs/tasks/E1.md) |

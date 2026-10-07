@@ -342,8 +342,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     (out / "report.json").write_text(
         json.dumps(report, indent=2, sort_keys=True, default=str) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
-    (out / "report.md").write_text(render_markdown(report), encoding="utf-8")
+    (out / "report.md").write_text(
+        render_markdown(report), encoding="utf-8", newline="\n"
+    )
     print(f"{args.split}: {report['decision']}")
     return 0
 

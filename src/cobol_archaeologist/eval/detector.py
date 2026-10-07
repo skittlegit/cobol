@@ -99,6 +99,20 @@ Before emitting, perform this class-arbitration preflight:
   relabel that case D2 merely because the final gate is malformed or absent.
   Reserve D2 for a required outcome that is absent without an existing source
   state or action that positively conflicts with the requirement.
+- Choose D1 only when the code holds a different meaningful value of the
+  clause's own parameter: another number of days, amount, or percentage, or
+  another unit or basis (for example working days where the clause counts
+  calendar days). A comparison against ZERO or SPACES, or any value that makes
+  the regulated condition always true or always false, is not a stale value:
+  it removes the gate, which is D3.
+- Doing more than the clause requires is not drift. An extra identification
+  route, a stricter limit, or an additional check never makes a case D3; D3
+  needs code that permits what the clause forbids or withholds what it
+  requires.
+- When the obligation has several legs (capital OR profits; shares, capital,
+  or profits; author, trustee, and beneficiaries), confirm the code covers
+  every leg. A leg with no field and no test is D2 even when the threshold on
+  the other legs is right.
 - Choose D4 only for an enum_set reference collection, and quote at least one
   complete canonical missing or extra enum member verbatim, including its
   prefixes and punctuation, in `prediction.rationale`.
@@ -117,7 +131,9 @@ Before emitting, perform this class-arbitration preflight:
   seven-day allowed window and `delay >= 7` is one unit early; `elapsed > 30`
   is conformant for an at-most-30-day window and `elapsed >= 30` is early;
   `notice >= 30` is conformant for an at-least-30-day requirement and
-  `notice > 30` is late. Do not cancel an early transition merely because a
+  `notice > 30` is late. The same holds for calendar periods: a consequence
+  that starts only after the date exactly one month (or N days) later is
+  conformant with "within a maximum period of one month". Do not cancel an early transition merely because a
   downstream arithmetic expression happens to evaluate to zero at the edge.
 - Choose D6 when the relevant compliance action is unreachable, including a
   reachable paragraph whose compliance branch is disabled by an always-false
@@ -487,6 +503,8 @@ Run it exactly in that form: the JSON object inline in single quotes, and no
 pipes, redirects, `&&`, `;`, command substitution, or other commands. Any
 other command invalidates the whole case. Inside the JSON never type a single
 quote character; write it as \\u0027 (for example in "does\\u0027t").
+That substitution is only for the command line: in your final JSON answer
+write quote characters normally (for example the literal 'N').
 TOOL and its JSON arguments: read_program {{"program":"..."}};
 read_paragraph {{"program":"...","name":"..."}}; find_callers and find_callees
 {{"program":"...","para":"..."}}; trace_variable and slice_on
