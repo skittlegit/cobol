@@ -1,0 +1,26 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TPPA01.
+      * PARTNERSHIP FIRM BO - LIMIT FROM THE FIRM RULES COPYBOOK
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY TPPALIM.
+       01  WS-CAPITAL-PCT            PIC 9(3)V99 VALUE ZERO.
+       01  WS-PROFIT-PCT             PIC 9(3)V99 VALUE ZERO.
+       01  WS-MGMT-CONTROL           PIC X VALUE 'N'.
+       01  WS-IS-BO                  PIC X VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-CAPITAL-PCT
+           ACCEPT WS-PROFIT-PCT
+           ACCEPT WS-MGMT-CONTROL
+           PERFORM 2000-PARTNER
+           DISPLAY 'BO: ' WS-IS-BO
+           STOP RUN.
+       2000-PARTNER.
+           IF WS-CAPITAL-PCT > PF-PARTNER-BO-PCT
+              OR WS-PROFIT-PCT > PF-PARTNER-BO-PCT
+              OR WS-MGMT-CONTROL = 'Y'
+              MOVE 'Y' TO WS-IS-BO
+           ELSE
+              MOVE 'N' TO WS-IS-BO
+           END-IF.

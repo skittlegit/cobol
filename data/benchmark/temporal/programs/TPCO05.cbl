@@ -1,0 +1,23 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TPCO05.
+      * COMPANY BO SCREEN - THRESHOLD FROM SHARED KYC LIMITS
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY TPCOLIM.
+       01  WS-OWNERSHIP-PCT          PIC 9(3)V99 VALUE ZERO.
+       01  WS-OTHER-CONTROL          PIC X VALUE 'N'.
+       01  WS-IS-BO                  PIC X VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-OWNERSHIP-PCT
+           ACCEPT WS-OTHER-CONTROL
+           PERFORM 2000-SCREEN
+           DISPLAY 'BO: ' WS-IS-BO
+           STOP RUN.
+       2000-SCREEN.
+           IF WS-OWNERSHIP-PCT > KYC-COMPANY-BO-PCT
+              OR WS-OTHER-CONTROL = 'Y'
+              MOVE 'Y' TO WS-IS-BO
+           ELSE
+              MOVE 'N' TO WS-IS-BO
+           END-IF.

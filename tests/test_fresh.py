@@ -36,3 +36,29 @@ def test_test_split_uses_only_fresh_bases_and_no_shared_group():
     assert sum(row.code_locus.is_interprocedural for row in test) >= 60
     assert all(row.provenance.base_program in fresh for row in test)
     assert not {_base_group(row) for row in test} & used
+
+
+def test_temporal_pairs_share_source_and_have_opposite_verdicts():
+    import json
+
+    from cobol_archaeologist.eval.runner import materialize_row
+
+    rows = {
+        row.instance_id: row
+        for row in (
+            DriftInstance.model_validate_json(line)
+            for line in (BENCHMARK / "temporal" / "rows.jsonl")
+            .read_text(encoding="utf-8")
+            .splitlines()
+        )
+    }
+    pairs = json.loads((BENCHMARK / "temporal" / "pairs.json").read_text())
+
+    assert len(pairs) >= 20
+    for pair in pairs.values():
+        old, new = (rows[member] for member in pair["members"])
+        assert materialize_row(old, "temporal").source_sha256 == (
+            materialize_row(new, "temporal").source_sha256
+        )
+        assert old.regulation_clause.version != new.regulation_clause.version
+        assert {old.drift_type, new.drift_type} == {"D7_conformant", "D1_stale_threshold"}

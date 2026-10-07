@@ -1,0 +1,27 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TPTR03.
+      * TRUST DEED PARTIES - BENEFICIARY BAND CHECK
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-ROLE                   PIC X(10) VALUE SPACES.
+       01  WS-INTEREST-PCT           PIC 9(3)V99 VALUE ZERO.
+           88  REPORTABLE-INTEREST  VALUES 15.00 THRU 100.00.
+       01  WS-IDENTIFY               PIC X VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-ROLE
+           ACCEPT WS-INTEREST-PCT
+           PERFORM 2000-TRUST-PARTY
+           DISPLAY 'IDENTIFY: ' WS-IDENTIFY
+           STOP RUN.
+       2000-TRUST-PARTY.
+           MOVE 'N' TO WS-IDENTIFY
+           IF WS-ROLE = 'BENEFICIAR'
+              IF REPORTABLE-INTEREST
+                 MOVE 'Y' TO WS-IDENTIFY
+              END-IF
+           ELSE
+              IF WS-ROLE = 'AUTHOR' OR 'TRUSTEE' OR 'CONTROLLER'
+                 MOVE 'Y' TO WS-IDENTIFY
+              END-IF
+           END-IF.

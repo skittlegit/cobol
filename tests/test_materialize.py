@@ -80,7 +80,7 @@ def test_every_synthetic_row_is_its_base_plus_its_stored_edit():
 def test_all_dev_rows_materialize():
     rows = _dev_rows()
 
-    assert len(rows) == 298
+    assert len(rows) == 320
     for row in rows:
         source = materialize(row)
         assert source.files

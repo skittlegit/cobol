@@ -1,0 +1,26 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TPCO04.
+      * COMPANY BO - PERCENTAGE FROM SHARES HELD / SHARES ISSUED
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-SHARES-HELD            PIC 9(9) VALUE ZERO.
+       01  WS-SHARES-ISSUED          PIC 9(9) VALUE 1.
+       01  WS-HELD-PCT               PIC 9(3)V99 VALUE ZERO.
+       01  WS-CONTROL-FLAG           PIC X VALUE 'N'.
+       01  WS-IS-BO                  PIC X VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-SHARES-HELD
+           ACCEPT WS-SHARES-ISSUED
+           ACCEPT WS-CONTROL-FLAG
+           PERFORM 2000-PERCENT
+           DISPLAY 'BO: ' WS-IS-BO
+           STOP RUN.
+       2000-PERCENT.
+           COMPUTE WS-HELD-PCT ROUNDED =
+                   WS-SHARES-HELD * 100 / WS-SHARES-ISSUED
+           IF WS-HELD-PCT > 25 OR WS-CONTROL-FLAG = 'Y'
+              MOVE 'Y' TO WS-IS-BO
+           ELSE
+              MOVE 'N' TO WS-IS-BO
+           END-IF.

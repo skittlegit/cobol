@@ -1,0 +1,25 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TPCO08.
+      * SHAREHOLDER REGISTER SCAN - COUNT BENEFICIAL OWNERS
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-BO-LIMIT               PIC 9(3)V99 VALUE 25.00.
+       01  WS-HOLDERS.
+           05  WS-HOLDER-PCT        PIC 9(3)V99 OCCURS 5 TIMES.
+       01  WS-IX                     PIC 9 VALUE ZERO.
+       01  WS-BO-COUNT               PIC 9 VALUE ZERO.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           PERFORM VARYING WS-IX FROM 1 BY 1 UNTIL WS-IX > 5
+              ACCEPT WS-HOLDER-PCT (WS-IX)
+           END-PERFORM
+           PERFORM 2000-COUNT
+           DISPLAY 'BO COUNT: ' WS-BO-COUNT
+           STOP RUN.
+       2000-COUNT.
+           MOVE ZERO TO WS-BO-COUNT
+           PERFORM VARYING WS-IX FROM 1 BY 1 UNTIL WS-IX > 5
+              IF WS-HOLDER-PCT (WS-IX) > WS-BO-LIMIT
+                 ADD 1 TO WS-BO-COUNT
+              END-IF
+           END-PERFORM.
