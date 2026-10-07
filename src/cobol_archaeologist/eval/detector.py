@@ -109,10 +109,19 @@ Before emitting, perform this class-arbitration preflight:
   route, a stricter limit, or an additional check never makes a case D3; D3
   needs code that permits what the clause forbids or withholds what it
   requires.
-- When the obligation has several legs (capital OR profits; shares, capital,
-  or profits; author, trustee, and beneficiaries), confirm the code covers
-  every leg. A leg with no field and no test is D2 even when the threshold on
-  the other legs is right.
+- When one test has several alternatives (capital OR profits; shares,
+  capital, or profits; author, trustee, and beneficiaries), confirm the code
+  covers every alternative. A single generic measure (an ownership or
+  entitlement percentage) covers all of them; only a field explicitly scoped
+  to one alternative (for example a capital-only interest) leaves the others
+  missing, which is D2 even when the threshold is right.
+- A clause often bundles separate obligations (a deadline, a penalty amount,
+  a consent window, a reversal on request). Judge the obligation the program
+  actually implements: the one its computation or decision addresses. Do not
+  choose D2 because the program lacks other obligations of the clause that
+  belong to other processes. If the implemented action is present but can
+  never run (a guard flag that is never set to its enabling value), that is
+  D6 even though other obligations are also absent.
 - Choose D4 only for an enum_set reference collection, and quote at least one
   complete canonical missing or extra enum member verbatim, including its
   prefixes and punctuation, in `prediction.rationale`.
