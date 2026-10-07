@@ -160,7 +160,11 @@ Before emitting, perform this class-arbitration preflight:
   not derive or validate an input itself, and do not choose D2 for an action
   another process performs (a registry upload, sending a consent request) when
   this program's job is to track or decide it. Judge whether the program's own
-  decision on its inputs matches the clause.
+  decision on its inputs matches the clause. This applies only to values from
+  outside the programs in scope: when another program in scope produces the
+  input (for example one batch step sets a run flag that the next step
+  accepts), trace it to that program. If that producer can never supply the
+  enabling value, the guarded action is dead (D6), not conformant.
 - Before choosing D2, search for the required outcome itself (grep its
   literal, status value, or paragraph name, and slice the variable that would
   carry it). If the outcome exists and is reachable, D2 is wrong: compare the

@@ -93,6 +93,10 @@ original source line numbers.
   family share structure. They share no program, identifier set, or source
   text with train/dev, but they are less varied than CardDemo code.
 - The test split has no real-curated rows; the 43 annotated rows stay in dev.
+- A row's source bundle is the base program, its copybooks, and every file the
+  row's edit touches. For a cross-program chain the second program is in the
+  bundle only when the edit is there, so on the same host a D6 row carries two
+  programs and a benign row carries one.
 - Every fresh temporal pair has the same direction (old side conformant, new
   side D1), and all come from beneficial-owner thresholds, the only numeric
   changes in the anchor regulations that could be verified in the pinned
