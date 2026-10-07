@@ -185,7 +185,7 @@ def render_html(markdown: str) -> str:
         parts.append("</table>")
     return (
         '<!doctype html><html lang="en"><meta charset="utf-8">'
-        "<title>Anonymous regulatory conformance draft</title>"
+        "<title>Anonymous regulatory conformance paper</title>"
         "<style>body{max-width:72rem;margin:3rem auto;padding:1rem;font:17px/1.6 serif}"
         "table{border-collapse:collapse;font:13px/1.5 monospace;width:100%}"
         "td{border:1px solid #bbb;padding:.4rem;overflow-wrap:anywhere}"

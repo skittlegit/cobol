@@ -1,15 +1,20 @@
-# Anonymous paper draft
+# Anonymous submission artifacts
 
-Build with `python scripts/build_paper.py`; verify with
-`python scripts/build_paper.py --check`. Neither command calls a provider.
+Build with `python scripts/build_paper.py --binding paper/finalization-binding.json`;
+verify with the same command plus `--check`. Neither command calls a provider.
 The generated `manuscript.md`, `manuscript.html`, `numbers.md`, and
 `claim-map.json` are deterministic. The numerical appendix includes the full
 frozen results, including failed bars and supplemental measurements.
 
-This is a draft. Final submission must bind the completed deployment and
-release validation to the same source commit and benchmark manifest. It must
-also incorporate the terminal migration report. Those gates are intentionally
-not inferred from the existence of this directory.
+The current manuscript is SUBMISSION_READY. Its explicit binding pins actual
+passed deployment, two clean identical source archives, outside-tree validation
+and the terminal migration report to source commit
+`8565cd36e7630ae3452191fd48d06fd5ebd39b39` and the frozen benchmark manifest.
+Readiness is measured by these receipts, not inferred from this directory.
+The anonymous document package is separate from the attributed software archive;
+it contains no software code or copyright-owner identity. Its local LICENSE file
+is a review notice, not a replacement software license. The separately distributed
+source archive retains the original MIT and Apache notices.
 
 Finalization uses an explicit `--binding paper/finalization-binding.json`.
 The `paper-finalization-binding-v1` object has exactly these fields:

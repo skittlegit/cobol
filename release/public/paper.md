@@ -1,9 +1,9 @@
 schema_version: public-release-summary-v1
-source_sha256: c5b38bef134f314ea93e1cadb95d6f1069c02c39a80e58084ec0d9b2e8766e37
+source_sha256: 0a98fd14a32ba944d30c289afd58fbc6b7e4aa897d9f46ba5979f6bf8dc1b0b7
 
 # Version-conditioned regulatory conformance in legacy COBOL
 
-**Anonymous draft; submission gates pending.**
+**Anonymous submission package; audited artifact bindings recorded.**
 
 ## Abstract
 
@@ -165,8 +165,7 @@ analysis without provider calls. The [claim map](paper-numbers.json) pins every
 numeric table cell and inline claim to an exact JSON pointer and source-byte
 hash. The final reproduction statement must bind the deployment installation,
 licensed benchmark release archive, release validation, and terminal migration
-report to the same source commit and benchmark manifest. This draft does not
-claim that those submission gates are complete.
+report to the same source commit and benchmark manifest. The final artifact bindings and passed submission gates are recorded in the claim map.
 
 ## Conclusion
 

@@ -1,6 +1,6 @@
 # Version-conditioned regulatory conformance in legacy COBOL
 
-**Anonymous draft; submission gates pending.**
+**Anonymous submission package; audited artifact bindings recorded.**
 
 ## Abstract
 
@@ -162,8 +162,7 @@ analysis without provider calls. The [claim map](claim-map.json) pins every
 numeric table cell and inline claim to an exact JSON pointer and source-byte
 hash. The final reproduction statement must bind the deployment installation,
 licensed benchmark release archive, release validation, and terminal migration
-report to the same source commit and benchmark manifest. This draft does not
-claim that those submission gates are complete.
+report to the same source commit and benchmark manifest. The final artifact bindings and passed submission gates are recorded in the claim map.
 
 ## Conclusion
 

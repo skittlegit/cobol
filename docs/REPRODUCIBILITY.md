@@ -1,4 +1,4 @@
-﻿# Reproducing the benchmark release
+ï»¿# Reproducing the benchmark release
 
 The release builder packages the frozen v1 benchmark and its locked annotation
 chain, project validation source, documentation, license/attribution files and
@@ -99,3 +99,14 @@ underlying authorized primary documents and deployment model payloads is a
 separate requirement. A successful wheel build does not establish the complete
 T7.2 container or retrieval qualification. Run the archive verifier before
 building, because wheel construction creates files outside its initial allowlist.
+
+## Completed source revision
+
+The measured successor archive is `release/cobol-source.zip`, built twice from
+clean source commit `8565cd36e7630ae3452191fd48d06fd5ebd39b39`. To reproduce those
+exact bytes, use that commit in a separate clean checkout and `--profile successor`,
+with outputs outside the checkout. `release/two-builds.json`,
+`release/unpacked-validation.json` and `release/wheel-validation.json` retain
+the actual results. A later publication commit adds the final paper and receipts;
+its final paper is distinct from the draft public paper inside the source archive.
+The frozen benchmark manifest is identical in both artifact revisions.
