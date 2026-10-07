@@ -17,7 +17,7 @@ from cobol_archaeologist.eval.statistics import (
 from cobol_archaeologist.schemas import DriftInstance, DriftPrediction
 
 ROOT = Path(__file__).resolve().parents[1]
-SPLIT = ROOT / "data" / "benchmark" / "legacy" / "v1-pre" / "test.jsonl"
+SPLIT = ROOT / "data" / "benchmark" / "dev.jsonl"
 SEED = ROOT / "data" / "benchmark" / "seed" / "real_curated.jsonl"
 GOLDEN = ROOT / "tests" / "fixtures" / "agent" / "golden_late_fee_trajectory.json"
 
@@ -78,7 +78,12 @@ def _record(
 def test_perfect_seven_class_predictions_score_one():
     rows = _rows(SPLIT)
     gold = [
-        next(row for row in rows if row.drift_type == kind)
+        next(
+            row
+            for row in rows
+            if row.drift_type == kind
+            and (kind == "D7_conformant" or row.labels.line_level)
+        )
         for kind in {row.drift_type for row in rows}
     ]
     result = evaluate([_record(row) for row in gold])

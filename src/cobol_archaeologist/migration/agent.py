@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -15,7 +16,6 @@ from cobol_archaeologist.migration.contracts import (
 )
 
 if TYPE_CHECKING:
-    from cobol_archaeologist.eval.config3_live import Config3RunFreeze
     from cobol_archaeologist.eval.schemas import EvaluationRecord
 
 MIGRATION_SYSTEM_PROMPT = """You are a COBOL remediation agent operating on one case.
@@ -179,35 +179,24 @@ def validate_artifact_identity(
 def assert_track_authorized(
     request: MigrationRequest,
     *,
-    config3_output_dir: Path,
-    config3_freeze: Config3RunFreeze,
+    decision_status: str,
+    detector_records: Sequence[EvaluationRecord] = (),
+    records_sha256: str = "",
 ) -> None:
-    """Revalidate canonical configuration-3 evidence before track activation."""
+    """Detector-led migration runs only on a GO detector decision."""
 
-    from cobol_archaeologist.eval.config3_live import (
-        load_revalidate_configuration3_decision,
-        load_verified_config3_detector_records,
-    )
-
-    decision, _ = load_revalidate_configuration3_decision(
-        output_dir=config3_output_dir,
-        freeze=config3_freeze,
-    )
-    if request.track == MigrationTrack.DETECTOR_LED and decision.status != "GO":
+    if request.track != MigrationTrack.DETECTOR_LED:
+        return
+    if decision_status != "GO":
         raise PermissionError(
-            "detector-led migration is inactive unless the canonically revalidated "
-            f"configuration-3 decision is GO (observed {decision.status})"
+            "detector-led migration is inactive unless the detector decision is GO "
+            f"(observed {decision_status})"
         )
-    if request.track == MigrationTrack.DETECTOR_LED:
-        records, records_sha256 = load_verified_config3_detector_records(
-            output_dir=config3_output_dir,
-            freeze=config3_freeze,
-        )
-        validate_detector_evidence_binding(
-            request,
-            records=records,
-            records_sha256=records_sha256,
-        )
+    validate_detector_evidence_binding(
+        request,
+        records=detector_records,
+        records_sha256=records_sha256,
+    )
 
 
 def stage_case_sources(

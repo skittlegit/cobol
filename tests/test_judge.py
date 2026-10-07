@@ -33,7 +33,7 @@ from cobol_archaeologist.schemas import DriftInstance
 
 ROOT = Path(__file__).resolve().parents[1]
 INSTANCES = ROOT / "data" / "benchmark" / "drift_instances.jsonl"
-RUBRIC = ROOT / "docs" / "tasks" / "T2.4-work-order.md"
+RUBRIC = ROOT / "docs" / "judge-rubric.md"
 
 
 def _instances() -> list[DriftInstance]:

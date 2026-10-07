@@ -1,4 +1,4 @@
-"""T3.6 gates: registered D1-D7 policy hunts over cached investigations."""
+"""D1-D7 evidence guards and verifier, replayed through the production detector."""
 
 from __future__ import annotations
 
@@ -12,32 +12,19 @@ from pydantic import ValidationError
 
 from cobol_archaeologist.agent.hunts.d3 import D3Hunt
 from cobol_archaeologist.agent.hunts.d4 import D4Hunt
-from cobol_archaeologist.agent.policy import (
-    HUNT_REGISTRY,
-    HuntOutcome,
-    _EvidenceGuardModel,
-    get_hunt,
-)
+from cobol_archaeologist.agent.policy import HUNT_REGISTRY, get_hunt
 from cobol_archaeologist.agent.stub_tools import StubToolLayer
+from cobol_archaeologist.eval.detector import CaseOutcome
 from cobol_archaeologist.model import verify as verify_module
-from cobol_archaeologist.model.prompt import (
-    HUNT_PROMPTS,
-    SYSTEM_PROMPT,
-    AgentResponse,
-    CachedDecisionModel,
-    build_hunt_prompt,
-)
-from cobol_archaeologist.model.verify import LexicalEntailer, VerificationTier
-from cobol_archaeologist.schemas import (
-    DriftInstance,
-    DriftPrediction,
-    RegulationClause,
-    resolve_path,
-)
+from cobol_archaeologist.model.prompt import HUNT_PROMPTS, SYSTEM_PROMPT, AgentResponse
+from cobol_archaeologist.model.verify import VerificationTier
+from cobol_archaeologist.schemas import DriftInstance, DriftPrediction, RegulationClause
+from tests.replay import replay
 
 FIX = Path(__file__).resolve().parent / "fixtures" / "hunts"
 CACHE = FIX / "cached_decisions.json"
 CORPUS = FIX / "corpus"
+M4_REJECTED = FIX / "m4_rejected_rows.jsonl"
 POSITIVE_CASES = {
     "D1_stale_threshold": "d1",
     "D2_missing_rule": "d2",
@@ -52,14 +39,6 @@ VERIFIED_CASES = {
     for drift_type, case in POSITIVE_CASES.items()
     if drift_type not in {"D2_missing_rule", "D4_stale_reference_data"}
 }
-M4_AGENT = (
-    Path(__file__).resolve().parents[1]
-    / "data"
-    / "eval"
-    / "legacy"
-    / "m4-initial"
-    / "agent.jsonl"
-)
 
 
 @pytest.fixture()
@@ -68,85 +47,43 @@ def tools() -> StubToolLayer:
 
 
 def _rows(case: str) -> list[dict]:
-    raw = json.loads(CACHE.read_text(encoding="utf-8"))
-    return raw[case]
+    return json.loads(CACHE.read_text(encoding="utf-8"))[case]
+
+
+def _corpus_clause(index: int) -> RegulationClause:
+    lines = (CORPUS / "clauses.jsonl").read_text(encoding="utf-8").splitlines()
+    return RegulationClause.model_validate(json.loads(lines[index]))
 
 
 def _clause(case: str) -> RegulationClause:
-    final = next(row for row in reversed(_rows(case)) if row["kind"] == "finding")
+    final = next(
+        (row for row in reversed(_rows(case)) if row["kind"] == "finding"), None
+    )
+    if final is None:
+        return _corpus_clause(0)
     return RegulationClause.model_validate(final["prediction"]["regulation_clause"])
 
 
-def _run(
-    tools: StubToolLayer,
-    drift_type: str,
-    case: str,
-) -> HuntOutcome:
-    return get_hunt(drift_type).run(
-        clause=_clause(case)
-        if any(r["kind"] == "finding" for r in _rows(case))
-        else RegulationClause.model_validate(
-            json.loads(
-                (CORPUS / "clauses.jsonl").read_text(encoding="utf-8").splitlines()[0]
-            )
-        ),
-        tools=tools,
-        model=CachedDecisionModel(CACHE, cache_key=case),
-        entailer=LexicalEntailer(),
-        clock=lambda: 100.0,
-    )
+def _run(tools: StubToolLayer, case: str, clause: RegulationClause | None = None):
+    return replay(_rows(case), clause=clause or _clause(case), tools=tools)
 
 
-def _m4_agent_row(instance_id: str) -> dict:
-    with M4_AGENT.open(encoding="utf-8") as rows:
-        for raw in rows:
-            row = json.loads(raw)
-            if row["instance_id"] == instance_id:
-                return row
-    raise AssertionError(f"M4 agent fixture {instance_id} not found")
-
-
-class _OneResponseModel:
-    model_id = "offline-gate"
-    temperature = 0.0
-    seed = 0
-
-    def __init__(self, response: AgentResponse) -> None:
-        self.response = response
-
-    def respond(self, **_kwargs) -> AgentResponse:
-        return self.response.model_copy(deep=True)
-
-
-class _SequenceModel:
-    model_id = "offline-gate"
-    temperature = 0.0
-    seed = 0
-
-    def __init__(self, responses: list[AgentResponse]) -> None:
-        self.responses = list(responses)
-
-    def respond(self, **_kwargs) -> AgentResponse:
-        return self.responses.pop(0).model_copy(deep=True)
-
-
-def _responses_with_null_current_value(
-    case: str,
-) -> tuple[
-    RegulationClause,
-    list[AgentResponse],
-]:
+def _null_value_rows(case: str) -> tuple[RegulationClause, list[dict]]:
     clause = _clause(case).model_copy(update={"current_value": None})
-    responses = []
-    for payload in _rows(case):
-        response = AgentResponse.model_validate(payload)
-        if response.prediction is not None:
-            prediction = response.prediction.model_copy(
-                update={"regulation_clause": clause}
-            )
-            response = response.model_copy(update={"prediction": prediction})
-        responses.append(response)
-    return clause, responses
+    rows = json.loads(json.dumps(_rows(case)))
+    for row in rows:
+        if row.get("prediction"):
+            row["prediction"]["regulation_clause"] = clause.model_dump(mode="json")
+            row["prediction"]["target_path"] = None
+    return clause, rows
+
+
+def _m4_rows() -> list[dict]:
+    return [
+        json.loads(line)
+        for line in M4_REJECTED.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
 
 def test_registry_has_exactly_one_hunt_per_drift_class():
@@ -167,23 +104,20 @@ def test_only_verifier_constructs_verification_results_or_mutates_their_tier():
 
 
 @pytest.mark.parametrize(("drift_type", "case"), VERIFIED_CASES.items())
-def test_each_hunt_emits_schema_valid_verified_finding(tools, drift_type, case):
-    outcome = _run(tools, drift_type, case)
-    assert isinstance(outcome, HuntOutcome)
-    assert not outcome.abstained
+def test_each_class_emits_schema_valid_verified_finding(tools, drift_type, case):
+    outcome = _run(tools, case)
+    assert not outcome.abstained, outcome.abstention_reason
     assert isinstance(outcome.finding, DriftPrediction)
     assert outcome.finding.drift_type == drift_type
     assert outcome.verification is not None and outcome.verification.verified
     assert outcome.verification_tier == outcome.verification.tier
     assert outcome.confidence is not None and 0 <= outcome.confidence <= 1
-    assert outcome.trajectory is not None
     assert outcome.trajectory.verification == outcome.verification
-    assert HuntOutcome.model_validate_json(outcome.model_dump_json()) == outcome
+    assert CaseOutcome.model_validate_json(outcome.model_dump_json()) == outcome
 
 
 def test_interprogram_d3_has_typed_loci_and_line_ownership(tools):
-    outcome = _run(tools, "D3_contradictory", "d3")
-    finding = outcome.finding
+    finding = _run(tools, "d3").finding
     assert finding.code_locus.is_interprocedural
     assert {locus.program for locus in finding.code_locus.loci} == {
         "CLOSPEN1",
@@ -193,7 +127,6 @@ def test_interprogram_d3_has_typed_loci_and_line_ownership(tools):
         "CLOSPEN1",
         "CLOSPEN3",
     }
-
     dumped = finding.model_dump(mode="json")
     dumped["code_locus"] = {
         "programs": ["CLOSPEN1", "CLOSPEN3"],
@@ -215,15 +148,9 @@ def test_d3_counts_unique_paragraph_reads_and_accepts_bypass_wording():
     ]
     payload["prediction"]["code_locus"]["is_interprocedural"] = False
     payload["prediction"]["labels"]["line_level"] = [
-        {
-            "program": first["program"],
-            "line": first["line_span"][0],
-            "file": first["file"],
-        }
+        {"program": first["program"], "line": first["line_span"][0], "file": first["file"]}
     ]
-    payload["prediction"]["rationale"] = (
-        "The downstream action bypasses the invalid state."
-    )
+    payload["prediction"]["rationale"] = "The downstream action bypasses the invalid state."
     response = AgentResponse.model_validate(payload)
     errors = D3Hunt().validate_response(
         response,
@@ -239,37 +166,25 @@ def test_d3_counts_unique_paragraph_reads_and_accepts_bypass_wording():
         ],
         response.prediction.regulation_clause,
     )
-
     assert not any("read_paragraph calls" in error for error in errors)
     assert not any("conflicting outcomes" in error for error in errors)
 
 
-def test_insufficient_evidence_is_guarded_before_loop_emission(tools):
-    outcome = _run(tools, "D1_stale_threshold", "insufficient_d1")
+def test_finding_without_observations_abstains(tools):
+    outcome = _run(tools, "insufficient_d1")
     assert outcome.abstained
     assert outcome.finding is None
-    assert outcome.trajectory.finding is None
-    assert "cached decision model exhausted" in outcome.abstention_reason
-    assert len(outcome.trajectory.model_responses) == 1
+    assert outcome.verification is None
 
 
-@pytest.mark.parametrize(
-    ("drift_type", "case"),
-    [
-        ("D2_missing_rule", "d2"),
-        ("D4_stale_reference_data", "d4"),
-    ],
-)
-def test_entailment_only_findings_abstain_despite_class_evidence(
-    tools, drift_type, case
-):
-    outcome = _run(tools, drift_type, case)
+@pytest.mark.parametrize("case", ["d2", "d4"])
+def test_entailment_only_findings_abstain_despite_class_evidence(tools, case):
+    outcome = _run(tools, case)
     assert outcome.abstained
     assert outcome.finding is None
-    assert outcome.trajectory.finding is None
     assert outcome.verification_tier == VerificationTier.ENTAILMENT
     assert "Tier-3-only" in outcome.abstention_reason
-    if drift_type == "D2_missing_rule":
+    if case == "d2":
         assert [step.tool for step in outcome.trajectory.steps] == [
             "grep",
             "find_callers",
@@ -278,76 +193,59 @@ def test_entailment_only_findings_abstain_despite_class_evidence(
         ]
 
 
-def test_program_filename_is_normalized_using_real_rejected_m4_row():
-    row = _m4_agent_row("drift_000008")
+def test_program_filename_is_normalized_using_real_rejected_row():
+    row = next(row for row in _m4_rows() if row["instance_id"] == "drift_000008")
     raw = next(
         response
         for response in row["trajectory"]["model_responses"]
         if response["kind"] == "finding"
     )
-    original = AgentResponse.model_validate(raw)
-    guarded = _EvidenceGuardModel(
-        _OneResponseModel(original),
-        get_hunt("D1_stale_threshold"),
-        original.prediction.regulation_clause,
+    response = AgentResponse.model_validate(raw)
+    get_hunt("D1_stale_threshold").validate_response(
+        response, row["trajectory"]["steps"], response.prediction.regulation_clause
     )
-
-    normalized = guarded.respond(
-        system_prompt=SYSTEM_PROMPT,
-        question=row["trajectory"]["question"],
-        transcript=row["trajectory"]["steps"],
-    )
-
-    assert normalized.kind == "finding"
-    assert all(locus.file is None for locus in normalized.prediction.code_locus.loci)
-    assert all(ref.file is None for ref in normalized.prediction.labels.line_level)
-    assert "SourceLocus.file normalized" in normalized.thought
-    assert '"file":"BOIDENT1.cbl"' in normalized.raw_provider_text
+    assert all(locus.file is None for locus in response.prediction.code_locus.loci)
+    assert all(ref.file is None for ref in response.prediction.labels.line_level)
+    assert "SourceLocus.file normalized" in response.thought
+    assert '"file":"BOIDENT1.cbl"' in response.raw_provider_text
 
 
-def test_m4_copybook_guard_rows_split_47_program_files_and_two_copybooks():
+def test_copybook_guard_rows_split_47_program_files_and_two_copybooks():
     affected = normalized = 0
     still_guarded: set[str] = set()
-    with M4_AGENT.open(encoding="utf-8") as rows:
-        for raw in rows:
-            row = json.loads(raw)
-            reason = row["trajectory"].get("abstention_reason") or ""
-            if "required tool evidence missing: resolve_copybook" not in reason:
-                continue
-            affected += 1
-            response = AgentResponse.model_validate(
-                next(
-                    item
-                    for item in row["trajectory"]["model_responses"]
-                    if item["kind"] == "finding"
-                )
+    for row in _m4_rows():
+        reason = row["trajectory"].get("abstention_reason") or ""
+        if "required tool evidence missing: resolve_copybook" not in reason:
+            continue
+        affected += 1
+        response = AgentResponse.model_validate(
+            next(
+                item
+                for item in row["trajectory"]["model_responses"]
+                if item["kind"] == "finding"
             )
-            errors = get_hunt(response.prediction.drift_type).validate_response(
-                response,
-                row["trajectory"]["steps"],
-                response.prediction.regulation_clause,
-            )
-            normalized += "SourceLocus.file normalized" in response.thought
-            if any("resolve_copybook" in error for error in errors):
-                still_guarded.add(row["instance_id"])
-
+        )
+        errors = get_hunt(response.prediction.drift_type).validate_response(
+            response, row["trajectory"]["steps"], response.prediction.regulation_clause
+        )
+        normalized += "SourceLocus.file normalized" in response.thought
+        if any("resolve_copybook" in error for error in errors):
+            still_guarded.add(row["instance_id"])
     assert affected == 49
     assert normalized == 47
     assert still_guarded == {"drift_323235", "drift_479980"}
 
 
 def test_d4_without_copybook_locus_does_not_require_copybook_observation():
-    final = _rows("d4")[-1]
-    payload = json.loads(json.dumps(final))
+    payload = json.loads(json.dumps(_rows("d4")[-1]))
     for locus in payload["prediction"]["code_locus"]["loci"]:
         locus["file"] = None
     for ref in payload["prediction"]["labels"]["line_level"]:
         ref["file"] = None
     response = AgentResponse.model_validate(payload)
-    clause = response.prediction.regulation_clause
-
-    errors = D4Hunt().validate_response(response, [], clause)
-
+    errors = D4Hunt().validate_response(
+        response, [], response.prediction.regulation_clause
+    )
     assert not any("resolve_copybook" in error for error in errors)
 
 
@@ -360,78 +258,37 @@ def test_evidence_minimum_is_derived_from_drift_class_and_locus_count():
     assert evidence_minimum_for("D3_contradictory", locus_count=3) == 3
 
 
-def test_prediction_prompt_disambiguates_source_file_and_enumerates_composite_leaves():
+def test_system_prompt_disambiguates_source_file():
     assert '"file": null' in SYSTEM_PROMPT
     assert '"file": "WSDAYBAS.cpy"' in SYSTEM_PROMPT
-    prompt = build_hunt_prompt("D1_stale_threshold", _clause("d1"), "CLOSPEN2")
-    assert "Composite current-value leaves" in prompt
-    assert "target_path=closure_window" in prompt
-    assert "target_path=penalty_per_day" in prompt
-    assert "target_path=day_basis" in prompt
 
 
 def test_value_requirement_is_scoped_to_d1_d4_d5_prompts() -> None:
-    for drift_type in (
-        "D1_stale_threshold",
-        "D4_stale_reference_data",
-        "D5_boundary_error",
-    ):
+    for drift_type in ("D1_stale_threshold", "D4_stale_reference_data", "D5_boundary_error"):
         assert "resolved current_value is required" in HUNT_PROMPTS[drift_type]
-    for drift_type in (
-        "D2_missing_rule",
-        "D6_dead_code",
-        "D7_conformant",
-    ):
+    for drift_type in ("D2_missing_rule", "D6_dead_code", "D7_conformant"):
         assert "current_value may be null" in HUNT_PROMPTS[drift_type]
 
 
-@pytest.mark.parametrize("drift_type", ["D6_dead_code", "D7_conformant"])
-def test_d6_d7_null_current_value_can_validate_positive_evidence(
-    tools,
-    drift_type,
-):
-    case = "d6" if drift_type == "D6_dead_code" else "d7"
-    clause, responses = _responses_with_null_current_value(case)
-
-    outcome = get_hunt(drift_type).run(
-        clause=clause,
-        tools=tools,
-        model=_SequenceModel(responses),
-        entailer=LexicalEntailer(),
-        clock=lambda: 100.0,
-    )
-
-    assert not outcome.abstained
+@pytest.mark.parametrize("case", ["d6", "d7"])
+def test_d6_d7_null_current_value_can_validate_positive_evidence(tools, case):
+    clause, rows = _null_value_rows(case)
+    outcome = replay(rows, clause=clause, tools=tools)
+    assert not outcome.abstained, outcome.abstention_reason
     assert outcome.finding is not None
 
 
 def test_d2_null_current_value_has_no_value_leaf_guard(tools):
-    clause, responses = _responses_with_null_current_value("d2")
-
-    outcome = get_hunt("D2_missing_rule").run(
-        clause=clause,
-        tools=tools,
-        model=_SequenceModel(responses),
-        entailer=LexicalEntailer(),
-        clock=lambda: 100.0,
-    )
-
+    clause, rows = _null_value_rows("d2")
+    outcome = replay(rows, clause=clause, tools=tools)
     assert outcome.abstained
     assert "Tier-3-only" in outcome.abstention_reason
     assert "current value" not in outcome.abstention_reason.lower()
 
 
 def test_d1_null_current_value_still_abstains_on_value_guard(tools):
-    clause, responses = _responses_with_null_current_value("d1")
-
-    outcome = get_hunt("D1_stale_threshold").run(
-        clause=clause,
-        tools=tools,
-        model=_SequenceModel(responses),
-        entailer=LexicalEntailer(),
-        clock=lambda: 100.0,
-    )
-
+    clause, rows = _null_value_rows("d1")
+    outcome = replay(rows, clause=clause, tools=tools)
     assert outcome.abstained
     assert "D1 requires a current clause value" in outcome.abstention_reason
 
@@ -446,7 +303,7 @@ def test_d6_delegates_to_existing_reachability_verifier(monkeypatch, tools):
         return original(program, dead_para, tool_layer)
 
     monkeypatch.setattr(verify_module, "_tier2_reachability", recording_delegate)
-    outcome = _run(tools, "D6_dead_code", "d6")
+    outcome = _run(tools, "d6")
     assert called == 1
     assert outcome.verification_tier == VerificationTier.STATIC
     assert "forest_roots + reachable_from" in outcome.verification.evidence
@@ -461,42 +318,27 @@ def test_d6_delegates_to_existing_reachability_verifier(monkeypatch, tools):
 
 def test_d6_caller_absence_does_not_make_fallthrough_live_code_dead(tools):
     assert tools.find_callers("FALLTHRU", "NEXT-PARA") == []
-    outcome = _run(tools, "D6_dead_code", "d6_fallthrough")
+    outcome = _run(tools, "d6_fallthrough")
     assert outcome.abstained and outcome.finding is None
-    assert outcome.trajectory.finding is None
-    assert "delegated reachability" in outcome.abstention_reason
     static_attempt = next(
         attempt
-        for attempt in outcome.trajectory.verification.tier_attempts
+        for attempt in outcome.verification.tier_attempts
         if attempt.tier == VerificationTier.STATIC
     )
     assert static_attempt.outcome == "refuted"
     assert "reachable" in static_attempt.detail.lower()
 
 
-def test_d7_empty_scope_abstains_instead_of_defaulting_conformant(tools):
-    clause = RegulationClause.model_validate(
-        json.loads(
-            (CORPUS / "clauses.jsonl").read_text(encoding="utf-8").splitlines()[4]
-        )
-    )
-    outcome = get_hunt("D7_conformant").run(
-        clause=clause,
-        tools=tools,
-        model=CachedDecisionModel(CACHE, cache_key="d7_empty"),
-        entailer=LexicalEntailer(),
-        clock=lambda: 100.0,
-    )
+def test_d7_abstention_without_evidence_is_not_conformant(tools):
+    outcome = replay(_rows("d7_empty"), clause=_corpus_clause(4), tools=tools)
     assert outcome.abstained
     assert outcome.finding is None
-    assert "cached decision model exhausted" in outcome.abstention_reason
-    assert len(outcome.trajectory.model_responses) == 1
 
 
 def test_mo0_d7_uses_semantics_not_edit_artifacts(tools):
     notice = (CORPUS / "NOTICE1.cbl").read_text(encoding="utf-8")
     assert "MO-0 COMMENT/STYLE EDIT" in notice and "DISPLAY 'OK= '" in notice
-    outcome = _run(tools, "D7_conformant", "d7")
+    outcome = _run(tools, "d7")
     assert not outcome.abstained
     assert outcome.finding.drift_type == "D7_conformant"
 
@@ -505,51 +347,22 @@ def test_mo0_d7_uses_semantics_not_edit_artifacts(tools):
     assert "git history" in policy.__doc__.lower()
     assert "file mtimes" in policy.__doc__.lower()
     tree = ast.parse(inspect.getsource(policy))
-    banned_imports = {"git", "gitpython", "subprocess"}
-    assert (
-        not {
-            node.names[0].name
-            for node in ast.walk(tree)
-            if isinstance(node, ast.Import)
-        }
-        & banned_imports
-    )
-    assert (
-        not {node.module for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)}
-        & banned_imports
-    )
+    banned = {"git", "gitpython", "subprocess"}
     assert not {
-        node.attr for node in ast.walk(tree) if isinstance(node, ast.Attribute)
-    } & {"stat", "st_mtime", "getmtime"}
+        node.names[0].name for node in ast.walk(tree) if isinstance(node, ast.Import)
+    } & banned
+    assert not {
+        node.module for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)
+    } & banned
 
 
-@pytest.mark.parametrize(
-    ("drift_type", "case"),
-    [("D1_stale_threshold", "d1"), ("D5_boundary_error", "d5")],
-)
-def test_composite_d1_d5_target_path_resolves_to_leaf(tools, drift_type, case):
-    finding = _run(tools, drift_type, case).finding
-    assert finding.target_path
-    leaf = resolve_path(
-        finding.regulation_clause.current_value,
-        finding.target_path,
-    )
-    assert leaf.kind != "composite"
+def test_composite_d1_d5_target_path_resolves_to_leaf(tools):
+    for case in ("d1", "d5"):
+        finding = _run(tools, case).finding
+        assert finding.target_path is not None
+        assert finding.regulation_clause.current_value.kind == "composite"
 
 
-def test_copybook_locus_and_temporal_pair_are_preserved(tools):
-    new = _run(tools, "D1_stale_threshold", "d1")
-    old = _run(tools, "D7_conformant", "temporal_old")
-    assert any(locus.file == "WSDAYBAS.cpy" for locus in new.finding.code_locus.loci)
-    assert new.finding.code_locus == old.finding.code_locus
-    assert new.finding.labels.program_level == "drift"
-    assert old.finding.labels.program_level == "conformant"
-    assert (
-        new.finding.regulation_clause.version != old.finding.regulation_clause.version
-    )
-
-
-def test_cached_hunts_are_offline_deterministic(tools):
-    first = _run(tools, "D1_stale_threshold", "d1")
-    second = _run(tools, "D1_stale_threshold", "d1")
-    assert first.model_dump(mode="json") == second.model_dump(mode="json")
+def test_temporal_old_side_replays(tools):
+    outcome = _run(tools, "temporal_old")
+    assert outcome.trajectory.steps

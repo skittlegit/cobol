@@ -22,7 +22,6 @@ from cobol_archaeologist.migration.contracts import (
     AllowedSourceScope,
     BehaviorCheck,
     CaseStratum,
-    Configuration3DecisionArtifact,
     DetectorEvidenceBinding,
     FrozenSource,
     MigrationCase,
@@ -228,43 +227,25 @@ def _bound_detector_request(record: EvaluationRecord, records_sha256: str):
     )
 
 
-def test_detector_track_needs_canonically_revalidated_go(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    from cobol_archaeologist.eval import config3_live
-
+def test_detector_track_needs_go_decision() -> None:
     record = _detector_record()
     request = _bound_detector_request(record, "a" * 64)
-    monkeypatch.setattr(
-        config3_live,
-        "load_revalidate_configuration3_decision",
-        lambda **_: (Configuration3DecisionArtifact(status="NO_GO"), "b" * 64),
-    )
     with pytest.raises(PermissionError, match="inactive"):
         assert_track_authorized(
             request,
-            config3_output_dir=Path("canonical-config3"),
-            config3_freeze=object(),
+            decision_status="NO_GO",
+            detector_records=[record],
+            records_sha256="a" * 64,
         )
-    monkeypatch.setattr(
-        config3_live,
-        "load_revalidate_configuration3_decision",
-        lambda **_: (Configuration3DecisionArtifact(status="GO"), "b" * 64),
-    )
-    monkeypatch.setattr(
-        config3_live,
-        "load_verified_config3_detector_records",
-        lambda **_: ([record], "a" * 64),
-    )
     assert_track_authorized(
         request,
-        config3_output_dir=Path("canonical-config3"),
-        config3_freeze=object(),
+        decision_status="GO",
+        detector_records=[record],
+        records_sha256="a" * 64,
     )
     assert_track_authorized(
         _request(MigrationTrack.ORACLE_ASSISTED),
-        config3_output_dir=Path("canonical-config3"),
-        config3_freeze=object(),
+        decision_status="NOT_EVALUABLE",
     )
 
 

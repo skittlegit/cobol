@@ -41,7 +41,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CLAUSES_PATH = REPO_ROOT / "data" / "regulations" / "clauses.jsonl"
 SEED_DIR = REPO_ROOT / "data" / "benchmark" / "seed"
 PROGRAMS_DIR = SEED_DIR / "programs"
-PROBE_PATH = REPO_ROOT / "data" / "benchmark" / "probes" / "t2.2_surface_probe.jsonl"
+PROBE_PATH = REPO_ROOT / "data" / "benchmark" / "surface-probe.jsonl"
 
 ALL_OPERATORS = {
     "MO-0",

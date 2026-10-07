@@ -30,7 +30,7 @@ ROOT = Path(__file__).resolve().parents[3]
 CLAUSES = ROOT / "data" / "regulations" / "clauses.jsonl"
 QUERIES = ROOT / "tests" / "fixtures" / "retrieval" / "queries.jsonl"
 CORPUS_FIXTURE = ROOT / "tests" / "fixtures" / "retrieval" / "chunks.jsonl"
-REPORT_MD = ROOT / "docs" / "tasks" / "T3.2-work-order.md"
+REPORT_MD = ROOT / "docs" / "retrieval-report.md"
 REPORT_BEGIN = "<!-- BEGIN GENERATED RELEVANCE REPORT -->"
 REPORT_END = "<!-- END GENERATED RELEVANCE REPORT -->"
 

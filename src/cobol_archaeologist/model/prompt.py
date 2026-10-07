@@ -1,30 +1,13 @@
-"""Detection policy and deterministic decision seam (Track C, T3.4/T3.5).
-
-The investigation loop depends on :class:`DecisionModel`, not on a provider
-SDK.  Production adapters can implement that protocol; offline gates use
-:class:`CachedDecisionModel`, whose responses are committed JSON.
-"""
+"""Shared detection vocabulary: tool names, class policy text, and responses."""
 
 from __future__ import annotations
 
-import json
-from collections.abc import Callable
-from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from cobol_archaeologist.model.verify import ExecProbe, StaticClaim
-from cobol_archaeologist.schemas import (
-    CurrentValue,
-    DriftPrediction,
-    DriftType,
-    RegulationClause,
-)
-
-MODEL_ID = "claude-3-5-sonnet-20241022"
-MODEL_TEMPERATURE = 0.0
-MODEL_SEED = 0
+from cobol_archaeologist.schemas import DriftPrediction, DriftType
 
 ToolName = Literal[
     "read_paragraph",
@@ -60,9 +43,10 @@ entails. Restate the applicable regulated entity, action, trigger, threshold,
 comparator, and unit in natural language. Never put a COBOL program,
 paragraph, identifier, line, implementation fact, or drift diagnosis in
 `claim`; those code facts belong in `prediction.rationale`, `static_claim`,
-and `final_answer`. Keep the claim as a close paraphrase of the supplied
-clause and preserve its distinctive regulated terms; do not add an entity,
-qualifier, or mechanism that the clause does not state.
+and `final_answer`. The most reliable claim is the clause's own sentence
+that states the relevant obligation, copied verbatim; otherwise keep a close
+paraphrase that preserves its distinctive regulated terms and adds no entity,
+qualifier, or mechanism the clause does not state.
 For a static evidence hook, copy `static_claim.literal` and
 `static_claim.comparator` exactly from source text returned by a cited tool
 observation. These fields contain source tokens, never a prose comparison;
@@ -80,25 +64,6 @@ is unavailable. If an observation is insufficient and another listed bounded
 tool can obtain the needed evidence, call that tool; abstain only after the
 relevant available evidence paths have been attempted.
 """
-
-HYDE_SYSTEM_PROMPT = """\
-Describe the regulatory obligation implemented by the supplied code-oriented
-query. Use one natural-language sentence. Preserve the regulated entity,
-action, threshold, comparator, time unit, and triggering event. Remove COBOL
-identifiers and control-flow syntax. Do not cite or infer a clause identifier.
-"""
-
-
-def build_hyde_prompt(query: str) -> str:
-    """Return the versioned T3.3b slice-to-description prompt."""
-
-    return (
-        f"{HYDE_SYSTEM_PROMPT}\n"
-        "Code-oriented query:\n"
-        f"{query.strip()}\n"
-        "Regulatory rule description:"
-    )
-
 
 HUNT_PROMPTS: dict[str, str] = {
     "D1_stale_threshold": (
@@ -150,50 +115,6 @@ HUNT_PROMPTS: dict[str, str] = {
         "current_value may be null for D7."
     ),
 }
-
-
-def _composite_leaf_lines(current: CurrentValue) -> list[str]:
-    lines: list[str] = []
-
-    def walk(node: CurrentValue, path: str) -> None:
-        if isinstance(node.value, dict):
-            for name, child in node.value.items():
-                walk(child, f"{path}.{name}" if path else name)
-            return
-        rendered = json.dumps(node.value, ensure_ascii=False, sort_keys=True)
-        comparator = node.comparator or "none"
-        lines.append(
-            f"- target_path={path}: kind={node.kind}, "
-            f"value={rendered}, comparator={comparator}"
-        )
-
-    walk(current, "")
-    return lines
-
-
-def build_hunt_prompt(
-    drift_type: str,
-    clause: RegulationClause,
-    program_scope: str | None = None,
-) -> str:
-    """Build one deterministic per-class investigation question."""
-    try:
-        policy = HUNT_PROMPTS[drift_type]
-    except KeyError:
-        raise KeyError(f"no prompt template registered for {drift_type!r}") from None
-    scope = program_scope or "the available corpus"
-    leaves = ""
-    if clause.current_value is not None and clause.current_value.kind == "composite":
-        leaves = (
-            "\nComposite current-value leaves (select one exact target_path):\n"
-            + "\n".join(_composite_leaf_lines(clause.current_value))
-        )
-    return (
-        f"{policy}\nScope: {scope}.\n"
-        f"Clause: {clause.doc} {clause.clause_id} "
-        f"(version {clause.version}, effective {clause.effective_date}): "
-        f"{clause.text}{leaves}"
-    )
 
 
 class EvidenceLedgerNote(BaseModel):
@@ -267,133 +188,3 @@ class AgentResponse(BaseModel):
             if self.tool is not None or self.prediction is not None:
                 raise ValueError("an abstain response cannot carry a tool/finding")
         return self
-
-
-def respond_with_contract_repair(
-    model: DecisionModel,
-    *,
-    system_prompt: str,
-    question: str,
-    transcript: list[dict[str, Any]],
-    max_repairs: int = 1,
-    repair_allowed: Callable[[AgentResponse], bool] | None = None,
-) -> tuple[AgentResponse, list[AgentResponse]]:
-    """Call a provider and allow one provider-neutral contract repair.
-
-    Every attempt is returned for trajectory and rejection-rate accounting.
-    Semantic abstentions are final responses, not repair triggers.
-    """
-
-    response = model.respond(
-        system_prompt=system_prompt,
-        question=question,
-        transcript=transcript,
-    )
-    attempts = [response]
-    if (
-        response.contract_error is None
-        or max_repairs <= 0
-        or (repair_allowed is not None and not repair_allowed(response))
-    ):
-        return response, attempts
-
-    repair_question = (
-        f"{question}\n\n"
-        "CONTRACT REPAIR (one attempt only): your previous response did not "
-        "satisfy the response contract. Return a complete replacement JSON "
-        "object. Do not discuss the error.\n"
-        f"Typed contract error: {response.contract_error}\n"
-        "Previous raw response:\n"
-        f"{response.raw_provider_text or '<empty>'}"
-    )
-    repaired = model.respond(
-        system_prompt=system_prompt,
-        question=repair_question,
-        transcript=transcript,
-    )
-    attempts.append(repaired)
-    return repaired, attempts
-
-
-class DecisionModel(Protocol):
-    """Provider-neutral next-action seam consumed by InvestigationLoop."""
-
-    model_id: str
-    temperature: float
-    seed: int | None
-
-    def respond(
-        self,
-        *,
-        system_prompt: str,
-        question: str,
-        transcript: list[dict[str, Any]],
-    ) -> AgentResponse: ...
-
-
-class CachedDecisionModel:
-    """Deterministic offline model backed by a committed JSON response list."""
-
-    # DECISION (provider seam): cache replay implements the same tiny protocol
-    # as a live provider adapter; the loop never imports an SDK or opens a cache.
-    def __init__(
-        self,
-        cache_path: Path,
-        *,
-        cache_key: str | None = None,
-        model_id: str = MODEL_ID,
-        temperature: float = MODEL_TEMPERATURE,
-        seed: int | None = MODEL_SEED,
-    ) -> None:
-        if temperature != 0:
-            raise ValueError("T3.5 deterministic cache requires temperature=0")
-        self.cache_path = Path(cache_path)
-        self.model_id = model_id
-        self.temperature = temperature
-        self.seed = seed
-        raw = json.loads(self.cache_path.read_text(encoding="utf-8"))
-        if cache_key is not None:
-            if not isinstance(raw, dict) or cache_key not in raw:
-                raise KeyError(
-                    f"cached response key {cache_key!r} missing from {self.cache_path}"
-                )
-            raw = raw[cache_key]
-        if not isinstance(raw, list):
-            raise TypeError("cached model responses must be a JSON list")
-        self._responses = [
-            AgentResponse.model_validate(_migrate_cached_prediction(row)) for row in raw
-        ]
-        self._cursor = 0
-
-    def respond(
-        self,
-        *,
-        system_prompt: str,
-        question: str,
-        transcript: list[dict[str, Any]],
-    ) -> AgentResponse:
-        del system_prompt, question, transcript
-        if self._cursor >= len(self._responses):
-            raise RuntimeError(
-                f"cached decision model exhausted after {self._cursor} responses"
-            )
-        response = self._responses[self._cursor]
-        self._cursor += 1
-        # Return a copy so a caller cannot mutate the committed replay sequence.
-        return response.model_copy(deep=True)
-
-
-def _migrate_cached_prediction(row: Any) -> Any:
-    """Read legacy v2 response fixtures without widening the live contract."""
-
-    if not isinstance(row, dict):
-        return row
-    migrated = dict(row)
-    prediction = migrated.get("prediction")
-    if isinstance(prediction, dict):
-        prediction = dict(prediction)
-        prediction.pop("provenance", None)
-        if "rationale" not in prediction and "gold_rationale" in prediction:
-            prediction["rationale"] = prediction.pop("gold_rationale")
-        migrated["prediction"] = prediction
-    return migrated

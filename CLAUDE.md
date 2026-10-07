@@ -2,169 +2,113 @@
 
 ## What this repo is
 
-A system + benchmark for detecting where legacy COBOL banking code has
-**drifted** from the financial regulation it was built to satisfy (stale
-thresholds, missing checks, contradictions, stale reference data, boundary
-errors, dead compliance code), with verified explanations and an optional
-migration step. Drift detection is the research contribution; the benchmark is
-the moat.
+A system and benchmark for detecting where legacy COBOL banking code has
+**drifted** from the regulation it was built to satisfy: stale thresholds,
+missing checks, contradictions, stale reference data, boundary errors, and dead
+compliance code (classes D1–D6; D7 is conformant). The detector investigates
+code with program-analysis tools and must verify every finding before it
+counts. An optional migration step patches verified findings.
 
-## Document map & precedence
+## Where things are
 
-- `STATUS.md` (repo root): the task ledger — one line per task,
-  `ID | state | owner | artifact`. **Authoritative for project state.**
-- `FLAGS.md` (repo root): cross-track message ledger — per-track inboxes; a flag
-  rides the commit of the deliverable that caused it. Read at session start.
-- `BACKLOG.md` (repo root): deferred technical debt & future work not yet
-  scheduled as a task — distinct from `STATUS.md` (tracked tasks) and `FLAGS.md`
-  (messages). An item leaves it when it becomes a work order or is fixed.
-- `docs/tasks/T<n>.<n>-work-order.md`: exactly one work order per task. Fold
-  corrective/amendment phases, rubrics, reports, and durable evidence into this
-  canonical file; do not create `a`/`b` variants, sidecars, or combined
-  multi-task work orders. For that task, this file wins.
-- `docs/CONTRACT.md`: frozen cross-track interfaces.
-- `docs/README.md`: documentation index and retention rules.
-- `docs/team-workflow.md`: how the humans, chats, and Claude Code loop works.
-- `data/manifest.json`: canonical record of anchor regulations (with versions
-  and effective dates) and codebase roles (with pinned commits). Any doc or code
-  referencing a corpus commit or regulation version must agree with it.
-- `CLAUDE.md`: this file, with conventions, pins, and locked decisions.
+| Path | What it is |
+| --- | --- |
+| `STATUS.md` | The plan: every task, its state, and the current result. Source of truth for project state. |
+| `docs/tasks/<ID>.md` | One file per task: goal, approach, done-when, result. |
+| `docs/architecture.md` | How the pieces fit, the data shapes, and the evaluation gates. |
+| `docs/annotation.md` | The frozen protocol for the human-annotated real-curated rows. |
+| `data/manifest.json` | Pinned corpora and anchor regulations. |
+| `data/benchmark/` | `train/dev/test.jsonl`, `temporal/`, seed programs, build inputs. |
+| `data/eval/<split>/` | Current results: `<system>.jsonl` and `report.json`/`report.md`. |
 
-**Precedence for a given task: work order > CLAUDE.md.** The signed
-`docs/CONTRACT.md` separately governs cross-track interfaces. If these records
-conflict, STOP and report the conflict—do not silently pick one. A task without
-its canonical work order is not executable; create or request that work order
-instead of falling back to another document.
+Source layout (`src/cobol_archaeologist/`):
 
-## Model transition (2026-09-23)
+- `ingest/cleaner.py` — mandatory preprocessor; `parser/` — tree-sitter AST,
+  paragraphs, copybooks, line maps; `static_analysis/` — call graph, dataflow,
+  slicer; `tools.py` — the tool layer the detector calls.
+- `model/verify.py` — tiered verifier; `model/run_cobol.py` — GnuCOBOL harness;
+  `model/prompt.py` — class policy text and response shapes.
+- `agent/` — D1–D7 evidence guards (`policy.py`, `hunts/`), trajectories,
+  offline stub tools.
+- `eval/` — `codex.py` (the only way models are called), `bridge.py` (tool
+  bridge inside a task), `detector.py`, `baselines.py` (rag_reranker),
+  `runner.py`, `report.py`, `metrics.py`.
+- `benchmark/` — mutation, build, judging, splits, freeze.
+- `rag/` — clause chunking, index, retrieval. `migration/` — patch generation
+  and validation. `mcp_server/` — the tools over MCP stdio.
 
-- Use `gpt-6.1-sol` for new repository implementation and review work (updated
-  by the user on 2026-10-02). This
-  changes the coding assistant, not the identity of completed model evidence.
-- The original GOAL-R1 configuration-4 evaluation is preserved at 78/305
-  sealed first-half tasks under `gpt-5.6-luna`/`max`. Its keys and results are
-  immutable. The user authorized a separate `gpt-6-luna`/`max` follow-up on
-  2026-09-23; it has its own freeze, qualification, smoke, and full-run identity.
-  Because it repeats a previously opened hidden roster, describe it as a
-  follow-up comparison rather than a first-look hidden-test result.
-- GOAL-R2 migration generation will use `gpt-6-luna`/`max`. Freeze that model
-  with the R2 requests at R2.2 and pass its fresh qualification before live
-  generation. Completed T6 reviews and prior evaluations retain their recorded
-  `gpt-5.6-sol`/`gpt-5.6-luna` identities.
+## Working rules
 
-## How you (Claude Code) are used here
+1. **One version of everything.** No `v1/`, `v2/`, `legacy/`, `-old`, `-rerun`,
+   or `sample` copies of code, data, or results. Regenerating something
+   overwrites it in place. Git history (and the tag
+   `archive/pre-consolidation`) is the archive.
+2. **One way to do each thing.** Models are called only through
+   `eval/codex.py`. Results are written only by `eval/runner.py` and scored
+   only by `eval/report.py`. Do not add parallel runners or alternative paths.
+3. **Branch:** work on `master` or a short-lived feature branch; merge back.
+   Commit subjects start with the task ID, e.g. `D4: check reachability for D6`.
+4. **Update `STATUS.md` in the same commit** as the work that changes a task's
+   state. Record the outcome in that task's `docs/tasks/<ID>.md`.
+5. **Tests first** for new behaviour; `pytest tests/ -q` and `ruff check .`
+   must pass before a commit.
+6. **No ceremony.** No receipts, seals, sidecar `.sha256` files, flags files,
+   or per-attempt evidence directories. A result file plus its report is the
+   evidence.
 
-You are always invoked as: _"Read CLAUDE.md and
-`docs/tasks/T<n>.<n>-work-order.md`. Execute."_ The work order carries current
-state, accepted amendments, and durable evidence—trust it over chat memory.
-Standing expectations:
+## Evaluation integrity (non-negotiable)
 
-- Write the gate test **first**; the task is done only when it and all prior
-  gates pass.
-- Work on the owning permanent branch `track-<a|b|c>`; commit prefix
-  `T<n>.<n>: <what changed>`.
-- **Update `STATUS.md` in the same commit as the work**: set the task's line
-  (state, artifact path) as part of completing it. The ledger must never lag the
-  artifacts — a state change without its STATUS line is an incomplete commit.
-- Leave `# DECISION:` comments where you resolved an ambiguity; list them in
-  your final summary (they get reviewed in the track chat).
-- Hit a contract question (anything touching `schemas.py`, `tools.py`
-  signatures, `docs/CONTRACT.md`)? **Stop and ask** — that is a CONTRACT CHANGE,
-  decided in chat, not here.
+- The gates are fixed in `eval/report.py` (`GATES`). They may change only
+  before a test run, never after looking at test results.
+- Tune only on `train`/`dev`. The `test` split and `temporal` pairs are run
+  once per frozen detector version, for the official decision.
+- The detector never sees gold labels, mutation provenance, or gold
+  rationales. Everything shown to a model is detector-visible only.
+- Every emitted finding must pass the verifier and the class guard. A rejected
+  finding becomes an abstention; never relax a check to raise a score.
+- Judges and verifiers must be a different model family from the system under
+  test. Benchmark mutation must include benign MO-0 edits and style
+  diversification.
 
-## Locked technical decisions — do not re-litigate
+## Locked technical decisions
 
-1. **AST backend:** tree-sitter, grammar `yutaro-sakamoto/tree-sitter-cobol`,
-   **vendored** at `vendor/tree-sitter-cobol/`, **pinned to
-   `e99dbdc3d800d5fa2796476efd60af91f6b43d93`**. No grammar upgrades without
-   re-running the T1.1 validation gate.
-2. **Mandatory preprocessor** before any parse (line-count-preserving): mask
-   `EXEC CICS/SQL/DLI … END-EXEC` (preserving the sentence-terminating period
-   when `END-EXEC.` closed a sentence) and handle `COPY … REPLACING`. Lives in
-   `src/cobol_archaeologist/ingest/cleaner.py`. Not a workaround — a pipeline
-   stage; raw CardDemo CICS code is unparseable by every backend without it.
-3. **GnuCOBOL `cobc` is the compile/behavior oracle only** — never the parser.
-   **BL-9 version policy:** 3.2.0 is the version of record; the supported
-   compatibility range is `>=3.1.2,<4`. The harness and setup script fail closed
-   outside that range, and benchmark manifests record the actual compiler banner
-   used. Only batch `CB*` programs compile; CICS programs failing under it is
-   expected, not an error. **Generalized (T2.4 corrective pass, BL-16): local harnesses
-   generate hypotheses; only the real toolchain closes gates.** A pure-text
-   probe harness once reproduced a build's gate number exactly, was trusted
-   through six iterations of changes to the code it modelled, and diverged
-   (0.5457 vs the build's 0.6537) — because it had no validation step and so
-   could not model rejected mutations changing the sample. Validating an
-   instrument once and trusting it after changing its subject is the defect. A
-   gate's number of record comes from the run that owns it.
-4. **Line-number fidelity is sacred:** every public return that mentions a line
-   refers to the **original source file**; all transformations carry a line-map.
-   Benchmark labels are line-level; breaking this breaks the benchmark.
-5. **Corpora:** AWS CardDemo (Apache 2.0, pin `59cc6c2fd7eb`) = anchor; IBM CICS
-   CBSA (EPL 2.0) = secondary. Fetched by `scripts/fetch_corpora.sh` into
-   `data/corpora/` — never vendored into the repo. Pins and roles are recorded
-   canonically in `data/manifest.json`.
-6. **Anchor regulations (T0.1 + T0.2 fit decision; RE-ANCHORED 2026-07-09 at
-   T2.1, user-approved — ratified in Track B chat 2026-07-09):** primary clause set = **RBI
-   (Commercial Banks – Credit Cards and Debit Cards: Issuance and Conduct)
-   Directions, 2025** (effective 2025-11-28) **plus the KYC/AML clauses its
-   paragraph 90 incorporates by reference**; the **RBI KYC Directions, 2025**
-   anchor the real-curated seed (T2.5) and the T6 versioned-judgment pairs.
-   **History (T2.1 re-verification):** the original 2022 Master Direction
-   (effective 2022-07-01, amended 2024-03-07) was **repealed for commercial
-   banks on 2025-11-28** and reissued as this 2025 instrument — values carried
-   over unchanged, clauses renumbered into paragraphs 1–97. The repealed 2022 MD
-   supplies T6 old sides (2022 vs 2024 vs 2025) and the 2022→2025 supersession
-   pair; its numbering (the KYC bridge was clause 29, not 20 — para 20 was
-   co-branding outsourcing) is preserved as `check.prior_2022` in `clauses.jsonl`.
-   2025 paragraph numbers were primary-confirmed against the archived PDF during
-   T2.5 Phase 2 with zero corrections. Pure-KYC logic with no CardDemo host will
-   live in the planned GnuCOBOL-native runnable base. Taxonomy v1 with per-class CardDemo loci:
-   `docs/tasks/T0.2-work-order.md`.
-7. **Integrity rules (benchmark):** MO-0 benign edits + style diversification
-   mandatory; verification tiered (1 executed / 2 static / 3 entailment-only,
-   tier recorded per finding); LLM judges/verifiers must be a different model
-   family than the system under test.
+1. **AST backend:** tree-sitter grammar `yutaro-sakamoto/tree-sitter-cobol`,
+   vendored at `vendor/tree-sitter-cobol/`, pinned to
+   `e99dbdc3d800d5fa2796476efd60af91f6b43d93`; bindings `tree_sitter==0.21.3`.
+2. **Preprocessor before every parse** (line-count preserving): mask
+   `EXEC CICS/SQL/DLI … END-EXEC` and handle `COPY … REPLACING`.
+3. **GnuCOBOL `cobc` is the compile/behaviour oracle only, never the parser.**
+   3.2.0 is the version of record (`>=3.1.2,<4` supported). Only batch `CB*`
+   programs compile; CICS programs failing is expected. Gate numbers come from
+   the real toolchain, never from a simulation of it.
+4. **Line-number fidelity:** every line reported refers to the original source
+   file; every transformation carries a line map.
+5. **Corpora:** AWS CardDemo (Apache-2.0, pin `59cc6c2fd7eb`) is the anchor;
+   IBM CICS CBSA (EPL-2.0) is secondary. Fetched by `scripts/fetch_corpora.sh`
+   into `data/corpora/`, never vendored. Pins live in `data/manifest.json`.
+6. **Anchor regulations:** RBI (Commercial Banks – Credit Cards and Debit
+   Cards: Issuance and Conduct) Directions, 2025 (effective 2025-11-28) plus
+   the KYC/AML clauses its paragraph 90 incorporates, and the RBI KYC
+   Directions, 2025. The repealed 2022 Master Direction supplies older
+   versions for temporal pairs. Clause records: `data/regulations/clauses.jsonl`.
+7. **Verification tiers:** 1 executed, 2 static, 3 entailment-only; the tier
+   is recorded per finding and tier-3-only findings are not emitted.
 
-## Layout (target) and ownership
+## Models
 
-- `src/cobol_archaeologist/ingest/cleaner.py`: preprocessor (A, T1.1).
-- `src/cobol_archaeologist/parser/`: AST spans and copybooks (A, T1.1).
-- `src/cobol_archaeologist/static_analysis/`: graph, dataflow, slicer (A,
-  T1.2-T1.4).
-- `src/cobol_archaeologist/model/run_cobol.py`: GnuCOBOL harness (A, T1.5).
-- `src/cobol_archaeologist/tools.py`: agent tool facade (A, T1.6).
-- `src/cobol_archaeologist/schemas.py`: pydantic models (C, T0.3).
-- `src/cobol_archaeologist/benchmark/`: mutation ops and build CLI (B,
-  T2.2-T2.6).
-- `src/cobol_archaeologist/rag/`: loader, chunker, index, embedder (C,
-  T3.1-T3.3).
-- `src/cobol_archaeologist/model/{prompt,verify}.py`: policy and verification
-  (C, T3.4, T3.6).
-- `src/cobol_archaeologist/agent/`: loop and stub tool layer (C, T3.5).
-- `src/cobol_archaeologist/eval/`: metrics and runs (C, T4.x).
-- `vendor/tree-sitter-cobol/`: pinned grammar. Never edit.
-- `tests/`: pytest, with golden fixtures in `tests/fixtures/`.
-- `scripts/fetch_corpora.sh`: corpus fetcher.
-- `data/manifest.json`: anchor manifest (B, T0.1). `data/regulations/`,
-  `data/benchmark/`: clause records and generated instances (B, T2.x).
-
-**Ownership = write access** (A/B/C above). Never edit another track's modules.
-If their code blocks you, report it; the owning track fixes it. `STATUS.md` is
-the one file every track writes — but only its own tasks' lines.
-
-## Conventions
-
-- Python 3.12 · `pydantic>=2` for all inter-module shapes · `pytest`.
-- Every tool in `tools.py` returns **structured data + source pointers, never
-  raw dumps**. Code text is capped at about 60 lines with a pointer to fetch
-  more.
-- `tree_sitter==0.21.3` pinned; changing bindings is a deliberate migration.
-- Keep the regex fallback path alive wherever a work order says so.
+- Detector and baseline: `gpt-6-luna` at `max` effort through Codex with the
+  ChatGPT login (`COBOL_ARCH_MODEL` / `COBOL_ARCH_EFFORT` override for dev
+  runs). The official run records the model and effort in every `run_key`.
+- Entailment verifier: DeBERTa NLI (`model/verify.py`), a different family.
 
 ## Commands
 
 ```bash
-pip install -e ".[dev]"
+pip install -e ".[dev,models]"
 bash scripts/fetch_corpora.sh
-pytest tests/ -x -q
+pytest tests/ -q && ruff check .
+
+python -m cobol_archaeologist.eval.runner detector --split dev [--ids ...]
+python -m cobol_archaeologist.eval.runner rag_reranker --split test
+python -m cobol_archaeologist.eval.report --split test
 ```

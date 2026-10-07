@@ -109,7 +109,6 @@ def test_ci_workflow_runs_offline_quality_gates():
     text = workflow.read_text(encoding="utf-8")
     assert "pull_request:" in text and "master" in text
     assert "actions/checkout@v7" in text
-    assert "fetch-depth: 0" in text
     assert "actions/setup-python@v6" in text
     assert "python -m ruff check" in text
     assert "python -m pytest" in text

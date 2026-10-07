@@ -36,7 +36,6 @@ MODELS = {
 
 def dependencies():
     todo = [
-        "cryptography",
         "tree-sitter",
         "pydantic",
         "pdfplumber",

@@ -313,19 +313,18 @@ def test_gold_shape_is_unchanged_and_prediction_omits_gold_only_fields():
     assert prediction.rationale == gold.gold_rationale
 
 
-def test_committed_m4_payload_projects_to_prediction_not_gold():
+def test_committed_result_payload_projects_to_prediction_not_gold():
     artifact = (
         Path(__file__).resolve().parents[1]
         / "data"
         / "eval"
-        / "legacy"
-        / "m4-initial"
-        / "dense_rag.jsonl"
+        / "dev"
+        / "rag_reranker.jsonl"
     )
     row = next(
-        json.loads(line)
-        for line in artifact.read_text(encoding="utf-8").splitlines()
-        if '"prediction":{' in line
+        record
+        for record in map(json.loads, artifact.read_text(encoding="utf-8").splitlines())
+        if record.get("prediction")
     )
     payload = row["prediction"]
     assert "gold_rationale" not in payload

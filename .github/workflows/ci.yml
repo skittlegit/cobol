@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [master]
   push:
-    branches: [master, track-a, track-b, track-c]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -21,10 +21,6 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
-        with:
-          # BL-8's manifest-provenance gate walks file history to identify the
-          # generation commit; a shallow checkout makes a correct manifest fail.
-          fetch-depth: 0
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v6
@@ -40,4 +36,4 @@ jobs:
         run: python -m ruff check .
 
       - name: Run offline test suite
-        run: python -m pytest tests/ -x -q
+        run: python -m pytest tests/ -q

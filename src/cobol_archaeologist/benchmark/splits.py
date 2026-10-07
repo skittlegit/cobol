@@ -404,6 +404,7 @@ def _write_jsonl(path: Path, rows: list[DriftInstance]) -> None:
     path.write_text(
         "\n".join(item.model_dump_json() for item in rows) + ("\n" if rows else ""),
         encoding="utf-8",
+        newline="\n",
     )
 
 

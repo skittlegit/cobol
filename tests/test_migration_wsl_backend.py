@@ -7,14 +7,16 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from cobol_archaeologist.migration.ai_review import AICaseSpec
 from cobol_archaeologist.migration.backend import (
     ExecutionFixture,
     FixtureProtocol,
     RealValidationBackend,
     SourceAssertion,
 )
-from cobol_archaeologist.migration.contracts import FrozenSource, MigrationEvidencePin
+from cobol_archaeologist.migration.contracts import (
+    FrozenSource,
+    MigrationCase,
+)
 from cobol_archaeologist.migration.validate import CheckStatus
 from cobol_archaeologist.tool_types import RunInputs
 
@@ -48,19 +50,17 @@ def sha(text):
 def setup(files=None, *, original_main=False, hosts=()):
     files = files or {"DEMO.cbl": SOURCE}
     frozen = tuple(FrozenSource(path=n, sha256=sha(t)) for n,t in files.items())
-    pin = MigrationEvidencePin(path="synthetic-evidence.json", sha256="1"*64)
-    case = AICaseSpec(case_id="migration_wsl_qualification", instance_id="drift_000001",
+    case = MigrationCase(case_id="migration_wsl_qualification", instance_id="drift_000001",
         drift_type="D1_stale_threshold", stratum="local",
         validation_capability="copybook_fanout" if hosts else "batch_executable",
         primary_program="DEMO.cbl", frozen_sources=frozen,
-        source_evidence=tuple(MigrationEvidencePin(path="sources/"+s.path, sha256=s.sha256) for s in frozen),
-        regulation_evidence=pin, fixture_evidence=(pin,),
         allowed_source_scope=({"path":"DEMO.cbl", "line_spans":((14,14),)},),
         intended_behavior={"check_id":"intended", "description":"synthetic threshold fixture"},
         unaffected_regressions=({"check_id":"regression", "description":"synthetic low value fixture"},),
         affected_hosts=hosts, detector_input_ref="detector.json", oracle_evidence_ref="oracle.json",
-        validation_protocol_sha256="2"*64, source_bundle_group="synthetic-qualification",
-        duplicate_source_justification="new synthetic finite backend test; no reviewer claim")
+        review_protocol_sha256="3"*64, validation_protocol_sha256="2"*64,
+        review_state="human_primary_reviewed_and_verified", review_evidence_sha256="4"*64,
+        eligible_for_evaluation=True)
     def fixture(host, number, expected):
         kwargs = {"run_original_main":True, "stdin":str(number)+"\n"} if original_main else {
             "initialize":(f"MOVE {number} TO WS-AMOUNT",), "perform":("CHECK-AMOUNT",), "observe":("WS-RESULT",)}

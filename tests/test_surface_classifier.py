@@ -8,7 +8,7 @@ from cobol_archaeologist.benchmark.surface import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-PROBE = ROOT / "data" / "benchmark" / "probes" / "t2.2_surface_probe.jsonl"
+PROBE = ROOT / "data" / "benchmark" / "surface-probe.jsonl"
 
 
 def test_registered_surface_classifier_reproduces_probe_predictions():
