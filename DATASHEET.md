@@ -293,3 +293,33 @@ code-locus/oracle inputs relative to `v1-pre`; `drift_000021` also expands the
 materialized source bundle. Consequently, oracle-slice must rerun the 43 real
 rows and source-based agent/RAG+reranker systems must rerun `drift_000021`;
 reuse of other rows remains subject to the T5.4 identity gates.
+
+
+## Successor evaluation and migration addendum
+
+The later repeated hidden-roster evaluation is additive evidence, not a first-look
+estimate or a benchmark revision. Configuration 4 is NOT_EVALUABLE because four
+required signed-reference entries fail provenance despite valid host replay.
+Its descriptive balanced accuracy, paired significance and temporal gates also
+fail. Historical M4 remains NO_GO and historical M5 underperformance is retained.
+The later 20-pair temporal roster does not replace the historical nine-pair
+benchmark denominator. Provider resource telemetry is not_recorded.
+
+The completed migration experiment uses four oracle-assisted cases across three
+source bundles, selected from twelve reviewed candidates. The two D1
+interprocedural cases share one bundle; the other cases are D4 and D5 local
+changes. All four official proposals pass real finite WSL compilation,
+intended-behavior and regression validation. There are zero observed failures
+or abstentions in this selected roster and zero eligible detector-led cases.
+A separate repeated-case transport qualification is excluded from every official
+denominator. These outcomes establish neither end-to-end detector utility,
+independent-case reliability, complete semantic equivalence nor universal legal
+compliance. Untested hosts and repeated invocation remain outside supported scope.
+
+Migration review is explicitly AI-primary with independent AI verification and
+adjudication under the user's prospective authorization. All 48 historical
+reviews and twelve fresh stage reviews remain retained. Separate contexts do not
+establish independent model errors or human attestation. Exact results and retained
+scope obligations are in [the migration report](data/migration/report.md).
+Deployment and final release readiness are recorded separately in RELEASE.md
+and the measured release receipts; they are not inferred from patch success.

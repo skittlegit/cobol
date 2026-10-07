@@ -46,3 +46,23 @@ def test_pending_or_wrong_case_cannot_reconcile():
         summarize([], [{"case_id": "a"}])
     with pytest.raises(ValueError, match="case order"):
         summarize([record("b", "pass", "pass")], [{"case_id": "a"}])
+
+
+def test_missing_required_check_remains_visible():
+    result = summarize(
+        [record("a", "fail", "unavailable")],
+        [{"case_id": "a"}],
+        [{"compile", "parser"}],
+    )
+    assert result["checks"]["parser"]["not_observed"] == 1
+    assert result["checks"]["parser"]["pass_rate"] == 0
+
+
+def test_host_specific_check_uses_applicable_case_denominator():
+    result = summarize(
+        [record("a", "pass", "pass"), record("b", "abstention", "not_applicable")],
+        [{"case_id": "a"}, {"case_id": "b"}],
+        [{"compile"}, set()],
+    )
+    assert result["checks"]["compile"]["applicable_cases"] == 1
+    assert result["checks"]["compile"]["not_applicable_cases"] == 1
