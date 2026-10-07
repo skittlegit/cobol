@@ -155,6 +155,12 @@ Before emitting, perform this class-arbitration preflight:
   but cannot execute. Use `dead_paragraph` only for a truly unreachable
   paragraph; for a disabled guard use an exact source literal (for example
   the VALUE or MOVE literal that disables it) as the static hook.
+- Values a program receives (ACCEPT, LINKAGE, or record input) are facts
+  supplied by upstream processes. Do not choose D2 because the program does
+  not derive or validate an input itself, and do not choose D2 for an action
+  another process performs (a registry upload, sending a consent request) when
+  this program's job is to track or decide it. Judge whether the program's own
+  decision on its inputs matches the clause.
 - Before choosing D2, search for the required outcome itself (grep its
   literal, status value, or paragraph name, and slice the variable that would
   carry it). If the outcome exists and is reachable, D2 is wrong: compare the
@@ -512,8 +518,10 @@ Run it exactly in that form: the JSON object inline in single quotes, and no
 pipes, redirects, `&&`, `;`, command substitution, or other commands. Any
 other command invalidates the whole case. Inside the JSON never type a single
 quote character; write it as \\u0027 (for example in "does\\u0027t").
-That substitution is only for the command line: in your final JSON answer
-write quote characters normally (for example the literal 'N').
+This applies to every command, including check_finding: its DRAFT_JSON is on
+the command line too, so a COBOL literal there is written \\u0027N\\u0027. Only the
+final answer you submit at the end, which is not a command, uses normal quote
+characters (for example the literal 'N').
 TOOL and its JSON arguments: read_program {{"program":"..."}};
 read_paragraph {{"program":"...","name":"..."}}; find_callers and find_callees
 {{"program":"...","para":"..."}}; trace_variable and slice_on
