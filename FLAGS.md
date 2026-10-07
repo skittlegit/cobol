@@ -1,31 +1,21 @@
 # FLAGS - active cross-track inbox
 
-Last updated: **2026-10-06 IST**.
+Last updated: **2026-10-07 IST**.
 
 This file contains unresolved coordination items only. Resolved history belongs
 in the applicable work order or immutable artifact.
 
 ## Release-wide
 
-- **R2.1 preparation:** All 12 source/fixture proposals are prepared under the
-  additive nonhuman review protocol. Synthetic review capture is sealed and
-  replay-valid; 133 focused preparation/capture/backend/successor tests pass.
-  The real backend now checks finite dataflow and slices as well as parser,
-  call graph, compiler and execution. Earlier Windows execution blocks remain
-  retained diagnostics. Original review coverage is 36/36 sealed; an explicit
-  capture amendment accepts exact bound prior-review citations. Original runtime
-  and responses remain retained. No original case satisfies all promotion
-  conditions. All12 revised reviews are sealed and recommend inclusion, but
-  every response retains unresolved future-validation/scope qualifications.
-  Frozen promotion requires no unresolved issues, creating a stage mismatch;
-  R2.1 awaits an explicit prospective policy decision. No rule changed and
-  no empty roster or generation has been promoted. Proposal:
-  `data/migration/coordination/proposed-stage-review-amendment.json`.
-  Their original-source fixtures now execute completely on separately pinned
-  Ubuntu WSL GnuCOBOL 3.2.0 (six qualification tests, no skips); intended
-  failures and regression passes are retained alongside Windows policy blocks.
-  Generation
-  remains inactive until reviewed rosters and R2.2 qualification are frozen.
+- **R2.2 qualification:** R2.1 is complete with all 12 fresh stage reviews
+  sealed and four oracle-assisted cases promoted across three source bundles.
+  All 48 historical reviews and the frozen original gate remain preserved.
+  The generation runtime (120 source pins) and five separate requests are frozen;
+  73 focused generation tests pass. Official generation requires the separate
+  Luna/max qualification. Detector-led generation remains inactive (0).
+  Windows policy blocks remain historical diagnostics; the qualified real
+  execution backend is Ubuntu WSL GnuCOBOL 3.2.0. The late final stage-review
+  launch is disclosed, without relabeling its timing.
 
 - **Successor detector provenance and quality limits:** R1.7 is complete;
   R1.6 is complete at 610/610 full tasks and 40/40

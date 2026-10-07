@@ -1,6 +1,6 @@
 # STATUS - current project dashboard
 
-Last updated: **2026-10-06 IST**.
+Last updated: **2026-10-07 IST**.
 
 This is the authoritative current-state dashboard. Historical evidence remains
 in `docs/tasks/` and immutable evaluation artifacts.
@@ -86,8 +86,15 @@ in `docs/tasks/` and immutable evaluation artifacts.
   finalized and all **12/12 revised reviews are sealed**; original judgments
   are not rerun. All twelve recommend inclusion but retain unresolved future
   validation/scope qualifications, so none is eligible under the frozen
-  zero-unresolved-issues gate. R2.1 remains incomplete pending a prospective
-  stage-policy decision; no empty-roster completion or generation is claimed.
+  zero-unresolved-issues gate. The user approved the prospective stage-aware
+  amendment; all **12/12 fresh stage reviews are sealed**. **R2.1 is COMPLETE**:
+  four oracle-assisted cases across three distinct source bundles are promoted
+  with validation pending; all 48 historical reviews remain preserved. Detector-led
+  generation is inactive (0). R2.2 has frozen 120 runtime source pins and five
+  isolated requests (four official, one qualification); 73 focused generation
+  tests pass. Qualification and official results have separate keys and staging.
+  Official generation remains pending qualification. The late final review launch
+  is disclosed in the window-3 timing deviation.
   The concrete proposal is
   `data/migration/coordination/proposed-stage-review-amendment.json`. The
   separately pinned Ubuntu WSL GnuCOBOL 3.2.0 backend passed six actual
@@ -95,7 +102,7 @@ in `docs/tasks/` and immutable evaluation artifacts.
   fixture baselines completed: parser/compiler/static and regression checks
   pass, intended behavior fails as measured. Windows Application Control
   failures remain retained; WSL execution makes no Windows pass claim. See
-  `data/migration/ai-review/original-review-receipt.json`. Window 2 and its
+  `data/migration/ai-review/original-review-receipt.json`. Window 3 and its
   deadlines are recorded in
   `data/migration/coordination/checkpoint.json`.
 

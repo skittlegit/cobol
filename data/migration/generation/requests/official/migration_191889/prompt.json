@@ -1,0 +1,124 @@
+{
+  "output_schema": {
+    "$defs": {
+      "AbstentionProposal": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "abstention",
+            "title": "Kind",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "reason"
+        ],
+        "title": "AbstentionProposal",
+        "type": "object"
+      },
+      "AffectedLocation": {
+        "additionalProperties": false,
+        "properties": {
+          "line_span": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Line Span",
+            "type": "array"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "line_span"
+        ],
+        "title": "AffectedLocation",
+        "type": "object"
+      },
+      "PatchProposal": {
+        "additionalProperties": false,
+        "properties": {
+          "affected_locations": {
+            "items": {
+              "$ref": "#/$defs/AffectedLocation"
+            },
+            "maxItems": 1000,
+            "minItems": 1,
+            "title": "Affected Locations",
+            "type": "array"
+          },
+          "intended_behavior": {
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Intended Behavior",
+            "type": "string"
+          },
+          "kind": {
+            "const": "patch",
+            "title": "Kind",
+            "type": "string"
+          },
+          "patch": {
+            "maxLength": 200000,
+            "minLength": 1,
+            "title": "Patch",
+            "type": "string"
+          },
+          "rationale": {
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "patch",
+          "rationale",
+          "intended_behavior",
+          "affected_locations"
+        ],
+        "title": "PatchProposal",
+        "type": "object"
+      }
+    },
+    "discriminator": {
+      "mapping": {
+        "abstention": "#/$defs/AbstentionProposal",
+        "patch": "#/$defs/PatchProposal"
+      },
+      "propertyName": "kind"
+    },
+    "oneOf": [
+      {
+        "$ref": "#/$defs/PatchProposal"
+      },
+      {
+        "$ref": "#/$defs/AbstentionProposal"
+      }
+    ]
+  },
+  "staged_sources": [
+    "C:/Users/deepa/Github/cobol/data/migration/generation/sources/official/adea30330af8d3531e613de1326e3698af5cae2ca14799c0372939078dd0689f/OVDCHK1.cbl",
+    "C:/Users/deepa/Github/cobol/data/migration/generation/sources/official/adea30330af8d3531e613de1326e3698af5cae2ca14799c0372939078dd0689f/OVDLIST.cpy"
+  ],
+  "system": "You are a COBOL remediation agent operating on one AI-reviewed\noracle-assisted case eligible for generation with validation pending. Use only the authorized finding and staged source files.\nWork only inside the staged case directory. Never inspect credentials, git\nhistory, mutation provenance, hidden labels, review records, fixtures, or another\ncase. Emit one minimal modification-only unified diff within the allowed source\nscope, or explicitly abstain. Preserve program/copybook boundaries. A separate\nvalidator decides safety and behavior. Return only the supplied JSON output\ncontract. Do not author provider usage, run identity, or host attestation.",
+  "user": "The JSON below is the complete authorized case input.\n{\"case\":{\"affected_hosts\":[\"OVDCHK1\"],\"allowed_source_scope\":[{\"line_spans\":[[5,5]],\"path\":\"OVDLIST.cpy\"}],\"case_id\":\"migration_191889\",\"drift_type\":\"D4_stale_reference_data\",\"frozen_sources\":[{\"path\":\"OVDCHK1.cbl\",\"sha256\":\"d826f3526d752b3ebf566e9047d3ec6088ab96b8e8b406b798c58026f8cc3c92\"},{\"path\":\"OVDLIST.cpy\",\"sha256\":\"6e405d5723fc2177d57939b72457cb063c9374f54faae27439bb2bb0c2905ae2\"}],\"instance_id\":\"drift_191889\",\"intended_behavior\":{\"check_id\":\"intended-regulatory-behavior\",\"description\":\"Finite OVD document-category membership from KYC clause 5(xiv): NPR letter category is admitted and a space-filled code is rejected. The five existing named categories retain acceptance. Document issuer, signature and name/address qualifications are unmodeled and full KYC compliance is unclaimed.\"},\"primary_program\":\"OVDCHK1.cbl\",\"stratum\":\"local\",\"unaffected_regressions\":[{\"check_id\":\"unaffected-outside-locus\",\"description\":\"Only the explicitly listed finite unaffected observations are claimed; no universal preservation outside the allowed locus is established.\"},{\"check_id\":\"class-specific-regression\",\"description\":\"Every unchanged registry member retains its prior accepted or rejected outcome across all affected hosts.\"}],\"validation_capability\":\"copybook_fanout\"},\"output_contract\":{\"$defs\":{\"AbstentionProposal\":{\"additionalProperties\":false,\"properties\":{\"kind\":{\"const\":\"abstention\",\"title\":\"Kind\",\"type\":\"string\"},\"reason\":{\"maxLength\":20000,\"minLength\":1,\"title\":\"Reason\",\"type\":\"string\"}},\"required\":[\"kind\",\"reason\"],\"title\":\"AbstentionProposal\",\"type\":\"object\"},\"AffectedLocation\":{\"additionalProperties\":false,\"properties\":{\"line_span\":{\"maxItems\":2,\"minItems\":2,\"prefixItems\":[{\"type\":\"integer\"},{\"type\":\"integer\"}],\"title\":\"Line Span\",\"type\":\"array\"},\"path\":{\"title\":\"Path\",\"type\":\"string\"}},\"required\":[\"path\",\"line_span\"],\"title\":\"AffectedLocation\",\"type\":\"object\"},\"PatchProposal\":{\"additionalProperties\":false,\"properties\":{\"affected_locations\":{\"items\":{\"$ref\":\"#/$defs/AffectedLocation\"},\"maxItems\":1000,\"minItems\":1,\"title\":\"Affected Locations\",\"type\":\"array\"},\"intended_behavior\":{\"maxLength\":20000,\"minLength\":1,\"title\":\"Intended Behavior\",\"type\":\"string\"},\"kind\":{\"const\":\"patch\",\"title\":\"Kind\",\"type\":\"string\"},\"patch\":{\"maxLength\":200000,\"minLength\":1,\"title\":\"Patch\",\"type\":\"string\"},\"rationale\":{\"maxLength\":20000,\"minLength\":1,\"title\":\"Rationale\",\"type\":\"string\"}},\"required\":[\"kind\",\"patch\",\"rationale\",\"intended_behavior\",\"affected_locations\"],\"title\":\"PatchProposal\",\"type\":\"object\"}},\"discriminator\":{\"mapping\":{\"abstention\":\"#/$defs/AbstentionProposal\",\"patch\":\"#/$defs/PatchProposal\"},\"propertyName\":\"kind\"},\"oneOf\":[{\"$ref\":\"#/$defs/PatchProposal\"},{\"$ref\":\"#/$defs/AbstentionProposal\"}]},\"track\":\"oracle_assisted\",\"verified_finding\":{\"origin\":\"oracle_assisted\",\"prediction\":{\"code_locus\":{\"is_interprocedural\":false,\"loci\":[{\"file\":\"OVDLIST.cpy\",\"line_span\":[5,5],\"paragraph\":null,\"program\":\"OVDCHK1\"}],\"slice_vars\":[]},\"drift_type\":\"D4_stale_reference_data\",\"instance_id\":\"drift_191889\",\"rationale\":\"Pinned original source at the authorized locus: OVDLIST.cpy:5-5:            88  ACCEPTED-OVD VALUES 'PSP' 'DLC' 'ADH' 'VTR' 'NRG' ''.. Executed original observations fail the approved finite intended check; Finite OVD document-category membership from KYC clause 5(xiv): NPR letter category is admitted and a space-filled code is rejected. The five existing named categories retain acceptance. Document issuer, signature and name/address qualifications are unmodeled and full KYC compliance is unclaimed.\",\"regulation_clause\":{\"clause_id\":\"5(xiv)\",\"current_value\":{\"comparator\":null,\"kind\":\"enum_set\",\"note\":null,\"value\":[\"passport\",\"driving-licence\",\"aadhaar-possession-proof\",\"voter-id-ECI\",\"nrega-job-card\",\"npr-letter\"]},\"doc\":\"RBI-KYC-Directions-2025\",\"effective_date\":\"2025-11-28\",\"text\":\"'Officially Valid Document (OVD)' means the passport, the driving licence, proof of possession of Aadhaar number, the Voter's Identity Card issued by the Election Commission of India, the job card issued by NREGA duly signed by an officer of the State Government, and the letter issued by the National Population Register containing details of name and address.\",\"version\":\"2025-11-28\"},\"target_path\":null},\"verifier_evidence\":\"Original parser/compile pass; finite intended behavior fails; approved unaffected observations pass. Remediation validation remains pending.\",\"verifier_tier\":\"executed\"}}"
+}

@@ -35,6 +35,29 @@ R2 sections. Keep checkpoints across limits and resume the same unfinished
 section; no completed provider key may be rerun. This goal does not guarantee a
 specific quota-reset wake-up time or override actual provider availability.
 
+## Authorized prospective stage-aware review amendment (2026-10-06)
+
+The user approved `data/migration/coordination/proposed-stage-review-amendment.json`
+with: "do what is best i am giving you the approval". The immutable authorization
+is `data/migration/ai-review/stage-review/authorization.json`.
+
+Preserve all 48 sealed original/revised captures and the frozen v1 policy. A
+new additive protocol, schema, loader and fresh complete three-role review chains
+may distinguish substantive pre-generation blockers from disclosed finite-scope
+limitations, mandatory post-patch validation obligations, and historical statements
+superseded by exact newer evidence. Every inherited issue remains hash/index bound
+and requires grounded classification; ambiguous or unsupported concerns block.
+All three fresh reviewers must approve the same bounded case with zero selection
+blockers. Primary and verifier remain blind to each other's new responses and old
+review decisions/rationales; adjudication follows both sealed new responses.
+Missing required hosts, unsupported regulation/scope, unavailable required fixtures,
+and contradictory baselines remain blockers. Keep source-group dependence and
+case-versus-bundle denominators explicit. Eligibility for generation establishes
+no remediation success. R2.2 qualification and every R2.7-R2.8 parser, static,
+compiler, behavior, regression, fanout and source-integrity gate remain mandatory.
+Do not reinterpret old finals, rerun completed provider keys, force inclusion, or
+complete R2 through an empty roster caused solely by the stage mismatch.
+
 ## Required outcome
 
 Run the isolated migration agent, validate every generated patch, publish
@@ -118,6 +141,26 @@ and zero hidden cross-track leakage.
 
 **Handoff:** immutable requests and runtime identity, green preflight, and one
 sealed/replay-valid qualification that is not counted in the live denominator.
+
+### Stage-aware execution preparation (2026-10-06)
+
+Use the additive `stage_successor.py` and stage generation capture contract for
+the newly reviewed, validation-pending roster. The historical v1 case and
+generation schemas remain frozen. Freeze the qualification and official
+requests together before the qualification call. Each request binds an explicit
+`execution_purpose`, distinct run key, separate source staging and fresh context.
+The first accepted case may supply the isolated transport qualification; record
+this repeated-case exposure explicitly. It contributes zero official results.
+Do not transfer its proposal, capture or validation into the official ledger,
+or tune official findings/prompts from the qualification outcome.
+
+Construct new findings from the pinned regulation, exact authorized source
+locus and measured original observations. Do not copy candidate oracle
+predictions, mutation rationales or hidden labels. Required internal location
+fields must derive from the approved scope; remove labels from model-visible
+prompts. Retain review qualifications and mandatory checks in host evidence.
+The additive validation runner replays authentic captures before actual WSL
+checks, and retains terminal results rather than repeating completed work.
 
 ## R2.3 - T6.2 generation wave 1
 
