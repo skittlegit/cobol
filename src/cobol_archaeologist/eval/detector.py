@@ -49,7 +49,6 @@ from cobol_archaeologist.schemas import (
 )
 from cobol_archaeologist.tool_types import ToolLayer
 
-PROMPT_VERSION = "detector-v3"
 DETECTOR_BUDGET = BudgetSpec(
     max_steps=MAX_TOOL_CALLS,
     max_tool_calls=MAX_TOOL_CALLS,

@@ -3,7 +3,7 @@
 Project code, annotation guidelines and mutation operators are governed by the
 repository MIT license in `LICENSE`.
 
-The frozen v1 benchmark contains synthetic mutations and examples derived from
+The benchmark contains synthetic mutations and examples derived from
 AWS CardDemo, licensed under Apache License 2.0. Its source repository is
 https://github.com/aws-samples/aws-mainframe-modernization-carddemo, pinned at
 `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`. Project mutation operators modify
@@ -22,5 +22,5 @@ rights to the underlying regulations. Refer to `data/regulations/sources/MANIFES
 and the original RBI publications for authoritative text. RBI PDFs are excluded.
 
 The secondary IBM CICS Bank Sample Application corpus is not consumed by the
-frozen v1 benchmark and is excluded from this release. Fetched corpora, model
+benchmark and is excluded from this release. Fetched corpora, model
 weights and provider capture logs are also excluded.

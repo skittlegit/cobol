@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. T6V2P4D.
+       PROGRAM-ID. T6P4D.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  WS-CAPITAL-PCT           PIC 9(3)V99 VALUE ZERO.
@@ -9,15 +9,15 @@
        1000-MAIN.
            ACCEPT WS-CAPITAL-PCT
            ACCEPT WS-PROFIT-PCT
-           CALL 'T6V2BOSV' USING WS-CAPITAL-PCT
+           CALL 'T6BOSV' USING WS-CAPITAL-PCT
                                  WS-PROFIT-PCT
                                  WS-IS-BO
            DISPLAY WS-IS-BO
            STOP RUN.
-       END PROGRAM T6V2P4D.
+       END PROGRAM T6P4D.
 
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. T6V2BOSV.
+       PROGRAM-ID. T6BOSV.
        DATA DIVISION.
        LINKAGE SECTION.
        01  LK-CAPITAL-PCT           PIC 9(3)V99.
@@ -31,4 +31,4 @@
               MOVE 'N' TO LK-IS-BO
            END-IF
            GOBACK.
-       END PROGRAM T6V2BOSV.
+       END PROGRAM T6BOSV.

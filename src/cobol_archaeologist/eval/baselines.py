@@ -25,7 +25,6 @@ from cobol_archaeologist.schemas import DriftInstance, RegulationClause
 from cobol_archaeologist.tool_types import RegSearchHit, ToolLayer
 
 SYSTEM_ID = "rag_reranker"
-PROMPT_VERSION = "rag-reranker-v2"
 BATCH_SIZE = 5
 BASELINE_BUDGET = BudgetSpec(
     max_steps=1,

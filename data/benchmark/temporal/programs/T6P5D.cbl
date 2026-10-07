@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. T6V2P5D.
+       PROGRAM-ID. T6P5D.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  WS-CUSTOMER-ID           PIC X(12).
@@ -10,15 +10,15 @@
            ACCEPT WS-CUSTOMER-ID
            ACCEPT WS-UPDATE-RECEIVED
            IF WS-UPDATE-RECEIVED = 'Y'
-              CALL 'T6V2UPLD' USING WS-CUSTOMER-ID
+              CALL 'T6UPLD' USING WS-CUSTOMER-ID
                                     WS-UPLOAD-STATUS
            END-IF
            DISPLAY WS-UPLOAD-STATUS
            STOP RUN.
-       END PROGRAM T6V2P5D.
+       END PROGRAM T6P5D.
 
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. T6V2UPLD.
+       PROGRAM-ID. T6UPLD.
        DATA DIVISION.
        LINKAGE SECTION.
        01  LK-CUSTOMER-ID           PIC X(12).
@@ -29,4 +29,4 @@
               MOVE 'UPLOADED' TO LK-UPLOAD-STATUS
            END-IF
            GOBACK.
-       END PROGRAM T6V2UPLD.
+       END PROGRAM T6UPLD.

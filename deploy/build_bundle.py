@@ -182,7 +182,7 @@ def build(output, *, root=ROOT, pip_cache=None, model_cache=None, nli_cache=None
     shutil.copyfile(root / "data/regulations/clauses.jsonl", assets / "clauses.jsonl")
     shutil.copyfile(root / "deploy/offline.py", output / "offline.py")
     manifest = {
-        "schema_version": "cobol-offline-bundle-v1",
+        "schema_version": "cobol-offline-bundle",
         "python": {
             "version": platform.python_version(),
             "executable_sha256": checksum(Path(sys.executable)),

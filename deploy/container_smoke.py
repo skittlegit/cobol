@@ -80,7 +80,7 @@ async def smoke(image, corpus):
         assert "OFFLINE-OK" in batch.structuredContent["stdout"]
         results["run_cobol_batch"] = batch.model_dump(mode="json")
         return {
-            "schema_version": "offline-linux-container-stdio-smoke-v1",
+            "schema_version": "offline-linux-container-stdio-smoke",
             "status": "PASS",
             "transport": "stdio",
             "image": image,

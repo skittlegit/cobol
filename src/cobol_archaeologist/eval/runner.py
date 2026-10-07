@@ -69,17 +69,12 @@ def results_path(split: Split, system: SystemID) -> Path:
     return EVAL_ROOT / split / f"{system}.jsonl"
 
 
-def method_identity(system: SystemID, runtime: str) -> dict[str, str]:
+def method_identity(system: SystemID) -> dict[str, str]:
     return {
         "system": system,
-        "prompt_version": (
-            detector.PROMPT_VERSION
-            if system == "detector"
-            else baselines.PROMPT_VERSION
-        ),
         "model": codex.MODEL_ID,
         "effort": codex.REASONING_EFFORT,
-        "runtime": runtime,
+        "method": codex.method_hash(),
     }
 
 
@@ -285,8 +280,8 @@ def run_split(
         if missing:
             raise ValueError(f"unknown instance ids for {split}: {sorted(missing)}")
     codex.check_login()
-    support_root, runtime = codex.prepare_support_runtime()
-    identity = method_identity(system, runtime)
+    support_root, _ = codex.prepare_support_runtime()
+    identity = method_identity(system)
     sources = {row.instance_id: materialize_row(row, split) for row in rows}
     keys = {
         row.instance_id: run_key(identity, row, sources[row.instance_id].source_sha256)

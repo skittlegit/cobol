@@ -122,7 +122,7 @@ def prepare(
     shutil.copyfile(input_root / "offline.py", output / "offline.py")
     banner = subprocess.check_output(["cobc", "--version"], text=True)
     manifest = {
-        "schema_version": "cobol-offline-bundle-v1",
+        "schema_version": "cobol-offline-bundle",
         "profile": "linux-container-distinct-from-windows-standalone",
         "python": {
             "version": platform.python_version(),

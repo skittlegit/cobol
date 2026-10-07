@@ -143,7 +143,16 @@ def test_strict_schema_requires_every_property():
     check(schema)
 
 
-def test_runtime_identity_changes_with_source(tmp_path, monkeypatch):
-    first = codex.runtime_identity()
-    assert len(first) == 64
-    assert codex.runtime_identity() == first
+def test_method_hash_ignores_reporting_code_but_not_detector_code(monkeypatch):
+    files = codex._runtime_files()
+    base = codex.method_hash()
+
+    def edited(path: str):
+        changed = dict(files)
+        changed[path] = files[path] + b"# edit"
+        return lambda: changed
+
+    monkeypatch.setattr(codex, "_runtime_files", edited("src/cobol_archaeologist/eval/report.py"))
+    assert codex.method_hash() == base
+    monkeypatch.setattr(codex, "_runtime_files", edited("src/cobol_archaeologist/eval/detector.py"))
+    assert codex.method_hash() != base

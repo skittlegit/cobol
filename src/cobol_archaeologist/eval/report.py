@@ -80,9 +80,9 @@ def current_records(
 ) -> list[EvaluationRecord]:
     """Keep records whose run_key matches the current method identity."""
 
-    from cobol_archaeologist.eval import codex, runner
+    from cobol_archaeologist.eval import runner
 
-    identity = runner.method_identity(system, codex.runtime_identity())
+    identity = runner.method_identity(system)
     rows = {row.instance_id: row for row in load_split(split)}
     current = []
     for record in records:

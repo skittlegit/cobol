@@ -1,21 +1,9 @@
-"""Inter-module Pydantic models: gold instances and detector predictions.
+"""Inter-module Pydantic models: gold benchmark rows and detector predictions.
 
-SCHEMA v3 — RATIFIED 2026-07-25 in the canonical T0.3 work order.
-
-Schema v2 was re-frozen 2026-07-12 per
-``docs/reviews/2026-07-12/contract-change-track-c-RESOLVED.md`` (T0.3a). Any
-change to these models after this commit is a new CONTRACT CHANGE affecting
-Tracks A/B/C and must be flagged in chat, never edited in place.
-
-v2 over v1: interprocedural line-to-program binding (``loci`` /
-``SourceLocus`` / ``SourceLineRef`` replacing the flat ``CodeLocus``),
-recursive+typed ``CurrentValue`` with a ``Comparator`` field on every node, and
-``DriftInstance.target_path`` for composite-clause D1/D5 targeting.
-
-v3 leaves the gold ``DriftInstance`` shape intact and adds
-``DriftPrediction``. Predictions share the semantic clause/locus/label
-vocabulary but cannot carry gold-only mutation provenance or
-``gold_rationale``.
+``DriftInstance`` is a gold row; ``DriftPrediction`` is what a detector may
+emit (the same clause/locus/label vocabulary, but no mutation provenance and
+no gold rationale). These shapes connect the benchmark, the detector, and
+evaluation: change them only together with every consumer and its tests.
 """
 
 from __future__ import annotations
@@ -207,7 +195,7 @@ class DriftInstance(BaseModel):
 
     @model_validator(mode="after")
     def _labels_consistent_with_drift_type(self) -> DriftInstance:
-        # (v1 rule 1) D7 ⇒ conformant everywhere and empty line_level.
+        # (rule 1) D7 ⇒ conformant everywhere and empty line_level.
         if self.drift_type == "D7_conformant":
             if (
                 self.labels.program_level != "conformant"
@@ -218,12 +206,12 @@ class DriftInstance(BaseModel):
                     "D7_conformant requires conformant program/paragraph labels "
                     "and an empty line_level"
                 )
-        # (v1 rule 2) non-D7 ⇒ program_level == "drift".
+        # (rule 2) non-D7 ⇒ program_level == "drift".
         elif self.labels.program_level != "drift":
             raise ValueError(
                 f"{self.drift_type} requires labels.program_level == 'drift'"
             )
-        # (v1 rule 3) synthetic non-D7 ⇒ mutation recorded.
+        # (rule 3) synthetic non-D7 ⇒ mutation recorded.
         if (
             self.provenance.source == "synthetic"
             and self.drift_type != "D7_conformant"
@@ -236,7 +224,7 @@ class DriftInstance(BaseModel):
 
     @model_validator(mode="after")
     def _line_level_within_loci(self) -> DriftInstance:
-        # (v2 rule 4) every line_level ref must fall inside some locus on its
+        # (rule 4) every line_level ref must fall inside some locus on its
         # (program, file), so interprocedural line-overlap scoring is defined.
         for ref in self.labels.line_level:
             matched = any(
@@ -257,7 +245,7 @@ class DriftInstance(BaseModel):
         cv = self.regulation_clause.current_value
         tp = self.target_path
 
-        # (v2 rule 6) target_path present ⇒ current_value present and resolves.
+        # (rule 6) target_path present ⇒ current_value present and resolves.
         if tp is not None:
             if cv is None:
                 raise ValueError("target_path requires regulation_clause.current_value")
@@ -268,7 +256,7 @@ class DriftInstance(BaseModel):
                     f"target_path {tp!r} does not resolve into current_value"
                 ) from exc
 
-        # (v2 rule 5) composite D1/D5 ⇒ target_path required, resolving to a
+        # (rule 5) composite D1/D5 ⇒ target_path required, resolving to a
         # non-composite node.
         if (
             cv is not None

@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from cobol_archaeologist.eval import bridge, codex, detector, report, runner
+from cobol_archaeologist.eval import bridge, codex, report, runner
 from cobol_archaeologist.model.verify import LexicalEntailer
 
 
@@ -105,7 +105,7 @@ def test_rerun_resumes_and_new_version_replaces(offline, monkeypatch, tmp_path):
     assert len(offline) == 2
     runner.run_split("detector", "dev", ids=ids, workers=1, progress=lambda _: None)
     assert len(offline) == 2  # nothing re-run
-    monkeypatch.setattr(detector, "PROMPT_VERSION", "detector-test-next")
+    monkeypatch.setattr(codex, "method_hash", lambda: "e" * 64)
     records = runner.run_split(
         "detector", "dev", ids=ids, workers=1, progress=lambda _: None
     )
@@ -168,11 +168,10 @@ def test_dev_report_scores_only_current_version_records(offline, monkeypatch, tm
         "results_path",
         lambda split, system: tmp_path / split / f"{system}.jsonl",
     )
-    monkeypatch.setattr(codex, "runtime_identity", lambda: "f" * 64)
     current = report.build_report("dev")
     assert current["decision"] == "DEV_ONLY"
     assert current["scored_rows"] == 2
-    monkeypatch.setattr(detector, "PROMPT_VERSION", "detector-test-next")
+    monkeypatch.setattr(codex, "method_hash", lambda: "e" * 64)
     stale = report.build_report("dev")
     assert stale["decision"] == "NOT_EVALUABLE"
 

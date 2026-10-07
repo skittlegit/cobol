@@ -16,7 +16,8 @@ counts. An optional migration step patches verified findings.
 | `STATUS.md` | The plan: every task, its state, and the current result. Source of truth for project state. |
 | `docs/tasks/<ID>.md` | One file per task: goal, approach, done-when, result. |
 | `docs/architecture.md` | How the pieces fit, the data shapes, and the evaluation gates. |
-| `docs/annotation.md` | The frozen protocol for the human-annotated real-curated rows. |
+| `docs/annotation.md` | The protocol under which the existing 43 real-curated rows were annotated. |
+| `docs/judge-rubric.md` | The plausibility rubric for judging benchmark rows. |
 | `data/manifest.json` | Pinned corpora and anchor regulations. |
 | `data/benchmark/` | `train/dev/test.jsonl`, `temporal/`, seed programs, build inputs. |
 | `data/eval/<split>/` | Current results: `<system>.jsonl` and `report.json`/`report.md`. |
@@ -100,6 +101,9 @@ Source layout (`src/cobol_archaeologist/`):
   ChatGPT login (`COBOL_ARCH_MODEL` / `COBOL_ARCH_EFFORT` override for dev
   runs). The official run records the model and effort in every `run_key`.
 - Entailment verifier: DeBERTa NLI (`model/verify.py`), a different family.
+- Benchmark plausibility judging and temporal-pair review: Claude, the agent
+  that maintains this repository — a different family from the detector. No
+  human annotation passes are required for new data.
 
 ## Commands
 

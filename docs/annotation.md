@@ -1,7 +1,7 @@
 # COBOL Regulatory-Drift Annotation Guidelines
 
 These guidelines define benchmark gold annotation for COBOL Archaeologist.
-They implement the frozen schema and CONTRACT v1.4; they do not change either.
+They implement the schema in `src/cobol_archaeologist/schemas.py`; they do not change it.
 Annotators record what the cited regulation requires and what the cited source
 does, not what a detector is likely to predict.
 

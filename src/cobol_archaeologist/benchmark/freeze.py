@@ -1,4 +1,4 @@
-"""Fail-closed promotion of v1-pre into the immutable Phase-5 benchmark."""
+"""Fail-closed promotion of the pre-freeze splits into the final benchmark splits."""
 
 from __future__ import annotations
 
@@ -82,7 +82,7 @@ def freeze_benchmark(
     pass_b_path: Path,
     adjudication_path: Path,
 ) -> FreezeManifest:
-    """Validate independent evidence, replace real gold, and hash v1 splits."""
+    """Validate independent evidence, replace real gold, and hash the final splits."""
 
     passes_a = _load(pass_a_path, IndependentAnnotation)
     passes_b = _load(pass_b_path, IndependentAnnotation)
@@ -146,7 +146,7 @@ def freeze_benchmark(
     }
     if set(original_real) != all_candidate_ids:
         raise ValueError(
-            "v1-pre real test rows do not match the annotation candidate set"
+            "pre-freeze real test rows do not match the annotation candidate set"
         )
     new_test = []
     for row in split_rows["test"]:

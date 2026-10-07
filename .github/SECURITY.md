@@ -4,8 +4,7 @@
 
 COBOL Archaeologist is a **pre-release research project and benchmark**. There
 are no tagged releases yet; security fixes land on the default branch. This
-policy will be revised when the benchmark and system are versioned
-(`benchmark/v1`, T5.2) and when the self-hostable MCP server ships (T7.1/T7.2).
+policy will be revised when the project publishes tagged releases.
 
 The benchmark corpora are public code — AWS CardDemo (Apache 2.0) and IBM CICS
 CBSA (EPL 2.0). The **security-sensitive surface is the running system**,

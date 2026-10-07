@@ -40,7 +40,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="cobol-archaeologist")
     subcommands = parser.add_subparsers(dest="command", required=True)
     build = subcommands.add_parser(
-        "benchmark-build", help="generate deterministic synthetic benchmark v1"
+        "benchmark-build", help="generate the deterministic synthetic benchmark"
     )
     build.add_argument("--seed", type=int, required=True)
     build.add_argument("--out", type=Path, required=True)

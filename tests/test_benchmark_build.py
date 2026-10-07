@@ -476,7 +476,7 @@ def test_gate_e_splits_artifact_only_gate_from_with_bases_floor(built_pair):
         feature_names=("literal_roundness",),
     )
 
-    # CONTRACT v1.3 / BL-14: only artifact-computable literal roundness is a
+    # Threat model: only artifact-computable literal roundness is a
     # hard build gate. The aggregate assumes access to bases and is recorded as
     # the mandatory T5.3 surface-baseline floor, not asserted at chance here.
     assert artifact_only.ci_low <= 0.5 <= artifact_only.ci_high, artifact_only

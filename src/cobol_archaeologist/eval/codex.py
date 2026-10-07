@@ -158,15 +158,51 @@ def _runtime_files() -> dict[str, bytes]:
     return files
 
 
-def runtime_identity() -> str:
-    """SHA-256 over every file the support runtime installs."""
+# Code that does not change what a detector or baseline answers. Editing it
+# must not invalidate stored results.
+_NOT_METHOD = (
+    "pyproject.toml",
+    "src/cobol_archaeologist/benchmark/",
+    "src/cobol_archaeologist/migration/",
+    "src/cobol_archaeologist/mcp_server/",
+    "src/cobol_archaeologist/cli.py",
+    "src/cobol_archaeologist/eval/report.py",
+    "src/cobol_archaeologist/eval/metrics.py",
+    "src/cobol_archaeologist/eval/statistics.py",
+    "src/cobol_archaeologist/eval/calibration.py",
+    "src/cobol_archaeologist/eval/trajectory.py",
+)
 
+
+def _digest(files: Mapping[str, bytes]) -> str:
     digest = hashlib.sha256()
-    for name, payload in sorted(_runtime_files().items()):
+    for name, payload in sorted(files.items()):
         digest.update(name.encode())
         digest.update(b"\0")
         digest.update(hashlib.sha256(payload).digest())
     return digest.hexdigest()
+
+
+def runtime_identity() -> str:
+    """SHA-256 over every file the support runtime installs."""
+
+    return _digest(_runtime_files())
+
+
+def method_hash() -> str:
+    """SHA-256 over the code that determines detector and baseline answers.
+
+    Stored results carry it in their run key, so any change to prompts, tools,
+    guards, or the verifier replaces old results on the next run.
+    """
+
+    return _digest(
+        {
+            name: payload
+            for name, payload in _runtime_files().items()
+            if not name.startswith(_NOT_METHOD)
+        }
+    )
 
 
 def prepare_support_runtime() -> tuple[str, str]:

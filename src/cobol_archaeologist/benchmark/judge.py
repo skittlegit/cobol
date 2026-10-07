@@ -22,7 +22,7 @@ from cobol_archaeologist.schemas import DriftInstance, DriftType
 
 Verdict = Literal["plausible", "implausible", "unsure"]
 Transport = Callable[["JudgeConfig", str], str]
-SYSTEM_FAMILY = "anthropic"
+SYSTEM_FAMILY = "openai"  # the detector under test runs gpt-6-luna
 
 
 class FamilyIntegrityError(RuntimeError):
@@ -239,10 +239,10 @@ def reconstruct_sources(
     *,
     repository_root: str | Path | None = None,
 ) -> dict[str, ProgramSource]:
-    """Deterministically rebuild T2.3 sources without changing frozen schema v2."""
+    """Deterministically rebuild mutated sources without changing the row schema."""
 
     # DECISION: reconstruct exact deterministic T2.3 outputs from the run
-    # manifest instead of adding source text/path fields to frozen schema v2.
+    # manifest instead of adding source text/path fields to the row schema.
     instances_path = Path(instances_path)
     manifest = json.loads(manifest_path_for(instances_path).read_text(encoding="utf-8"))
     if manifest.get("diversify") != "deterministic":

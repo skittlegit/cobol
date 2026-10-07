@@ -53,8 +53,8 @@ def _config(**updates) -> JudgeConfig:
     values = {
         "endpoint": "https://judge.invalid/v1",
         "api_key": "test-key",
-        "model": "gpt-test-judge",
-        "model_family": "openai",
+        "model": "claude-test-judge",
+        "model_family": "anthropic",
     }
     values.update(updates)
     return JudgeConfig(**values)
@@ -71,10 +71,13 @@ def _copy_benchmark(tmp_path: Path) -> Path:
 
 
 def test_gate_a_refuses_same_family_and_disguised_model_names():
+    # Same family as the detector under test.
     with pytest.raises(FamilyIntegrityError):
-        _config(model="claude-sonnet", model_family="anthropic").validate()
+        _config(model="gpt-6-luna", model_family="openai").validate()
+    # A detector-family model disguised under another family label.
     with pytest.raises(FamilyIntegrityError):
-        _config(model="claude-sonnet", model_family="openai").validate()
+        _config(model="gpt-6-luna", model_family="anthropic").validate()
+    _config(model="claude-test-judge", model_family="anthropic").validate()
     _config(model="gemini-test", model_family="google").validate()
     with pytest.raises(JudgeConfigurationError, match="reasoning effort"):
         _config(reasoning_effort="extreme").validate()
@@ -197,8 +200,8 @@ def test_gate_c_stratified_50_run_is_deterministic_and_updates_manifest(
     manifest = json.loads(
         left_input.with_suffix(".manifest.json").read_text(encoding="utf-8")
     )
-    assert manifest["judging"]["model"] == "gpt-test-judge"
-    assert manifest["judging"]["model_family"] == "openai"
+    assert manifest["judging"]["model"] == "claude-test-judge"
+    assert manifest["judging"]["model_family"] == "anthropic"
     assert manifest["judging"]["sample"]["plausible_rate"] == 1.0
     assert manifest["judging"]["sample"]["raw_plausible_rate"] == 1.0
     assert manifest["judging"]["sample"]["gate_passed"] is True
@@ -306,8 +309,8 @@ def test_gate_d_plausibility_threshold_is_exactly_ninety_percent():
             is_interprocedural=False,
             verdict="plausible" if index < 45 else "implausible",
             reason="reviewed",
-            model="gpt-test-judge",
-            model_family="openai",
+            model="claude-test-judge",
+            model_family="anthropic",
         )
         for index in range(50)
     ]
@@ -336,8 +339,8 @@ def test_gate_e_drop_policy_separates_implausible_and_unsure(tmp_path):
             is_interprocedural=instance.code_locus.is_interprocedural,
             verdict=verdict,
             reason=f"{verdict} reason",
-            model="gpt-test-judge",
-            model_family="openai",
+            model="claude-test-judge",
+            model_family="anthropic",
         )
         for instance, verdict in zip(
             instances, ("plausible", "implausible", "unsure"), strict=True
@@ -405,8 +408,8 @@ def test_overrides_change_acceptance_but_never_the_raw_judge_gate(tmp_path):
             is_interprocedural=instance.code_locus.is_interprocedural,
             verdict="plausible" if index < 8 else "implausible",
             reason="raw judge verdict",
-            model="gpt-test-judge",
-            model_family="openai",
+            model="claude-test-judge",
+            model_family="anthropic",
         )
         for index, instance in enumerate(instances)
     ]
@@ -446,8 +449,8 @@ def test_drop_policy_rejects_unlogged_or_mismatched_overrides(tmp_path):
         is_interprocedural=instance.code_locus.is_interprocedural,
         verdict="unsure",
         reason="needs human review",
-        model="gpt-test-judge",
-        model_family="openai",
+        model="claude-test-judge",
+        model_family="anthropic",
     )
     adjudication = UnsureAdjudication(
         instance_id=instance.instance_id,
@@ -496,8 +499,8 @@ def test_cli_adjudication_writes_override_log_and_headline_rate(tmp_path):
             is_interprocedural=instance.code_locus.is_interprocedural,
             verdict=verdict,
             reason="raw judge verdict",
-            model="gpt-test-judge",
-            model_family="openai",
+            model="claude-test-judge",
+            model_family="anthropic",
         )
         for instance, verdict in zip(
             instances, ("plausible", "implausible", "unsure"), strict=True
@@ -559,8 +562,8 @@ def test_gate_f_records_exactly_fifteen_human_reviews(tmp_path):
             is_interprocedural=instance.code_locus.is_interprocedural,
             verdict="plausible",
             reason="judge reason",
-            model="gpt-test-judge",
-            model_family="openai",
+            model="claude-test-judge",
+            model_family="anthropic",
         )
         for instance in instances
     ]
@@ -610,9 +613,9 @@ def test_cli_judge_refuses_missing_key(tmp_path, monkeypatch, capsys):
             "--sample",
             "50",
             "--model",
-            "gpt-test-judge",
+            "claude-test-judge",
             "--model-family",
-            "openai",
+            "anthropic",
         ]
     )
     assert result != 0

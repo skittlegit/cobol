@@ -891,7 +891,7 @@ def build_benchmark(
     diversify_mode: DiversifyMode = "deterministic",
     repository_root: str | Path | None = None,
 ) -> BuildResult:
-    """Build synthetic v1 and its deterministic run manifest."""
+    """Build the synthetic benchmark rows and their deterministic run manifest."""
 
     if min_instances < 1:
         raise ValueError("min_instances must be positive")
@@ -1199,7 +1199,7 @@ def build_benchmark(
             # feature level and not only in aggregate. A reviewer can see which
             # axis carries signal rather than taking one number on trust.
             "per_feature_auc": per_feature_auc(probe_rows),
-            # CONTRACT v1.3 / BL-14 threat-model split. Only this feature is
+            # Threat-model split: Only this feature is
             # computable from the shipped artifact without the seed bases, so
             # it remains the hard at-chance integrity gate. The aggregate is a
             # measured attacker-with-bases floor consumed as a T5.3 baseline.

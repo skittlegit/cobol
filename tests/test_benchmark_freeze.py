@@ -71,7 +71,7 @@ def test_freeze_requires_and_hashes_independent_evidence(tmp_path, presplit_dir)
 
     manifest = freeze_benchmark(
         pre_dir=presplit_dir,
-        output_dir=tmp_path / "v1",
+        output_dir=tmp_path / "frozen",
         adjudicated_real_path=REAL,
         pass_a_path=left,
         pass_b_path=right,
@@ -85,10 +85,10 @@ def test_freeze_requires_and_hashes_independent_evidence(tmp_path, presplit_dir)
     assert manifest.excluded_candidate_ids == []
     assert set(manifest.split_sha256) == {"train", "dev", "test"}
     for name, expected_sha256 in manifest.split_sha256.items():
-        split_bytes = (tmp_path / "v1" / f"{name}.jsonl").read_bytes()
+        split_bytes = (tmp_path / "frozen" / f"{name}.jsonl").read_bytes()
         assert b"\r\n" not in split_bytes
         assert hashlib.sha256(split_bytes).hexdigest() == expected_sha256
-    assert b"\r\n" not in (tmp_path / "v1" / "manifest.json").read_bytes()
+    assert b"\r\n" not in (tmp_path / "frozen" / "manifest.json").read_bytes()
 
 
 def test_detector_visible_projection_includes_code_locus_but_not_gold_rationale():
@@ -183,7 +183,7 @@ def test_freeze_drops_excluded_candidates_and_shrinks_test_split(tmp_path, presp
 
     manifest = freeze_benchmark(
         pre_dir=presplit_dir,
-        output_dir=tmp_path / "v1",
+        output_dir=tmp_path / "frozen",
         adjudicated_real_path=adjudicated_real,
         pass_a_path=left,
         pass_b_path=right,
@@ -196,7 +196,7 @@ def test_freeze_drops_excluded_candidates_and_shrinks_test_split(tmp_path, presp
 
     test_ids = {
         json.loads(line)["instance_id"]
-        for line in (tmp_path / "v1" / "test.jsonl")
+        for line in (tmp_path / "frozen" / "test.jsonl")
         .read_text(encoding="utf-8")
         .splitlines()
         if line.strip()
@@ -224,7 +224,7 @@ def test_freeze_rejects_missing_adjudication_for_excluded_candidate(tmp_path, pr
     with pytest.raises(ValueError, match="explicit exclude adjudication"):
         freeze_benchmark(
             pre_dir=presplit_dir,
-            output_dir=tmp_path / "v1",
+            output_dir=tmp_path / "frozen",
             adjudicated_real_path=adjudicated_real,
             pass_a_path=left,
             pass_b_path=right,

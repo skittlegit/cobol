@@ -24,7 +24,7 @@ def checksum(path):
 def verify(bundle):
     bundle = Path(bundle).resolve()
     manifest = json.loads((bundle / "manifest.json").read_bytes())
-    if manifest["schema_version"] != "cobol-offline-bundle-v1":
+    if manifest["schema_version"] != "cobol-offline-bundle":
         raise ValueError("Unsupported offline bundle manifest")
     if sys.version_info[:2] != (3, 12):
         raise ValueError("Use the recorded Python 3.12 runtime")

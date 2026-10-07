@@ -26,7 +26,7 @@ def bundle(tmp_path):
         path.write_bytes(b"unit test integrity payload only; not neural qualification")
     (tmp_path / "requirements.txt").write_text("offline-unit-fixture", encoding="ascii")
     manifest = {
-        "schema_version": "cobol-offline-bundle-v1",
+        "schema_version": "cobol-offline-bundle",
         "models": models,
         "files": [
             {"path": p.relative_to(tmp_path).as_posix(), "sha256": offline.checksum(p)}
@@ -39,7 +39,7 @@ def bundle(tmp_path):
 
 
 def test_verified_files_and_exact_manifest(bundle):
-    assert offline.verify(bundle)["schema_version"] == "cobol-offline-bundle-v1"
+    assert offline.verify(bundle)["schema_version"] == "cobol-offline-bundle"
 
 
 @pytest.mark.parametrize(

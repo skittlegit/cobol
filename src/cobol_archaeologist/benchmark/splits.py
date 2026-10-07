@@ -416,7 +416,7 @@ def _distribution(
     t6_pair_count: int,
 ) -> tuple[str, int]:
     lines = [
-        "# Benchmark v1-pre Distribution",
+        "# Pre-freeze split distribution",
         "",
         f"Deterministic seed: `{seed}`. Target ratios: train 70%, dev 15%, test 15%.",
         (
@@ -580,7 +580,7 @@ def build_splits(
     seed: int = 2600,
     roster_path: str | Path | None = None,
 ) -> SplitReport:
-    """Build deterministic v1-pre splits under T2.6 hard constraints."""
+    """Build deterministic pre-freeze splits under the leakage and coverage constraints."""
 
     synthetic = _load(synthetic_path)
     real = _load(real_curated_path)
