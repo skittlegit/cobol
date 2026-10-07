@@ -62,3 +62,11 @@ are in docs/REPRODUCIBILITY.md. Final readiness is determined by their measured
 qualification receipts, the exact release manifest and the closed release
 addendum. UI/T7.4 remains deferred. Remote and multi-tenant security are outside
 the supplied stdio profile.
+
+R2.10 and M7 are COMPLETE. The measured source archive is `release/cobol-source.zip`
+at source commit `8565cd36e7630ae3452191fd48d06fd5ebd39b39`; its SHA-256 is
+`13d2ad994fff630535596dbd91843cf6b59fa091a8ff41a8d47623ed71c17c29`.
+The later final anonymous document package is `paper/submission.zip`; it
+retains 4,492 audited numerical claims and 76 verified local links without
+embedding attributed software. Final source/paper revisions use the same frozen
+benchmark manifest. Actual receipts and limits are in `release/release-record.json`.
