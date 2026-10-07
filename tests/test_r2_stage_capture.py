@@ -370,4 +370,3 @@ def test_legacy_response_schema_cannot_be_sealed_under_stage_identity(session):
     rows[-1]["payload"]["content"][0]["text"] = json.dumps(payload)
     with pytest.raises(ValueError, match="migration-stage-review-response-v1"):
         run(session)
-

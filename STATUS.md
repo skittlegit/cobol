@@ -93,7 +93,9 @@ in `docs/tasks/` and immutable evaluation artifacts.
   generation is inactive (0). R2.2 has frozen 120 runtime source pins and five
   isolated requests (four official, one qualification); 73 focused generation
   tests pass. Qualification and official results have separate keys and staging.
-  Official generation remains pending qualification. The late final review launch
+  **R2.2 is COMPLETE**: the separate qualification is sealed, replay-valid and
+  passes real WSL patch validation. R2.3 has four pending frozen official keys;
+  qualification contributes zero official results. The late final review launch
   is disclosed in the window-3 timing deviation.
   The concrete proposal is
   `data/migration/coordination/proposed-stage-review-amendment.json`. The
