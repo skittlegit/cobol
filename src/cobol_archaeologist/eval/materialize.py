@@ -1,8 +1,7 @@
-"""Fail-closed reconstruction of benchmark source for real-tool evaluation."""
+"""The exact source a detector sees for a benchmark row."""
 
 from __future__ import annotations
 
-import ast
 import hashlib
 import re
 from dataclasses import dataclass
@@ -93,95 +92,6 @@ def _locus_filename(*, locus, main: Path, main_programs: set[str]) -> str:
     return locus.program if Path(locus.program).suffix else f"{locus.program}.cbl"
 
 
-def _mutation_values(note: str) -> tuple[str, str]:
-    fields: dict[str, str] = {}
-    for segment in note.split(";")[1:]:
-        key, separator, value = segment.strip().partition("=")
-        if separator:
-            fields[key] = value
-    try:
-        old = ast.literal_eval(fields["old"])
-        new = ast.literal_eval(fields["new"])
-    except (KeyError, SyntaxError, ValueError) as exc:
-        raise MaterializationError(
-            "mutation provenance lacks parseable old/new"
-        ) from exc
-    if not isinstance(old, str) or not isinstance(new, str):
-        raise MaterializationError("mutation old/new values must be strings")
-    return old, new
-
-
-def _normalized_block_pattern(old: str) -> re.Pattern[str]:
-    """Compile a case-insensitive pattern whose whitespace is insignificant."""
-
-    parts = old.split()
-    if not parts:
-        raise MaterializationError("mutation provenance old value is empty")
-    return re.compile(r"\s+".join(re.escape(part) for part in parts), re.IGNORECASE)
-
-
-def _newline_sequences(text: str) -> list[str]:
-    return re.findall(r"\r\n|\r|\n", text)
-
-
-def _line_coordinate_replacement(original: str, replacement: str) -> str:
-    """Keep a block replacement on the same source-line coordinate grid."""
-
-    original_newlines = _newline_sequences(original)
-    replacement_newlines = _newline_sequences(replacement)
-    if len(replacement_newlines) > len(original_newlines):
-        raise MaterializationError(
-            "mutation replacement would add source lines and invalidate loci"
-        )
-    newline = original_newlines[0] if original_newlines else "\n"
-    normalized = replacement.replace("\r\n", "\n").replace("\r", "\n")
-    normalized = normalized.replace("\n", newline)
-    return normalized + newline * (
-        len(original_newlines) - len(replacement_newlines)
-    )
-
-
-def _blank_block(original: str) -> str:
-    """Blank a deleted block while retaining every original newline."""
-
-    return "".join(char if char in "\r\n" else " " for char in original)
-
-
-def _find_normalized_block_matches(
-    *,
-    old: str,
-    files: dict[str, str],
-    loci,
-    main: Path,
-    main_programs: set[str],
-) -> list[tuple[str, re.Match[str]]]:
-    """Find unique provenance blocks only in their locus-resolved files."""
-
-    pattern = _normalized_block_pattern(old)
-    matches: list[tuple[str, re.Match[str]]] = []
-    seen: set[tuple[str, int, int]] = set()
-    for locus in loci:
-        filename = _locus_filename(
-            locus=locus, main=main, main_programs=main_programs
-        )
-        text = files.get(filename)
-        if text is None:
-            continue
-        for match in pattern.finditer(text):
-            start_line = text.count("\n", 0, match.start()) + 1
-            end_line = text.count("\n", 0, match.end()) + 1
-            if (
-                locus.line_span[1] < start_line
-                or locus.line_span[0] > end_line
-            ):
-                continue
-            key = (filename, match.start(), match.end())
-            if key not in seen:
-                seen.add(key)
-                matches.append((filename, match))
-    return matches
-
-
 def _hash_files(files: dict[str, str]) -> str:
     digest = hashlib.sha256()
     for name, content in sorted(files.items()):
@@ -229,80 +139,33 @@ def materialize(
     *,
     programs_root: Path = PROGRAMS,
 ) -> MaterializedSource:
-    base = materialize_base(instance, programs_root=programs_root)
-    main = _find_unique(instance.provenance.base_program, programs_root)
-    files = dict(base.files)
-    main_programs = _declared_programs(files[main.name])
-    note = instance.provenance.mutation
-    if instance.provenance.source == "synthetic" and note:
-        old, new = _mutation_values(note)
-        candidates: list[tuple[str, int]] = []
-        for locus in instance.code_locus.loci:
-            filename = _locus_filename(
-                locus=locus, main=main, main_programs=main_programs
-            )
-            text = files.get(filename)
-            if text is None:
-                continue
-            lines = text.splitlines(keepends=True)
-            start, end = locus.line_span
-            for index in range(start - 1, min(end, len(lines))):
-                if old in lines[index]:
-                    candidates.append((filename, index))
-        candidates = sorted(set(candidates))
-        block_matches = _find_normalized_block_matches(
-            old=old,
-            files=files,
-            loci=instance.code_locus.loci,
-            main=main,
-            main_programs=main_programs,
-        )
-        multiline_matches = [
-            (filename, match)
-            for filename, match in block_matches
-            if _newline_sequences(match.group())
-        ]
-        if not candidates or multiline_matches:
-            if len(block_matches) != 1:
-                raise MaterializationError(
-                    f"normalized block {old!r} matched {len(block_matches)} "
-                    "locus-overlapping blocks"
-                )
-            filename, match = block_matches[0]
-            text = files[filename]
-            replacement = (
-                _blank_block(match.group())
-                if new == "(deleted)"
-                else _line_coordinate_replacement(match.group(), new)
-            )
-            files[filename] = text[: match.start()] + replacement + text[match.end() :]
-            if files[filename].count("\n") != text.count("\n"):
-                raise MaterializationError(
-                    "mutation replacement changed the source line coordinate grid"
-                )
-            return MaterializedSource(
-                main_file=main.name,
-                files=files,
-                source_sha256=_hash_files(files),
-            )
-        replacement = "" if new == "(deleted)" else new
-        by_file: dict[str, list[int]] = {}
-        for filename, index in candidates:
-            by_file.setdefault(filename, []).append(index)
-        for filename, indices in by_file.items():
-            lines = files[filename].splitlines(keepends=True)
-            for index in indices:
-                if lines[index].count(old) != 1:
-                    raise MaterializationError(
-                        f"recorded edit {old!r} is ambiguous on {filename}:{index + 1}"
-                    )
-                lines[index] = lines[index].replace(old, replacement, 1)
-                if replacement and replacement not in lines[index]:
-                    raise MaterializationError(
-                        "mutation replacement postcondition failed"
-                    )
-            files[filename] = "".join(lines)
+    """Return the exact program a detector sees for ``instance``.
 
+    Real-curated rows are their base files. A synthetic row is its base files
+    plus its stored edit (``data/benchmark/edits/<instance_id>.diff``).
+    """
+
+    base = materialize_base(instance, programs_root=programs_root)
+    if instance.provenance.source != "synthetic":
+        return base
+    from cobol_archaeologist.benchmark.edits import apply_edit, edit_path
+
+    path = edit_path(instance.instance_id)
+    if not path.exists():
+        raise MaterializationError(f"no stored edit for {instance.instance_id}")
+    files = dict(base.files)
+    main = _find_unique(instance.provenance.base_program, programs_root)
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("--- a/"):
+            name = line[len("--- a/") :].strip()
+            if name not in files:
+                sibling = main.parent / name
+                source = sibling if sibling.is_file() else _find_unique(name, programs_root)
+                files[name] = source.read_text(encoding="utf-8", errors="replace")
+    try:
+        files = apply_edit(instance.instance_id, files)
+    except ValueError as exc:
+        raise MaterializationError(f"{instance.instance_id}: {exc}") from exc
     return MaterializedSource(
         main_file=main.name,
         files=files,

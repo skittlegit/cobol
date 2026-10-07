@@ -1,0 +1,4 @@
+      * RESTRUCTURED BALANCE INTEREST RUN CONTROL (SHARED)
+       01  WS-RST-INT-CONTROL.
+           05  WS-RST-INT-RUN        PIC X(1) VALUE 'N'.
+               88  RST-INT-ON        VALUE 'Y'.

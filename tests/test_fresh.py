@@ -1,0 +1,38 @@
+"""The fresh held-out test split and the hosts it was generated from."""
+
+from __future__ import annotations
+
+from collections import Counter
+from pathlib import Path
+
+from cobol_archaeologist.benchmark.fresh import FRESH, LOCAL_HOSTS, hosts
+from cobol_archaeologist.benchmark.splits import _base_group
+from cobol_archaeologist.schemas import DriftInstance
+
+BENCHMARK = Path(__file__).resolve().parents[1] / "data" / "benchmark"
+
+
+def _split(name: str) -> list[DriftInstance]:
+    return [
+        DriftInstance.model_validate_json(line)
+        for line in (BENCHMARK / f"{name}.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+def test_hosts_cover_each_interprocedural_operator():
+    ops = Counter(host.ops[0] for host in hosts() if host not in LOCAL_HOSTS)
+
+    assert ops == {"MO-1×": 20, "MO-3×": 20, "MO-6×": 20}
+    assert all((FRESH / host.filename).is_file() for host in hosts())
+
+
+def test_test_split_uses_only_fresh_bases_and_no_shared_group():
+    test = _split("test")
+    fresh = {path.name for path in FRESH.iterdir()}
+    used = {_base_group(row) for row in _split("train") + _split("dev")}
+
+    assert len(test) == 145
+    assert sum(row.code_locus.is_interprocedural for row in test) >= 60
+    assert all(row.provenance.base_program in fresh for row in test)
+    assert not {_base_group(row) for row in test} & used

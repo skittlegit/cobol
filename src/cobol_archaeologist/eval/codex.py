@@ -19,6 +19,7 @@ import shlex
 import subprocess
 import sys
 import tarfile
+import threading
 import uuid
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -41,10 +42,19 @@ MODEL_ID = os.environ.get("COBOL_ARCH_MODEL", "gpt-6-luna")
 REASONING_EFFORT = os.environ.get("COBOL_ARCH_EFFORT", "max")
 WSL_DISTRO = os.environ.get("COBOL_ARCH_WSL_DISTRO", "Ubuntu")
 WSL_HOME = os.environ.get("COBOL_ARCH_WSL_HOME", "/home/deepa")
-CODEX_BINARY = f"{WSL_HOME}/.local/bin/codex-x86_64-unknown-linux-musl"
+CODEX_BINARY = os.environ.get("COBOL_ARCH_CODEX", f"{WSL_HOME}/.local/bin/codex")
 UV_BINARY = f"{WSL_HOME}/.local/bin/uv"
 SUPPORT_BASE = f"{WSL_HOME}/.cache/cobol-archaeologist/support"
 TASK_BASE = f"{WSL_HOME}/.cache/cobol-archaeologist/tasks"
+# ChatGPT accounts, one Codex home each (each holds its own auth.json). Tasks
+# use the first home that is logged in; when its usage limit is hit, the task
+# is retried on the next one. Log a second account in with
+# `CODEX_HOME=~/.codex-b codex login --device-auth` inside WSL.
+CODEX_HOMES = tuple(
+    os.environ.get(
+        "COBOL_ARCH_CODEX_HOMES", f"{WSL_HOME}/.codex:{WSL_HOME}/.codex-b"
+    ).split(":")
+)
 
 _ENV_ALLOWLIST = frozenset(
     {
@@ -66,7 +76,9 @@ _ENV_ALLOWLIST = frozenset(
         "WINDIR",
     }
 )
-_PASSIVE_ITEM_TYPES = frozenset({"agent_message", "reasoning"})
+# "error" items are client warnings (for example missing model metadata); a
+# real failure ends the process with a non-zero exit code instead.
+_PASSIVE_ITEM_TYPES = frozenset({"agent_message", "reasoning", "error"})
 _AUTH_FAILURES = (
     "401 Unauthorized",
     "access token could not be refreshed",
@@ -74,8 +86,65 @@ _AUTH_FAILURES = (
 )
 
 
+_LIMIT_FAILURES = (
+    "usage limit",
+    "usage_limit",
+    "429 Too Many Requests",
+    "rate limit reached",
+)
+
+
 class CodexAuthError(RuntimeError):
-    """The Codex login is no longer valid; every task would fail."""
+    """No Codex account can run tasks (login expired or limits reached)."""
+
+
+class _AccountUnusable(Exception):
+    def __init__(self, reason: str):
+        super().__init__(reason)
+        self.reason = reason
+
+
+class Accounts:
+    """Rotate tasks across the logged-in Codex homes."""
+
+    def __init__(self, homes: Sequence[str]):
+        self._homes = list(homes)
+        self._dead: dict[str, str] = {}
+        self._lock = threading.Lock()
+
+    def current(self) -> str:
+        with self._lock:
+            for home in self._homes:
+                if home not in self._dead:
+                    return home
+        raise CodexAuthError(
+            "no usable Codex account: "
+            + "; ".join(f"{home}: {why}" for home, why in self._dead.items())
+            + f". Log in again (`wsl -d {WSL_DISTRO} -- env CODEX_HOME=<home> "
+            f"{CODEX_BINARY} login --device-auth`) or wait for the limit to reset"
+        )
+
+    def retire(self, home: str, reason: str) -> None:
+        with self._lock:
+            self._dead.setdefault(home, reason)
+
+
+def _logged_in_homes() -> list[str]:
+    return [
+        home
+        for home in CODEX_HOMES
+        if wsl(["test", "-s", f"{home}/auth.json"]).returncode == 0
+    ]
+
+
+_accounts: Accounts | None = None
+
+
+def accounts() -> Accounts:
+    global _accounts
+    if _accounts is None:
+        _accounts = Accounts(_logged_in_homes())
+    return _accounts
 
 
 _PASSIVE_EVENT_TYPES = frozenset({"thread.started", "turn.started", "turn.completed"})
@@ -275,12 +344,15 @@ def bridge_command(support_root: str) -> str:
 
 
 def check_login() -> str:
-    result = wsl([CODEX_BINARY, "login", "status"])
-    require_ok(result, "check Codex login")
-    status = (result.stdout + result.stderr).decode("utf-8", errors="replace")
-    if "ChatGPT" not in status:
+    statuses = []
+    for home in _logged_in_homes():
+        result = wsl(["env", f"CODEX_HOME={home}", CODEX_BINARY, "login", "status"])
+        status = (result.stdout + result.stderr).decode("utf-8", errors="replace")
+        if result.returncode == 0 and "ChatGPT" in status:
+            statuses.append(f"{home}: {status.strip()}")
+    if not statuses:
         raise RuntimeError("Codex must be logged in through ChatGPT")
-    return status.strip()
+    return "\n".join(statuses)
 
 
 def codex_version() -> str:
@@ -396,24 +468,45 @@ def _split_command(command: str) -> list[str]:
     return tokens
 
 
+_SHELL_OPERATORS = ("&&", "||", "|", ";", ">", ">>", "<", "&", "<<")
+
+
+class _MalformedBridgeCall(ValueError):
+    """A plain bridge call with the wrong arguments; the bridge rejects it."""
+
+
+class _UnparseableCommand(ValueError):
+    """A command whose shell quoting cannot be parsed."""
+
+
 def _parse_bridge_call(
     command: str,
     *,
     prefix: list[str],
     aliases: frozenset[str],
 ) -> tuple[str, str, dict[str, Any]]:
-    tokens = _split_command(command)
+    try:
+        tokens = _split_command(command)
+    except ValueError as exc:
+        raise _UnparseableCommand(f"unparseable command: {command[:300]!r}") from exc
     if tokens[: len(prefix)] != prefix:
-        raise ValueError(f"command is not the tool bridge: {command[:200]!r}")
+        raise ValueError(f"command is not the tool bridge: {command[:300]!r}")
     suffix = tokens[len(prefix) :]
+    if any(t in _SHELL_OPERATORS or "$(" in t or "`" in t for t in suffix):
+        raise ValueError(f"bridge call combined with shell syntax: {command[:300]!r}")
+    if len(suffix) == 3 and suffix[2].startswith("--arguments="):
+        suffix = [suffix[0], suffix[1], "--arguments", suffix[2][len("--arguments=") :]]
     if len(suffix) != 4 or suffix[2] != "--arguments":
-        raise ValueError("bridge invocation has an unexpected argument shape")
+        raise _MalformedBridgeCall(command[:300])
     alias, operation, _, raw = suffix
     if alias not in aliases:
         raise ValueError(f"bridge invocation uses unknown alias {alias!r}")
-    arguments = json.loads(raw)
+    try:
+        arguments = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise _MalformedBridgeCall(command[:300]) from exc
     if not isinstance(arguments, dict):
-        raise TypeError("bridge arguments must be one JSON object")
+        raise _MalformedBridgeCall(command[:300])
     return alias, operation, arguments
 
 
@@ -469,9 +562,25 @@ def authorize_events(
         item_id, command = item.get("id"), item.get("command")
         if not isinstance(item_id, str) or not isinstance(command, str):
             raise TypeError("Codex command event lacks id/command")
-        alias, operation, arguments = _parse_bridge_call(
-            command, prefix=prefix, aliases=alias_set
-        )
+        try:
+            alias, operation, arguments = _parse_bridge_call(
+                command, prefix=prefix, aliases=alias_set
+            )
+        except _MalformedBridgeCall:
+            # The bridge itself rejects such calls; they carry no observation.
+            if event_type == "item.completed":
+                stream.rejected_commands += 1
+            continue
+        except _UnparseableCommand:
+            # Broken shell quoting: bash fails before anything runs. Only a
+            # failed attempt is safe to ignore; a "successful" one is not
+            # verifiable and invalidates the task.
+            if event_type == "item.started":
+                continue
+            if item.get("exit_code") == 0 or BRIDGE_MODULE not in command:
+                raise ValueError(f"unverifiable command: {command[:300]!r}") from None
+            stream.rejected_commands += 1
+            continue
         if event_type == "item.started":
             started[item_id] = command
             continue
@@ -524,11 +633,14 @@ class TaskResult(BaseModel):
     events_sha256: str
 
 
-def exec_arguments(task_root: str, *, allow_bridge: bool) -> list[str]:
+def exec_arguments(
+    task_root: str, *, allow_bridge: bool, codex_home: str = CODEX_HOMES[0]
+) -> list[str]:
     return [
         "env",
         "-i",
         f"HOME={WSL_HOME}",
+        f"CODEX_HOME={codex_home}",
         "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
         "LANG=C.UTF-8",
         "TERM=dumb",
@@ -555,6 +667,26 @@ def exec_arguments(task_root: str, *, allow_bridge: bool) -> list[str]:
         task_root,
         "-",
     ]
+
+
+def _run_codex(
+    task_root: str, prompt: str, allow_bridge: bool, home: str, timeout_s: float
+) -> str:
+    result = wsl(
+        exec_arguments(task_root, allow_bridge=allow_bridge, codex_home=home),
+        input_bytes=prompt.encode(),
+        timeout=timeout_s,
+    )
+    stdout = result.stdout.decode("utf-8", errors="replace")
+    if result.returncode:
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        text = stderr + stdout
+        if any(marker in text for marker in _AUTH_FAILURES):
+            raise _AccountUnusable("login expired")
+        if any(marker.lower() in text.lower() for marker in _LIMIT_FAILURES):
+            raise _AccountUnusable("usage limit reached")
+        raise RuntimeError(f"Codex task failed ({result.returncode}): {text[-4000:]}")
+    return stdout
 
 
 def execute_task(
@@ -586,22 +718,13 @@ def execute_task(
     files["descriptor.json"] = json.dumps(case_descriptor, sort_keys=True).encode()
     stage_files(task_root, files)
     try:
-        result = wsl(
-            exec_arguments(task_root, allow_bridge=bool(sources)),
-            input_bytes=prompt.encode(),
-            timeout=timeout_s,
-        )
-        stdout = result.stdout.decode("utf-8", errors="replace")
-        if result.returncode:
-            stderr = result.stderr.decode("utf-8", errors="replace")
-            if any(marker in stderr + stdout for marker in _AUTH_FAILURES):
-                raise CodexAuthError(
-                    "Codex login expired inside WSL; run "
-                    f"`wsl -d {WSL_DISTRO} -- {CODEX_BINARY} login` and retry"
-                )
-            raise RuntimeError(
-                f"Codex task failed ({result.returncode}): {(stderr + stdout)[-4000:]}"
-            )
+        while True:
+            home = accounts().current()
+            try:
+                stdout = _run_codex(task_root, prompt, bool(sources), home, timeout_s)
+                break
+            except _AccountUnusable as exc:
+                accounts().retire(home, exc.reason)
         parsed = parse_events(stdout)
         stream = authorize_events(
             parsed,

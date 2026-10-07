@@ -297,11 +297,13 @@ class NeuralEntailer:
         if self._pipe is None:
             from transformers import pipeline  # network / heavy import
 
+            # float32: half precision is the checkpoint default but fails on CPU.
             self._pipe = pipeline(
                 "text-classification",
                 model=self.model,
                 revision=self.revision,
                 top_k=None,
+                dtype="float32",
             )
         return self._pipe
 

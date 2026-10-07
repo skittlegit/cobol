@@ -1,0 +1,38 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SUBRF13.
+      * SUBSCRIPTION CANCELLATION REFUND
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY SUBRFC13.
+       01  WS-CREDIT-LIMIT           PIC 9(9)V99 VALUE ZERO.
+       01  WS-CREDIT-AMT             PIC 9(7)V99 VALUE ZERO.
+       01  WS-THRESHOLD              PIC 9(7)V99 VALUE ZERO.
+       01  WS-DECISION               PIC X(8) VALUE SPACES.
+       01  WS-CARD-TIER              PIC X(1) VALUE 'S'.
+           88  PREMIUM-TIER          VALUE 'P'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-CARD-TIER
+           ACCEPT WS-CREDIT-LIMIT
+           ACCEPT WS-CREDIT-AMT
+           PERFORM 2000-THRESHOLD
+           PERFORM 3000-ROUTE
+           DISPLAY 'ROUTE: ' WS-DECISION
+           STOP RUN.
+       2000-THRESHOLD.
+           COMPUTE WS-THRESHOLD =
+                   WS-CREDIT-LIMIT * WS-SUBREF-CUTOFF-PCT
+           IF WS-THRESHOLD > WS-SUBREF-CUTOFF-CAP
+              MOVE WS-SUBREF-CUTOFF-CAP TO WS-THRESHOLD
+           END-IF.
+       3000-ROUTE.
+           IF WS-CREDIT-AMT > WS-THRESHOLD
+              MOVE 'CONSENT' TO WS-DECISION
+           ELSE
+              IF PREMIUM-TIER
+                 MOVE 'FASTPOST' TO WS-DECISION
+              ELSE
+                 MOVE 'POST' TO WS-DECISION
+              END-IF
+           END-IF.

@@ -23,8 +23,9 @@ that failure mode no longer exists.
 
 That test split had been opened repeatedly, so its 196 rows were folded into
 `dev` (now 298 rows) and their results moved to `data/eval/dev/`
-(`report.md` there, decision `DEV_ONLY`). `test.jsonl` is empty until the fresh
-split is built (B1, B2); until then the official report is `NOT_EVALUABLE`.
+(`report.md` there, decision `DEV_ONLY`). The fresh test split (B1, 145 rows,
+60 interprocedural) is built and has not been run; the official report stays
+`NOT_EVALUABLE` until E1.
 
 ## Tasks
 
@@ -36,10 +37,11 @@ split is built (B1, B2); until then the official report is `NOT_EVALUABLE`.
 | D3 | Error analysis of the last official run | done | [D3](docs/tasks/D3.md) |
 | D4 | Detector improvements: D6, D7-vs-D2, temporal | in progress | [D4](docs/tasks/D4.md) |
 | D5 | Live dev runs and tuning | todo | [D5](docs/tasks/D5.md) |
-| B1 | Fresh held-out test split | todo | [B1](docs/tasks/B1.md) |
+| B1 | Fresh held-out test split (145 rows) | done | [B1](docs/tasks/B1.md) |
 | B2 | Fresh temporal pairs | todo | [B2](docs/tasks/B2.md) |
 | E1 | Official run and decision | todo | [E1](docs/tasks/E1.md) |
-| M1 | Simplify migration contracts | todo | [M1](docs/tasks/M1.md) |
+| M1 | Simplify migration | done | [M1](docs/tasks/M1.md) |
 | P1 | Regenerate paper, datasheet, and release | todo | [P1](docs/tasks/P1.md) |
+| S1 | Project site generated from the canonical results | todo | [S1](docs/tasks/S1.md) |
 
-Order: D4 → D5 → B1/B2 → E1 → P1. M1 is independent.
+Order: D4 → D5 → B1/B2 → E1 → P1/S1.

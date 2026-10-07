@@ -1,0 +1,16 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. EMISET3.
+      * EMI INTEREST POSTING - STEP 1 RUN FLAG
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY EMIFLG3.
+       01  WS-RUN-CODE               PIC X(1) VALUE SPACE.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-RUN-CODE
+           IF WS-RUN-CODE = 'M'
+              MOVE 'Y' TO WS-EMI-INT-RUN
+           END-IF
+           DISPLAY 'RUN: ' WS-EMI-INT-RUN
+           STOP RUN.

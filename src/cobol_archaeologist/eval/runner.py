@@ -36,7 +36,8 @@ from cobol_archaeologist.tools import RealToolLayer
 ROOT = Path(__file__).resolve().parents[3]
 BENCHMARK = ROOT / "data" / "benchmark"
 EVAL_ROOT = ROOT / "data" / "eval"
-TEMPORAL_PROGRAMS = BENCHMARK / "temporal" / "programs"
+# Temporal rows use programs from temporal/programs/ and seed/programs/.
+TEMPORAL_PROGRAMS = BENCHMARK
 
 SystemID = Literal["detector", "rag_reranker"]
 Split = Literal["train", "dev", "test", "temporal"]

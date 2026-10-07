@@ -1,0 +1,4 @@
+      * CORPORATE CARD INTEREST RUN CONTROL (SHARED)
+       01  WS-CORP-INT-CONTROL.
+           05  WS-CORP-INT-RUN       PIC X(1) VALUE 'N'.
+               88  CORP-INT-ON       VALUE 'Y'.

@@ -45,17 +45,6 @@ def _dev_rows() -> list[DriftInstance]:
     ]
 
 
-def _mutation_field(row: DriftInstance, field: str) -> str:
-    mutation = row.provenance.mutation or ""
-    return ast.literal_eval(
-        next(
-            segment.strip().partition("=")[2]
-            for segment in mutation.split(";")[1:]
-            if segment.strip().startswith(f"{field}=")
-        )
-    )
-
-
 @pytest.mark.parametrize("operator", ["MO-1", "MO-1×", "MO-6×"])
 def test_materializes_local_copybook_and_interprogram_edits(operator):
     row = _by_operator(operator)
@@ -77,48 +66,15 @@ def test_materializes_local_copybook_and_interprogram_edits(operator):
         )
 
 
-def test_materializer_blanks_deletion_without_changing_line_count(tmp_path):
-    row = _by_operator("MO-2")
-    mutation = row.provenance.mutation or ""
-    old = ast.literal_eval(
-        next(
-            segment.strip().partition("=")[2]
-            for segment in mutation.split(";")[1:]
-            if segment.strip().startswith("old=")
-        )
-    )
-    locus = row.code_locus.loci[0]
-    line_count = max(31, locus.line_span[1])
-    lines = ["       01 FILLER PIC X.\n"] * line_count
-    lines[locus.line_span[0] - 1] = f"       {old}\n"
-    (tmp_path / row.provenance.base_program).write_text(
-        "".join(lines),
-        encoding="utf-8",
-    )
+def test_every_synthetic_row_is_its_base_plus_its_stored_edit():
+    rows = [row for row in _rows() if row.provenance.source == "synthetic"]
 
-    source = materialize(row, programs_root=tmp_path)
-
-    assert old not in source.files[row.provenance.base_program]
-    assert len(source.files[row.provenance.base_program].splitlines()) == line_count
-
-
-def test_materializer_replaces_actual_multiline_non_deletion_block():
-    row = next(
-        row
-        for row in _dev_rows()
-        if row.provenance.base_program == "ACTIVAT1.cbl"
-        and (row.provenance.mutation or "").startswith("MO-2;")
-    )
-    base = materialize_base(row)
-    source = materialize(row)
-    base_text = base.files[row.provenance.base_program]
-    materialized_text = source.files[row.provenance.base_program]
-    new = _mutation_field(row, "new")
-
-    assert new in materialized_text
-    assert _mutation_field(row, "old") not in materialized_text
-    assert materialized_text.count("\n") == base_text.count("\n")
-    assert len(materialized_text.splitlines()) == len(base_text.splitlines())
+    assert len(rows) > 700
+    for row in rows:
+        source = materialize(row)
+        base = materialize_base(row)
+        assert source.main_file == row.provenance.base_program
+        assert source.source_sha256 != base.source_sha256, row.instance_id
 
 
 def test_all_dev_rows_materialize():
@@ -130,59 +86,23 @@ def test_all_dev_rows_materialize():
         assert source.files
 
 
-def test_materializer_rejects_zero_normalized_block_matches(tmp_path):
-    row = next(
-        row
-        for row in _dev_rows()
-        if row.provenance.base_program == "ACTIVAT1.cbl"
-        and (row.provenance.mutation or "").startswith("MO-2;")
-    )
-    source_path = PROGRAMS / "train-bases" / row.provenance.base_program
-    text = source_path.read_text(encoding="utf-8")
-    old = _mutation_field(row, "old")
-    broken = text.replace(
-        "IF WS-DAYS-SINCE-ISSUE > 30", "IF WS-DAYS-SINCE-ISSUE > 300"
-    )
-    assert old not in broken
-    (tmp_path / row.provenance.base_program).write_text(broken, encoding="utf-8")
+def test_synthetic_row_without_stored_edit_is_refused():
+    row = _by_operator("MO-1")
+    orphan = row.model_copy(update={"instance_id": "drift_999999"})
 
-    with pytest.raises(MaterializationError, match="normalized block .* matched 0"):
-        materialize(row, programs_root=tmp_path)
+    with pytest.raises(MaterializationError, match="no stored edit"):
+        materialize(orphan)
 
 
-def test_materializer_rejects_ambiguous_normalized_block_matches(tmp_path):
-    row = next(
-        row
-        for row in _dev_rows()
-        if row.provenance.base_program == "ACTIVAT1.cbl"
-        and (row.provenance.mutation or "").startswith("MO-2;")
-    )
-    source_path = PROGRAMS / "train-bases" / row.provenance.base_program
-    text = source_path.read_text(encoding="utf-8")
-    old = _mutation_field(row, "old")
-    expanded = text + "\n" + old.lower() + "\n"
-    (tmp_path / row.provenance.base_program).write_text(expanded, encoding="utf-8")
-    broad_locus = row.code_locus.loci[0].model_copy(
-        update={"line_span": (row.code_locus.loci[0].line_span[0], 100)}
-    )
-    ambiguous = row.model_copy(
-        update={
-            "code_locus": row.code_locus.model_copy(update={"loci": [broad_locus]})
-        }
-    )
-
-    with pytest.raises(MaterializationError, match="normalized block .* matched 2"):
-        materialize(ambiguous, programs_root=tmp_path)
-
-
-def test_materializer_rejects_source_drift_and_ambiguity(tmp_path):
+def test_edit_that_no_longer_applies_to_its_base_is_refused(tmp_path):
     row = _by_operator("MO-1")
     (tmp_path / row.provenance.base_program).write_text(
         "       IDENTIFICATION DIVISION.\n"
         f"       PROGRAM-ID. {Path(row.provenance.base_program).stem}.\n",
         encoding="utf-8",
     )
-    with pytest.raises(MaterializationError, match="matched 0"):
+
+    with pytest.raises(MaterializationError, match=row.instance_id):
         materialize(row, programs_root=tmp_path)
 
 

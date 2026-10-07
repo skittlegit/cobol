@@ -88,8 +88,20 @@ old results in place.
 
 `benchmark/mutate.py` applies mutation operators (including benign MO-0 edits
 and style diversification) to seed programs; `build.py` compiles and records
-instances; `judge.py` runs an independent plausibility judge; `splits.py`
+instances; `judge.py` writes review packets, loads the judge's verdicts (Claude,
+never the detector's family), and keeps the plausible rows; `splits.py`
 assigns base-program groups to train/dev/test without leakage; `freeze.py`
 merges the human-annotated real-curated rows and writes the final splits and
 `splits.manifest.json`. Temporal pairs (`data/benchmark/temporal/`) share
 identical code under two regulation versions with opposite verdicts.
+
+## Migration
+
+`data/migration/<case_id>/` holds `case.json` (finding, edit scope, behaviour
+fixtures, source assertions), `sources/`, `patch.diff`, `patch.json`, and
+`validation.json`. `migration/run.py generate` asks Luna for a unified diff;
+`validate` applies it, checks the edit scope, compiles every host program,
+checks assertions, confirms the `intended` fixtures fail on the original code,
+and runs every fixture on the patched code. A case's `finding_source` says
+whether its finding is benchmark gold (`oracle`, an upper bound) or a verified
+detector finding (`detector`).

@@ -1,0 +1,4 @@
+      * STATEMENT INTEREST RUN CONTROL (SHARED)
+       01  WS-STMT-INT-CONTROL.
+           05  WS-STMT-INT-RUN       PIC X(1) VALUE 'N'.
+               88  STMT-INT-ON       VALUE 'Y'.

@@ -1,0 +1,39 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. MRCRF8.
+      * MERCHANT RETURN CREDIT
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY MRCRFC8.
+       01  WS-CREDIT-LIMIT           PIC 9(9)V99 VALUE ZERO.
+       01  WS-CREDIT-AMT             PIC 9(7)V99 VALUE ZERO.
+       01  WS-THRESHOLD              PIC 9(7)V99 VALUE ZERO.
+       01  WS-DECISION               PIC X(8) VALUE SPACES.
+       01  WS-COUNT                  PIC 9(2) VALUE ZERO.
+       01  WS-IDX                    PIC 9(2) VALUE ZERO.
+       01  WS-HELD                   PIC 9(2) VALUE ZERO.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-CREDIT-LIMIT
+           ACCEPT WS-COUNT
+           PERFORM 2000-THRESHOLD
+           PERFORM VARYING WS-IDX FROM 1 BY 1
+                   UNTIL WS-IDX > WS-COUNT
+              ACCEPT WS-CREDIT-AMT
+              PERFORM 3000-DECIDE
+           END-PERFORM
+           DISPLAY 'HELD: ' WS-HELD
+           STOP RUN.
+       2000-THRESHOLD.
+           COMPUTE WS-THRESHOLD =
+                   WS-CREDIT-LIMIT * WS-MRTRN-CUTOFF-PCT
+           IF WS-THRESHOLD > WS-MRTRN-CUTOFF-CAP
+              MOVE WS-MRTRN-CUTOFF-CAP TO WS-THRESHOLD
+           END-IF.
+       3000-DECIDE.
+           IF WS-CREDIT-AMT > WS-THRESHOLD
+              MOVE 'CONSENT' TO WS-DECISION
+              ADD 1 TO WS-HELD
+           ELSE
+              MOVE 'POST' TO WS-DECISION
+           END-IF.

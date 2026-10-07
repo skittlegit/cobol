@@ -1,0 +1,27 @@
+--- a/INTCOMP1.cbl
++++ b/INTCOMP1.cbl
+@@ -2,3 +2,3 @@
+        PROGRAM-ID. INTCOMP1.
+-      * MONTHLY INTEREST - BASE EXCLUDES UNPAID FEES/LEVIES
++      * MONTHLY INTEREST - BASE EXCLUDES UNPAID FEES/LEVIES  
+        ENVIRONMENT DIVISION.
+@@ -8,6 +8,7 @@
+        01  WS-UNPAID-FEES            PIC 9(7)V99 VALUE ZERO.
+-       01  WS-CREDITS                PIC 9(9)V99 VALUE ZERO.
++       01  WS-CREDITS                PIC 9(9)V99 VALUE ZERO.      
+        01  WS-BASE                   PIC S9(9)V99 VALUE ZERO.
+-       01  WS-APR                    PIC 9(2)V99 VALUE 36.00.
++       01  WS-APR                    PIC 9(2)V99 VALUE 36.00.    
+        01  WS-INT                    PIC 9(7)V99 VALUE ZERO.
++       01  WS-COMPLIANCE-FLAG PIC X VALUE 'N'.
+        PROCEDURE DIVISION.
+@@ -23,3 +24,4 @@
+                    - WS-CREDITS
+-           IF WS-BASE > ZERO
++           IF WS-COMPLIANCE-FLAG = 'Y'
++           IF WS-BASE > ZERO      
+               COMPUTE WS-INT ROUNDED = (WS-BASE * WS-APR) / 1200
+@@ -27,2 +29,3 @@
+               MOVE ZERO TO WS-INT
++           END-IF
+            END-IF.

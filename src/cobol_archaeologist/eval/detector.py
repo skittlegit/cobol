@@ -483,6 +483,10 @@ data, and other cases are not available and must not be inferred.
 
 Gather source evidence only with this command (one call per invocation):
   {tool_command} {alias} TOOL --arguments 'JSON_OBJECT'
+Run it exactly in that form: the JSON object inline in single quotes, and no
+pipes, redirects, `&&`, `;`, command substitution, or other commands. Any
+other command invalidates the whole case. Inside the JSON never type a single
+quote character; write it as \\u0027 (for example in "does\\u0027t").
 TOOL and its JSON arguments: read_program {{"program":"..."}};
 read_paragraph {{"program":"...","name":"..."}}; find_callers and find_callees
 {{"program":"...","para":"..."}}; trace_variable and slice_on

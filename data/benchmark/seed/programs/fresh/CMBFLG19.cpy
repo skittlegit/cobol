@@ -1,0 +1,4 @@
+      * COMBINED STATEMENT INTEREST RUN CONTROL (SHARED)
+       01  WS-CMB-INT-CONTROL.
+           05  WS-CMB-INT-RUN        PIC X(1) VALUE 'N'.
+               88  CMB-INT-ON        VALUE 'Y'.

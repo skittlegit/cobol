@@ -35,8 +35,10 @@ Source layout (`src/cobol_archaeologist/`):
   bridge inside a task), `detector.py`, `baselines.py` (rag_reranker),
   `runner.py`, `report.py`, `metrics.py`.
 - `benchmark/` — mutation, build, judging, splits, freeze.
-- `rag/` — clause chunking, index, retrieval. `migration/` — patch generation
-  and validation. `mcp_server/` — the tools over MCP stdio.
+- `rag/` — clause chunking, index, retrieval. `migration/` — `case.py`,
+  `patch.py`, `validate.py` (GnuCOBOL fixtures), `run.py` (generate, validate,
+  report); one directory per case under `data/migration/`. `mcp_server/` — the
+  tools over MCP stdio.
 
 ## Working rules
 
@@ -95,15 +97,22 @@ Source layout (`src/cobol_archaeologist/`):
 7. **Verification tiers:** 1 executed, 2 static, 3 entailment-only; the tier
    is recorded per finding and tier-3-only findings are not emitted.
 
-## Models
+## Who does what
 
-- Detector and baseline: `gpt-6-luna` at `max` effort through Codex with the
-  ChatGPT login (`COBOL_ARCH_MODEL` / `COBOL_ARCH_EFFORT` override for dev
-  runs). The official run records the model and effort in every `run_key`.
-- Entailment verifier: DeBERTa NLI (`model/verify.py`), a different family.
-- Benchmark plausibility judging and temporal-pair review: Claude, the agent
-  that maintains this repository — a different family from the detector. No
-  human annotation passes are required for new data.
+- **Luna (`gpt-6-luna`, the cheap model):** bulk model work only — detector
+  runs, the rag_reranker baseline, and migration patch generation. Always
+  called through `eval/codex.py` (Codex in WSL with the ChatGPT login;
+  `COBOL_ARCH_MODEL` / `COBOL_ARCH_EFFORT` override for dev runs). Model and
+  effort are part of every `run_key`.
+- **Claude (the agent maintaining this repo):** everything else — code, new
+  benchmark programs, plausibility judging (`benchmark-packets` →
+  `judgements` → `benchmark-apply`), temporal-pair review, error analysis,
+  and tuning. Claude is a different family from the detector, as the
+  integrity rule requires. No human annotation passes are required.
+- **Entailment verifier:** DeBERTa NLI (`model/verify.py`), a third family.
+
+Run model and compiler work inside WSL: `wsl -d Ubuntu -- bash
+scripts/wsl_run.sh <module> ...` (native Windows GnuCOBOL can hang).
 
 ## Commands
 
@@ -115,4 +124,7 @@ pytest tests/ -q && ruff check .
 python -m cobol_archaeologist.eval.runner detector --split dev [--ids ...]
 python -m cobol_archaeologist.eval.runner rag_reranker --split test
 python -m cobol_archaeologist.eval.report --split test
+python -m cobol_archaeologist.migration.run validate   # or: generate, report
+cobol-archaeologist benchmark-packets --input ROWS --out PACKETS.md
+cobol-archaeologist benchmark-apply --input ROWS --judgements J --accepted-out A --rejected-out R
 ```

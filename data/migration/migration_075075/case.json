@@ -1,0 +1,471 @@
+{
+  "case_id": "migration_075075",
+  "instance_id": "drift_075075",
+  "finding_source": "oracle",
+  "finding": {
+    "instance_id": "drift_075075",
+    "regulation_clause": {
+      "doc": "RBI-Commercial-Banks-CC-DC-Directions-2025",
+      "clause_id": "31",
+      "version": "2025-11-28",
+      "effective_date": "2025-11-28",
+      "text": "Explicit consent is required to adjust credit (from refund/failed/reversed transactions already paid for) beyond a cut-off of one percent of the credit limit or Rs 5000, whichever is lower; consent sought within 7 days of the credit; on cardholder request, reversal to the bank account within 3 working days.",
+      "current_value": {
+        "kind": "composite",
+        "value": {
+          "consent_window": {
+            "kind": "duration_days",
+            "value": 7,
+            "comparator": "at_most",
+            "note": null
+          },
+          "cutoff": {
+            "kind": "formula",
+            "value": "min(0.01 * credit_limit, 5000_inr)",
+            "comparator": null,
+            "note": null
+          },
+          "reversal_window": {
+            "kind": "duration_working_days",
+            "value": 3,
+            "comparator": "at_most",
+            "note": null
+          }
+        },
+        "comparator": null,
+        "note": null
+      }
+    },
+    "code_locus": {
+      "loci": [
+        {
+          "program": "REFADJ2",
+          "paragraph": "2000-CUTOFF",
+          "file": null,
+          "line_span": [
+            21,
+            21
+          ]
+        },
+        {
+          "program": "REFADJ2",
+          "paragraph": null,
+          "file": "WSCUTOFF.cpy",
+          "line_span": [
+            4,
+            4
+          ]
+        }
+      ],
+      "slice_vars": [
+        "WS-CUTOFF",
+        "WS-REFUND-AMT"
+      ],
+      "is_interprocedural": true
+    },
+    "drift_type": "D1_stale_threshold",
+    "target_path": "cutoff",
+    "labels": {
+      "program_level": "drift",
+      "paragraph_level": "drift",
+      "line_level": [
+        {
+          "program": "REFADJ2",
+          "line": 4,
+          "file": "WSCUTOFF.cpy"
+        }
+      ]
+    },
+    "rationale": "MO-1× changes '5000' to '6000' at REFADJ2:2000-CUTOFF:21-21+REFADJ2:WSCUTOFF.cpy:4-4, producing D1_stale_threshold."
+  },
+  "primary_program": "REFADJ2.cbl",
+  "hosts": [
+    "REFADJ2"
+  ],
+  "edit_scope": [
+    {
+      "path": "WSCUTOFF.cpy",
+      "line_spans": [
+        [
+          4,
+          4
+        ]
+      ]
+    }
+  ],
+  "intended_behavior": "Finite clause-31 cutoff decision only: WS-ACTION is CONSENT when the refund exceeds min(one percent of credit limit, Rs 5000), otherwise ADJUST; equality does not exceed the cutoff. Consent solicitation, seven-day timing, account reversal and three-working-day timing are unmodeled and unclaimed.",
+  "checks": {
+    "class-specific-regression": [
+      {
+        "fixture_id": "at-cap-adjust",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 1000000 TO WS-CREDIT-LIMIT",
+          "MOVE 5000 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "cap-4999-99",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 1000000 TO WS-CREDIT-LIMIT",
+          "MOVE 4999.99 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "cap-5000-00",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 1000000 TO WS-CREDIT-LIMIT",
+          "MOVE 5000.00 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "above-old-cap",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 1000000 TO WS-CREDIT-LIMIT",
+          "MOVE 6000.01 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "CONSENT \n",
+        "stdin": ""
+      }
+    ],
+    "intended": [
+      {
+        "fixture_id": "above-regulatory-cap",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 1000000 TO WS-CREDIT-LIMIT",
+          "MOVE 5500 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "CONSENT \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "above-cap-consent",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 1000000 TO WS-CREDIT-LIMIT",
+          "MOVE 5001 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "CONSENT \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "cap-5000-01",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 1000000 TO WS-CREDIT-LIMIT",
+          "MOVE 5000.01 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "CONSENT \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "crossover-499999-4999-99",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 499999 TO WS-CREDIT-LIMIT",
+          "MOVE 4999.99 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "crossover-499999-5000-00",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 499999 TO WS-CREDIT-LIMIT",
+          "MOVE 5000.00 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "CONSENT \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "crossover-499999-5000-01",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 499999 TO WS-CREDIT-LIMIT",
+          "MOVE 5000.01 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "CONSENT \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "crossover-500000-4999-99",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 500000 TO WS-CREDIT-LIMIT",
+          "MOVE 4999.99 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "crossover-500000-5000-00",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 500000 TO WS-CREDIT-LIMIT",
+          "MOVE 5000.00 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "crossover-500000-5000-01",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 500000 TO WS-CREDIT-LIMIT",
+          "MOVE 5000.01 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "CONSENT \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "crossover-500001-4999-99",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 500001 TO WS-CREDIT-LIMIT",
+          "MOVE 4999.99 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "crossover-500001-5000-00",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 500001 TO WS-CREDIT-LIMIT",
+          "MOVE 5000.00 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "crossover-500001-5000-01",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 500001 TO WS-CREDIT-LIMIT",
+          "MOVE 5000.01 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "CONSENT \n",
+        "stdin": ""
+      }
+    ],
+    "unaffected-outside-locus": [
+      {
+        "fixture_id": "low-limit-consent",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 100000 TO WS-CREDIT-LIMIT",
+          "MOVE 1500 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "CONSENT \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "below-cutoff-adjust",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 100000 TO WS-CREDIT-LIMIT",
+          "MOVE 500 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "percent-999-99",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 100000 TO WS-CREDIT-LIMIT",
+          "MOVE 999.99 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "percent-1000-00",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 100000 TO WS-CREDIT-LIMIT",
+          "MOVE 1000.00 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "ADJUST  \n",
+        "stdin": ""
+      },
+      {
+        "fixture_id": "percent-1000-01",
+        "host": "REFADJ2.cbl",
+        "initialize": [
+          "MOVE 100000 TO WS-CREDIT-LIMIT",
+          "MOVE 1000.01 TO WS-REFUND-AMT"
+        ],
+        "perform": [
+          "2000-CUTOFF"
+        ],
+        "observe": [
+          "WS-ACTION"
+        ],
+        "run_original_main": false,
+        "expected_stdout": "CONSENT \n",
+        "stdin": ""
+      }
+    ]
+  },
+  "assertions": [
+    {
+      "assertion_id": "procedure-division-preserved",
+      "host": "REFADJ2.cbl",
+      "paragraph": null,
+      "literal": "PROCEDURE DIVISION.",
+      "required": true
+    }
+  ]
+}
