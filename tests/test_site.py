@@ -1,8 +1,9 @@
-"""The project site is generated from the report, never hand-edited."""
+"""The project site's data is exported from the report, never hand-edited."""
 
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,39 +56,45 @@ def _evaluated_report() -> dict:
     }
 
 
-def test_results_page_shows_exactly_the_report_values(tmp_path):
-    site = _site()
+def _export(tmp_path, report) -> dict:
+    return json.loads(_site().build(tmp_path / "site.json", report).read_text(encoding="utf-8"))
+
+
+def test_site_data_carries_exactly_the_report_values(tmp_path):
     from cobol_archaeologist.eval.report import gate_rows
 
     report = _evaluated_report()
-    page = site.build(tmp_path / "site", report).read_text(encoding="utf-8")
+    results = _export(tmp_path, report)["results"]
 
-    assert "NO-GO" in page
-    for name, measured, required, _ in gate_rows(report):
-        assert site.E(measured) in page, name
-        assert site.E(required) in page, name
-    assert page.count("<td class=fail>") == 1
+    assert results["decision"] == "NO_GO"
+    shown = [(g["name"], g["measured"], g["required"], g["pass"]) for g in results["gates"]]
+    assert shown == list(gate_rows(report))
+    assert results["passed"] == 6
+    assert results["comparison"]["delta"] == 0.1234
+    assert results["temporal"]["successes"] == 15
 
 
-def test_pending_page_states_what_is_outstanding(tmp_path):
-    site = _site()
+def test_pending_data_states_what_is_outstanding(tmp_path):
     report = {
         "decision": "NOT_EVALUABLE",
         "reason": "required rows are missing",
         "missing_or_failed": {"detector": ["a"] * 145, "temporal": ["b"] * 44},
-        "gates": {
-            "t1_f1": 0.7,
-            "balanced_accuracy": 0.65,
-            "answer_rate": 0.6,
-            "answered_accuracy": 0.8,
-            "interprocedural_delta_f1": 0.1,
-            "interprocedural_p": 0.05,
-            "temporal_paired_accuracy": 0.7,
-            "temporal_min_pairs": 20,
-        },
     }
-    page = site.build(tmp_path / "site", report).read_text(encoding="utf-8")
+    data = _export(tmp_path, report)
 
-    assert "Pending" in page
-    assert "145 required rows have no result yet." in page
-    assert "held-out test rows" in page
+    assert data["results"] == {
+        "decision": "NOT_EVALUABLE",
+        "status": "145 required rows have no result yet.",
+    }
+    assert data["history"][-1]["decision"] == "NOT_EVALUABLE"
+    assert data["benchmark"]["splits"][2]["name"] == "test"
+
+
+def test_web_app_types_match_the_exported_keys():
+    # The app reads site.json through web/src/types.ts; a renamed key must
+    # fail here rather than render as blank on the site.
+    types = (ROOT / "web" / "src" / "types.ts").read_text(encoding="utf-8")
+    for key in ("excavation", "benchmark", "results", "history", "classes",
+                "comparison", "per_class", "confusion", "localisation", "tiers",
+                "temporal", "per_pair", "measured", "required"):
+        assert f"{key}:" in types or f"{key}?:" in types, key
