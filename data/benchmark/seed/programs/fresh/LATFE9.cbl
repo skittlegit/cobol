@@ -1,0 +1,25 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. LATFE9.
+      * STATEMENT LATE-PAYMENT CHARGE
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-DUE-OUTSTANDING        PIC 9(9)V99 VALUE ZERO.
+       01  WS-DPD                    PIC 9(4) VALUE ZERO.
+       01  WS-LATE-FEE               PIC 9(7)V99 VALUE ZERO.
+       01  WS-FEE-COUNT              PIC 9(4) VALUE ZERO.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-DUE-OUTSTANDING
+           ACCEPT WS-DPD
+           PERFORM 2000-LEVY
+           DISPLAY 'FEE: ' WS-LATE-FEE
+           DISPLAY 'COUNT: ' WS-FEE-COUNT
+           STOP RUN.
+       2000-LEVY.
+           IF WS-DPD > 3
+              COMPUTE WS-LATE-FEE ROUNDED = .03 * WS-DUE-OUTSTANDING
+              ADD 1 TO WS-FEE-COUNT
+           ELSE
+              MOVE ZERO TO WS-LATE-FEE
+           END-IF.

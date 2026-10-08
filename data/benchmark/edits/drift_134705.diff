@@ -1,0 +1,22 @@
+--- a/INTCOMP1.cbl
++++ b/INTCOMP1.cbl
+@@ -2,3 +2,3 @@
+        PROGRAM-ID. INTCOMP1.
+-      * MONTHLY INTEREST - BASE EXCLUDES UNPAID FEES/LEVIES
++      * MONTHLY INTEREST - BASE EXCLUDES UNPAID FEES/LEVIES   
+        ENVIRONMENT DIVISION.
+@@ -12,2 +12,3 @@
+        01  WS-INT                    PIC 9(7)V99 VALUE ZERO.
++       01  WS-COMPLIANCE-FLAG PIC X VALUE 'N'.
+        PROCEDURE DIVISION.
+@@ -21,4 +22,5 @@
+        2000-CALC.
+-           COMPUTE WS-BASE = WS-OUTSTANDING - WS-UNPAID-FEES
++           COMPUTE WS-BASE = WS-OUTSTANDING - WS-UNPAID-FEES     
+                    - WS-CREDITS
++           IF WS-COMPLIANCE-FLAG = 'Y'
+            IF WS-BASE > ZERO
+@@ -27,2 +29,3 @@
+               MOVE ZERO TO WS-INT
++           END-IF
+            END-IF.

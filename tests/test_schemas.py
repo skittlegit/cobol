@@ -1,10 +1,4 @@
-"""T0.3a gate: DriftInstance family v2 round-trip and validation (schema re-freeze).
-
-All seven v1 gates are preserved (retargeted to the v2 fixture shape); gates
-8–16 cover the v2 additions: recursive typed CurrentValue + comparator,
-loci/SourceLineRef, resolve_path, the interprocedural one-way validator,
-line/locus integrity, and target_path.
-"""
+"""DriftInstance and DriftPrediction round-trip and validation rules."""
 
 import copy
 import json
@@ -63,7 +57,7 @@ def prediction_data(data: dict | None = None) -> dict:
     return payload
 
 
-# --- v1 gates (preserved, retargeted to v2) ------------------------------------
+# --- Core validation rules ---------------------------------------------------
 
 
 def test_round_trip():
@@ -290,7 +284,7 @@ def test_interproc_fixture_round_trips():
     assert any(loc.file == "CVACT03Y" for loc in first.code_locus.loci)
 
 
-# --- Schema v3: detector output is not benchmark gold -------------------------
+# --- Detector output is not benchmark gold ------------------------------------
 
 
 def test_gold_shape_is_unchanged_and_prediction_omits_gold_only_fields():
@@ -313,19 +307,18 @@ def test_gold_shape_is_unchanged_and_prediction_omits_gold_only_fields():
     assert prediction.rationale == gold.gold_rationale
 
 
-def test_committed_m4_payload_projects_to_prediction_not_gold():
+def test_committed_result_payload_projects_to_prediction_not_gold():
     artifact = (
         Path(__file__).resolve().parents[1]
         / "data"
         / "eval"
-        / "legacy"
-        / "m4-initial"
-        / "dense_rag.jsonl"
+        / "dev"
+        / "rag_reranker.jsonl"
     )
     row = next(
-        json.loads(line)
-        for line in artifact.read_text(encoding="utf-8").splitlines()
-        if '"prediction":{' in line
+        record
+        for record in map(json.loads, artifact.read_text(encoding="utf-8").splitlines())
+        if record.get("prediction")
     )
     payload = row["prediction"]
     assert "gold_rationale" not in payload

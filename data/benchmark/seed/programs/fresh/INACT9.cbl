@@ -1,0 +1,26 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. INACT9.
+      * DORMANT CARD CLOSURE WORKFLOW
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-YEARS-UNUSED           PIC 9(2) VALUE ZERO.
+       01  WS-REPLY-DAYS             PIC 9(4) VALUE ZERO.
+       01  WS-CLOSURE-STEP           PIC X(8) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-YEARS-UNUSED
+           ACCEPT WS-REPLY-DAYS
+           PERFORM 2000-DORMANT
+           DISPLAY 'STEP: ' WS-CLOSURE-STEP
+           STOP RUN.
+       2000-DORMANT.
+           MOVE 'KEEP' TO WS-CLOSURE-STEP
+           IF WS-YEARS-UNUSED > 1
+              IF WS-REPLY-DAYS > 30
+                 MOVE 'CLOSE' TO WS-CLOSURE-STEP
+              ELSE
+                 MOVE 'NOTIFY' TO WS-CLOSURE-STEP
+              END-IF
+           END-IF
+           DISPLAY 'DORMANCY CHECKED'.

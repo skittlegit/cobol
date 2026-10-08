@@ -1,168 +1,22 @@
+# Python / tooling
 __pycache__/
 *.py[cod]
-*$py.class
 .pytest_cache/
 .pytest_tmp/
 .pytest_tmp_*/
-.pytest-tmp-*/
-.pytest-basetemp-*/
 .ruff_cache/
 .tmp/
 build/
+dist/
+*.egg-info/
 *.so
 *.dll
 *.dylib
-# T1.0: corpora and generated data are fetched, never vendored.
-# DECISION: manifest.json is the tracked T0.1 artifact, so it is re-included
-# explicitly; work order specified a bare `data/` ignore.
-# DECISION (T2.1, Track B — flagged to Track A): the hand-curated clause records
-# under data/regulations/*.jsonl are authored source, not fetched data, and
-# CLAUDE.md's Layout section designates data/regulations/ as tracked Track B
-# clause records. So ignore the *contents* of data/ (`data/*`) and re-include the
-# authored artifacts, while keeping data/corpora/, data/benchmark/, and the
-# archived-PDF data/regulations/sources/ (T2.5) ignored.
-data/*
-!data/manifest.json
-!data/regulations/
-data/regulations/*
-!data/regulations/*.jsonl
-# T2.5: the regulation source archive. Track the sha256 pin-manifest + README
-# always; the primary PDFs themselves are tracked too (user directive: keep them
-# in the repo). Flip the *.pdf line back to ignored if repo size becomes a concern
-# — MANIFEST.json still pins them by hash either way.
-!data/regulations/sources/
-data/regulations/sources/*
-!data/regulations/sources/MANIFEST.json
-!data/regulations/sources/README.md
-!data/regulations/sources/*.pdf
-# T2.2/T2.3: native mutation bases are authored source, not generated output.
-# Keep other data/benchmark products ignored unless they are already tracked.
-!data/benchmark/
-data/benchmark/*
-!data/benchmark/seed/
-data/benchmark/seed/*
-!data/benchmark/seed/programs/
-data/benchmark/seed/programs/*
-!data/benchmark/seed/programs/*.cbl
-!data/benchmark/seed/programs/*.cpy
-!data/benchmark/seed/base_roster.json
-!data/benchmark/seed/programs/train-bases/
-!data/benchmark/seed/programs/train-bases/*.cbl
-!data/benchmark/seed/programs/train-bases/*.cpy
-!data/benchmark/seed/programs/test-bases-x/
-!data/benchmark/seed/programs/test-bases-x/*.cbl
-!data/benchmark/seed/programs/test-bases-x/*.cpy
-# T2.4/T2.6: canonical judgement evidence and the archived pre-freeze splits
-# are reproducibility deliverables.
-!data/benchmark/judgements.jsonl
-!data/benchmark/judgements.sample50.jsonl
-!data/benchmark/t2_7_plausibility.jsonl
-!data/benchmark/judge_overrides.jsonl
-!data/benchmark/drift_instances.plausible.jsonl
-!data/benchmark/unsure_adjudications.jsonl
-!data/benchmark/human_review.sample15.jsonl
-!data/benchmark/rejected/
-data/benchmark/rejected/*
-!data/benchmark/rejected/implausible.jsonl
-!data/benchmark/rejected/unsure.jsonl
-!data/benchmark/legacy/
-data/benchmark/legacy/*
-!data/benchmark/legacy/README.md
-!data/benchmark/legacy/v1-pre/
-!data/benchmark/legacy/v1-pre/*.jsonl
-!data/benchmark/legacy/v1-pre/distribution.md
-# T5.1/T5.2: blinded annotation evidence and the immutable v1 freeze are
-# research deliverables. Partially completed annotator passes remain local
-# until both independent records are locked.
-!data/benchmark/annotation/
-data/benchmark/annotation/*
-!data/benchmark/annotation/README.md
-!data/benchmark/annotation/real_curated_blinded.jsonl
-!data/benchmark/annotation/real_curated_blinded.manifest.json
-!data/benchmark/annotation/pass_1_Human-Primary.jsonl
-!data/benchmark/annotation/pass_2_Claude-Verification.jsonl
-!data/benchmark/annotation/adjudication_log.jsonl
-!data/benchmark/annotation/real_curated_resolved_v1.jsonl
-!data/benchmark/v1/
-!data/benchmark/v1/*.jsonl
-!data/benchmark/v1/manifest.json
-# T6.1: authored preparation manifest. Candidate specs remain fail-closed and
-# are not evaluation data until a separately reviewed freeze is added.
-!data/benchmark/t6-v2/
-!data/benchmark/t6-v2/README.md
-!data/benchmark/t6-v2/manifest.json
-!data/benchmark/t6-v2/schema.json
-# T6.1-T6.4: candidate roster and later migration evidence are research
-# deliverables. Raw provider task directories remain local.
-!data/migration/
-!data/migration/README.md
-!data/migration/candidate-manifest.json
-!data/migration/*.jsonl
-!data/migration/report.json
-!data/migration/report.md
-data/migration/runs/**/raw/
-# Current M4 uses the stable unversioned path. Governed artifacts and staged
-# source are durable; raw provider streams remain local.
-!data/eval/
-data/eval/*
-!data/eval/README.md
-!data/eval/m4/
-!data/eval/m4/**
-data/eval/m4/**/raw/
-# Superseded M4 trees are explicit legacy evidence.
-!data/eval/legacy/
-!data/eval/legacy/**
-data/eval/legacy/**/raw/
-!data/eval/m5/
-data/eval/m5/*
-!data/eval/m5/baselines/
-!data/eval/m5/baselines/*.jsonl
-!data/eval/m5/baselines/*.manifest.json
-!data/eval/m5/baselines/*.json
-!data/eval/m5/smoke/
-!data/eval/m5/smoke/*.jsonl
-!data/eval/m5/smoke/*.manifest.json
-!data/eval/m5/plain_llm/
-!data/eval/m5/plain_llm/*.jsonl
-!data/eval/m5/plain_llm/*.manifest.json
-!data/eval/m5/rag_dense/
-!data/eval/m5/rag_dense/*.jsonl
-!data/eval/m5/rag_dense/*.manifest.json
-!data/eval/m5/agent-rerun/
-!data/eval/m5/agent-rerun/*.jsonl
-!data/eval/m5/agent-rerun/*.manifest.json
-!data/eval/m5/agent-rerun/full/
-!data/eval/m5/agent-rerun/full/*.jsonl
-!data/eval/m5/agent-rerun/full/*.manifest.json
-!data/eval/m5/rag_reranker/
-!data/eval/m5/rag_reranker/*.jsonl
-!data/eval/m5/rag_reranker/*.manifest.json
-!data/eval/m5/rag_reranker-rerun/
-!data/eval/m5/rag_reranker-rerun/full/
-!data/eval/m5/rag_reranker-rerun/full/*.jsonl
-!data/eval/m5/rag_reranker-rerun/full/*.manifest.json
-!data/eval/m5/oracle_slice-rerun/
-!data/eval/m5/oracle_slice-rerun/*.jsonl
-!data/eval/m5/oracle_slice-rerun/*.manifest.json
-!data/eval/m5/oracle_slice-rerun/full/
-!data/eval/m5/oracle_slice-rerun/full/*.jsonl
-!data/eval/m5/oracle_slice-rerun/full/*.manifest.json
-!data/eval/m5/t5.3-completion-summary.json
-!data/eval/m5/t5.3-completion-summary.md
-!data/eval/m5/report.json
-!data/eval/m5/report.md
-!data/eval/m5/error-analysis.json
-!data/eval/m5/error-analysis.md
-!data/eval/m5/benchmark-first-analysis.json
-!data/eval/m5/benchmark-first-analysis.md
-# T5.5A: supplemental core-ablation definition, provider records, and report.
-!data/eval/m5/ablations/
-!data/eval/m5/ablations/**/*.json
-!data/eval/m5/ablations/**/*.jsonl
-!data/eval/m5/ablations/**/*.md
-data/eval/m5/**/raw/
 .venv/
-.venv312/
-*.egg-info/
-# T3.2: local model-weight cache (pinned embedder + reranker). Never vendored.
 .model_cache/
+
+# Data: everything under data/ is tracked except fetched or regenerable inputs.
+data/corpora/
+data/regulations/chunks/
+data/**/raw/
+site/

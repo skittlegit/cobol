@@ -1,0 +1,28 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. INTBS9.
+      * REVOLVING INTEREST - BASE EXCLUDES UNPAID CHARGES
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-STMT-BALANCE           PIC 9(9)V99 VALUE ZERO.
+       01  WS-UNPAID-FEES            PIC 9(7)V99 VALUE ZERO.
+       01  WS-PAYMENTS               PIC 9(9)V99 VALUE ZERO.
+       01  WS-BASE                   PIC S9(9)V99 VALUE ZERO.
+       01  WS-APR                    PIC 9(2)V99 VALUE 39.00.
+       01  WS-INT                    PIC 9(7)V99 VALUE ZERO.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-STMT-BALANCE
+           ACCEPT WS-UNPAID-FEES
+           ACCEPT WS-PAYMENTS
+           PERFORM 2000-CALC
+           DISPLAY 'INT: ' WS-INT
+           STOP RUN.
+       2000-CALC.
+           COMPUTE WS-BASE = WS-STMT-BALANCE - WS-UNPAID-FEES
+                   - WS-PAYMENTS
+           IF WS-BASE > ZERO
+              COMPUTE WS-INT ROUNDED = (WS-BASE * WS-APR) / 1200
+           ELSE
+              MOVE ZERO TO WS-INT
+           END-IF.

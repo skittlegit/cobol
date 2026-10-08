@@ -1,40 +1,43 @@
-"""T2.4 external-family plausibility judging harness."""
+"""Plausibility judging of generated benchmark rows.
+
+The judge is Claude, a different model family from the detector under test
+(``SYSTEM_FAMILY``). The flow is:
+
+1. ``write_packets`` renders one review document per row: the clause and every
+   mutated locus with surrounding source. No label, class, or gold rationale is
+   shown.
+2. The judge writes one ``Judgement`` per row to a JSONL file, applying
+   ``docs/judge-rubric.md``.
+3. ``apply_verdicts`` keeps the plausible rows and writes the rest to a
+   rejected file. Judgements from the detector's model family are refused.
+
+``data/benchmark/judgements.jsonl`` records the verdicts behind the existing
+train/dev rows. Those were made by OpenAI models when the system under test
+was Claude; they remain the historical record and are not re-applied.
+"""
 
 from __future__ import annotations
 
 import json
-import random
-import tempfile
-import time
-import urllib.error
-import urllib.request
-from collections import Counter, defaultdict
-from collections.abc import Callable
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from cobol_archaeologist.benchmark.build import build_benchmark, manifest_path_for
-from cobol_archaeologist.benchmark.mutate import ProgramSource
+from cobol_archaeologist.eval.materialize import MaterializedSource, materialize
 from cobol_archaeologist.schemas import DriftInstance, DriftType
 
 Verdict = Literal["plausible", "implausible", "unsure"]
-Transport = Callable[["JudgeConfig", str], str]
-SYSTEM_FAMILY = "anthropic"
+SYSTEM_FAMILY = "openai"  # the detector under test runs gpt-6-luna
+PLAUSIBLE_RATE_GATE = 0.90
 
 
-class FamilyIntegrityError(RuntimeError):
-    """Raised when judge and system-under-test families are not independent."""
-
-
-class JudgeConfigurationError(RuntimeError):
-    """Raised when endpoint configuration or source reconstruction is invalid."""
+class FamilyIntegrityError(ValueError):
+    """Raised when the judge shares a model family with the detector."""
 
 
 class PlausibilityGateError(RuntimeError):
-    """Raised when fewer than 90% of reviewed instances are plausible."""
+    """Raised when fewer than 90% of judged rows are plausible."""
 
 
 class Judgement(BaseModel):
@@ -48,82 +51,15 @@ class Judgement(BaseModel):
     model: str = Field(min_length=1)
     model_family: str = Field(min_length=1)
 
-
-class UnsureAdjudication(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    instance_id: str = Field(pattern=r"^drift_\d{6}$")
-    verdict: Literal["plausible", "implausible"]
-    reason: str = Field(min_length=1)
-
-
-class JudgeOverride(BaseModel):
-    """Auditable human override of one raw judge verdict (T2.4b/A1)."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    instance_id: str = Field(pattern=r"^drift_\d{6}$")
-    judge_verdict: Verdict
-    human_verdict: Literal["plausible", "implausible"]
-    rationale: str = Field(min_length=1)
-
-
-class _VerdictPayload(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    verdict: Verdict
-    reason: str = Field(min_length=1)
-
-
-@dataclass(frozen=True)
-class JudgeConfig:
-    endpoint: str
-    api_key: str
-    model: str
-    model_family: str
-    reasoning_effort: str | None = None
-    timeout_seconds: float = 60.0
-
-    def validate(self) -> None:
-        if not self.endpoint or not self.api_key or not self.model:
-            raise JudgeConfigurationError(
-                "judge endpoint, API key, and model must all be configured"
-            )
-        judge = canonical_family(self.model_family)
-        system = SYSTEM_FAMILY
-        inferred = infer_model_family(self.model)
-        if inferred is not None and inferred != judge:
-            raise FamilyIntegrityError(
-                f"model {self.model!r} belongs to {inferred}, not configured family {judge}"
-            )
-        if judge == system:
-            raise FamilyIntegrityError(
-                f"judge family {judge!r} matches system-under-test family {system!r}"
-            )
-        if self.reasoning_effort not in {
-            None,
-            "none",
-            "low",
-            "medium",
-            "high",
-            "xhigh",
-            "max",
-        }:
-            raise JudgeConfigurationError(
-                f"unsupported reasoning effort {self.reasoning_effort!r}"
-            )
+    @field_validator("model_family")
+    @classmethod
+    def _canonical(cls, family: str) -> str:
+        return canonical_family(family)
 
 
 def canonical_family(value: str) -> str:
     normalized = value.strip().lower()
-    aliases = {
-        "claude": "anthropic",
-        "anthropic": "anthropic",
-        "gpt": "openai",
-        "openai": "openai",
-        "gemini": "google",
-        "google": "google",
-    }
+    aliases = {"claude": "anthropic", "gpt": "openai", "gemini": "google"}
     return aliases.get(normalized, normalized)
 
 
@@ -133,49 +69,12 @@ def infer_model_family(model: str) -> str | None:
         return "anthropic"
     if "gemini" in normalized or "google" in normalized:
         return "google"
-    if "gpt" in normalized or "openai" in normalized:
+    if "gpt" in normalized or "openai" in normalized or "luna" in normalized:
         return "openai"
     return None
 
 
-def load_judgements(path: str | Path) -> list[Judgement]:
-    return [
-        Judgement.model_validate_json(line)
-        for line in Path(path).read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    ]
-
-
-def load_unsure_adjudications(path: str | Path) -> list[UnsureAdjudication]:
-    return [
-        UnsureAdjudication.model_validate_json(line)
-        for line in Path(path).read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    ]
-
-
-def load_judge_overrides(path: str | Path) -> list[JudgeOverride]:
-    return [
-        JudgeOverride.model_validate_json(line)
-        for line in Path(path).read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    ]
-
-
-def write_judge_overrides(path: str | Path, overrides: list[JudgeOverride]) -> None:
-    by_id = {item.instance_id: item for item in overrides}
-    if len(by_id) != len(overrides):
-        raise ValueError("judge overrides contain duplicate instance IDs")
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        "\n".join(item.model_dump_json() for item in overrides)
-        + ("\n" if overrides else ""),
-        encoding="utf-8",
-    )
-
-
-def _load_instances(path: str | Path) -> list[DriftInstance]:
+def load_instances(path: str | Path) -> list[DriftInstance]:
     return [
         DriftInstance.model_validate_json(line)
         for line in Path(path).read_text(encoding="utf-8").splitlines()
@@ -183,630 +82,153 @@ def _load_instances(path: str | Path) -> list[DriftInstance]:
     ]
 
 
-def _apply_t2_7_source_replacements(
-    sources: dict[str, ProgramSource],
-    instances: list[DriftInstance],
-    manifest: dict,
-    root: Path,
-) -> dict[str, ProgramSource]:
-    revalidation = manifest.get("judging", {}).get("t2_7_revalidation")
-    if not isinstance(revalidation, dict):
-        return sources
-
-    evidence_path = root / str(revalidation["evidence_file"])
-    evidence = [
-        json.loads(line)
-        for line in evidence_path.read_text(encoding="utf-8").splitlines()
+def load_judgements(path: str | Path) -> list[Judgement]:
+    judgements = [
+        Judgement.model_validate_json(line)
+        for line in Path(path).read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    replacement_by_id = {row["instance_id"]: row for row in evidence}
-    instance_by_id = {item.instance_id: item for item in instances}
-    if set(replacement_by_id) - set(instance_by_id):
-        raise JudgeConfigurationError(
-            "T2.7 plausibility evidence references absent replacement rows"
-        )
-
-    # DECISION (T2.7): the original deterministic builder diversified one
-    # in-memory KYCSYNC2 host into eight IDs but retained only one on-disk base.
-    # The corrective freeze stores one immutable checked-in base per replacement
-    # and reconstructs it through Track C's fail-closed public materializer.
-    from cobol_archaeologist.eval.materialize import materialize
-
-    corrected = dict(sources)
-    programs_root = root / "data" / "benchmark" / "seed" / "programs"
-    for replacement_id, proof in replacement_by_id.items():
-        corrected.pop(str(proof["supersedes"]), None)
-        instance = instance_by_id[replacement_id]
-        materialized = materialize(instance, programs_root=programs_root)
-        main_text = materialized.files[materialized.main_file]
-        corrected[replacement_id] = ProgramSource(
-            program=Path(materialized.main_file).stem.upper(),
-            filename=materialized.main_file,
-            text=main_text,
-            files={
-                name: text
-                for name, text in materialized.files.items()
-                if name != materialized.main_file
-            },
-            touched_variables=tuple(instance.code_locus.slice_vars),
-            target_path=instance.target_path,
-        )
-    return corrected
+    for judgement in judgements:
+        inferred = infer_model_family(judgement.model)
+        if inferred is not None and inferred != judgement.model_family:
+            raise FamilyIntegrityError(
+                f"model {judgement.model!r} belongs to {inferred}, "
+                f"not {judgement.model_family}"
+            )
+    return judgements
 
 
-def reconstruct_sources(
-    instances_path: str | Path,
-    *,
-    repository_root: str | Path | None = None,
-) -> dict[str, ProgramSource]:
-    """Deterministically rebuild T2.3 sources without changing frozen schema v2."""
-
-    # DECISION: reconstruct exact deterministic T2.3 outputs from the run
-    # manifest instead of adding source text/path fields to frozen schema v2.
-    instances_path = Path(instances_path)
-    manifest = json.loads(manifest_path_for(instances_path).read_text(encoding="utf-8"))
-    if manifest.get("diversify") != "deterministic":
-        raise JudgeConfigurationError(
-            "source reconstruction requires a deterministic T2.3 manifest"
-        )
-    with tempfile.TemporaryDirectory(prefix="t24_sources_") as tmp:
-        rebuilt = build_benchmark(
-            seed=int(manifest["seed"]),
-            out_path=Path(tmp) / "drift_instances.jsonl",
-            min_instances=int(manifest["minimum_instances"]),
-            diversify_mode="deterministic",
-            repository_root=repository_root,
-        )
-    instances = _load_instances(instances_path)
-    root = (
-        Path(repository_root)
-        if repository_root is not None
-        else Path(__file__).resolve().parents[3]
-    )
-    sources = _apply_t2_7_source_replacements(
-        rebuilt.sources,
-        instances,
-        manifest,
-        root,
-    )
-    expected = {item.instance_id for item in instances}
-    if set(sources) != expected:
-        missing = sorted(expected - set(sources))
-        extra = sorted(set(sources) - expected)
-        raise JudgeConfigurationError(
-            f"rebuilt source identity mismatch; missing={missing[:3]}, extra={extra[:3]}"
-        )
-    return sources
+def _locus_text(source: MaterializedSource, file: str | None) -> str:
+    return source.files[file or source.main_file]
 
 
-def _locus_source(source: ProgramSource, file: str | None) -> str:
-    if file is None or file == source.filename:
-        return source.text
-    try:
-        return source.files[file]
-    except KeyError as exc:
-        raise JudgeConfigurationError(
-            f"mutated source {source.filename} lacks locus file {file!r}"
-        ) from exc
+def render_packet(instance: DriftInstance, source: MaterializedSource) -> str:
+    """Clause plus every mutated locus with context; no label or rationale."""
 
-
-def render_prompt(instance: DriftInstance, source: ProgramSource) -> str:
-    """Render clause and mutated loci without leaking labels or gold rationale."""
-
+    clause = instance.regulation_clause
     sections = [
-        "# Legacy COBOL plausibility review",
+        f"# {instance.instance_id}",
         "",
         "## Regulation clause",
-        (
-            f"{instance.regulation_clause.doc} "
-            f"{instance.regulation_clause.clause_id} "
-            f"({instance.regulation_clause.version})"
-        ),
-        instance.regulation_clause.text,
+        f"{clause.doc} {clause.clause_id} ({clause.version})",
+        clause.text,
     ]
     for index, locus in enumerate(instance.code_locus.loci, 1):
-        lines = _locus_source(source, locus.file).splitlines()
+        lines = _locus_text(source, locus.file).splitlines()
         start = max(1, locus.line_span[0] - 10)
         end = min(len(lines), locus.line_span[1] + 10)
         numbered = "\n".join(
-            f"{line_number:>6}: {lines[line_number - 1]}"
-            for line_number in range(start, end + 1)
+            f"{number:>6}: {lines[number - 1]}" for number in range(start, end + 1)
         )
-        sections.extend(
-            [
-                "",
-                f"## Mutated locus {index}",
-                (
-                    f"program={locus.program}; file={locus.file or source.filename}; "
-                    f"paragraph={locus.paragraph or '<none>'}; "
-                    f"mutated_span={locus.line_span[0]}-{locus.line_span[1]}"
-                ),
-                "```cobol",
-                numbered,
-                "```",
-            ]
-        )
-    sections.extend(
-        [
+        sections += [
             "",
-            "## Question",
+            f"## Mutated locus {index}",
             (
-                "Does this look like drift that could occur in real legacy code, "
-                "or like an artificial edit? Return JSON only: "
-                '{"verdict":"plausible|implausible|unsure","reason":"..."}'
+                f"program={locus.program}; file={locus.file or source.main_file}; "
+                f"paragraph={locus.paragraph or '<none>'}; "
+                f"span={locus.line_span[0]}-{locus.line_span[1]}"
             ),
+            "```cobol",
+            numbered,
+            "```",
         ]
-    )
-    return "\n".join(sections)
+    sections += [
+        "",
+        "## Question",
+        (
+            "Does this look like drift that could occur in real legacy code, or "
+            "like an artificial edit? Verdict: plausible, implausible, or unsure."
+        ),
+    ]
+    return "\n".join(sections) + "\n"
 
 
-def stratified_sample(
-    instances: list[DriftInstance], *, count: int, seed: int
-) -> list[DriftInstance]:
-    groups: dict[str, list[DriftInstance]] = defaultdict(list)
-    for instance in instances:
-        groups[instance.drift_type].append(instance)
-    if count < len(groups):
-        raise ValueError(f"sample {count} cannot cover {len(groups)} drift classes")
-    if count > len(instances):
-        raise ValueError("sample cannot exceed the input size")
+def write_packets(
+    instances_path: str | Path,
+    out_path: str | Path,
+    *,
+    programs_root: Path | None = None,
+) -> int:
+    """Write every row's review packet into one Markdown file."""
 
-    rng = random.Random(seed)
-    for items in groups.values():
-        items.sort(key=lambda item: item.instance_id)
-        rng.shuffle(items)
-    selected = [groups[name].pop() for name in sorted(groups)]
-    if not any(item.code_locus.is_interprocedural for item in selected):
-        cross = next(
-            (
-                item
-                for name in sorted(groups)
-                for item in groups[name]
-                if item.code_locus.is_interprocedural
-            ),
-            None,
-        )
-        if cross is None:
-            raise ValueError("input has no interprocedural stratum")
-        groups[cross.drift_type].remove(cross)
-        selected.append(cross)
-    if not any(not item.code_locus.is_interprocedural for item in selected):
-        raise ValueError("input has no local stratum")
-
-    names = sorted(groups)
-    cursor = 0
-    while len(selected) < count:
-        name = names[cursor % len(names)]
-        cursor += 1
-        if groups[name]:
-            selected.append(groups[name].pop())
-        if cursor > len(instances) * len(names):  # pragma: no cover - safety bound
-            raise RuntimeError("stratified sampler exhausted unexpectedly")
-    return selected
+    rows = load_instances(instances_path)
+    kwargs = {} if programs_root is None else {"programs_root": programs_root}
+    packets = [render_packet(row, materialize(row, **kwargs)) for row in rows]
+    out = Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n---\n\n".join(packets), encoding="utf-8", newline="\n")
+    return len(packets)
 
 
-def _endpoint_url(endpoint: str) -> str:
-    normalized = endpoint.rstrip("/")
-    return (
-        normalized
-        if normalized.endswith("/chat/completions")
-        else f"{normalized}/chat/completions"
-    )
-
-
-def _endpoint_transport(config: JudgeConfig, prompt: str) -> str:
-    request_payload: dict[str, object] = {
-        "model": config.model,
-        "response_format": {"type": "json_object"},
-        "messages": [
-            {
-                "role": "system",
-                "content": (
-                    "You are an independent legacy-COBOL plausibility judge. "
-                    "Apply the supplied regulation and code only; output JSON."
-                ),
-            },
-            {"role": "user", "content": prompt},
-        ],
-    }
-    # DECISION: reasoning models reject non-default temperature values. Keep
-    # effort optional so non-OpenAI compatible endpoints do not receive an
-    # OpenAI-specific field, and omit temperature for provider portability.
-    if config.reasoning_effort is not None:
-        request_payload["reasoning_effort"] = config.reasoning_effort
-    payload = json.dumps(request_payload).encode("utf-8")
-    request = urllib.request.Request(
-        _endpoint_url(config.endpoint),
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {config.api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    last_error: Exception | None = None
-    for attempt in range(3):
-        try:
-            with urllib.request.urlopen(
-                request, timeout=config.timeout_seconds
-            ) as response:
-                body = json.loads(response.read().decode("utf-8"))
-            return str(body["choices"][0]["message"]["content"])
-        except urllib.error.HTTPError as exc:
-            body = exc.read().decode("utf-8", errors="replace").strip()
-            # API error bodies contain request diagnostics, not the submitted
-            # Authorization header. Cap the text to keep CLI output bounded.
-            detail = body[:2000] if body else str(exc)
-            last_error = RuntimeError(f"HTTP {exc.code}: {detail}")
-            if attempt < 2:
-                time.sleep(2**attempt)
-        except (
-            urllib.error.URLError,
-            KeyError,
-            ValueError,
-            json.JSONDecodeError,
-        ) as exc:
-            last_error = exc
-            if attempt < 2:
-                time.sleep(2**attempt)
-    raise JudgeConfigurationError(
-        f"judge endpoint failed after 3 attempts: {last_error}"
-    )
-
-
-def _parse_verdict(
-    content: str, instance: DriftInstance, config: JudgeConfig
-) -> Judgement:
-    try:
-        payload = _VerdictPayload.model_validate_json(content)
-    except Exception as exc:
-        raise JudgeConfigurationError(
-            f"judge returned invalid verdict for {instance.instance_id}: {exc}"
-        ) from exc
-    return Judgement(
-        instance_id=instance.instance_id,
-        drift_type=instance.drift_type,
-        is_interprocedural=instance.code_locus.is_interprocedural,
-        verdict=payload.verdict,
-        reason=payload.reason,
-        model=config.model,
-        model_family=canonical_family(config.model_family),
-    )
+def plausible_rate(judgements: list[Judgement]) -> float:
+    if not judgements:
+        raise PlausibilityGateError("no judgements")
+    return sum(item.verdict == "plausible" for item in judgements) / len(judgements)
 
 
 def plausibility_gate(judgements: list[Judgement]) -> float:
-    if not judgements:
-        raise PlausibilityGateError("plausibility gate has no judgements")
-    rate = sum(item.verdict == "plausible" for item in judgements) / len(judgements)
-    if rate < 0.9:
+    rate = plausible_rate(judgements)
+    if rate < PLAUSIBLE_RATE_GATE:
         raise PlausibilityGateError(
             f"plausibility rate {rate:.1%} is below the required 90%"
         )
     return rate
 
 
-def _write_jsonl(models: list[BaseModel], path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        "\n".join(item.model_dump_json() for item in models) + "\n",
-        encoding="utf-8",
-    )
-
-
-def _write_manifest(path: Path, manifest: dict) -> None:
-    path.write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-
-
-def _load_checkpoint(
-    path: Path,
-    selected: list[DriftInstance],
-    config: JudgeConfig,
-) -> list[Judgement]:
-    if not path.exists() or path.stat().st_size == 0:
-        return []
-    try:
-        judgements = load_judgements(path)
-    except (OSError, ValueError) as exc:
-        raise JudgeConfigurationError(
-            f"cannot resume invalid judgement checkpoint {path}: {exc}"
-        ) from exc
-    if len(judgements) > len(selected):
-        raise JudgeConfigurationError(
-            f"judgement checkpoint {path} has more rows than the selected input"
-        )
-    family = canonical_family(config.model_family)
-    for index, judgement in enumerate(judgements):
-        instance = selected[index]
-        matches = (
-            judgement.instance_id == instance.instance_id
-            and judgement.drift_type == instance.drift_type
-            and judgement.is_interprocedural == instance.code_locus.is_interprocedural
-            and judgement.model == config.model
-            and judgement.model_family == family
-        )
-        if not matches:
-            raise JudgeConfigurationError(
-                f"judgement checkpoint {path} does not match the current "
-                f"input/configuration at row {index + 1}; use a different --out "
-                "or remove the stale checkpoint"
-            )
-    return judgements
-
-
-def _load_reuse_cache(
-    path: str | Path | None,
-    selected: list[DriftInstance],
-    config: JudgeConfig,
-) -> dict[str, Judgement]:
-    if path is None:
-        return {}
-    path = Path(path)
-    try:
-        judgements = load_judgements(path)
-    except (OSError, ValueError) as exc:
-        raise JudgeConfigurationError(
-            f"cannot load judgement reuse file {path}: {exc}"
-        ) from exc
-    by_id = {judgement.instance_id: judgement for judgement in judgements}
-    if len(by_id) != len(judgements):
-        raise JudgeConfigurationError(
-            f"judgement reuse file {path} contains duplicate instance IDs"
-        )
-    family = canonical_family(config.model_family)
-    reusable: dict[str, Judgement] = {}
-    for instance in selected:
-        judgement = by_id.get(instance.instance_id)
-        if judgement is None:
-            continue
-        matches = (
-            judgement.drift_type == instance.drift_type
-            and judgement.is_interprocedural == instance.code_locus.is_interprocedural
-            and judgement.model == config.model
-            and judgement.model_family == family
-        )
-        if not matches:
-            raise JudgeConfigurationError(
-                f"judgement reuse file {path} has incompatible metadata for "
-                f"{instance.instance_id}"
-            )
-        reusable[instance.instance_id] = judgement
-    return reusable
-
-
-def judge_benchmark(
-    *,
-    instances_path: str | Path,
-    output_path: str | Path,
-    config: JudgeConfig,
-    sample: int | None = None,
-    seed: int = 2400,
-    reuse_path: str | Path | None = None,
-    transport: Transport | None = None,
-    source_index: dict[str, ProgramSource] | None = None,
-) -> dict:
-    config.validate()
-    instances_path = Path(instances_path)
-    instances = _load_instances(instances_path)
-    selected = (
-        stratified_sample(instances, count=sample, seed=seed)
-        if sample is not None
-        else instances
-    )
-    call = transport or _endpoint_transport
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    judgements = _load_checkpoint(output_path, selected, config)
-    resumed_count = len(judgements)
-    reuse_cache = _load_reuse_cache(reuse_path, selected, config)
-    reused_count = 0
-    needs_endpoint = any(
-        instance.instance_id not in reuse_cache for instance in selected[resumed_count:]
-    )
-    sources = (
-        source_index or reconstruct_sources(instances_path) if needs_endpoint else {}
-    )
-    if resumed_count == 0:
-        output_path.write_text("", encoding="utf-8")
-    with output_path.open("a", encoding="utf-8", newline="\n") as checkpoint:
-        for instance in selected[resumed_count:]:
-            judgement = reuse_cache.get(instance.instance_id)
-            if judgement is not None:
-                reused_count += 1
-            else:
-                try:
-                    content = call(
-                        config,
-                        render_prompt(instance, sources[instance.instance_id]),
-                    )
-                    judgement = _parse_verdict(content, instance, config)
-                except JudgeConfigurationError as exc:
-                    raise JudgeConfigurationError(
-                        f"{exc}; {len(judgements)}/{len(selected)} judgements "
-                        f"checkpointed at {output_path}"
-                    ) from exc
-            judgements.append(judgement)
-            checkpoint.write(judgement.model_dump_json() + "\n")
-            checkpoint.flush()
-
-    raw_plausible_rate = sum(item.verdict == "plausible" for item in judgements) / len(
-        judgements
-    )
-    try:
-        plausibility_gate(judgements)
-        gate_passed = True
-    except PlausibilityGateError:
-        gate_passed = False
-    counts = Counter(item.verdict for item in judgements)
-    report = {
-        "sample_size": len(judgements),
-        "resumed_count": resumed_count,
-        "reused_count": reused_count,
-        "full_set": sample is None,
-        "seed": seed,
-        "model": config.model,
-        "model_family": canonical_family(config.model_family),
-        "reasoning_effort": config.reasoning_effort,
-        "system_family": SYSTEM_FAMILY,
-        "verdict_counts": {
-            name: counts[name] for name in ("plausible", "implausible", "unsure")
-        },
-        # DECISION (T2.4b/A1): this gate is deliberately the raw independent
-        # judge rate. Human overrides govern what ships, but can never turn the
-        # automated screen green.
-        "plausible_rate": raw_plausible_rate,
-        "raw_plausible_rate": raw_plausible_rate,
-        "gate_definition": (
-            "raw judge plausible rate before human overrides; pass iff >= 0.90; "
-            "overrides are excluded from the gate"
-        ),
-        "gate_passed": gate_passed,
-    }
-    manifest_path = manifest_path_for(instances_path)
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    judging = manifest.get("judging", {})
-    judging.update(
-        {
-            "model": config.model,
-            "model_family": canonical_family(config.model_family),
-            "reasoning_effort": config.reasoning_effort,
-            "system_family": SYSTEM_FAMILY,
-        }
-    )
-    judging["sample" if sample is not None else "full"] = report
-    manifest["judging"] = judging
-    _write_manifest(manifest_path, manifest)
-    return report
-
-
-def apply_drop_policy(
+def apply_verdicts(
     instances_path: str | Path,
     judgements: list[Judgement],
     accepted_path: str | Path,
-    rejected_dir: str | Path,
-    adjudications: list[UnsureAdjudication] | None = None,
-    overrides: list[JudgeOverride] | None = None,
+    rejected_path: str | Path,
 ) -> dict[str, int | float]:
-    instances = _load_instances(instances_path)
-    by_id = {item.instance_id: item for item in judgements}
-    if set(by_id) != {item.instance_id for item in instances}:
-        raise ValueError("drop policy requires one judgement for every input instance")
-    override_by_id = {item.instance_id: item for item in overrides or []}
-    if len(override_by_id) != len(overrides or []):
-        raise ValueError("judge overrides contain duplicate instance IDs")
-    unknown_overrides = set(override_by_id) - set(by_id)
-    if unknown_overrides:
-        raise ValueError(
-            "judge overrides reference unknown instance IDs: "
-            + ", ".join(sorted(unknown_overrides))
-        )
-    for instance_id, override in override_by_id.items():
-        raw_verdict = by_id[instance_id].verdict
-        if override.judge_verdict != raw_verdict:
-            raise ValueError(
-                f"override {instance_id} judge_verdict {override.judge_verdict!r} "
-                f"does not match raw judgement {raw_verdict!r}"
-            )
-        if override.human_verdict == raw_verdict:
-            raise ValueError(
-                f"override {instance_id} does not change the raw judge verdict"
-            )
-    adjudication_by_id = {item.instance_id: item for item in adjudications or []}
-    if adjudications is not None:
-        if len(adjudication_by_id) != len(adjudications):
-            raise ValueError("unsure adjudications contain duplicate instance IDs")
-        unsure_ids = {
-            item.instance_id for item in judgements if item.verdict == "unsure"
-        }
-        if set(adjudication_by_id) != unsure_ids:
-            raise ValueError(
-                "unsure adjudications must cover every and only unsure judgement"
-            )
-        for instance_id, adjudication in adjudication_by_id.items():
-            override = override_by_id.get(instance_id)
-            if override is None or override.human_verdict != adjudication.verdict:
-                raise ValueError(
-                    "every human adjudication that changes a judge verdict must "
-                    "be logged consistently in judge_overrides.jsonl"
-                )
+    """Keep plausible rows; write every other row with its judgement."""
 
-    accepted: list[DriftInstance] = []
-    rejected: dict[str, list[dict]] = {"implausible": [], "unsure": []}
+    for judgement in judgements:
+        if judgement.model_family == SYSTEM_FAMILY:
+            raise FamilyIntegrityError(
+                f"{judgement.instance_id} was judged by {judgement.model}, the "
+                "detector's model family; rejudge it with an independent judge"
+            )
+    instances = load_instances(instances_path)
+    by_id = {item.instance_id: item for item in judgements}
+    if len(by_id) != len(judgements):
+        raise ValueError("judgements contain duplicate instance ids")
+    if set(by_id) != {item.instance_id for item in instances}:
+        raise ValueError("every row needs exactly one judgement")
     for instance in instances:
         judgement = by_id[instance.instance_id]
-        adjudication = adjudication_by_id.get(instance.instance_id)
-        override = override_by_id.get(instance.instance_id)
-        effective_verdict = (
-            override.human_verdict if override is not None else judgement.verdict
-        )
-        if effective_verdict == "plausible":
-            accepted.append(instance)
-        else:
-            row = {
-                "instance": instance.model_dump(mode="json"),
-                "judgement": judgement.model_dump(mode="json"),
-            }
-            if adjudication is not None:
-                row["adjudication"] = adjudication.model_dump(mode="json")
-            if override is not None:
-                row["judge_override"] = override.model_dump(mode="json")
-            rejected[effective_verdict].append(row)
-    _write_jsonl(accepted, Path(accepted_path))
-    rejected_dir = Path(rejected_dir)
-    rejected_dir.mkdir(parents=True, exist_ok=True)
-    for verdict in ("implausible", "unsure"):
-        path = rejected_dir / f"{verdict}.jsonl"
-        path.write_text(
-            "\n".join(
-                json.dumps(row, ensure_ascii=False, separators=(",", ":"))
-                for row in rejected[verdict]
-            )
-            + ("\n" if rejected[verdict] else ""),
-            encoding="utf-8",
-        )
-    return {
-        "accepted": len(accepted),
-        "implausible": len(rejected["implausible"]),
-        "unsure": len(rejected["unsure"]),
-        "adjudicated": len(adjudication_by_id),
-        "judge_override_count": len(override_by_id),
-        "judge_override_rate": len(override_by_id) / len(judgements),
-    }
-
-
-def record_human_agreement(
-    judgements_path: str | Path,
-    reviews_path: str | Path,
-    manifest_path: str | Path,
-) -> dict[str, int | float]:
-    judgements = {item.instance_id: item for item in load_judgements(judgements_path)}
-    reviews = [
-        json.loads(line)
-        for line in Path(reviews_path).read_text(encoding="utf-8").splitlines()
-        if line.strip()
+        if (
+            judgement.drift_type != instance.drift_type
+            or judgement.is_interprocedural != instance.code_locus.is_interprocedural
+        ):
+            raise ValueError(f"judgement metadata differs for {instance.instance_id}")
+    accepted = [
+        row for row in instances if by_id[row.instance_id].verdict == "plausible"
     ]
-    if len(reviews) != 15 or len({row.get("instance_id") for row in reviews}) != 15:
-        raise ValueError("human spot-check requires exactly 15 unique reviews")
-    agreed = 0
-    for row in reviews:
-        instance_id = str(row.get("instance_id", ""))
-        verdict = row.get("verdict")
-        if instance_id not in judgements:
-            raise ValueError(
-                f"human review references unknown instance {instance_id!r}"
-            )
-        if verdict not in {"plausible", "implausible", "unsure"}:
-            raise ValueError(f"invalid human verdict {verdict!r}")
-        agreed += verdict == judgements[instance_id].verdict
-    report: dict[str, int | float] = {
-        "reviewed": 15,
-        "agreed": agreed,
-        "rate": agreed / 15,
+    rejected = [
+        {
+            "instance": row.model_dump(mode="json"),
+            "judgement": by_id[row.instance_id].model_dump(mode="json"),
+        }
+        for row in instances
+        if by_id[row.instance_id].verdict != "plausible"
+    ]
+    Path(accepted_path).write_text(
+        "".join(row.model_dump_json() + "\n" for row in accepted),
+        encoding="utf-8",
+        newline="\n",
+    )
+    Path(rejected_path).write_text(
+        "".join(
+            json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n"
+            for row in rejected
+        ),
+        encoding="utf-8",
+        newline="\n",
+    )
+    return {
+        "judged": len(judgements),
+        "accepted": len(accepted),
+        "rejected": len(rejected),
+        "plausible_rate": plausible_rate(judgements),
     }
-    manifest_path = Path(manifest_path)
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest.setdefault("judging", {})["human_agreement"] = report
-    _write_manifest(manifest_path, manifest)
-    return report

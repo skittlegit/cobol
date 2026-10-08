@@ -70,7 +70,7 @@ NLI_MODEL = "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli"
 NLI_REVISION = "main"
 NLI_FAMILY = "deberta"
 NLI_PROVIDER = "huggingface"
-SUT_FAMILY = "anthropic"  # the system under test (Claude), per CONTRACT integrity rule
+SUT_FAMILY = "openai"  # the detector under test runs gpt-6-luna
 
 # Entailment decision threshold on P(entailment).
 ENTAIL_THRESHOLD = 0.5
@@ -265,7 +265,7 @@ class LexicalEntailer:
     offline where the neural weights are unavailable and to seed the committed
     cache (tagged as such)."""
 
-    backend = "lexical_proxy_v1"
+    backend = "lexical_proxy"
 
     def __init__(self, threshold: float = 0.6) -> None:
         self.threshold = threshold
@@ -297,11 +297,13 @@ class NeuralEntailer:
         if self._pipe is None:
             from transformers import pipeline  # network / heavy import
 
+            # float32: half precision is the checkpoint default but fails on CPU.
             self._pipe = pipeline(
                 "text-classification",
                 model=self.model,
                 revision=self.revision,
                 top_k=None,
+                dtype="float32",
             )
         return self._pipe
 

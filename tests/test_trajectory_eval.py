@@ -1,17 +1,15 @@
-"""T4.3 replay, evidence path, budget, and shortcut gates."""
+"""Trajectory faithfulness: replay, evidence path, budget, and shortcut checks."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-from cobol_archaeologist.agent.policy import get_hunt
 from cobol_archaeologist.agent.stub_tools import StubToolLayer
 from cobol_archaeologist.eval.schemas import EvaluationRecord
 from cobol_archaeologist.eval.trajectory import assess_trajectory
-from cobol_archaeologist.model.prompt import CachedDecisionModel
-from cobol_archaeologist.model.verify import LexicalEntailer
 from cobol_archaeologist.schemas import DriftInstance, RegulationClause
+from tests.replay import replay
 
 ROOT = Path(__file__).resolve().parents[1]
 FIX = ROOT / "tests" / "fixtures" / "hunts"
@@ -28,16 +26,12 @@ def _d3_record() -> EvaluationRecord:
     clause = RegulationClause.model_validate(
         next(row for row in clauses if row["clause_id"] == "19")
     )
-    outcome = get_hunt("D3_contradictory").run(
+    rows = json.loads((FIX / "cached_decisions.json").read_text(encoding="utf-8"))
+    outcome = replay(
+        rows["d3"],
         clause=clause,
         tools=StubToolLayer(FIX / "corpus"),
-        model=CachedDecisionModel(
-            FIX / "cached_decisions.json",
-            cache_key="d3",
-        ),
         program_scope="CLOSPEN2,CLOSPEN3",
-        entailer=LexicalEntailer(),
-        clock=lambda: 100.0,
     )
     prediction = outcome.finding
     gold_payload = prediction.model_dump(mode="json")
@@ -80,6 +74,7 @@ def test_budget_mismatch_and_shortcut_are_detected():
         update={
             "steps": [bad_step, *record.trajectory.steps[1:]],
             "tokens_used": record.trajectory.tokens_used + 1,
+            "token_usage_recorded": True,
         }
     )
     bad = record.model_copy(update={"trajectory": bad_trajectory})

@@ -1,0 +1,4 @@
+      * SMALL BUSINESS CARD INTEREST RUN CONTROL (SHARED)
+       01  WS-SBC-INT-CONTROL.
+           05  WS-SBC-INT-RUN        PIC X(1) VALUE 'N'.
+               88  SBC-INT-ON        VALUE 'Y'.

@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CACHE = ROOT / "tests" / "fixtures" / "retrieval" / "hyde_cache.json"
 QUERIES = ROOT / "tests" / "fixtures" / "retrieval" / "queries.jsonl"
 CACHE_SCHEMA_VERSION = 1
-HYDE_PROMPT_VERSION = "t3.3b-rule-description-v1"
+HYDE_PROMPT_VERSION = "rule-description"
 
 
 class HyDEProvenance(BaseModel):

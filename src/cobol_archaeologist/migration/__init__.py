@@ -1,17 +1,6 @@
-"""Auditable migration-agent contracts and offline safety validation."""
+"""Patch generation and GnuCOBOL validation for verified findings."""
 
-from cobol_archaeologist.migration.contracts import (
-    MigrationCase,
-    MigrationRequest,
-    MigrationTrack,
-    PatchArtifact,
-    ValidationCapability,
-)
+from cobol_archaeologist.migration.case import MigrationCase, load_case
+from cobol_archaeologist.migration.validate import Validation, validate
 
-__all__ = [
-    "MigrationCase",
-    "MigrationRequest",
-    "MigrationTrack",
-    "PatchArtifact",
-    "ValidationCapability",
-]
+__all__ = ["MigrationCase", "Validation", "load_case", "validate"]

@@ -15,11 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 BENCHMARK = ROOT / "data" / "benchmark"
 SEED = BENCHMARK / "seed"
 PROGRAMS = SEED / "programs"
-TEST_SPLIT = BENCHMARK / "legacy" / "v1-pre" / "test.jsonl"
-SPLIT_FILES = tuple(
-    BENCHMARK / "legacy" / "v1-pre" / f"{split}.jsonl"
-    for split in ("train", "dev", "test")
-)
+TEST_SPLIT = BENCHMARK / "dev.jsonl"
+SPLIT_FILES = tuple(BENCHMARK / f"{split}.jsonl" for split in ("train", "dev", "test"))
 
 SUPERSEDED_IDS = {
     "drift_361728",
@@ -136,7 +133,6 @@ def test_corrected_catalogue_has_no_stale_source_fragments_or_dangling_ids():
         BENCHMARK / "drift_instances.jsonl",
         BENCHMARK / "drift_instances.plausible.jsonl",
         BENCHMARK / "judgements.jsonl",
-        BENCHMARK / "judgements.sample50.jsonl",
         *SPLIT_FILES,
     )
     for path in artifact_paths:

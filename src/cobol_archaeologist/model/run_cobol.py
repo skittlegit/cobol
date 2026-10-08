@@ -188,6 +188,8 @@ def compile_check(source: str) -> CompileResult:
 
 
 def _cap(raw: bytes) -> str:
+    # Program output uses \n on every host; native Windows builds emit \r\n.
+    raw = raw.replace(b"\r\n", b"\n")
     if len(raw) > _OUTPUT_CAP:
         kept = raw[:_OUTPUT_CAP].decode("utf-8", errors="replace")
         return kept + f"\n...[truncated at {_OUTPUT_CAP} bytes]"

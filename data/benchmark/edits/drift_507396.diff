@@ -1,0 +1,31 @@
+--- a/CICREP1.cbl
++++ b/CICREP1.cbl
+@@ -2,4 +2,4 @@
+        PROGRAM-ID. CICREP1.
+-      * CIC STATUS UPDATE AGEING AFTER SETTLEMENT (30-DAY SLA)
+-       ENVIRONMENT DIVISION.
++      * CIC STATUS UPDATE AGEING AFTER SETTLEMENT (30-DAY SLA)  
++       ENVIRONMENT DIVISION.   
+        DATA DIVISION.
+@@ -13,2 +13,3 @@
+            05  WS-PRINT-LINE OCCURS 7 PIC X(7).
++       01  WS-COMPLIANCE-FLAG PIC X VALUE 'N'.
+        PROCEDURE DIVISION.
+@@ -16,3 +17,3 @@
+            ACCEPT WS-DAYS-SINCE-SETTLE
+-           ACCEPT WS-DISPUTE-OPEN
++           ACCEPT WS-DISPUTE-OPEN  
+            PERFORM 2000-DECIDE
+@@ -20,3 +21,3 @@
+            STOP RUN.
+-       2000-DECIDE.
++       2000-DECIDE.   
+            IF WS-DISPUTE-OPEN = 'Y'
+@@ -24,2 +25,3 @@
+            ELSE
++              IF WS-COMPLIANCE-FLAG = 'Y'
+               IF WS-DAYS-SINCE-SETTLE > 30
+@@ -29,2 +31,3 @@
+               END-IF
++              END-IF
+            END-IF.

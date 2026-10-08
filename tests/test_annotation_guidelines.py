@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-GUIDELINES = ROOT / "ANNOTATION.md"
+GUIDELINES = ROOT / "docs" / "annotation.md"
 
 
 def test_annotation_guidelines_cover_frozen_contract_and_adjudication() -> None:

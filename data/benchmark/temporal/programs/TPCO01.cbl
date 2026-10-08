@@ -1,0 +1,27 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TPCO01.
+      * COMPANY BENEFICIAL OWNER FLAG - SHARES, CAPITAL OR PROFITS
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-SHARE-PCT              PIC 9(3)V99 VALUE ZERO.
+       01  WS-CAPITAL-PCT            PIC 9(3)V99 VALUE ZERO.
+       01  WS-PROFIT-PCT             PIC 9(3)V99 VALUE ZERO.
+       01  WS-OTHER-CONTROL          PIC X VALUE 'N'.
+       01  WS-IS-BO                  PIC X VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-SHARE-PCT
+           ACCEPT WS-CAPITAL-PCT
+           ACCEPT WS-PROFIT-PCT
+           ACCEPT WS-OTHER-CONTROL
+           PERFORM 2000-TEST-OWNER
+           DISPLAY 'BO: ' WS-IS-BO
+           STOP RUN.
+       2000-TEST-OWNER.
+           MOVE 'N' TO WS-IS-BO
+           IF WS-SHARE-PCT > 25.00
+              OR WS-CAPITAL-PCT > 25.00
+              OR WS-PROFIT-PCT > 25.00
+              OR WS-OTHER-CONTROL = 'Y'
+              MOVE 'Y' TO WS-IS-BO
+           END-IF.

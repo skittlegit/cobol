@@ -1,0 +1,3 @@
+      * PARTNERSHIP FIRM KYC RULES.
+       01  PF-RULES.
+           05  PF-PARTNER-BO-PCT     PIC 9(3)V99 VALUE 15.00.

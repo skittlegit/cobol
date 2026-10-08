@@ -1,13 +1,18 @@
-"""Frozen T1-T6 metric implementation."""
+"""T1-T6 metrics, balanced accuracy, and the paired system comparison."""
 
 from __future__ import annotations
 
 import json
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
+from typing import Any, Literal
 
 from cobol_archaeologist.eval.schemas import EvaluationRecord, TrajectoryAssessment
-from cobol_archaeologist.eval.statistics import exact_binomial_interval
+from cobol_archaeologist.eval.statistics import (
+    exact_binomial_interval,
+    paired_bootstrap_delta,
+    paired_randomization_p,
+)
 
 DRIFT_TYPES = (
     "D1_stale_threshold",
@@ -263,4 +268,98 @@ def evaluate(
             }
             for name, rows in strata.items()
         },
+    }
+
+
+def balanced_accuracy(records: Sequence[EvaluationRecord]) -> float:
+    """Mean of drift recall and conformant recall; abstentions count as misses."""
+
+    positives = [row for row in records if _is_drift(row.gold)]
+    negatives = [row for row in records if not _is_drift(row.gold)]
+    true_positive = sum(_answered(row) and _is_drift(row.prediction) for row in positives)
+    true_negative = sum(
+        _answered(row) and not _is_drift(row.prediction) for row in negatives
+    )
+    sensitivity = _safe_div(true_positive, len(positives))
+    specificity = _safe_div(true_negative, len(negatives))
+    return (sensitivity + specificity) / 2
+
+
+def confusion_matrix(records: Sequence[EvaluationRecord]) -> dict[str, dict[str, int]]:
+    columns = (*DRIFT_TYPES, "ABSTAIN")
+    matrix = {gold: {predicted: 0 for predicted in columns} for gold in DRIFT_TYPES}
+    for row in records:
+        predicted = (
+            "ABSTAIN"
+            if not _answered(row) or row.prediction is None
+            else row.prediction.drift_type
+        )
+        matrix[row.gold.drift_type][predicted] += 1
+    return matrix
+
+
+def _correct_binary(record: EvaluationRecord) -> bool:
+    return bool(
+        _answered(record)
+        and record.prediction is not None
+        and _is_drift(record.prediction) == _is_drift(record.gold)
+    )
+
+
+def paired_f1_comparison(
+    left: Sequence[EvaluationRecord],
+    right: Sequence[EvaluationRecord],
+    *,
+    locus: Literal["overall", "local", "interprocedural"],
+    bootstrap_resamples: int,
+    randomization_samples: int,
+    seed: int,
+) -> dict[str, Any]:
+    """Compute a paired F1 comparison, refusing partial or duplicate pairing."""
+
+    left_ids = [row.instance_id for row in left]
+    right_ids = [row.instance_id for row in right]
+    if len(left_ids) != len(set(left_ids)) or len(right_ids) != len(set(right_ids)):
+        raise ValueError("paired comparison contains duplicate instance IDs")
+    if set(left_ids) != set(right_ids):
+        raise ValueError("paired comparison instance IDs do not align")
+    right_by_id = {row.instance_id: row for row in right}
+    paired_left: list[EvaluationRecord] = []
+    paired_right: list[EvaluationRecord] = []
+    for row in left:
+        include = locus == "overall" or row.gold.code_locus.is_interprocedural == (
+            locus == "interprocedural"
+        )
+        if include:
+            paired_left.append(row)
+            paired_right.append(right_by_id[row.instance_id])
+    if not paired_left:
+        raise ValueError("paired comparison stratum is empty")
+
+    def metric(rows: Sequence[object]) -> float:
+        return detection(rows)["f1"]  # type: ignore[arg-type]
+
+    delta, low, high = paired_bootstrap_delta(
+        paired_left,
+        paired_right,
+        metric,
+        resamples=bootstrap_resamples,
+        seed=seed,
+    )
+    p_value = paired_randomization_p(
+        [_correct_binary(row) for row in paired_left],
+        [_correct_binary(row) for row in paired_right],
+        samples=randomization_samples,
+        seed=seed,
+    )
+    return {
+        "left_system": paired_left[0].system_id,
+        "right_system": paired_right[0].system_id,
+        "locus": locus,
+        "paired_rows": len(paired_left),
+        "left_f1": detection(paired_left)["f1"],
+        "right_f1": detection(paired_right)["f1"],
+        "delta_f1": delta,
+        "bootstrap_95_ci": [low, high],
+        "paired_randomization_p": p_value,
     }

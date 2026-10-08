@@ -1,0 +1,4 @@
+      * DELINQUENT ACCOUNT INTEREST RUN CONTROL (SHARED)
+       01  WS-DLQ-INT-CONTROL.
+           05  WS-DLQ-INT-RUN        PIC X(1) VALUE 'N'.
+               88  DLQ-INT-ON        VALUE 'Y'.

@@ -1,0 +1,35 @@
+--- a/ACTIVAT1.cbl
++++ b/ACTIVAT1.cbl
+@@ -2,6 +2,6 @@
+        PROGRAM-ID. ACTIVAT1.
+-      * CARD ACTIVATION CONSENT WINDOW (30 DAYS -> OTP, 7WD CLOSE)
++      * CARD ACTIVATION CONSENT WINDOW (30 DAYS -> OTP, 7WD CLOSE)  
+        ENVIRONMENT DIVISION.
+        DATA DIVISION.
+-       WORKING-STORAGE SECTION.
++       WORKING-STORAGE SECTION.   
+        01  WS-DAYS-SINCE-ISSUE       PIC 9(4) VALUE ZERO.
+@@ -10,3 +10,3 @@
+        01  WS-ACTION                 PIC X(8) VALUE SPACES.
+-       01  WS-RPT-HEADING            PIC X(2)
++       01  WS-RPT-HEADING            PIC X(7)
+            VALUE SPACES.
+@@ -20,3 +20,3 @@
+            DISPLAY 'ACTION: ' WS-ACTION
+-           STOP RUN.
++           STOP RUN.     
+        2000-DECIDE.
+@@ -25,11 +25,5 @@
+            ELSE
+-              IF WS-DAYS-SINCE-ISSUE > 30
+-                 IF WS-CONSENT-DAYS > 7
+-                    MOVE 'CLOSE' TO WS-ACTION
+-                 ELSE
+-                    MOVE 'SEEKOTP' TO WS-ACTION
+-                 END-IF
+-              ELSE
++              IF WS-DAYS-SINCE-ISSUE <= 30
+                  MOVE 'WAIT' TO WS-ACTION
+-              END-IF
++              END-IF  
+            END-IF.

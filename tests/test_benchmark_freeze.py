@@ -18,8 +18,7 @@ from cobol_archaeologist.benchmark.freeze import (
 from cobol_archaeologist.schemas import DriftInstance, DriftPrediction
 
 ROOT = Path(__file__).resolve().parents[1]
-PRE = ROOT / "data" / "benchmark" / "legacy" / "v1-pre"
-V1 = ROOT / "data" / "benchmark" / "v1"
+BENCHMARK = ROOT / "data" / "benchmark"
 REAL = ROOT / "data" / "benchmark" / "seed" / "real_curated.jsonl"
 
 
@@ -50,10 +49,10 @@ def _write_pass(path: Path, rows: list[DriftInstance], annotator: str) -> None:
 
 
 def test_committed_manifest_pins_exact_canonical_lf_split_bytes():
-    manifest = json.loads((V1 / "manifest.json").read_text(encoding="utf-8"))
+    manifest = json.loads((BENCHMARK / "splits.manifest.json").read_text(encoding="utf-8"))
 
     for name in ("train", "dev", "test"):
-        split_bytes = (V1 / f"{name}.jsonl").read_bytes()
+        split_bytes = (BENCHMARK / f"{name}.jsonl").read_bytes()
         assert b"\r\n" not in split_bytes
         assert (
             hashlib.sha256(split_bytes).hexdigest()
@@ -61,7 +60,7 @@ def test_committed_manifest_pins_exact_canonical_lf_split_bytes():
         )
 
 
-def test_freeze_requires_and_hashes_independent_evidence(tmp_path):
+def test_freeze_requires_and_hashes_independent_evidence(tmp_path, presplit_dir):
     rows = _real_rows()
     left = tmp_path / "left.jsonl"
     right = tmp_path / "right.jsonl"
@@ -71,8 +70,8 @@ def test_freeze_requires_and_hashes_independent_evidence(tmp_path):
     adjudications.write_text("", encoding="utf-8")
 
     manifest = freeze_benchmark(
-        pre_dir=PRE,
-        output_dir=tmp_path / "v1",
+        pre_dir=presplit_dir,
+        output_dir=tmp_path / "frozen",
         adjudicated_real_path=REAL,
         pass_a_path=left,
         pass_b_path=right,
@@ -86,10 +85,10 @@ def test_freeze_requires_and_hashes_independent_evidence(tmp_path):
     assert manifest.excluded_candidate_ids == []
     assert set(manifest.split_sha256) == {"train", "dev", "test"}
     for name, expected_sha256 in manifest.split_sha256.items():
-        split_bytes = (tmp_path / "v1" / f"{name}.jsonl").read_bytes()
+        split_bytes = (tmp_path / "frozen" / f"{name}.jsonl").read_bytes()
         assert b"\r\n" not in split_bytes
         assert hashlib.sha256(split_bytes).hexdigest() == expected_sha256
-    assert b"\r\n" not in (tmp_path / "v1" / "manifest.json").read_bytes()
+    assert b"\r\n" not in (tmp_path / "frozen" / "manifest.json").read_bytes()
 
 
 def test_detector_visible_projection_includes_code_locus_but_not_gold_rationale():
@@ -107,7 +106,7 @@ def test_detector_visible_projection_includes_code_locus_but_not_gold_rationale(
     assert _visible_projection(row) == _visible_projection(rationale_changed)
 
 
-def test_freeze_drops_excluded_candidates_and_shrinks_test_split(tmp_path):
+def test_freeze_drops_excluded_candidates_and_shrinks_test_split(tmp_path, presplit_dir):
     """A candidate excluded by adjudication is removed from test, not forced
     into a label -- the freeze must succeed below the original 51/20
     baseline as long as every non-surviving candidate has an exclude record
@@ -183,8 +182,8 @@ def test_freeze_drops_excluded_candidates_and_shrinks_test_split(tmp_path):
     )
 
     manifest = freeze_benchmark(
-        pre_dir=PRE,
-        output_dir=tmp_path / "v1",
+        pre_dir=presplit_dir,
+        output_dir=tmp_path / "frozen",
         adjudicated_real_path=adjudicated_real,
         pass_a_path=left,
         pass_b_path=right,
@@ -197,7 +196,7 @@ def test_freeze_drops_excluded_candidates_and_shrinks_test_split(tmp_path):
 
     test_ids = {
         json.loads(line)["instance_id"]
-        for line in (tmp_path / "v1" / "test.jsonl")
+        for line in (tmp_path / "frozen" / "test.jsonl")
         .read_text(encoding="utf-8")
         .splitlines()
         if line.strip()
@@ -205,7 +204,7 @@ def test_freeze_drops_excluded_candidates_and_shrinks_test_split(tmp_path):
     assert excluded_row.instance_id not in test_ids
 
 
-def test_freeze_rejects_missing_adjudication_for_excluded_candidate(tmp_path):
+def test_freeze_rejects_missing_adjudication_for_excluded_candidate(tmp_path, presplit_dir):
     """A candidate absent from the resolved real rows without a matching
     exclude adjudication record must fail closed, not silently drop."""
 
@@ -224,8 +223,8 @@ def test_freeze_rejects_missing_adjudication_for_excluded_candidate(tmp_path):
 
     with pytest.raises(ValueError, match="explicit exclude adjudication"):
         freeze_benchmark(
-            pre_dir=PRE,
-            output_dir=tmp_path / "v1",
+            pre_dir=presplit_dir,
+            output_dir=tmp_path / "frozen",
             adjudicated_real_path=adjudicated_real,
             pass_a_path=left,
             pass_b_path=right,

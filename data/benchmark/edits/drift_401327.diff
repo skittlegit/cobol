@@ -1,0 +1,28 @@
+--- a/INTCOMP1.cbl
++++ b/INTCOMP1.cbl
+@@ -1,5 +1,5 @@
+        IDENTIFICATION DIVISION.
+-       PROGRAM-ID. INTCOMP1.
+-      * MONTHLY INTEREST - BASE EXCLUDES UNPAID FEES/LEVIES
+-       ENVIRONMENT DIVISION.
++       PROGRAM-ID. INTCOMP1.  
++      * MONTHLY INTEREST - BASE EXCLUDES UNPAID FEES/LEVIES   
++       ENVIRONMENT DIVISION. 
+        DATA DIVISION.
+@@ -12,2 +12,3 @@
+        01  WS-INT                    PIC 9(7)V99 VALUE ZERO.
++       01  WS-COMPLIANCE-FLAG PIC X VALUE 'N'.
+        PROCEDURE DIVISION.
+@@ -15,3 +16,3 @@
+            ACCEPT WS-OUTSTANDING
+-           ACCEPT WS-UNPAID-FEES
++           ACCEPT WS-UNPAID-FEES     
+            ACCEPT WS-CREDITS
+@@ -23,2 +24,3 @@
+                    - WS-CREDITS
++           IF WS-COMPLIANCE-FLAG = 'Y'
+            IF WS-BASE > ZERO
+@@ -27,2 +29,3 @@
+               MOVE ZERO TO WS-INT
++           END-IF
+            END-IF.

@@ -476,7 +476,7 @@ def test_gate_e_splits_artifact_only_gate_from_with_bases_floor(built_pair):
         feature_names=("literal_roundness",),
     )
 
-    # CONTRACT v1.3 / BL-14: only artifact-computable literal roundness is a
+    # Threat model: only artifact-computable literal roundness is a
     # hard build gate. The aggregate assumes access to bases and is recorded as
     # the mandatory T5.3 surface-baseline floor, not asserted at chance here.
     assert artifact_only.ci_low <= 0.5 <= artifact_only.ci_high, artifact_only
@@ -559,77 +559,6 @@ def test_checked_in_synthetic_v1_matches_its_manifest():
         "interprocedural": 0,
         "minimum_instances": 0,
     }
-
-
-def test_bl8_checked_in_manifest_names_the_head_that_generated_it():
-    manifest_path = manifest_path_for(ARTIFACT)
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-
-    def catalogue_state(payload: dict) -> dict:
-        """Judge stamps are evidence metadata, not catalogue generations."""
-
-        return {key: value for key, value in payload.items() if key != "judging"}
-
-    relative = manifest_path.relative_to(ROOT).as_posix()
-    head = subprocess.run(
-        ["git", "rev-parse", "HEAD"],
-        cwd=ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
-
-    head_payload = json.loads(
-        subprocess.run(
-            ["git", "show", f"HEAD:{relative}"],
-            cwd=ROOT,
-            check=True,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-        ).stdout
-    )
-    if catalogue_state(manifest) != catalogue_state(head_payload):
-        # A freshly generated, not-yet-recorded manifest correctly names the
-        # current HEAD. Requiring a future parent commit made the test fail in
-        # the exact interval between generation and commit.
-        assert manifest["git_sha"] == head
-        return
-
-    commits = subprocess.run(
-        ["git", "log", "--format=%H", "--", relative],
-        cwd=ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.split()
-    generation_commit = commits[0]
-    for commit in commits[1:]:
-        historical = json.loads(
-            subprocess.run(
-                ["git", "show", f"{commit}:{relative}"],
-                cwd=ROOT,
-                check=True,
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-            ).stdout
-        )
-        if catalogue_state(historical) != catalogue_state(manifest):
-            break
-        generation_commit = commit
-    parents = subprocess.run(
-        ["git", "show", "-s", "--format=%P", generation_commit],
-        cwd=ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.split()
-    assert manifest["git_sha"] in parents, (
-        "checked-in manifest is a stale carry-forward: git_sha must name the "
-        "HEAD at generation time (the parent of the commit that first recorded "
-        "this catalogue state); later judge-only stamps do not change that state"
-    )
 
 
 def test_bl12_runnable_base_is_repo_native_and_rostered():

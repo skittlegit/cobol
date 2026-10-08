@@ -1,0 +1,22 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. OVDBR7.
+      * BRANCH DOCUMENT CHECKLIST
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY OVDTB7.
+       01  WS-CHECKLIST              PIC X(8) VALUE SPACES.
+       01  WS-OK-COUNT               PIC 9(3) VALUE ZERO.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-ID-CODE
+           PERFORM 2000-CHECK
+           DISPLAY 'CHECK: ' WS-CHECKLIST
+           STOP RUN.
+       2000-CHECK.
+           IF VALID-ID-DOC7
+              ADD 1 TO WS-OK-COUNT
+              MOVE 'COMPLETE' TO WS-CHECKLIST
+           ELSE
+              MOVE 'MISSING' TO WS-CHECKLIST
+           END-IF.

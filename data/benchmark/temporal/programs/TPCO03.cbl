@@ -1,0 +1,36 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TPCO03.
+      * COMPANY BO - LARGEST OF SHARES, CAPITAL AND PROFITS
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-SHARES                 PIC 9(3)V99 VALUE ZERO.
+       01  WS-CAPITAL                PIC 9(3)V99 VALUE ZERO.
+       01  WS-PROFITS                PIC 9(3)V99 VALUE ZERO.
+       01  WS-STAKE-PCT              PIC 9(3)V99 VALUE ZERO.
+           88  CONTROLLING-STAKE    VALUES 25.01 THRU 100.00.
+       01  WS-CONTROL-RIGHTS         PIC X VALUE 'N'.
+       01  WS-IS-BO                  PIC X VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-SHARES
+           ACCEPT WS-CAPITAL
+           ACCEPT WS-PROFITS
+           ACCEPT WS-CONTROL-RIGHTS
+           PERFORM 2000-LARGEST
+           PERFORM 3000-DECIDE
+           DISPLAY 'BO: ' WS-IS-BO
+           STOP RUN.
+       2000-LARGEST.
+           MOVE WS-SHARES TO WS-STAKE-PCT
+           IF WS-CAPITAL > WS-STAKE-PCT
+              MOVE WS-CAPITAL TO WS-STAKE-PCT
+           END-IF
+           IF WS-PROFITS > WS-STAKE-PCT
+              MOVE WS-PROFITS TO WS-STAKE-PCT
+           END-IF.
+       3000-DECIDE.
+           IF CONTROLLING-STAKE OR WS-CONTROL-RIGHTS = 'Y'
+              MOVE 'Y' TO WS-IS-BO
+           ELSE
+              MOVE 'N' TO WS-IS-BO
+           END-IF.

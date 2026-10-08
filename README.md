@@ -1,123 +1,75 @@
 # COBOL Archaeologist
 
 Detecting where legacy COBOL banking code has **drifted** from the financial
-regulation it was built to satisfy — with verified, line-level explanations and
-an optional migration step.
+regulation it was built to satisfy — with verified, line-level findings and an
+optional migration step.
 
-Decades-old banking systems encode compliance logic that has quietly rotted:
-thresholds that regulation has since changed, checks that were never added,
-contradictory branches, stale reference data, off-by-one boundary conditions,
-and dead code that _looks_ like compliance. This project builds (1) a
-program-analysis toolchain that lets an agent investigate real COBOL the way an
-archaeologist would, and (2) a labeled benchmark of drift instances to measure
-it. **Drift detection is the research contribution; the benchmark is the moat.**
+Decades-old banking systems encode compliance logic that quietly rots:
+thresholds the regulator has since changed, checks that were never added,
+contradictory branches, stale reference data, off-by-one boundaries, and dead
+code that only looks like compliance. This project provides:
+
+1. a program-analysis toolchain that lets an agent investigate real COBOL
+   (preprocessing, parsing, call graphs, dataflow, slicing, a GnuCOBOL
+   execution oracle);
+2. a labeled benchmark of drift instances (D1–D7) anchored to RBI credit/debit
+   card and KYC directions; and
+3. a detector that investigates each case with those tools and must verify
+   every finding before it counts.
+
+## Status
+
+See [STATUS.md](STATUS.md). The last official evaluation is **NO_GO**: the
+detector finds drift with high precision (0.87) but cannot reliably tell
+conformant code from drifted code (balanced accuracy 0.53) and fails the
+temporal pairs (7/20). The current work fixes those failure modes and
+evaluates once more on a fresh held-out split.
 
 ## How it works
 
 ```text
-raw COBOL (CardDemo / CBSA)
-  -> ingest/cleaner.py
-     line-count-preserving preprocessor
-  -> parser/
-     tree-sitter AST, typed paragraphs, copybooks, LineMap
-  -> static_analysis/
-     call graph, interprocedural def-use, variable slicing
-  -> tools.py
-     agent facade with structured data and source pointers
-  -> drift detection and labeled benchmark instances
+COBOL source -> preprocessor -> tree-sitter parser -> call graph / dataflow / slicer
+            -> tool layer -> detector (Codex task + tool bridge + self-check)
+            -> verifier (executed / static / entailment) -> results -> gates
 ```
 
-Two invariants hold everywhere:
-
-- **Line-number fidelity is sacred.** Every transformation (preprocessing,
-  copybook expansion) carries a line-map back to the raw file; benchmark labels
-  are line-level.
-- **GnuCOBOL `cobc` is the compile/behavior oracle only, never the parser.**
-  CICS programs do not compile under it by design; only batch `CB*` programs are
-  runnable.
-
-## Status
-
-- **M0 — spike & decisions:** parser bake-off and AST decision. Done.
-- **M1 — slicing validated:** T1.0–T1.6 (preprocessor, parser, call graph,
-  dataflow, slicer, run harness, and ToolLayer). Complete.
-- **M2 — benchmark v1-pre:** 594 compiled instances; independent Luna judging
-  passed the raw plausibility gate, with 562 accepted rows and purpose-valid
-  train/dev/test splits. Complete.
-- **M3 — grounded agent:** retrieval, verification, the agent loop, and D1-D7
-  policy hunts are complete.
-- **M4 — narrow evaluation:** closed `NO_GO`; the measured result is retained
-  without post-result threshold changes.
-- **Benchmark v1:** frozen at 605 rows, including 43 human-annotated,
-  Claude-verified real-curated test rows.
-- **Current work:** Track C is completing T5.3-T5.5 evaluation; Track A owns
-  the T7.2 offline deployment bundle; Track B owns T7.3 release packaging;
-  Track C owns T7.5 paper/submission work.
-
-The validated spike is retained at
-[`docs/reference/spike_parser.py`](docs/reference/spike_parser.py). Its production
-preprocessing and paragraph-extraction logic now lives in
-[`src/cobol_archaeologist/ingest/`](src/cobol_archaeologist/ingest/) and
-[`src/cobol_archaeologist/parser/`](src/cobol_archaeologist/parser/).
+Details: [docs/architecture.md](docs/architecture.md).
 
 ## Getting started
 
-The package scaffold is available for editable development installs.
-
 ```bash
-pip install -e ".[dev]"
+pip install -e ".[dev,models]"
 bash scripts/fetch_corpora.sh
-pytest tests/ -x -q
+pytest tests/ -q
+python -m cobol_archaeologist.eval.report --split test
 ```
 
-The default pytest configuration excludes model-backed network tests. To run
-those gates explicitly, install the model extra and select the marker:
-
-```bash
-pip install -e ".[models]"
-pytest -m network
-```
-
-The package targets Python 3.12 with `tree_sitter==0.21.3`, `pydantic>=2`,
-`pytest`, and `ruff`. `fetch_corpora.sh` shallow-clones pinned CardDemo and CBSA
-copies into `data/corpora/`.
-
-The tree-sitter COBOL grammar (`yutaro-sakamoto/tree-sitter-cobol`) is vendored
-at `vendor/tree-sitter-cobol/` and pinned by commit; corpora are fetched,
-**never vendored**.
+Running the detector needs WSL with the Codex CLI logged in through ChatGPT;
+see [docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md). The tools are also
+available as an MCP stdio server: `cobol-archaeologist-mcp`
+([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)).
 
 ## Repository layout
 
 ```text
 src/cobol_archaeologist/
-  ingest/cleaner.py              # mandatory preprocessor
-  parser/paragraphs.py           # AST parse + paragraph spans
-  parser/copybooks.py            # copybook expansion + LineMap
-  static_analysis/call_graph.py  # PERFORM/GO TO + EXEC CICS LINK/XCTL edges
-  static_analysis/dataflow.py    # interprocedural def-use
-  static_analysis/slicer.py      # variable slicing
-  model/run_cobol.py             # sandboxed GnuCOBOL harness (oracle)
-  tools.py                       # agent tool layer facade
-  schemas.py                     # pydantic models incl. DriftInstance
-vendor/tree-sitter-cobol/        # pinned grammar
-tests/                           # pytest; golden fixtures under tests/fixtures/
-scripts/fetch_corpora.sh         # pinned corpus fetch (data/ is gitignored)
-docs/                            # canonical task work orders + contract/workflow
+  ingest/ parser/ static_analysis/   program analysis
+  tools.py tool_types.py             the tool layer
+  model/                             verifier, GnuCOBOL harness, class policy text
+  agent/                             D1-D7 evidence guards, trajectories, stub tools
+  eval/                              codex transport, bridge, detector, baseline, runner, report
+  benchmark/                         mutation, build, judging, splits, freeze
+  rag/                               regulation chunking and retrieval
+  migration/                         patch generation and validation
+  mcp_server/                        tools over MCP
+data/benchmark/                      train/dev/test, temporal pairs, seed programs
+data/eval/                           current results and reports
+docs/                                architecture, annotation protocol, task records
 ```
 
-## Corpora
+## Corpora and licences
 
-- **AWS CardDemo:** anchor corpus, Apache 2.0.
-- **IBM CICS CBSA:** secondary corpus, EPL 2.0.
-
-Both are pinned to specific commits by `scripts/fetch_corpora.sh` and live
-outside version control under `data/corpora/`.
-
-## Development
-
-Work is tracked by task IDs (T0.1…T7.5); commits are prefixed with the task
-being implemented (`T1.1: <what changed>`). Each task has an explicit "done
-when" gate in its canonical file under [`docs/tasks/`](docs/tasks/), written as
-a test _before_ implementation. Locked technical decisions (grammar pin, preprocessor
-contract, oracle boundary, line-map invariant) are recorded in
-[`CLAUDE.md`](CLAUDE.md) — read it before contributing.
+AWS CardDemo (Apache-2.0) is the anchor corpus and IBM CICS CBSA (EPL-2.0) is
+secondary; both are fetched at pinned commits, never vendored. Code is MIT
+licensed. Regulation metadata identifies source documents; it does not grant
+redistribution rights in them.
