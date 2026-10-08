@@ -44,7 +44,13 @@ def _evaluated_report() -> dict:
             "paired_randomization_p": 0.0123,
             "paired_rows": 60,
         },
-        "temporal": {"successes": 15, "pairs": 22, "paired_accuracy": 15 / 22},
+        "temporal": {
+            "successes": 15,
+            "pairs": 22,
+            "paired_accuracy": 15 / 22,
+            "exact_95_ci": [0.45, 0.86],
+            "per_pair": {f"pair-{i:02d}": i <= 15 for i in range(1, 23)},
+        },
         "gate_results": {key: key != "balanced_accuracy" for key in keys},
     }
 
@@ -84,4 +90,4 @@ def test_pending_page_states_what_is_outstanding(tmp_path):
 
     assert "Pending" in page
     assert "145 required rows have no result yet." in page
-    assert "test</th><td class=num>145" in page
+    assert "held-out test rows" in page
