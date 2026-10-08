@@ -1,0 +1,4 @@
+      * BUSINESS CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-DVPH-PEN-CTL.
+           05  WS-DVPH-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  DVPH-PEN-ON       VALUE 'Y'.

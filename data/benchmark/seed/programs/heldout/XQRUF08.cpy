@@ -1,0 +1,4 @@
+      * RURAL ACCOUNTS BUREAU SYNC RUN CONTROL (SHARED)
+       01  WS-XQRU-CIC-CTL.
+           05  WS-XQRU-CIC-RUN       PIC X(1) VALUE 'N'.
+               88  XQRU-CIC-ON       VALUE 'Y'.

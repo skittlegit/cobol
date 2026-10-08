@@ -1,0 +1,4 @@
+      * CORPORATE CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-DVPC-PEN-CTL.
+           05  WS-DVPC-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  DVPC-PEN-ON       VALUE 'Y'.

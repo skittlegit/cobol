@@ -135,8 +135,10 @@ code-versus-clause comparison in prediction.rationale and final_answer. In a
 locus, program names the containing executable program and file names the
 physical copybook/source filename. Set target_path to null unless a D1 or D5
 finding targets a composite current_value; then it must name a non-composite
-leaf from the selected clause. D7 requires positive source evidence of
-conformance and is never a default verdict. Abstain when evidence is
+leaf from the selected clause. For D7_conformant, set labels.program_level and
+labels.paragraph_level to conformant and labels.line_level to an empty list.
+For every other class, set labels.program_level to drift. D7 requires
+positive source evidence of conformance and is never a default verdict. Abstain when evidence is
 insufficient. Do not use or infer hidden labels, generation provenance,
 mutation metadata, git history, file timestamps, formatting, comment
 freshness, or identifier style.

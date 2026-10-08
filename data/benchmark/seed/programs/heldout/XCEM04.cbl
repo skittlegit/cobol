@@ -1,0 +1,248 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. XCEM04.
+      * EMI CANCELLATION - ADJUST OR SEEK CONSENT
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+      * RUN CONTROL AND HOUSEKEEPING
+       01  WS-RUN-STAMP.
+           05  WS-RUN-YYYY           PIC 9(4).
+           05  WS-RUN-MM             PIC 9(2).
+           05  WS-RUN-DD             PIC 9(2).
+           05  WS-RUN-REST           PIC X(13).
+       01  WS-RUN-OK                 PIC X(1) VALUE 'Y'.
+       01  WS-BRANCH-TABLE.
+           05  WS-BRANCH-CODE   PIC X(4) OCCURS 9 TIMES.
+       01  WS-BX                     PIC 9(2) VALUE ZERO.
+       01  WS-CUST-NAME              PIC X(30) VALUE SPACES.
+       01  WS-ACCT-STATUS            PIC X(1) VALUE 'A'.
+       01  WS-STATUS-TEXT            PIC X(12) VALUE SPACES.
+       01  WS-ACCT-AGE-MONTHS        PIC 9(4) VALUE ZERO.
+       01  WS-AGE-BUCKET             PIC X(6) VALUE SPACES.
+       01  WS-AMT-WORK               PIC 9(9)V99 VALUE ZERO.
+       01  WS-AMT-EDIT               PIC ZZZ,ZZZ,ZZ9.99.
+       01  WS-AUDIT-KEY              PIC X(40) VALUE SPACES.
+       01  WS-ACCT-NUMBER            PIC 9(11) VALUE ZERO.
+       01  WS-CHECK-SUM              PIC 9(4) VALUE ZERO.
+       01  WS-DIGIT-IX               PIC 9(2) VALUE ZERO.
+       01  WS-DIGIT                  PIC 9 VALUE ZERO.
+       01  WS-LINE-COUNT             PIC 9(3) VALUE ZERO.
+       01  WS-PAGE-COUNT             PIC 9(3) VALUE ZERO.
+       01  WS-RECORDS-SEEN           PIC 9(7) VALUE ZERO.
+       01  WS-ERRORS-SEEN            PIC 9(5) VALUE ZERO.
+       01  WS-HEADER-LINE.
+           05  WS-HDR-TITLE          PIC X(40) VALUE SPACES.
+           05  WS-HDR-PAGE           PIC ZZ9.
+       01  WS-AUDIT-REC.
+           05  WS-AUD-KEY            PIC X(40).
+           05  WS-AUD-STATUS         PIC X(12).
+           05  WS-AUD-BUCKET         PIC X(6).
+      * STATEMENT AND REWARDS WORK AREAS
+       01  WS-LEAP-YEAR              PIC X(1) VALUE 'N'.
+       01  WS-YEAR-REM-4             PIC 9 VALUE ZERO.
+       01  WS-YEAR-REM-100           PIC 9(2) VALUE ZERO.
+       01  WS-YEAR-REM-400           PIC 9(3) VALUE ZERO.
+       01  WS-BRANCH-WANTED          PIC X(4) VALUE 'BLR1'.
+       01  WS-BRANCH-FOUND           PIC X(1) VALUE 'N'.
+       01  WS-SPEND-AMT              PIC 9(9)V99 VALUE ZERO.
+       01  WS-REWARD-POINTS          PIC 9(7) VALUE ZERO.
+       01  WS-ADDR-LINE-1            PIC X(30) VALUE SPACES.
+       01  WS-ADDR-LINE-2            PIC X(30) VALUE SPACES.
+       01  WS-ADDR-PRINT             PIC X(64) VALUE SPACES.
+       01  WS-FX-AMOUNT              PIC 9(9)V9(4) VALUE ZERO.
+       01  WS-FX-ROUNDED             PIC 9(9)V99 VALUE ZERO.
+       01  WS-STMT-MESSAGE           PIC X(40) VALUE SPACES.
+       01  WS-UTIL-PCT               PIC 9(3)V99 VALUE ZERO.
+       01  WS-UTIL-BAND              PIC X(6) VALUE SPACES.
+       01  WS-SANCTIONED-LMT         PIC 9(9)V99 VALUE 1.
+       01  WS-CURRENT-BAL            PIC 9(9)V99 VALUE ZERO.
+       COPY XCEMP04.
+       01  WS-CREDIT-LIMIT           PIC 9(9)V99 VALUE ZERO.
+       01  WS-CREDIT-AMT             PIC 9(7)V99 VALUE ZERO.
+       01  WS-PCT-AMOUNT             PIC 9(9)V99 VALUE ZERO.
+       01  WS-THRESHOLD              PIC 9(9)V99 VALUE ZERO.
+       01  WS-DISPUTED               PIC X(1) VALUE 'N'.
+       01  WS-ACTION                 PIC X(12) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           PERFORM 0100-INITIALISE
+           PERFORM 0150-CHECK-RUN-DATE
+           PERFORM 0200-LOAD-BRANCHES
+           PERFORM 0160-LEAP-YEAR
+           PERFORM 0210-FIND-BRANCH
+           PERFORM 0250-NORMALISE-NAME
+           PERFORM 0260-FORMAT-ADDRESS
+           PERFORM 0300-STATUS-TEXT
+           PERFORM 0350-AGE-BUCKET
+           PERFORM 0450-BUILD-AUDIT-KEY
+           PERFORM 0500-ACCOUNT-CHECKSUM
+           ACCEPT WS-CREDIT-LIMIT
+           ACCEPT WS-CREDIT-AMT
+           ACCEPT WS-DISPUTED
+           MOVE WS-CREDIT-AMT TO WS-AMT-WORK
+           PERFORM 2000-THRESHOLD
+           PERFORM 3000-ROUTE
+           DISPLAY 'ACTION: ' WS-ACTION
+           PERFORM 0400-FORMAT-AMOUNT
+           PERFORM 0410-REWARD-POINTS
+           PERFORM 0420-FX-ROUNDING
+           PERFORM 0430-UTILISATION-BAND
+           PERFORM 0460-STATEMENT-MESSAGE
+           PERFORM 0550-PAGE-CONTROL
+           PERFORM 0600-WRITE-AUDIT
+           PERFORM 0900-RUN-STATISTICS
+           STOP RUN.
+       2000-THRESHOLD.
+           COMPUTE WS-PCT-AMOUNT ROUNDED =
+                   WS-CREDIT-LIMIT * WS-EMI-CUTOFF-PCT
+           IF WS-PCT-AMOUNT < WS-EMI-CUTOFF-CAP
+              MOVE WS-PCT-AMOUNT TO WS-THRESHOLD
+           ELSE
+              MOVE WS-EMI-CUTOFF-CAP TO WS-THRESHOLD
+           END-IF.
+       3000-ROUTE.
+           EVALUATE TRUE
+              WHEN WS-DISPUTED = 'Y'
+                 MOVE 'HOLD-DISPUTE' TO WS-ACTION
+              WHEN WS-CREDIT-AMT > WS-THRESHOLD
+                 MOVE 'SEEK-CONSENT' TO WS-ACTION
+              WHEN OTHER
+                 MOVE 'ADJUST' TO WS-ACTION
+           END-EVALUATE.
+       0100-INITIALISE.
+           MOVE ZERO TO WS-LINE-COUNT WS-PAGE-COUNT
+           MOVE ZERO TO WS-RECORDS-SEEN WS-ERRORS-SEEN
+           MOVE FUNCTION CURRENT-DATE TO WS-RUN-STAMP
+           MOVE 'ACCOUNT CONTROL REPORT' TO WS-HDR-TITLE.
+       0150-CHECK-RUN-DATE.
+           MOVE 'Y' TO WS-RUN-OK
+           IF WS-RUN-YYYY < 1990 OR WS-RUN-YYYY > 2099
+              MOVE 'N' TO WS-RUN-OK
+              ADD 1 TO WS-ERRORS-SEEN
+           END-IF
+           IF WS-RUN-MM < 1 OR WS-RUN-MM > 12
+              MOVE 'N' TO WS-RUN-OK
+           END-IF.
+       0200-LOAD-BRANCHES.
+           MOVE 'MUM1' TO WS-BRANCH-CODE (1)
+           MOVE 'DEL1' TO WS-BRANCH-CODE (2)
+           MOVE 'BLR1' TO WS-BRANCH-CODE (3)
+           MOVE 'CHN1' TO WS-BRANCH-CODE (4)
+           MOVE 'HYD1' TO WS-BRANCH-CODE (5)
+           MOVE 'KOL1' TO WS-BRANCH-CODE (6)
+           MOVE 'PUN1' TO WS-BRANCH-CODE (7)
+           MOVE 'AHM1' TO WS-BRANCH-CODE (8)
+           MOVE 'JAI1' TO WS-BRANCH-CODE (9).
+       0160-LEAP-YEAR.
+           DIVIDE WS-RUN-YYYY BY 4 GIVING WS-DIGIT
+                  REMAINDER WS-YEAR-REM-4
+           DIVIDE WS-RUN-YYYY BY 100 GIVING WS-DIGIT
+                  REMAINDER WS-YEAR-REM-100
+           DIVIDE WS-RUN-YYYY BY 400 GIVING WS-DIGIT
+                  REMAINDER WS-YEAR-REM-400
+           MOVE 'N' TO WS-LEAP-YEAR
+           IF WS-YEAR-REM-4 = ZERO AND WS-YEAR-REM-100 NOT = ZERO
+              MOVE 'Y' TO WS-LEAP-YEAR
+           END-IF
+           IF WS-YEAR-REM-400 = ZERO
+              MOVE 'Y' TO WS-LEAP-YEAR
+           END-IF.
+       0210-FIND-BRANCH.
+           MOVE 'N' TO WS-BRANCH-FOUND
+           PERFORM VARYING WS-BX FROM 1 BY 1 UNTIL WS-BX > 9
+              IF WS-BRANCH-CODE (WS-BX) = WS-BRANCH-WANTED
+                 MOVE 'Y' TO WS-BRANCH-FOUND
+              END-IF
+           END-PERFORM.
+       0250-NORMALISE-NAME.
+           INSPECT WS-CUST-NAME CONVERTING
+              'abcdefghijklmnopqrstuvwxyz'
+              TO 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+           IF WS-CUST-NAME = SPACES
+              MOVE 'UNNAMED' TO WS-CUST-NAME
+           END-IF.
+       0260-FORMAT-ADDRESS.
+           MOVE SPACES TO WS-ADDR-PRINT
+           STRING WS-ADDR-LINE-1 DELIMITED BY '  '
+                  ', ' DELIMITED BY SIZE
+                  WS-ADDR-LINE-2 DELIMITED BY '  '
+                  INTO WS-ADDR-PRINT
+           END-STRING.
+       0300-STATUS-TEXT.
+           EVALUATE WS-ACCT-STATUS
+              WHEN 'A' MOVE 'ACTIVE' TO WS-STATUS-TEXT
+              WHEN 'S' MOVE 'SUSPENDED' TO WS-STATUS-TEXT
+              WHEN 'C' MOVE 'CLOSED' TO WS-STATUS-TEXT
+              WHEN 'W' MOVE 'WRITTEN-OFF' TO WS-STATUS-TEXT
+              WHEN OTHER MOVE 'UNKNOWN' TO WS-STATUS-TEXT
+           END-EVALUATE.
+       0350-AGE-BUCKET.
+           EVALUATE TRUE
+              WHEN WS-ACCT-AGE-MONTHS < 6
+                 MOVE 'NEW' TO WS-AGE-BUCKET
+              WHEN WS-ACCT-AGE-MONTHS < 36
+                 MOVE 'GROWTH' TO WS-AGE-BUCKET
+              WHEN OTHER
+                 MOVE 'MATURE' TO WS-AGE-BUCKET
+           END-EVALUATE.
+       0450-BUILD-AUDIT-KEY.
+           MOVE SPACES TO WS-AUDIT-KEY
+           STRING WS-RUN-YYYY WS-RUN-MM WS-RUN-DD '-'
+                  WS-ACCT-NUMBER DELIMITED BY SIZE
+                  INTO WS-AUDIT-KEY
+           END-STRING.
+       0500-ACCOUNT-CHECKSUM.
+           MOVE ZERO TO WS-CHECK-SUM
+           PERFORM VARYING WS-DIGIT-IX FROM 1 BY 1
+                   UNTIL WS-DIGIT-IX > 11
+              MOVE WS-ACCT-NUMBER (WS-DIGIT-IX:1) TO WS-DIGIT
+              COMPUTE WS-CHECK-SUM = FUNCTION MOD
+                      (WS-CHECK-SUM * 9 + WS-DIGIT, 9973)
+           END-PERFORM.
+       0400-FORMAT-AMOUNT.
+           MOVE WS-AMT-WORK TO WS-AMT-EDIT
+           ADD 1 TO WS-LINE-COUNT.
+       0410-REWARD-POINTS.
+           COMPUTE WS-REWARD-POINTS = WS-SPEND-AMT / 150
+           IF WS-ACCT-STATUS NOT = 'A'
+              MOVE ZERO TO WS-REWARD-POINTS
+           END-IF.
+       0420-FX-ROUNDING.
+           COMPUTE WS-FX-ROUNDED ROUNDED = WS-FX-AMOUNT
+           MOVE WS-FX-ROUNDED TO WS-AMT-EDIT.
+       0430-UTILISATION-BAND.
+           COMPUTE WS-UTIL-PCT ROUNDED =
+                   WS-CURRENT-BAL * 100 / WS-SANCTIONED-LMT
+           EVALUATE TRUE
+              WHEN WS-UTIL-PCT < 40
+                 MOVE 'LOW' TO WS-UTIL-BAND
+              WHEN WS-UTIL-PCT < 80
+                 MOVE 'MEDIUM' TO WS-UTIL-BAND
+              WHEN OTHER
+                 MOVE 'HIGH' TO WS-UTIL-BAND
+           END-EVALUATE.
+       0460-STATEMENT-MESSAGE.
+           EVALUATE WS-AGE-BUCKET
+              WHEN 'NEW'
+                 MOVE 'WELCOME TO YOUR NEW CARD' TO WS-STMT-MESSAGE
+              WHEN 'GROWTH'
+                 MOVE 'ASK US ABOUT UPGRADES' TO WS-STMT-MESSAGE
+              WHEN OTHER
+                 MOVE 'THANK YOU FOR BANKING WITH US' TO WS-STMT-MESSAGE
+           END-EVALUATE.
+       0550-PAGE-CONTROL.
+           IF WS-LINE-COUNT > 54
+              ADD 1 TO WS-PAGE-COUNT
+              MOVE WS-PAGE-COUNT TO WS-HDR-PAGE
+              MOVE ZERO TO WS-LINE-COUNT
+           END-IF.
+       0600-WRITE-AUDIT.
+           MOVE WS-AUDIT-KEY TO WS-AUD-KEY
+           MOVE WS-STATUS-TEXT TO WS-AUD-STATUS
+           MOVE WS-AGE-BUCKET TO WS-AUD-BUCKET
+           ADD 1 TO WS-RECORDS-SEEN.
+       0900-RUN-STATISTICS.
+           IF WS-ERRORS-SEEN > ZERO
+              MOVE 'N' TO WS-RUN-OK
+           END-IF
+           ADD WS-RECORDS-SEEN TO WS-PAGE-COUNT.

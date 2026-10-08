@@ -1,0 +1,4 @@
+      * NORTH-EAST REGION BUREAU SYNC RUN CONTROL (SHARED)
+       01  WS-XQNE-CIC-CTL.
+           05  WS-XQNE-CIC-RUN       PIC X(1) VALUE 'N'.
+               88  XQNE-CIC-ON       VALUE 'Y'.

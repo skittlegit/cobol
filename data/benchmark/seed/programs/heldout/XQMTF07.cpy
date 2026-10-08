@@ -1,0 +1,4 @@
+      * METRO ACCOUNTS BUREAU SYNC RUN CONTROL (SHARED)
+       01  WS-XQMT-CIC-CTL.
+           05  WS-XQMT-CIC-RUN       PIC X(1) VALUE 'N'.
+               88  XQMT-CIC-ON       VALUE 'Y'.

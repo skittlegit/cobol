@@ -1,0 +1,4 @@
+      * TRAVEL CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-DVPF-PEN-CTL.
+           05  WS-DVPF-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  DVPF-PEN-ON       VALUE 'Y'.

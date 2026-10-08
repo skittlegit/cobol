@@ -1,0 +1,4 @@
+      * SECURED CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-DVPE-PEN-CTL.
+           05  WS-DVPE-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  DVPE-PEN-ON       VALUE 'Y'.
