@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import shutil
+
 import pytest
 
 from cobol_archaeologist.migration import patch
@@ -72,6 +74,7 @@ def test_prompt_contains_finding_scope_and_numbered_source():
     assert case.edit_scope[0].path in prompt
 
 
+@pytest.mark.skipif(shutil.which("cobc") is None, reason="cobc unavailable")
 def test_stored_patch_passes_and_a_noop_edit_fails():
     case, sources = load_case("migration_345332")
     from cobol_archaeologist.migration.case import case_dir
