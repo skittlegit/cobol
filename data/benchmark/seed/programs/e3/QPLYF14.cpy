@@ -1,0 +1,4 @@
+      * LOYALTY CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPLY-PEN-CTL.
+           05  WS-QPLY-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPLY-PEN-ON       VALUE 'Y'.

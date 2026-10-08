@@ -1,0 +1,24 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QTT16.
+      * TRUST - SEPARATE PARAGRAPHS FOR ROLES AND INTERESTS
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-ROLE                   PIC X(1) VALUE SPACE.
+       01  WS-INTEREST               PIC 9(3)V99 VALUE ZERO.
+       01  WS-IDENTIFY               PIC X(1) VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-ROLE
+           ACCEPT WS-INTEREST
+           PERFORM 2000-ROLES
+           PERFORM 3000-BENEFICIARIES
+           DISPLAY 'IDENTIFY: ' WS-IDENTIFY
+           STOP RUN.
+       2000-ROLES.
+           IF WS-ROLE = 'A' OR 'T' OR 'C'
+              MOVE 'Y' TO WS-IDENTIFY
+           END-IF.
+       3000-BENEFICIARIES.
+           IF WS-ROLE = 'B' AND WS-INTEREST >= 15.00
+              MOVE 'Y' TO WS-IDENTIFY
+           END-IF.

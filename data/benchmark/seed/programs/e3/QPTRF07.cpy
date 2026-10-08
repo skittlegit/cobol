@@ -1,0 +1,4 @@
+      * TRAVEL CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPTR-PEN-CTL.
+           05  WS-QPTR-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPTR-PEN-ON       VALUE 'Y'.

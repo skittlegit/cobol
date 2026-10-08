@@ -1,0 +1,32 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QLDOR16.
+      * UNUSED CARD CLOSURE AFTER NO REPLY
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-RUN-COUNT              PIC 9(5) VALUE ZERO.
+       01  WS-MONTHS-UNUSED          PIC 9(3) VALUE ZERO.
+       01  WS-DAYS-SINCE-NOTICE      PIC 9(3) VALUE ZERO.
+       01  WS-REPLY                  PIC X(1) VALUE 'N'.
+       01  WS-DUES                   PIC 9(9)V99 VALUE ZERO.
+       01  WS-STEP                   PIC X(10) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-MONTHS-UNUSED
+           ACCEPT WS-DAYS-SINCE-NOTICE
+           ACCEPT WS-REPLY
+           ACCEPT WS-DUES
+           PERFORM 2000-DORMANT
+           DISPLAY 'STEP: ' WS-STEP
+           STOP RUN.
+       2000-DORMANT.
+      * NOTICE IS SENT WHEN THE CARD PASSES ONE YEAR UNUSED.
+           MOVE 'KEEP' TO WS-STEP
+           IF WS-MONTHS-UNUSED > 12
+              MOVE 'NOTIFIED' TO WS-STEP
+           END-IF
+           IF WS-STEP = 'NOTIFIED' AND WS-REPLY = 'N'
+              AND WS-DAYS-SINCE-NOTICE > 30 AND WS-DUES = ZERO
+              MOVE 'CLOSE+CIC' TO WS-STEP
+           END-IF
+           ADD 1 TO WS-RUN-COUNT.

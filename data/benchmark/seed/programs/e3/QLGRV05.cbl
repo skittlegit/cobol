@@ -1,0 +1,23 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QLGRV05.
+      * COMPLAINT ESCALATION TO THE OMBUDSMAN
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-DAYS-SINCE-LODGED      PIC 9(4) VALUE ZERO.
+       01  WS-RESOLVED               PIC X(1) VALUE 'N'.
+       01  WS-ROUTE                  PIC X(10) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-DAYS-SINCE-LODGED
+           ACCEPT WS-RESOLVED
+           PERFORM 2000-ROUTE
+           DISPLAY 'ROUTE: ' WS-ROUTE
+           STOP RUN.
+       2000-ROUTE.
+           MOVE 'INTERNAL' TO WS-ROUTE
+           IF WS-RESOLVED = 'N'
+              IF WS-DAYS-SINCE-LODGED > 30
+                 MOVE 'OMBUDSMAN' TO WS-ROUTE
+              END-IF
+           END-IF.

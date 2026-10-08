@@ -1,0 +1,31 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QTC07.
+      * COMPANY BO - SHARES FROM THE REGISTER, EXACT
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-SHARES-HELD            PIC 9(9) VALUE ZERO.
+       01  WS-SHARES-ISSUED          PIC 9(9) VALUE 1.
+       01  WS-CAPITAL-PCT            PIC 9(3)V99 VALUE ZERO.
+       01  WS-PROFIT-PCT             PIC 9(3)V99 VALUE ZERO.
+       01  WS-OTHER-CONTROL          PIC X(1) VALUE 'N'.
+       01  WS-IS-BO                  PIC X(1) VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-SHARES-HELD
+           ACCEPT WS-SHARES-ISSUED
+           ACCEPT WS-CAPITAL-PCT
+           ACCEPT WS-PROFIT-PCT
+           ACCEPT WS-OTHER-CONTROL
+           PERFORM 2000-TEST
+           DISPLAY 'BO: ' WS-IS-BO
+           STOP RUN.
+       2000-TEST.
+           MOVE 'N' TO WS-IS-BO
+           IF WS-SHARES-HELD * 4 > WS-SHARES-ISSUED
+      *     MORE THAN ONE QUARTER (25 PER CENT) OF THE ISSUED SHARES.
+              MOVE 'Y' TO WS-IS-BO
+           END-IF
+           IF WS-CAPITAL-PCT > 25 OR WS-PROFIT-PCT > 25
+              OR WS-OTHER-CONTROL = 'Y'
+              MOVE 'Y' TO WS-IS-BO
+           END-IF.

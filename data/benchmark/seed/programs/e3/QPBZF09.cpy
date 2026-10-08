@@ -1,0 +1,4 @@
+      * BUSINESS CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPBZ-PEN-CTL.
+           05  WS-QPBZ-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPBZ-PEN-ON       VALUE 'Y'.

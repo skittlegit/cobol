@@ -1,0 +1,4 @@
+      * CORPORATE CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPCO-PEN-CTL.
+           05  WS-QPCO-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPCO-PEN-ON       VALUE 'Y'.

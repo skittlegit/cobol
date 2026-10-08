@@ -1,0 +1,25 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QTP22.
+      * PARTNERSHIP BO - CAPITAL FROM CONTRIBUTIONS, EXACT
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-CONTRIBUTION           PIC 9(9) VALUE ZERO.
+       01  WS-FIRM-CAPITAL           PIC 9(9) VALUE 1.
+       01  WS-PROFIT-PCT             PIC 9(3)V99 VALUE ZERO.
+       01  WS-MGMT-CONTROL           PIC X(1) VALUE 'N'.
+       01  WS-IS-BO                  PIC X(1) VALUE 'N'.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-CONTRIBUTION
+           ACCEPT WS-FIRM-CAPITAL
+           ACCEPT WS-PROFIT-PCT
+           ACCEPT WS-MGMT-CONTROL
+           PERFORM 2000-PARTNER
+           DISPLAY 'BO: ' WS-IS-BO
+           STOP RUN.
+       2000-PARTNER.
+           MOVE 'N' TO WS-IS-BO
+           IF WS-CONTRIBUTION * 100 > 15 * WS-FIRM-CAPITAL
+              OR WS-PROFIT-PCT > 15 OR WS-MGMT-CONTROL = 'Y'
+              MOVE 'Y' TO WS-IS-BO
+           END-IF.
