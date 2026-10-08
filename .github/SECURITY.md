@@ -2,9 +2,9 @@
 
 ## Status and scope
 
-COBOL Archaeologist is a **pre-release research project and benchmark**. There
-are no tagged releases yet; security fixes land on the default branch. This
-policy will be revised when the project publishes tagged releases.
+COBOL Archaeologist is a **research project and benchmark**. Only the latest
+tagged release and the default branch are supported; security fixes land on
+the default branch and ship in the next release.
 
 The benchmark corpora are public code — AWS CardDemo (Apache 2.0) and IBM CICS
 CBSA (EPL 2.0). The **security-sensitive surface is the running system**,
