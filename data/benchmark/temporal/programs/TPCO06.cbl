@@ -4,15 +4,18 @@
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  WS-SHARE-PCT              PIC 9(3)V99 VALUE ZERO.
+       01  WS-CAPITAL-PCT            PIC 9(3)V99 VALUE ZERO.
        01  WS-PROFIT-PCT             PIC 9(3)V99 VALUE ZERO.
        01  WS-OTHER-CONTROL          PIC X VALUE 'N'.
        01  WS-IS-BO                  PIC X VALUE 'N'.
        PROCEDURE DIVISION.
        1000-MAIN.
            ACCEPT WS-SHARE-PCT
+           ACCEPT WS-CAPITAL-PCT
            ACCEPT WS-PROFIT-PCT
            ACCEPT WS-OTHER-CONTROL
-           CALL 'TPCO06R' USING WS-SHARE-PCT WS-PROFIT-PCT
-                                WS-OTHER-CONTROL WS-IS-BO
+           CALL 'TPCO06R' USING WS-SHARE-PCT WS-CAPITAL-PCT
+                                WS-PROFIT-PCT WS-OTHER-CONTROL
+                                WS-IS-BO
            DISPLAY 'BO: ' WS-IS-BO
            STOP RUN.

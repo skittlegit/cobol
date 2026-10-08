@@ -40,6 +40,7 @@ Full report: `data/eval/test/report.md`; details in `docs/tasks/E1.md`.
 | B1 | Fresh held-out test split (145 rows) | done | [B1](docs/tasks/B1.md) |
 | B2 | Fresh temporal pairs (22) | done | [B2](docs/tasks/B2.md) |
 | E1 | Official run and decision (NO_GO) | done | [E1](docs/tasks/E1.md) |
+| E2 | Second evaluation: corrected temporal programs, same detector | in progress | [E2](docs/tasks/E2.md) |
 | M1 | Simplify migration | done | [M1](docs/tasks/M1.md) |
 | P1 | Regenerate paper, datasheet, and release | done | [P1](docs/tasks/P1.md) |
 | S1 | Project site generated from the canonical results | in progress | [S1](docs/tasks/S1.md) |

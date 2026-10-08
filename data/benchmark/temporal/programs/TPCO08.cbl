@@ -5,21 +5,27 @@
        WORKING-STORAGE SECTION.
        01  WS-BO-LIMIT               PIC 9(3)V99 VALUE 25.00.
        01  WS-HOLDERS.
-           05  WS-HOLDER-PCT        PIC 9(3)V99 OCCURS 5 TIMES.
+           05  WS-HOLDER OCCURS 5 TIMES.
+               10  WS-HOLDER-PCT    PIC 9(3)V99.
+               10  WS-HOLDER-CTRL   PIC X.
        01  WS-IX                     PIC 9 VALUE ZERO.
        01  WS-BO-COUNT               PIC 9 VALUE ZERO.
        PROCEDURE DIVISION.
        1000-MAIN.
            PERFORM VARYING WS-IX FROM 1 BY 1 UNTIL WS-IX > 5
               ACCEPT WS-HOLDER-PCT (WS-IX)
+              ACCEPT WS-HOLDER-CTRL (WS-IX)
            END-PERFORM
            PERFORM 2000-COUNT
            DISPLAY 'BO COUNT: ' WS-BO-COUNT
            STOP RUN.
        2000-COUNT.
+      * HOLDER-PCT IS THE LARGEST OF SHARES, CAPITAL AND PROFITS;
+      * HOLDER-CTRL IS 'Y' FOR CONTROL THROUGH OTHER MEANS.
            MOVE ZERO TO WS-BO-COUNT
            PERFORM VARYING WS-IX FROM 1 BY 1 UNTIL WS-IX > 5
               IF WS-HOLDER-PCT (WS-IX) > WS-BO-LIMIT
+                 OR WS-HOLDER-CTRL (WS-IX) = 'Y'
                  ADD 1 TO WS-BO-COUNT
               END-IF
            END-PERFORM.

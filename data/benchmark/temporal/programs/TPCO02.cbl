@@ -9,6 +9,7 @@
            05  WS-CAPITAL            PIC 9(3)V99 VALUE ZERO.
            05  WS-PROFITS            PIC 9(3)V99 VALUE ZERO.
        01  WS-APPOINTS-MAJORITY      PIC X VALUE 'N'.
+       01  WS-POLICY-CONTROL         PIC X VALUE 'N'.
        01  WS-OWNER-TYPE             PIC X(10) VALUE SPACES.
        PROCEDURE DIVISION.
        1000-MAIN.
@@ -16,6 +17,7 @@
            ACCEPT WS-CAPITAL
            ACCEPT WS-PROFITS
            ACCEPT WS-APPOINTS-MAJORITY
+           ACCEPT WS-POLICY-CONTROL
            PERFORM 2000-CLASSIFY
            DISPLAY 'OWNER: ' WS-OWNER-TYPE
            STOP RUN.
@@ -26,7 +28,7 @@
               OR WS-PROFITS > WS-CONTROLLING-PCT
               MOVE 'OWNERSHIP' TO WS-OWNER-TYPE
            ELSE
-              IF WS-APPOINTS-MAJORITY = 'Y'
+              IF WS-APPOINTS-MAJORITY = 'Y' OR WS-POLICY-CONTROL = 'Y'
                  MOVE 'CONTROL' TO WS-OWNER-TYPE
               END-IF
            END-IF.
