@@ -1,0 +1,4 @@
+      * PLATINUM CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-DVPB-PEN-CTL.
+           05  WS-DVPB-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  DVPB-PEN-ON       VALUE 'Y'.

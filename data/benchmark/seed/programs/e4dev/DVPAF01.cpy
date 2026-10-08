@@ -1,0 +1,4 @@
+      * RETAIL CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-DVPA-PEN-CTL.
+           05  WS-DVPA-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  DVPA-PEN-ON       VALUE 'Y'.

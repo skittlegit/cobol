@@ -1,0 +1,4 @@
+      * GOVT EMPLOYEE CARDS BUREAU SYNC RUN CONTROL (SHARED)
+       01  WS-XQGV-CIC-CTL.
+           05  WS-XQGV-CIC-RUN       PIC X(1) VALUE 'N'.
+               88  XQGV-CIC-ON       VALUE 'Y'.

@@ -1,0 +1,4 @@
+      * STUDENT CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-DVPD-PEN-CTL.
+           05  WS-DVPD-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  DVPD-PEN-ON       VALUE 'Y'.

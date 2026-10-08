@@ -1,0 +1,4 @@
+      * PRIORITY ACCOUNTS BUREAU SYNC RUN CONTROL (SHARED)
+       01  WS-XQPR-CIC-CTL.
+           05  WS-XQPR-CIC-RUN       PIC X(1) VALUE 'N'.
+               88  XQPR-CIC-ON       VALUE 'Y'.

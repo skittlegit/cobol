@@ -29,11 +29,13 @@ def test_hosts_cover_each_interprocedural_operator():
 
 def test_test_split_uses_only_held_out_bases_and_no_shared_group():
     test = _split("test")
-    held_out = {path.name for path in (BENCHMARK / "seed" / "programs" / "e3").iterdir()}
+    held_out = {path.name for path in (BENCHMARK / "seed" / "programs" / "e4").iterdir()}
     used = {_base_group(row) for row in _split("train") + _split("dev")}
 
-    assert len(test) == 116
-    assert sum(row.code_locus.is_interprocedural for row in test) >= 45
+    assert len(test) == 95
+    cross = [row for row in test if row.code_locus.is_interprocedural]
+    assert len(cross) >= 70
+    assert sum(row.drift_type == "D7_conformant" for row in cross) >= 30
     assert all(row.provenance.base_program in held_out for row in test)
     assert not {_base_group(row) for row in test} & used
 

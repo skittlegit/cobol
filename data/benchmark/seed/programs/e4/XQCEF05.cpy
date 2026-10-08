@@ -1,0 +1,4 @@
+      * CENTRAL REGION BUREAU SYNC RUN CONTROL (SHARED)
+       01  WS-XQCE-CIC-CTL.
+           05  WS-XQCE-CIC-RUN       PIC X(1) VALUE 'N'.
+               88  XQCE-CIC-ON       VALUE 'Y'.
