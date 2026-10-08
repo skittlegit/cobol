@@ -89,7 +89,7 @@ def results_section(report: dict[str, Any]) -> str:
         for name, measured, required, ok in gate_rows(report)
     )
     matrix = report["detector"]["confusion"]
-    columns = list(next(iter(matrix.values())))
+    columns = sorted(next(iter(matrix.values())), key=lambda c: (c == "ABSTAIN", c))
     head = "".join(f"<th>{E(c[:2] if c != 'ABSTAIN' else 'abst.')}</th>" for c in columns)
     body = "".join(
         f"<tr><th>{E(gold[:2])}</th>"

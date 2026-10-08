@@ -12,8 +12,14 @@ is built from programs used in no other split, and 22 temporal pairs judge the
 same program under two versions of a clause. The detector is a tool-using
 model (gpt-6-luna) that must verify every finding against executed, static, or
 entailment evidence before it counts; an unverified finding becomes an
-abstention. Gates were fixed before the test split was run.
-RESULT: written from `data/eval/test/report.json` after the official run.
+abstention. Gates were fixed before the test split was run. The official
+decision is NO_GO: on the test split the detector reaches class F1 0.882 and
+balanced accuracy 0.842 with every finding verified, and beats a
+retrieval-reranking baseline on cross-program rows by +0.165 F1 (95% CI
+0.089–0.258, p = 0.0001), but temporal paired accuracy is 15/22 (0.682),
+one pair short of the 0.70 bar. Most temporal failures trace to an authoring
+error in our own temporal programs, which we report rather than correct
+after the fact.
 
 ## Task
 
@@ -104,7 +110,8 @@ becomes an abstention.
 
 **Development.** The detector was tuned only on train and dev. Three rounds
 on a fixed 30-row dev subset at `high` effort raised its balanced accuracy on
-that subset from 0.62 to 0.78 through class-arbitration rules (for example: a
+that subset from 0.62 to 0.78, and three full dev runs raised dev balanced
+accuracy from 0.757 to 0.876, through class-arbitration rules (for example: a
 gate compared against zero is a contradiction, not a stale value; doing more
 than the clause requires is not drift; judge the obligation the program
 implements). The method version is a hash of every file that can change an
@@ -135,8 +142,41 @@ and temporal pairs are run once for the frozen detector, at effort `max`.
 
 ## Results
 
-RESULT: gate table, confusion matrix, and per-stratum scores from
-`data/eval/test/report.md`, with the dev run for comparison.
+**Decision: NO_GO.** Six of seven gates pass on the test split.
+
+| Gate | Test | Required | Pass | Dev (frozen detector, `high`) |
+| --- | --- | --- | --- | --- |
+| Class F1 | 0.882 | >= 0.70 | yes | 0.943 |
+| Balanced accuracy | 0.842 | >= 0.65 | yes | 0.876 |
+| Answer rate | 1.000 | >= 0.60 | yes | 0.981 |
+| Answered accuracy | 0.848 | >= 0.80 | yes | 0.927 |
+| Cross-program F1 advantage over the baseline | +0.165 (CI 0.089–0.258, p = 0.0001, n = 60) | >= +0.10 | yes | not run |
+| Temporal paired accuracy | 15/22 = 0.682 | >= 0.70 | no | not run |
+| Unverified findings | 0 | 0 | yes | 0 |
+
+Per-class recall on test: D1 31/32, D2 4/6, D3 21/21, D4 4/5, D5 9/9, D6
+4/22, D7 41/50. The detector answered every test row, and no emitted finding
+failed verification.
+
+**Dead compliance code.** D6 is the clear weakness: 4 of 22. Most test D6
+rows are two-step batch chains in which one program sets a run flag and the
+accrual program accepts it. The detector usually judged the accrual program on
+its own and called it conformant or missing a rule, instead of tracing the
+flag to the program that can never enable it. A dev-tuned rule for exactly
+this did not transfer.
+
+**Temporal pairs.** Seven pairs failed: one new side abstained, one old side
+was called a boundary error, and five old sides were called D2. Reading those
+rationales, at least four of the five are correct about the code: the
+programs we wrote for the temporal set test the old threshold but omit part
+of the clause (a capital or profits leg, the control route, or the author and
+trustee roles). Their conformant labels are therefore wrong. We found this
+only after the run, so the decision stands; a corrected temporal set needs a
+new evaluation.
+
+**Cross-program rows.** On the 60 cross-program test rows the detector's F1
+exceeds the retrieval-reranking baseline by 0.165, with a bootstrap interval
+above zero and a paired randomisation p-value of 0.0001.
 
 ## Migration
 
@@ -180,7 +220,9 @@ regulatory evidence. We make no claim of priority.
   so rows within a family share structure.
 - The test split has no hand-curated rows; the 43 annotated rows are in dev.
 - Every temporal pair has the same direction (old side conformant, new side
-  D1), and all come from beneficial-owner thresholds.
+  D1), and all come from beneficial-owner thresholds. Several temporal
+  programs omit part of the clause, so their conformant labels are wrong (see
+  Results).
 - The plausibility judge (Claude) also wrote the fresh seed programs. It is
   independent of the system under test, not of the benchmark's authorship.
 - Compiler probes show behaviour on specified inputs, not semantic

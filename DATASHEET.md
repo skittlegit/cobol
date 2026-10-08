@@ -97,6 +97,12 @@ original source line numbers.
   row's edit touches. For a cross-program chain the second program is in the
   bundle only when the edit is there, so on the same host a D6 row carries two
   programs and a benign row carries one.
+- Found after the official run: several temporal programs (TPCO04, TPCO06,
+  TPCO08, TPTR07, arguably TPCO02) test the old threshold but omit part of the
+  clause (a capital or profits leg, the control route, or the author and
+  trustee roles), so their conformant (old-side) labels are wrong. They are
+  left unchanged because the official result was computed on them; a
+  corrected set needs a new evaluation.
 - Every fresh temporal pair has the same direction (old side conformant, new
   side D1), and all come from beneficial-owner thresholds, the only numeric
   changes in the anchor regulations that could be verified in the pinned
