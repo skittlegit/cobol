@@ -1,25 +1,25 @@
 # Detector report: test split
 
-**Decision: GO**
+**Decision: NO_GO**
 
 | Gate | Measured | Required | Pass |
 | --- | --- | --- | --- |
-| T1 F1 | 0.882 | >= 0.7 | yes |
-| Balanced accuracy | 0.842 | >= 0.65 | yes |
-| Answer rate | 1.000 | >= 0.6 | yes |
-| Answered accuracy | 0.848 | >= 0.8 | yes |
-| Interprocedural F1 vs rag_reranker | +0.165 (CI 0.089..0.258, p=0.0001, n=60) | >= +0.10, CI > 0, p < 0.05 | yes |
-| Temporal paired accuracy | 19/22 = 0.864 | >= 0.7 on >= 20 pairs | yes |
+| T1 F1 | 0.961 | >= 0.7 | yes |
+| Balanced accuracy | 0.938 | >= 0.65 | yes |
+| Answer rate | 0.991 | >= 0.6 | yes |
+| Answered accuracy | 0.957 | >= 0.8 | yes |
+| Interprocedural F1 vs rag_reranker | +0.071 (CI 0.023..0.139, p=0.0307, n=45) | >= +0.10, CI > 0, p < 0.05 | NO |
+| Temporal paired accuracy | 22/22 = 1.000 | >= 0.7 on >= 20 pairs | yes |
 | Unverified findings | 0 | 0 | yes |
 
 ## Confusion matrix (detector)
 
 | gold \ predicted | D1 | D2 | D3 | D4 | D5 | D6 | D7 | ABST |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| D1_stale_threshold | 31 | 0 | 0 | 0 | 0 | 0 | 1 | 0 |
-| D2_missing_rule | 0 | 4 | 2 | 0 | 0 | 0 | 0 | 0 |
-| D3_contradictory | 0 | 0 | 21 | 0 | 0 | 0 | 0 | 0 |
-| D4_stale_reference_data | 0 | 1 | 0 | 4 | 0 | 0 | 0 | 0 |
+| D1_stale_threshold | 26 | 0 | 0 | 0 | 0 | 0 | 1 | 0 |
+| D2_missing_rule | 0 | 4 | 0 | 0 | 0 | 1 | 0 | 0 |
+| D3_contradictory | 0 | 0 | 16 | 0 | 0 | 0 | 0 | 1 |
+| D4_stale_reference_data | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 |
 | D5_boundary_error | 0 | 0 | 0 | 0 | 9 | 0 | 0 | 0 |
-| D6_dead_code | 0 | 5 | 1 | 0 | 0 | 4 | 12 | 0 |
-| D7_conformant | 2 | 7 | 0 | 0 | 0 | 0 | 41 | 0 |
+| D6_dead_code | 0 | 0 | 0 | 0 | 0 | 15 | 0 | 0 |
+| D7_conformant | 1 | 0 | 1 | 1 | 1 | 0 | 37 | 0 |

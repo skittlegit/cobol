@@ -1,0 +1,4 @@
+      * CASHBACK CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPCA-PEN-CTL.
+           05  WS-QPCA-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPCA-PEN-ON       VALUE 'Y'.

@@ -1,0 +1,27 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QLCKY08.
+      * CKYCR UPDATE AFTER CUSTOMER CHANGE
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-UPDATE-RECEIVED        PIC X(1) VALUE 'N'.
+       01  WS-DAYS-SINCE-RECEIPT     PIC 9(3) VALUE ZERO.
+       01  WS-SENT-TO-CKYCR          PIC X(1) VALUE 'N'.
+       01  WS-SLA                    PIC X(8) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-UPDATE-RECEIVED
+           ACCEPT WS-DAYS-SINCE-RECEIPT
+           ACCEPT WS-SENT-TO-CKYCR
+           PERFORM 2000-SLA
+           DISPLAY 'SLA: ' WS-SLA
+           STOP RUN.
+       2000-SLA.
+           MOVE 'NA' TO WS-SLA
+           IF WS-UPDATE-RECEIVED = 'Y' AND WS-SENT-TO-CKYCR = 'N'
+              IF WS-DAYS-SINCE-RECEIPT > 7
+                 MOVE 'BREACH' TO WS-SLA
+              ELSE
+                 MOVE 'PENDING' TO WS-SLA
+              END-IF
+           END-IF.

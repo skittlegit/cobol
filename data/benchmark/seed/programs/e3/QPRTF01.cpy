@@ -1,0 +1,4 @@
+      * RETAIL CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPRT-PEN-CTL.
+           05  WS-QPRT-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPRT-PEN-ON       VALUE 'Y'.

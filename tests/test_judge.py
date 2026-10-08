@@ -153,23 +153,30 @@ def test_plausibility_gate_requires_ninety_percent():
 
 
 def test_recorded_verdicts_reproduce_the_accepted_rows():
-    # Train/dev rows come from the historical catalogue; the fresh test split
-    # was judged by Claude and written straight to test.jsonl.
+    # Train/dev rows come from the historical catalogue or from later builds
+    # judged by Claude; every current synthetic row has a plausible verdict and
+    # every plausible verdict belongs to a catalogued or current row.
     judgements = load_judgements(BENCHMARK / "judgements.jsonl")
     plausible = {item.instance_id for item in judgements if item.verdict == "plausible"}
-    accepted = {
+    catalogue = {
         row.instance_id
-        for path in ("drift_instances.plausible.jsonl", "test.jsonl")
-        for row in load_instances(BENCHMARK / path)
+        for row in load_instances(BENCHMARK / "drift_instances.plausible.jsonl")
     }
-    assert plausible == accepted
+    current = {
+        row.instance_id
+        for split in ("train", "dev", "test")
+        for row in load_instances(BENCHMARK / f"{split}.jsonl")
+        if row.provenance.source == "synthetic"
+    }
+    assert current <= plausible | catalogue
+    assert plausible <= catalogue | current
     rejected = [
         json.loads(line)["instance"]["instance_id"]
         for line in (BENCHMARK / "rejected.jsonl")
         .read_text(encoding="utf-8")
         .splitlines()
     ]
-    assert len(rejected) + len(accepted) == len(judgements)
+    assert not set(rejected) & current
 
 
 def test_cli_packets_and_apply(tmp_path, capsys):

@@ -1,0 +1,4 @@
+      * PLATINUM CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPPL-PEN-CTL.
+           05  WS-QPPL-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPPL-PEN-ON       VALUE 'Y'.

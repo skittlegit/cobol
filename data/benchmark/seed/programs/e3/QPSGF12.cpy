@@ -1,0 +1,4 @@
+      * SIGNATURE CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPSG-PEN-CTL.
+           05  WS-QPSG-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPSG-PEN-ON       VALUE 'Y'.

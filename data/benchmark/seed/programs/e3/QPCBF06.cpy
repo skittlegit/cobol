@@ -1,0 +1,4 @@
+      * CO-BRANDED CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPCB-PEN-CTL.
+           05  WS-QPCB-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPCB-PEN-ON       VALUE 'Y'.

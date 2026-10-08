@@ -1,0 +1,36 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QTC03.
+      * COMPANY BO - CONTROLLING INTEREST FROM KYC PARMS
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY QTC03P.
+       01  WS-SHARES                 PIC 9(3)V99 VALUE ZERO.
+       01  WS-CAPITAL                PIC 9(3)V99 VALUE ZERO.
+       01  WS-PROFITS                PIC 9(3)V99 VALUE ZERO.
+       01  WS-APPOINTS-MAJORITY      PIC X(1) VALUE 'N'.
+       01  WS-MGMT-POLICY-CTL        PIC X(1) VALUE 'N'.
+       01  WS-BO-ROUTE               PIC X(10) VALUE SPACES.
+       PROCEDURE DIVISION.
+       1000-MAIN.
+           ACCEPT WS-SHARES
+           ACCEPT WS-CAPITAL
+           ACCEPT WS-PROFITS
+           ACCEPT WS-APPOINTS-MAJORITY
+           ACCEPT WS-MGMT-POLICY-CTL
+           PERFORM 2000-ROUTE
+           DISPLAY 'ROUTE: ' WS-BO-ROUTE
+           STOP RUN.
+       2000-ROUTE.
+           EVALUATE TRUE
+              WHEN WS-SHARES > CK-CONTROLLING-INT
+                 MOVE 'SHARES' TO WS-BO-ROUTE
+              WHEN WS-CAPITAL > CK-CONTROLLING-INT
+                 MOVE 'CAPITAL' TO WS-BO-ROUTE
+              WHEN WS-PROFITS > CK-CONTROLLING-INT
+                 MOVE 'PROFITS' TO WS-BO-ROUTE
+              WHEN WS-APPOINTS-MAJORITY = 'Y'
+              WHEN WS-MGMT-POLICY-CTL = 'Y'
+                 MOVE 'CONTROL' TO WS-BO-ROUTE
+              WHEN OTHER
+                 MOVE 'NONE' TO WS-BO-ROUTE
+           END-EVALUATE.

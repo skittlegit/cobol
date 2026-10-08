@@ -4,26 +4,29 @@ Updated 2026-10-07.
 
 ## Current result
 
-**E2 (second evaluation, 2026-10-08): GO.** Same frozen detector (ea5db367,
-gpt-6-luna at `max`) and gates as E1; the temporal programs were corrected
-and the temporal pairs re-run. Test-split results are E1's.
+**E3 (third evaluation, 2026-10-08): NO_GO.** Fresh 116-row test split and 22
+fresh temporal pairs, written and checked before the run; the same frozen
+detector (method files identical to ea5db367, gpt-6-luna at `max`); gates
+unchanged.
 
 | Gate | Measured | Required | Pass |
 | --- | --- | --- | --- |
-| T1 F1 | 0.882 | >= 0.70 | yes |
-| Balanced accuracy | 0.842 | >= 0.65 | yes |
-| Answer rate | 1.000 | >= 0.60 | yes |
-| Answered accuracy | 0.848 | >= 0.80 | yes |
-| Interprocedural F1 vs rag_reranker | +0.165, CI 0.089..0.258, p = 0.0001, n = 60 | +0.10, CI > 0, p < 0.05 | yes |
-| Temporal paired accuracy | 19/22 = 0.864 | >= 0.70 on >= 20 pairs | yes |
+| T1 F1 | 0.961 | >= 0.70 | yes |
+| Balanced accuracy | 0.938 | >= 0.65 | yes |
+| Answer rate | 0.991 | >= 0.60 | yes |
+| Answered accuracy | 0.957 | >= 0.80 | yes |
+| Interprocedural F1 vs rag_reranker | +0.071, CI 0.023..0.139, p = 0.031, n = 45 | +0.10, CI > 0, p < 0.05 | no |
+| Temporal paired accuracy | 22/22 = 1.000 | >= 0.70 on >= 20 pairs | yes |
 | Unverified findings | 0 | 0 | yes |
 
-**E1 (first official run): NO_GO**, temporal 15/22 = 0.682. Several temporal
-programs omitted part of their clause, so their conformant labels were wrong;
-E2 corrects them. E2 was run after seeing E1's failures, so it is a post-hoc
-re-evaluation of a repaired benchmark (details in
-[E1](docs/tasks/E1.md) and [E2](docs/tasks/E2.md)). Known weakness in both:
-test D6 recall 4/22.
+The only failing gate is the margin over the baseline: on cross-program rows
+the detector is perfect (F1 1.000) but the baseline reaches 0.929, so the
+margin cannot reach 0.10. D6 recall is 15/15 (4/22 in E1). Details in
+[E3](docs/tasks/E3.md).
+
+Earlier runs: **E1 NO_GO** (temporal 15/22; flawed temporal programs),
+**E2 GO** (post-hoc, after correcting those programs). See
+[E1](docs/tasks/E1.md) and [E2](docs/tasks/E2.md).
 
 ## Tasks
 
@@ -39,8 +42,9 @@ test D6 recall 4/22.
 | B2 | Fresh temporal pairs (22) | done | [B2](docs/tasks/B2.md) |
 | E1 | Official run and decision (NO_GO) | done | [E1](docs/tasks/E1.md) |
 | E2 | Second evaluation: corrected temporal programs, same detector (GO) | done | [E2](docs/tasks/E2.md) |
+| E3 | Third evaluation: fresh test split and temporal pairs, same detector (NO_GO) | done | [E3](docs/tasks/E3.md) |
 | M1 | Simplify migration | done | [M1](docs/tasks/M1.md) |
 | P1 | Regenerate paper, datasheet, and release | done | [P1](docs/tasks/P1.md) |
-| S1 | Project site generated from the canonical results | in progress | [S1](docs/tasks/S1.md) |
+| S1 | Project site generated from the canonical results | done | [S1](docs/tasks/S1.md) |
 
 Order: D4 → D5 → B1/B2 → E1 → P1/S1.

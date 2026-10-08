@@ -1,0 +1,4 @@
+      * STUDENT CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPST-PEN-CTL.
+           05  WS-QPST-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPST-PEN-ON       VALUE 'Y'.

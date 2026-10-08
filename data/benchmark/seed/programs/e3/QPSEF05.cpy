@@ -1,0 +1,4 @@
+      * SECURED CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPSE-PEN-CTL.
+           05  WS-QPSE-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPSE-PEN-ON       VALUE 'Y'.

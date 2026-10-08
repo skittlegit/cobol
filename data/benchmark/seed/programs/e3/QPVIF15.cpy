@@ -1,0 +1,4 @@
+      * VIRTUAL CARD CLOSURE PENALTY RUN CONTROL (SHARED)
+       01  WS-QPVI-PEN-CTL.
+           05  WS-QPVI-PEN-RUN       PIC X(1) VALUE 'N'.
+               88  QPVI-PEN-ON       VALUE 'Y'.
