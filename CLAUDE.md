@@ -44,8 +44,8 @@ Source layout (`src/cobol_archaeologist/`):
 
 1. **One version of everything.** No `v1/`, `v2/`, `legacy/`, `-old`, `-rerun`,
    or `sample` copies of code, data, or results. Regenerating something
-   overwrites it in place. Git history (and the tag
-   `archive/pre-consolidation`) is the archive.
+   overwrites it in place. Git history is the archive (the last commit before
+   consolidation is e5595ede).
 2. **One way to do each thing.** Models are called only through
    `eval/codex.py`. Results are written only by `eval/runner.py` and scored
    only by `eval/report.py`. Do not add parallel runners or alternative paths.
