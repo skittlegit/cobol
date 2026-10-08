@@ -37,7 +37,7 @@ function Margin({ comparison, pass }: { comparison: Evaluated["comparison"]; pas
         <CardTitle className="flex flex-wrap items-baseline gap-x-3 text-4xl font-semibold tabular-nums tracking-tight">
           {comparison.delta >= 0 ? "+" : ""}{f3(comparison.delta)}
           <span className="text-sm font-normal text-muted-foreground">
-            95% CI {f3(ciLo)}–{f3(ciHi)} · p = {comparison.p === null ? "–" : comparison.p.toFixed(4)} · n = {comparison.n}
+            95% CI {f3(ciLo)}–{f3(ciHi)} · {comparison.p === null ? "p = –" : comparison.p < 0.001 ? "p < 0.001" : `p = ${comparison.p.toFixed(4)}`} · n = {comparison.n}
           </span>
         </CardTitle>
       </CardHeader>

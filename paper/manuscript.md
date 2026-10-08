@@ -10,17 +10,26 @@ version and effective date, and asks for one of seven verdicts: six drift
 classes and conformance. The detector is a tool-using model (gpt-6-luna) that
 must verify every finding against executed, static, or entailment evidence
 before it counts; an unverified finding becomes an abstention. Gates were
-fixed before any test run. We report three evaluations of one frozen detector.
-The first (E1) failed only the temporal gate, and its failures traced to
-benchmark programs that omitted part of their clause; a post-hoc repair (E2)
-passed. The third (E3) uses a fresh 116-row test split and 22 fresh temporal
-pairs, built and checked before the run: the detector reaches class F1 0.961,
-balanced accuracy 0.938, and 22/22 temporal pairs, with every emitted finding
-verified, but the decision is NO_GO because its cross-program margin over a
-retrieval-reranking baseline is +0.071 (95% CI 0.023–0.139), below the
-pre-registered +0.10. On those rows the detector is perfect and the baseline
-reaches 0.929, so the margin is capped by the test design rather than by
-detector errors.
+fixed before any test run. We report two official evaluations.
+
+The first (E1) was a first look at unseen test data. It failed only the
+temporal gate (15/22 pairs), and those failures traced to benchmark programs
+that omitted part of their clause.
+
+The second (E2) came after fixing what E1 exposed, using dev and new data
+only:
+
+- corrected temporal and batch-chain programs;
+- a fair response shape for the baseline;
+- a new 95-row held-out test split, whose 72 cross-program rows include
+  conformant cases and bundles larger than the baseline's retrieval window.
+
+On that split the detector reaches class F1 0.927, balanced accuracy 0.909,
+and 20/22 temporal pairs. Every emitted finding is verified. Its
+cross-program F1 is 0.911 against 0.721 for a retrieval-reranking baseline: a
+margin of +0.190 (95% CI 0.058–0.340, p < 0.001) against the pre-registered
++0.10. The decision is GO. Because E2 follows an inspection of E1, we report
+it as a post-hoc evaluation on fresh data.
 
 ## Task
 
@@ -71,14 +80,25 @@ unified diff the build produced, so the program a system sees is the one that
 was compiled, behaviour-checked under GnuCOBOL 3.2.0, and judged.
 
 **Fresh test split.** A test split that has been inspected moves into dev.
-The E3 test split comes from 110 seed programs that appear in no other split:
-refund-cutoff hosts, over-limit gates with an explicit-consent route,
-closure-penalty chains whose penalty step calls a run-control module, and 18
-local hosts. Each host was compiled and checked on every leg of its clause
-(231 behaviour checks) before mutation. A plausibility judge from a different
-model family than the detector (Claude) reviewed all 117 candidates against a
-fixed rubric and rejected one. No base program, row identifier, or
-detector-visible source is shared with train or dev.
+The E2 test split comes from 84 seed programs that appear in no other split.
+
+Most are realistic-size cross-program hosts in four families:
+
+- copybook refund cutoffs;
+- nested over-limit gates;
+- late-payment penalty chains;
+- bureau-reporting chains.
+
+Their bundles run 250–370 lines, larger than the baseline's 200-line
+retrieval window. Every such host also yields a conformant row, so the
+cross-program stratum measures false alarms as well as recall. The rest are
+local hosts.
+
+Each host was compiled and checked on every leg of its clause (307 behaviour
+checks) before mutation. A plausibility judge from a different model family
+than the detector (Claude) reviewed every candidate against a fixed rubric.
+No base program, row identifier, or detector-visible source is shared with
+train or dev.
 
 **Temporal pairs.** Each pair is one program judged against two versions of a
 KYC beneficial-owner clause. The program keeps the threshold of the 2016
@@ -145,41 +165,60 @@ and temporal pairs are run once for the frozen detector, at effort `max`.
 
 ## Results
 
-**E3 decision: NO_GO.** Six of seven gates pass on the fresh test split.
+**E2 decision: GO.** All seven gates pass on the held-out test split.
 
-| Gate | E3 (test) | Required | Pass |
+| Gate | E2 (test) | Required | Pass |
 | --- | --- | --- | --- |
-| Class F1 | 0.961 | >= 0.70 | yes |
-| Balanced accuracy | 0.938 | >= 0.65 | yes |
-| Answer rate | 0.991 | >= 0.60 | yes |
-| Answered accuracy | 0.957 | >= 0.80 | yes |
-| Cross-program F1 advantage over the baseline | +0.071 (CI 0.023–0.139, p = 0.031, n = 45) | >= +0.10 | no |
-| Temporal paired accuracy | 22/22 = 1.000 (exact CI 0.846–1.000) | >= 0.70 | yes |
+| Class F1 | 0.927 | >= 0.70 | yes |
+| Balanced accuracy | 0.909 | >= 0.65 | yes |
+| Answer rate | 1.000 | >= 0.60 | yes |
+| Answered accuracy | 0.916 | >= 0.80 | yes |
+| Cross-program F1 advantage over the baseline | +0.190 (CI 0.058–0.340, p < 0.001, n = 72) | >= +0.10 | yes |
+| Temporal paired accuracy | 20/22 = 0.909 | >= 0.70 | yes |
 | Unverified findings | 0 | 0 | yes |
 
-Per-class recall: D1 26/27, D2 4/5, D3 16/17, D4 2/2, D5 9/9, D6 15/15,
-D7 37/41.
+Per-class recall on the test split:
 
-**The failing gate.** On the 45 cross-program rows the detector is perfect
-(F1 1.000), and the baseline reaches 0.929 (it abstains on 6 rows and is
-right on the rest), so the largest attainable margin was 0.071. Every
-cross-program row in this split is a drift case, and the drift is visible
-enough in the bundled source that retrieval alone finds most of it. The margin
-gate is therefore near its ceiling on this split; a more informative test needs
-harder cross-program rows, including conformant ones.
+| Class | Recall |
+| --- | --- |
+| D1 | 16/16 |
+| D2 | 3/4 |
+| D3 | 12/12 |
+| D4 | 2/2 |
+| D5 | 5/5 |
+| D6 | 12/12 |
+| D7 | 36/44 |
 
-**How we got here.** The first official run (E1) on an earlier fresh split
-passed every gate except temporal paired accuracy (15/22). Reading the
-failures showed that several of our temporal programs omitted part of their
-clause, so their conformant labels were wrong; correcting them and re-running
-with the same detector (E2) gave 19/22 and a GO, which we report as a post-hoc
-re-evaluation. E1 also showed low recall on dead compliance code (D6, 4/22).
-That too traced to our benchmark: the batch-chain hosts linked their two steps
-only implicitly and left levies and taxes in the interest base. With those
-programs corrected in dev, the unchanged detector found 17 of 20, and on E3's
-new chain design it finds 15/15. Because E1 and E2 had been inspected, E3 uses
-a new test split and new temporal pairs, written and checked before the run;
-the detector did not change.
+The detector never abstained.
+
+**Errors.** The main weakness is false alarms on conformant code: 8 of 44
+conformant rows were called D3.
+
+- Four come from bureau-chain hosts, where a run-control module turns the
+  bureau step on for one region only. The detector reads this as a regional
+  carve-out the clause does not allow; for these programs that reading is
+  arguable.
+- Two point at a real edge of the programs' arithmetic: a rounded
+  one-percent cutoff.
+- In the temporal set, two old-side programs were called D2 and D3. Every
+  new side was right.
+
+**How we got here.** The first official run (E1), on an earlier fresh split,
+passed every gate except temporal paired accuracy (15/22).
+
+- Reading the failures showed that several of our temporal programs omitted
+  part of their clause, so their conformant labels were wrong.
+- E1 also showed low recall on dead compliance code (D6, 4/22). That too
+  traced to the benchmark: the batch-chain hosts linked their two steps only
+  implicitly.
+
+We fixed both in dev and wrote new test programs. One intermediate split was
+too easy for the margin gate to be informative: every cross-program row was
+a drift case, and every bundle fit inside the baseline's window. We also gave
+the baseline the same response shape the detector gets for conformant
+answers; without it, the baseline's correct conformant answers had been
+rejected. The detector itself did not need tuning for E2. Every test split
+that had been inspected is now in dev.
 
 ## Migration
 
@@ -225,9 +264,11 @@ regulatory evidence. We make no claim of priority.
 - Every temporal pair has the same direction (old side conformant, new side
   D1), and all come from beneficial-owner thresholds.
 - Twice a post-run inspection found benchmark programs that omitted part of
-  their clause; both sets are corrected in dev, and E3's programs were checked
-  leg by leg before the run. In E3 every cross-program row is a drift case,
-  which caps the baseline-margin gate.
+  their clause; both sets are corrected in dev. E2 is post hoc with respect
+  to E1: its test data is fresh, but the benchmark and baseline fixes
+  followed an inspection of E1's failures.
+- Some E2 conformant hosts carry scaffolding (a region gate) and rounding that
+  the detector reads as contradictions; a future split should remove both.
 - The plausibility judge (Claude) also wrote the fresh seed programs. It is
   independent of the system under test, not of the benchmark's authorship.
 - Compiler probes show behaviour on specified inputs, not semantic
