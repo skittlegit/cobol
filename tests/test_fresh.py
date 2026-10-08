@@ -29,7 +29,7 @@ def test_hosts_cover_each_interprocedural_operator():
 
 def test_test_split_uses_only_held_out_bases_and_no_shared_group():
     test = _split("test")
-    held_out = {path.name for path in (BENCHMARK / "seed" / "programs" / "e4").iterdir()}
+    held_out = {path.name for path in (BENCHMARK / "seed" / "programs" / "heldout").iterdir()}
     used = {_base_group(row) for row in _split("train") + _split("dev")}
 
     assert len(test) == 95
