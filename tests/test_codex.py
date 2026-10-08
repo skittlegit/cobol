@@ -302,3 +302,18 @@ def _stdout() -> str:
         {"type": "turn.completed", "usage": {"input_tokens": 1, "output_tokens": 1}},
     ]
     return "\n".join(json.dumps(event) for event in events)
+
+
+def test_method_hash_ignores_line_endings(monkeypatch):
+    lf = {"src/cobol_archaeologist/eval/detector.py": b"a = 1\nb = 2\n"}
+    crlf = {"src/cobol_archaeologist/eval/detector.py": b"a = 1\r\nb = 2\r\n"}
+    changed = {"src/cobol_archaeologist/eval/detector.py": b"a = 1\nb = 3\n"}
+
+    monkeypatch.setattr(codex, "_runtime_files", lambda: lf)
+    lf_hash = codex.method_hash()
+    monkeypatch.setattr(codex, "_runtime_files", lambda: crlf)
+    crlf_hash = codex.method_hash()
+    monkeypatch.setattr(codex, "_runtime_files", lambda: changed)
+
+    assert lf_hash == crlf_hash
+    assert codex.method_hash() != lf_hash
