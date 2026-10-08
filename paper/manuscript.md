@@ -17,9 +17,12 @@ decision is NO_GO: on the test split the detector reaches class F1 0.882 and
 balanced accuracy 0.842 with every finding verified, and beats a
 retrieval-reranking baseline on cross-program rows by +0.165 F1 (95% CI
 0.089–0.258, p = 0.0001), but temporal paired accuracy is 15/22 (0.682),
-one pair short of the 0.70 bar. Most temporal failures trace to an authoring
-error in our own temporal programs, which we report rather than correct
-after the fact.
+one pair short of the 0.70 bar. Most temporal failures traced to our own
+temporal programs, several of which omitted part of their clause. A second
+evaluation with corrected programs and the same frozen detector reaches 19/22
+(0.864) and a GO decision; because it follows an inspection of the first
+run's failures, we report both and treat the second as a post-hoc
+re-evaluation of a repaired benchmark.
 
 ## Task
 
@@ -171,8 +174,18 @@ rationales, at least four of the five are correct about the code: the
 programs we wrote for the temporal set test the old threshold but omit part
 of the clause (a capital or profits leg, the control route, or the author and
 trustee roles). Their conformant labels are therefore wrong. We found this
-only after the run, so the decision stands; a corrected temporal set needs a
-new evaluation.
+only after the run, so the first decision stands.
+
+**Second evaluation.** We then reviewed all 22 temporal programs against
+every leg of their clause, rewrote the seven that were incomplete, and
+re-ran the temporal pairs with the same frozen detector and gates; the
+test-split results are unchanged. Temporal paired accuracy rose to 19/22
+(0.864) and the decision is GO. Three pairs still fail on the old side: two
+because a policy-control flag was not read as covering control of management,
+one because the detector found that `COMPUTE ... ROUNDED` can round a share
+just above 25 percent down to the limit. Since the corrections were made
+after seeing which pairs failed, this is a post-hoc re-evaluation of a
+repaired benchmark, not a first look.
 
 **Cross-program rows.** On the 60 cross-program test rows the detector's F1
 exceeds the retrieval-reranking baseline by 0.165, with a bootstrap interval

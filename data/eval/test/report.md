@@ -1,6 +1,6 @@
 # Detector report: test split
 
-**Decision: NO_GO**
+**Decision: GO**
 
 | Gate | Measured | Required | Pass |
 | --- | --- | --- | --- |
@@ -9,7 +9,7 @@
 | Answer rate | 1.000 | >= 0.6 | yes |
 | Answered accuracy | 0.848 | >= 0.8 | yes |
 | Interprocedural F1 vs rag_reranker | +0.165 (CI 0.089..0.258, p=0.0001, n=60) | >= +0.10, CI > 0, p < 0.05 | yes |
-| Temporal paired accuracy | 15/22 = 0.682 | >= 0.7 on >= 20 pairs | NO |
+| Temporal paired accuracy | 19/22 = 0.864 | >= 0.7 on >= 20 pairs | yes |
 | Unverified findings | 0 | 0 | yes |
 
 ## Confusion matrix (detector)

@@ -37,6 +37,16 @@ CLASSES = [
 
 E = html.escape
 
+# What the current result is and how it relates to earlier runs (no numbers:
+# every number on the page comes from the report).
+HISTORY = (
+    "Second evaluation (E2): the same frozen detector and gates, after the "
+    "temporal programs were corrected. The first official run (E1) was NO-GO "
+    "on the temporal gate because several temporal programs omitted part of "
+    "their clause. E2 follows an inspection of E1's failures, so it is a "
+    "re-evaluation of a repaired benchmark; both runs are recorded in STATUS.md."
+)
+
 
 def load_rows(path: Path) -> list[DriftInstance]:
     return [
@@ -100,8 +110,8 @@ def results_section(report: dict[str, Any]) -> str:
         for gold, row in matrix.items()
     )
     return (
-        f'<div class="decision {E(decision.lower())}"><span class="label">Official result</span>'
-        f"<strong>{E(decision.replace('_', '-'))}</strong></div>"
+        f'<div class="decision {E(decision.lower())}"><span class="label">Current result</span>'
+        f"<strong>{E(decision.replace('_', '-'))}</strong><p>{E(HISTORY)}</p></div>"
         '<div class="scroll"><table><thead><tr><th>Gate</th><th>Measured</th>'
         f"<th>Required</th><th></th></tr></thead><tbody>{rows}</tbody></table></div>"
         "<h3>Confusion matrix (gold rows, predicted columns)</h3>"

@@ -100,9 +100,9 @@ original source line numbers.
 - Found after the official run: several temporal programs (TPCO04, TPCO06,
   TPCO08, TPTR07, arguably TPCO02) test the old threshold but omit part of the
   clause (a capital or profits leg, the control route, or the author and
-  trustee roles), so their conformant (old-side) labels are wrong. They are
-  left unchanged because the official result was computed on them; a
-  corrected set needs a new evaluation.
+  trustee roles), so their conformant (old-side) labels were wrong. The
+  current temporal set corrects these seven programs (E2); the E1 set is in
+  git history at commit 08e2c6f0.
 - Every fresh temporal pair has the same direction (old side conformant, new
   side D1), and all come from beneficial-owner thresholds, the only numeric
   changes in the anchor regulations that could be verified in the pinned

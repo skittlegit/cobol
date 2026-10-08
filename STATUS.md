@@ -4,10 +4,9 @@ Updated 2026-10-07.
 
 ## Current result
 
-The official run (E1, 2026-10-08; detector frozen at commit ea5db367,
-gpt-6-luna at effort `max`; fresh 145-row test split and 22 temporal pairs) is
-**NO_GO**. Six of seven gates pass; temporal paired accuracy misses by one
-pair.
+**E2 (second evaluation, 2026-10-08): GO.** Same frozen detector (ea5db367,
+gpt-6-luna at `max`) and gates as E1; the temporal programs were corrected
+and the temporal pairs re-run. Test-split results are E1's.
 
 | Gate | Measured | Required | Pass |
 | --- | --- | --- | --- |
@@ -16,16 +15,15 @@ pair.
 | Answer rate | 1.000 | >= 0.60 | yes |
 | Answered accuracy | 0.848 | >= 0.80 | yes |
 | Interprocedural F1 vs rag_reranker | +0.165, CI 0.089..0.258, p = 0.0001, n = 60 | +0.10, CI > 0, p < 0.05 | yes |
-| Temporal paired accuracy | 15/22 = 0.682 | >= 0.70 on >= 20 pairs | no |
+| Temporal paired accuracy | 19/22 = 0.864 | >= 0.70 on >= 20 pairs | yes |
 | Unverified findings | 0 | 0 | yes |
 
-Diagnosis (reported, not used to change the decision): 5 of the 7 failed
-pairs fail on the old, conformant side, which the detector called D2. In at
-least four of them (TPCO04, TPCO06, TPCO08, TPTR07) the detector is right: the
-programs written for B2 omit part of the clause (a capital or profits leg, the
-control route, the author and trustee roles), so their conformant label is
-wrong. Test D6 recall is 4/22: most fresh chain hosts were called D7 or D2.
-Full report: `data/eval/test/report.md`; details in `docs/tasks/E1.md`.
+**E1 (first official run): NO_GO**, temporal 15/22 = 0.682. Several temporal
+programs omitted part of their clause, so their conformant labels were wrong;
+E2 corrects them. E2 was run after seeing E1's failures, so it is a post-hoc
+re-evaluation of a repaired benchmark (details in
+[E1](docs/tasks/E1.md) and [E2](docs/tasks/E2.md)). Known weakness in both:
+test D6 recall 4/22.
 
 ## Tasks
 
@@ -40,7 +38,7 @@ Full report: `data/eval/test/report.md`; details in `docs/tasks/E1.md`.
 | B1 | Fresh held-out test split (145 rows) | done | [B1](docs/tasks/B1.md) |
 | B2 | Fresh temporal pairs (22) | done | [B2](docs/tasks/B2.md) |
 | E1 | Official run and decision (NO_GO) | done | [E1](docs/tasks/E1.md) |
-| E2 | Second evaluation: corrected temporal programs, same detector | in progress | [E2](docs/tasks/E2.md) |
+| E2 | Second evaluation: corrected temporal programs, same detector (GO) | done | [E2](docs/tasks/E2.md) |
 | M1 | Simplify migration | done | [M1](docs/tasks/M1.md) |
 | P1 | Regenerate paper, datasheet, and release | done | [P1](docs/tasks/P1.md) |
 | S1 | Project site generated from the canonical results | in progress | [S1](docs/tasks/S1.md) |
