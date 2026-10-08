@@ -19,11 +19,20 @@ code that only looks like compliance. This project provides:
 
 ## Status
 
-See [STATUS.md](STATUS.md). The last official evaluation is **NO_GO**: the
-detector finds drift with high precision (0.87) but cannot reliably tell
-conformant code from drifted code (balanced accuracy 0.53) and fails the
-temporal pairs (7/20). The current work fixes those failure modes and
-evaluates once more on a fresh held-out split.
+See [STATUS.md](STATUS.md) and the project site at
+https://skittlegit.github.io/cobol/. The current official evaluation (E2) is a
+**GO** on a fresh 95-row held-out split:
+
+| Measure | Result |
+| --- | --- |
+| Class F1 | 0.927 |
+| Balanced accuracy | 0.909 |
+| Temporal pairs right on both sides | 20/22 |
+| Cross-program F1 margin over a retrieval-reranking baseline | +0.190 |
+| Unverified findings | 0 |
+
+E2 follows the first-look evaluation (E1, NO_GO), and its fixes were made
+after inspecting E1's failures, so it is reported as post hoc.
 
 ## How it works
 

@@ -21,25 +21,34 @@ loci, one class (D1–D7), program/paragraph/line labels, and a gold rationale.
 | split | rows | synthetic | real-curated | interprocedural |
 | --- | --- | --- | --- | --- |
 | train | 307 | 307 | 0 | 7 |
-| dev | 509 | 400 | 109 | 114 |
-| test | 116 | 116 | 0 | 45 |
+| dev | 673 | 564 | 109 | 207 |
+| test | 95 | 95 | 0 | 72 |
 
 | split | D1 | D2 | D3 | D4 | D5 | D6 | D7 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | train | 54 | 32 | 26 | 2 | 67 | 23 | 103 |
-| dev | 150 | 32 | 59 | 23 | 45 | 45 | 155 |
-| test | 27 | 5 | 17 | 2 | 9 | 15 | 41 |
+| dev | 185 | 37 | 84 | 25 | 54 | 68 | 220 |
+| test | 16 | 4 | 12 | 2 | 5 | 12 | 44 |
 
 Test splits that have been inspected move into dev. The current test split
-(E3, `docs/tasks/E3.md`) is 116 synthetic rows, 45 cross-program, built from
-110 Claude-authored seed programs in `data/benchmark/seed/programs/e3/` that no
-other split uses: refund-cutoff hosts (FUNCTION MIN, EVALUATE), over-limit
-gates with an explicit-consent route, closure-penalty chains whose penalty
-step CALLs a run-control module, and 18 local hosts. Every host implements
-every leg of its clause and passed 231 behaviour checks before mutation;
-Claude judged 117 candidates and rejected one. The E1/E2 test split (145 rows)
-and temporal pairs (44 rows) are now in dev, with their flawed programs
-corrected there.
+(E2, `docs/tasks/E2.md`) has 95 synthetic rows, 72 of them cross-program. Its
+84 Claude-authored seed programs, in `data/benchmark/seed/programs/heldout/`,
+are used by no other split. They come in two kinds:
+
+- **Realistic-size cross-program hosts.** Bundles run 250–370 lines, beyond
+  the retrieval baseline's 200-line window. Four families:
+  - copybook refund cutoffs;
+  - nested over-limit gates;
+  - late-payment penalty chains;
+  - bureau-reporting chains.
+  Every cross-program host also yields a conformant row, with loci in both
+  places.
+- **Local hosts** for the remaining clauses.
+
+Every host implements every leg of its clause. Before mutation, the hosts
+passed 307 behaviour checks under GnuCOBOL 3.2.0. Claude judged every
+candidate. Earlier test splits, and the 48 realistic-size rows used to check
+the detector, are in dev (`seed/programs/e2-dev/`).
 
 **Temporal pairs** (`data/benchmark/temporal/`): 22 pairs, 44 rows, all new
 programs (6 pairs cross-program). Each pair is one byte-identical program
@@ -100,13 +109,16 @@ original source line numbers.
   row's edit touches. For a cross-program chain the second program is in the
   bundle only when the edit is there, so on the same host a D6 row carries two
   programs and a benign row carries one.
-- Twice an inspection after a run found benchmark programs that omitted part
-  of their clause (E1's temporal programs; E1/E2's interest chains). Both sets
-  are corrected in dev. The E3 programs were checked leg by leg before any run.
-- In E3 every cross-program test row is a drift case, and the drift is visible
-  enough that the retrieval baseline finds most of it; the margin gate is
-  therefore near its ceiling. Future splits need harder cross-program rows,
-  including conformant ones.
+- Twice, an inspection after a run found benchmark programs that omitted
+  part of their clause: E1's temporal programs and E1's interest chains. Both
+  sets are corrected in dev. The current programs were checked leg by leg
+  before the run.
+- In the E2 test split, four bureau-chain hosts let a run-control module turn
+  the bureau step on for one region code only. The detector read this as a
+  carve-out the clause does not allow, and called those conformant rows D3.
+  Two refund-cutoff hosts round a one-percent cutoff (`COMPUTE ... ROUNDED`),
+  which is a real arithmetic edge. A future split should drop the region gate
+  and compute cutoffs without rounding.
 - Every fresh temporal pair has the same direction (old side conformant, new
   side D1), and all come from beneficial-owner thresholds, the only numeric
   changes in the anchor regulations that could be verified in the pinned
