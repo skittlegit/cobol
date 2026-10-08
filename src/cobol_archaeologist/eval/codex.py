@@ -265,9 +265,11 @@ def method_hash() -> str:
     guards, or the verifier replaces old results on the next run.
     """
 
+    # Line endings are normalised: a Windows checkout (core.autocrlf) must not
+    # look like a different method.
     return _digest(
         {
-            name: payload
+            name: payload.replace(b"\r\n", b"\n")
             for name, payload in _runtime_files().items()
             if not name.startswith(_NOT_METHOD)
         }
