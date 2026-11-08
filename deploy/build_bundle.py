@@ -129,7 +129,6 @@ def build(output, *, root=ROOT, pip_cache=None, model_cache=None, nli_cache=None
         )
         wheel = next(Path(staging).glob("*.whl"))
         shutil.copyfile(wheel, wheelhouse / wheel.name)
-    versions["cobol-archaeologist"] = "0.1.0"
     requirements = []
     for wheel in sorted(wheelhouse.glob("*.whl")):
         with zipfile.ZipFile(wheel) as archive:
@@ -137,6 +136,8 @@ def build(output, *, root=ROOT, pip_cache=None, model_cache=None, nli_cache=None
                 n for n in archive.namelist() if n.endswith(".dist-info/METADATA")
             )
             headers = email.message_from_bytes(archive.read(met))
+        if canonicalize_name(headers["Name"]) == "cobol-archaeologist":
+            versions["cobol-archaeologist"] = headers["Version"]
         requirements.append(
             f"{headers['Name']}=={headers['Version']} --hash=sha256:{checksum(wheel)}"
         )
