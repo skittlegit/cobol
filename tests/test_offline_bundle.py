@@ -5,11 +5,12 @@ import subprocess
 import sys
 import zipfile
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-from deploy import offline
-from deploy.build_bundle import cached_wheels
+from deploy import build_bundle, offline
+from deploy.build_bundle import MODELS, build, cached_wheels
 
 
 @pytest.fixture
@@ -110,6 +111,53 @@ def test_cached_multi_python_tags_preserved(tmp_path):
     assert (
         cached_wheels(tmp_path)[("demo", "1.0")][1] == "demo-1.0-py2.py3-none-any.whl"
     )
+
+
+def test_manifest_records_the_built_project_version(tmp_path, monkeypatch):
+    root = tmp_path / "root"
+    for relative in (
+        "tests/fixtures/retrieval/chunks.jsonl",
+        "data/regulations/clauses.jsonl",
+        "deploy/offline.py",
+    ):
+        path = root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("{}\n", encoding="utf-8")
+    models = tmp_path / "models"
+    for name, revision in MODELS.values():
+        snapshot = (
+            models
+            / ("models--" + name.replace("/", "--"))
+            / "snapshots"
+            / (revision or "a" * 40)
+        )
+        snapshot.mkdir(parents=True)
+        (snapshot / "model.safetensors").write_bytes(b"unit test payload")
+
+    def fake_wheel_build(args, **kwargs):
+        outdir = Path(args[args.index("--outdir") + 1])
+        wheel = outdir / "cobol_archaeologist-9.9.9-py3-none-any.whl"
+        with zipfile.ZipFile(wheel, "w") as archive:
+            archive.writestr(
+                "cobol_archaeologist-9.9.9.dist-info/METADATA",
+                "Name: cobol-archaeologist\nVersion: 9.9.9\n",
+            )
+
+    monkeypatch.setattr(build_bundle, "dependencies", dict)
+    monkeypatch.setattr(build_bundle, "cached_wheels", lambda cache: {})
+    monkeypatch.setattr(
+        build_bundle, "subprocess", SimpleNamespace(run=fake_wheel_build)
+    )
+
+    manifest = build(
+        tmp_path / "bundle",
+        root=root,
+        pip_cache=tmp_path / "pip",
+        model_cache=models,
+        nli_cache=models,
+    )
+
+    assert manifest["dependencies"]["cobol-archaeologist"] == "9.9.9"
 
 
 def test_guard_allows_private_windows_socketpair():
