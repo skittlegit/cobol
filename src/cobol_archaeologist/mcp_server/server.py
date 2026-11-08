@@ -8,12 +8,14 @@ ToolLayer seam and return its existing Pydantic models directly.
 from __future__ import annotations
 
 import argparse
+import functools
 import os
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver.exceptions import ToolError
 
 from cobol_archaeologist.tool_types import (
     CopybookExpansion,
@@ -54,46 +56,61 @@ class ServerConfig:
     copybook_paths: tuple[Path, ...]
 
 
-def build_server(layer: ToolLayer) -> FastMCP:
+def _reports_failures(function: Callable) -> Callable:
+    """Keep the failure reason visible: MCP 2 hides unanticipated exceptions."""
+
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        try:
+            return function(*args, **kwargs)
+        except Exception as exc:
+            raise ToolError(str(exc)) from exc
+
+    return wrapper
+
+
+def build_server(layer: ToolLayer) -> MCPServer:
     """Register the frozen ToolLayer surface on a local MCP server."""
 
     if not isinstance(layer, ToolLayer):
         raise TypeError("layer must implement tool_types.ToolLayer")
 
-    server = FastMCP(
+    server = MCPServer(
         "COBOL Archaeologist",
         instructions=(
             "Inspect COBOL through bounded structured results and original-source "
             "pointers. Tool lookup failures are errors, not empty evidence."
         ),
-        json_response=True,
     )
 
-    @server.tool()
+    def tool(function: Callable) -> Callable:
+        return server.tool()(_reports_failures(function))
+
+    @tool
     def read_paragraph(program: str, name: str) -> ParagraphView:
         """Read one bounded paragraph with callers, callees, and source pointer."""
 
         return layer.read_paragraph(program, name)
 
-    @server.tool()
+    @tool
     def read_program(program: str) -> ProgramView:
         """List a program's paragraph spans and source path."""
 
         return layer.read_program(program)
 
-    @server.tool()
+    @tool
     def find_callers(program: str, para: str) -> list[NodeRef]:
         """Find call-graph predecessors of a program paragraph."""
 
         return layer.find_callers(program, para)
 
-    @server.tool()
+    @tool
     def find_callees(program: str, para: str) -> list[NodeRef]:
         """Find call-graph successors of a program paragraph."""
 
         return layer.find_callees(program, para)
 
-    @server.tool()
+    @tool
     def trace_variable(
         var: str,
         program: str | None = None,
@@ -102,31 +119,31 @@ def build_server(layer: ToolLayer) -> FastMCP:
 
         return layer.trace_variable(var, program)
 
-    @server.tool()
+    @tool
     def slice_on(var: str, program: str | None = None) -> Slice:
         """Build the interprocedural statement slice for one variable."""
 
         return layer.slice_on(var, program)
 
-    @server.tool()
+    @tool
     def resolve_copybook(name: str) -> CopybookExpansion:
         """Resolve one copybook with bounded text and an original-line map."""
 
         return layer.resolve_copybook(name)
 
-    @server.tool()
+    @tool
     def get_data_layout(record: str) -> DataLayout:
         """Return the typed field tree and original-source pointer for a record."""
 
         return layer.get_data_layout(record)
 
-    @server.tool()
+    @tool
     def grep(pattern: str) -> GrepResult:
         """Regex-search original program and copybook sources with a result cap."""
 
         return layer.grep(pattern)
 
-    @server.tool()
+    @tool
     def run_cobol(
         snippet: str,
         stdin: str = "",
@@ -139,7 +156,7 @@ def build_server(layer: ToolLayer) -> FastMCP:
             RunInputs(stdin=stdin, files={} if files is None else files),
         )
 
-    @server.tool()
+    @tool
     def search_regulations(query: str) -> list[RegSearchHit]:
         """Search the pinned regulation index for clause-anchored hits."""
 

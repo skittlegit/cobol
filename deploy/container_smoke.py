@@ -66,8 +66,8 @@ async def smoke(image, corpus):
             ),
         ):
             result = await session.call_tool(name, arguments)
-            assert not result.isError, result.model_dump(mode="json")
-            results[name] = result.model_dump(mode="json")
+            assert not result.is_error, result.model_dump(mode="json", by_alias=True)
+            results[name] = result.model_dump(mode="json", by_alias=True)
         assert results["read_program"]["structuredContent"]["paragraphs"]
         assert results["slice_on"]["structuredContent"]["statements"]
         assert results["search_regulations"]["content"]
@@ -75,10 +75,10 @@ async def smoke(image, corpus):
         batch = await session.call_tool(
             "run_cobol", {"snippet": "DISPLAY 'OFFLINE-OK'"}
         )
-        assert not batch.isError, batch.model_dump(mode="json")
-        assert batch.structuredContent["compiled_ok"] is True
-        assert "OFFLINE-OK" in batch.structuredContent["stdout"]
-        results["run_cobol_batch"] = batch.model_dump(mode="json")
+        assert not batch.is_error, batch.model_dump(mode="json", by_alias=True)
+        assert batch.structured_content["compiled_ok"] is True
+        assert "OFFLINE-OK" in batch.structured_content["stdout"]
+        results["run_cobol_batch"] = batch.model_dump(mode="json", by_alias=True)
         return {
             "schema_version": "offline-linux-container-stdio-smoke",
             "status": "PASS",

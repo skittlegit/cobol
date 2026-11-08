@@ -75,9 +75,9 @@ async def smoke(bundle, corpus):
             ),
         ):
             result = await session.call_tool(name, args)
-            results[name] = result.model_dump(mode="json")
+            results[name] = result.model_dump(mode="json", by_alias=True)
             if name != "run_cobol":
-                assert not result.isError, results[name]
+                assert not result.is_error, results[name]
         assert results["search_regulations"]["content"], (
             "No clause-anchored search result"
         )

@@ -33,7 +33,7 @@ def prepare(
     wheelhouse.mkdir(exist_ok=False)
     cache = Path("/cache")
     if cache.is_dir():
-        for wheel in cache.glob("torch-2.13.0+cpu-*.whl"):
+        for wheel in cache.glob("torch-2.15.0+cpu-*.whl"):
             shutil.copyfile(wheel, wheelhouse / wheel.name)
     project = next(input_root.glob("cobol_archaeologist-*.whl"))
     shutil.copyfile(project, wheelhouse / project.name)
@@ -53,7 +53,7 @@ def prepare(
             *cpu_args,
             "--dest",
             str(wheelhouse),
-            "torch==2.13.0+cpu",
+            "torch==2.15.0+cpu",
         ]
     )
     constraint = output / "cpu-constraint.txt"
@@ -62,7 +62,7 @@ def prepare(
         for name, version in prior["dependencies"].items()
         if name.lower() != "torch"
     }
-    pins["torch"] = "2.13.0+cpu"
+    pins["torch"] = "2.15.0+cpu"
     constraint.write_text(
         "\n".join(f"{name}=={version}" for name, version in sorted(pins.items()))
         + "\n",
@@ -144,7 +144,7 @@ def prepare(
         "transport": "stdio",
         "corpus_shipped": False,
         "dependency_download_scope": "disposable_Linux_preparation_container_only",
-        "torch_profile": "official_CPU_index_2.13.0+cpu",
+        "torch_profile": "official_CPU_index_2.15.0+cpu",
         "dependency_version_policy": "preserve_standalone_versions_for_applicable_dependencies_except_explicit_CPU_torch_variant",
         "files": [
             {
