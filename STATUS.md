@@ -1,6 +1,6 @@
 # Status
 
-Updated 2026-10-08.
+Updated 2026-11-08.
 
 ## Current result
 
@@ -45,5 +45,6 @@ against 0.70; every other gate passed. See [E1](docs/tasks/E1.md).
 | M1 | Simplify migration | done | [M1](docs/tasks/M1.md) |
 | P1 | Regenerate paper, datasheet, and release | done | [P1](docs/tasks/P1.md) |
 | S1 | Project site generated from the canonical results | done | [S1](docs/tasks/S1.md) |
+| U1 | Update dependencies (no re-evaluation) | done | [U1](docs/tasks/U1.md) |
 
 Order: D4 → D5 → B1/B2 → E1 → E2 → P1/S1.
